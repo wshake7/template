@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	gormField "gorm.io/gen/field"
 	paging "orm-crud/gorm/pagination"
 	paginationFilter "orm-crud/pagination/filter"
 	paginationSorting "orm-crud/pagination/sorting"
@@ -348,16 +348,19 @@ func (r *Repository[DTO, ENTITY]) ListWithPagination(ctx context.Context, db *go
 
 // Get 根据查询条件获取单条记录
 // 示例调用： `dto, err := q.Get(ctx, db.Where("id = ?", id), nil)`
-func (r *Repository[DTO, ENTITY]) Get(ctx context.Context, db *gorm.DB, viewMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) Get(ctx context.Context, db *gorm.DB, fields ...gormField.Expr) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
 
-	field.NormalizeFieldMaskPaths(viewMask)
-
 	qdb := db.WithContext(ctx).Model(new(ENTITY))
-	if viewMask != nil && len(viewMask.Paths) > 0 {
-		qdb = qdb.Select(viewMask.GetPaths())
+
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	var ent ENTITY
@@ -373,13 +376,10 @@ func (r *Repository[DTO, ENTITY]) Get(ctx context.Context, db *gorm.DB, viewMask
 // 示例调用：使用 q.queryStringFilter 等构造 selectors 后调用新方法
 // whereSelectors, _ := q.queryStringFilter.BuildSelectors(req.GetQuery(), req.GetOrQuery())
 // dto, err := q.GetWithFilters(ctx, db, whereSelectors, viewMask)
-func (r *Repository[DTO, ENTITY]) GetWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, viewMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) GetWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, fields ...gormField.Expr) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
-
-	// 规范 viewMask 路径（复用已有 helper）
-	field.NormalizeFieldMaskPaths(viewMask)
 
 	// 构造查询 DB 并应用 where selectors
 	qdb := db.WithContext(ctx).Model(new(ENTITY))
@@ -389,9 +389,12 @@ func (r *Repository[DTO, ENTITY]) GetWithFilters(ctx context.Context, db *gorm.D
 		}
 	}
 
-	// 应用字段选择
-	if viewMask != nil && len(viewMask.Paths) > 0 {
-		qdb = qdb.Select(viewMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	// 执行查询
@@ -405,22 +408,19 @@ func (r *Repository[DTO, ENTITY]) GetWithFilters(ctx context.Context, db *gorm.D
 }
 
 // Only alias
-func (r *Repository[DTO, ENTITY]) Only(ctx context.Context, db *gorm.DB, viewMask *fieldmaskpb.FieldMask) (*DTO, error) {
-	return r.Get(ctx, db, viewMask)
+func (r *Repository[DTO, ENTITY]) Only(ctx context.Context, db *gorm.DB, fields ...gormField.Expr) (*DTO, error) {
+	return r.Get(ctx, db, fields...)
 }
 
 // Create 在数据库中创建一条记录，返回创建后的 DTO
 // 示例调用： `dto, err := q.Create(ctx, db, dto, viewMask)`
-func (r *Repository[DTO, ENTITY]) Create(ctx context.Context, db *gorm.DB, dto *DTO, viewMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) Create(ctx context.Context, db *gorm.DB, dto *DTO) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
 	if dto == nil {
 		return nil, errors.New("dto is nil")
 	}
-
-	// 规范 viewMask 路径（目前仅规范，返回时直接使用 mapper 的结果）
-	field.NormalizeFieldMaskPaths(viewMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -439,7 +439,7 @@ func (r *Repository[DTO, ENTITY]) Create(ctx context.Context, db *gorm.DB, dto *
 
 // CreateX 使用传入的 db 创建记录，支持 viewMask 指定插入字段，返回受影响行数
 // 示例调用： `rows, err := q.CreateX(ctx, db, dto, viewMask)`
-func (r *Repository[DTO, ENTITY]) CreateX(ctx context.Context, db *gorm.DB, dto *DTO, viewMask *fieldmaskpb.FieldMask) (int64, error) {
+func (r *Repository[DTO, ENTITY]) CreateX(ctx context.Context, db *gorm.DB, dto *DTO, fields ...gormField.Expr) (int64, error) {
 	if db == nil {
 		return 0, errors.New("db is nil")
 	}
@@ -447,18 +447,18 @@ func (r *Repository[DTO, ENTITY]) CreateX(ctx context.Context, db *gorm.DB, dto 
 		return 0, errors.New("dto is nil")
 	}
 
-	// 规范 viewMask 路径（目前仅规范）
-	field.NormalizeFieldMaskPaths(viewMask)
-
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
 
 	// 构造 DB（传入的 db 可已包含 where/其他 scope）
 	qdb := db.WithContext(ctx).Model(new(ENTITY))
 
-	// 指定插入字段（如果需要）
-	if viewMask != nil && len(viewMask.Paths) > 0 {
-		qdb = qdb.Select(viewMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	// 执行创建
@@ -472,16 +472,13 @@ func (r *Repository[DTO, ENTITY]) CreateX(ctx context.Context, db *gorm.DB, dto 
 
 // CreateXWithFilters 接受 whereSelectors 并在内部应用到查询 DB，然后执行创建，返回受影响行数
 // 示例调用：构造 selectors 后调用： `rows, err := q.CreateXWithFilters(ctx, db, whereSelectors, dto, viewMask)`
-func (r *Repository[DTO, ENTITY]) CreateXWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, viewMask *fieldmaskpb.FieldMask) (int64, error) {
+func (r *Repository[DTO, ENTITY]) CreateXWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, fields ...gormField.Expr) (int64, error) {
 	if db == nil {
 		return 0, errors.New("db is nil")
 	}
 	if dto == nil {
 		return 0, errors.New("dto is nil")
 	}
-
-	// 规范 viewMask 路径
-	field.NormalizeFieldMaskPaths(viewMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -494,9 +491,12 @@ func (r *Repository[DTO, ENTITY]) CreateXWithFilters(ctx context.Context, db *go
 		}
 	}
 
-	// 指定插入字段（如果需要）
-	if viewMask != nil && len(viewMask.Paths) > 0 {
-		qdb = qdb.Select(viewMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	// 执行创建
@@ -510,16 +510,13 @@ func (r *Repository[DTO, ENTITY]) CreateXWithFilters(ctx context.Context, db *go
 
 // BatchCreate 批量创建记录，返回创建后的 DTO 列表
 // 将此方法添加到 `gorm/repository.go` 中的 Repository 定义下
-func (r *Repository[DTO, ENTITY]) BatchCreate(ctx context.Context, db *gorm.DB, dtos []*DTO, viewMask *fieldmaskpb.FieldMask) ([]*DTO, error) {
+func (r *Repository[DTO, ENTITY]) BatchCreate(ctx context.Context, db *gorm.DB, dtos []*DTO, fields ...gormField.Expr) ([]*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
 	if len(dtos) == 0 {
 		return nil, nil
 	}
-
-	// 规范 viewMask 路径
-	field.NormalizeFieldMaskPaths(viewMask)
 
 	res := make([]*DTO, 0, len(dtos))
 	for _, dto := range dtos {
@@ -532,10 +529,13 @@ func (r *Repository[DTO, ENTITY]) BatchCreate(ctx context.Context, db *gorm.DB, 
 
 		// 为每条记录构造独立的操作 DB（保留传入 db 的 scope）
 		qdb := db.WithContext(ctx).Model(new(ENTITY))
-		if viewMask != nil && len(viewMask.Paths) > 0 {
-			qdb = qdb.Select(viewMask.GetPaths())
+		if len(fields) > 0 {
+			expr := make([]string, len(fields))
+			for i, f := range fields {
+				expr[i] = string(f.ColumnName())
+			}
+			qdb = qdb.Select(expr)
 		}
-
 		createResult := qdb.Create(&ent)
 		if createResult.Error != nil {
 			zap.S().Errorf("batch create failed: %s", createResult.Error.Error())
@@ -550,7 +550,7 @@ func (r *Repository[DTO, ENTITY]) BatchCreate(ctx context.Context, db *gorm.DB, 
 
 // Update 使用传入的 db（可包含 Where）更新记录，支持 updateMask 指定更新字段
 // 示例调用： `dto, err := q.Update(ctx, db.Where("id = ?", id), dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) Update(ctx context.Context, db *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) Update(ctx context.Context, db *gorm.DB, dto *DTO, fields ...gormField.Expr) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
@@ -558,18 +558,18 @@ func (r *Repository[DTO, ENTITY]) Update(ctx context.Context, db *gorm.DB, dto *
 		return nil, errors.New("dto is nil")
 	}
 
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
-
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
 
 	// 构造查询 DB（传入的 db 可已包含 where）
 	qdb := db.WithContext(ctx).Model(new(ENTITY))
 
-	// 指定更新字段
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		qdb = qdb.Select(updateMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	// 执行更新
@@ -590,16 +590,13 @@ func (r *Repository[DTO, ENTITY]) Update(ctx context.Context, db *gorm.DB, dto *
 
 // UpdateWithFilters 接受 whereSelectors 并在内部应用到查询 DB，然后执行更新
 // 示例调用：构造 selectors 后调用： `dto, err := q.UpdateWithFilters(ctx, db, whereSelectors, dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) UpdateWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) UpdateWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, fields ...gormField.Expr) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
 	if dto == nil {
 		return nil, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -613,10 +610,13 @@ func (r *Repository[DTO, ENTITY]) UpdateWithFilters(ctx context.Context, db *gor
 	}
 
 	// 指定更新字段
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		qdb = qdb.Select(updateMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
-
 	// 执行更新
 	res := qdb.Updates(ent)
 	if res.Error != nil {
@@ -635,16 +635,13 @@ func (r *Repository[DTO, ENTITY]) UpdateWithFilters(ctx context.Context, db *gor
 
 // UpdateX 使用传入的 db（可包含 Where）更新记录，支持 updateMask 指定更新字段，返回受影响行数
 // 示例调用： `rows, err := q.UpdateX(ctx, db.Where("id = ?", id), dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) UpdateX(ctx context.Context, db *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (int64, error) {
+func (r *Repository[DTO, ENTITY]) UpdateX(ctx context.Context, db *gorm.DB, dto *DTO, fields ...gormField.Expr) (int64, error) {
 	if db == nil {
 		return 0, errors.New("db is nil")
 	}
 	if dto == nil {
 		return 0, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -653,8 +650,12 @@ func (r *Repository[DTO, ENTITY]) UpdateX(ctx context.Context, db *gorm.DB, dto 
 	qdb := db.WithContext(ctx).Model(new(ENTITY))
 
 	// 指定更新字段
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		qdb = qdb.Select(updateMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	// 执行更新
@@ -668,16 +669,13 @@ func (r *Repository[DTO, ENTITY]) UpdateX(ctx context.Context, db *gorm.DB, dto 
 
 // UpdateXWithFilters 接受 whereSelectors 并在内部应用到查询 DB，然后执行更新，返回受影响行数
 // 示例调用：构造 selectors 后调用： `rows, err := q.UpdateXWithFilters(ctx, db, whereSelectors, dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) UpdateXWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (int64, error) {
+func (r *Repository[DTO, ENTITY]) UpdateXWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, fields ...gormField.Expr) (int64, error) {
 	if db == nil {
 		return 0, errors.New("db is nil")
 	}
 	if dto == nil {
 		return 0, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -690,9 +688,12 @@ func (r *Repository[DTO, ENTITY]) UpdateXWithFilters(ctx context.Context, db *go
 		}
 	}
 
-	// 指定更新字段
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		qdb = qdb.Select(updateMask.GetPaths())
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
+		}
+		qdb = qdb.Select(expr)
 	}
 
 	// 执行更新
@@ -706,16 +707,13 @@ func (r *Repository[DTO, ENTITY]) UpdateXWithFilters(ctx context.Context, db *go
 
 // Upsert 使用传入的 db（可包含 Where/其他 scope）执行插入或冲突更新，支持 updateMask 指定冲突时更新的字段
 // 示例调用： `dto, err := q.Upsert(ctx, db, dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) Upsert(ctx context.Context, db *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) Upsert(ctx context.Context, db *gorm.DB, dto *DTO, fields ...gormField.Expr) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
 	if dto == nil {
 		return nil, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -725,10 +723,13 @@ func (r *Repository[DTO, ENTITY]) Upsert(ctx context.Context, db *gorm.DB, dto *
 
 	// 构造 OnConflict 子句：若提供了 updateMask 则仅在冲突时更新指定列，否则更新所有列
 	var onConflict clause.OnConflict
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		onConflict = clause.OnConflict{
-			DoUpdates: clause.AssignmentColumns(updateMask.GetPaths()),
+
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
 		}
+		qdb = qdb.Select(expr)
 	} else {
 		onConflict = clause.OnConflict{
 			UpdateAll: true,
@@ -748,16 +749,13 @@ func (r *Repository[DTO, ENTITY]) Upsert(ctx context.Context, db *gorm.DB, dto *
 
 // UpsertWithFilters 接受 whereSelectors 并在内部应用到查询 DB，然后执行 upsert，支持 updateMask 指定冲突时更新的字段
 // 示例调用：构造 selectors 后调用： `dto, err := q.UpsertWithFilters(ctx, db, whereSelectors, dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) UpsertWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (*DTO, error) {
+func (r *Repository[DTO, ENTITY]) UpsertWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, fields ...gormField.Expr) (*DTO, error) {
 	if db == nil {
 		return nil, errors.New("db is nil")
 	}
 	if dto == nil {
 		return nil, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -772,10 +770,12 @@ func (r *Repository[DTO, ENTITY]) UpsertWithFilters(ctx context.Context, db *gor
 
 	// 构造 OnConflict 子句
 	var onConflict clause.OnConflict
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		onConflict = clause.OnConflict{
-			DoUpdates: clause.AssignmentColumns(updateMask.GetPaths()),
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
 		}
+		qdb = qdb.Select(expr)
 	} else {
 		onConflict = clause.OnConflict{
 			UpdateAll: true,
@@ -794,16 +794,13 @@ func (r *Repository[DTO, ENTITY]) UpsertWithFilters(ctx context.Context, db *gor
 
 // UpsertX 使用传入的 db（可包含 Where/其他 scope）执行插入或冲突更新，支持 updateMask 指定冲突时更新的字段，返回受影响行数
 // 示例调用： `rows, err := q.UpsertX(ctx, db, dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) UpsertX(ctx context.Context, db *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (int64, error) {
+func (r *Repository[DTO, ENTITY]) UpsertX(ctx context.Context, db *gorm.DB, dto *DTO, fields ...gormField.Expr) (int64, error) {
 	if db == nil {
 		return 0, errors.New("db is nil")
 	}
 	if dto == nil {
 		return 0, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -813,10 +810,12 @@ func (r *Repository[DTO, ENTITY]) UpsertX(ctx context.Context, db *gorm.DB, dto 
 
 	// 构造 OnConflict 子句：若提供了 updateMask 则仅在冲突时更新指定列，否则更新所有列
 	var onConflict clause.OnConflict
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		onConflict = clause.OnConflict{
-			DoUpdates: clause.AssignmentColumns(updateMask.GetPaths()),
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
 		}
+		qdb = qdb.Select(expr)
 	} else {
 		onConflict = clause.OnConflict{
 			UpdateAll: true,
@@ -835,16 +834,13 @@ func (r *Repository[DTO, ENTITY]) UpsertX(ctx context.Context, db *gorm.DB, dto 
 
 // UpsertXWithFilters 接受 whereSelectors 并在内部应用到查询 DB，然后执行 upsert，支持 updateMask 指定冲突时更新的字段，返回受影响行数
 // 示例调用：构造 selectors 后调用： `rows, err := q.UpsertXWithFilters(ctx, db, whereSelectors, dto, updateMask)`
-func (r *Repository[DTO, ENTITY]) UpsertXWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, updateMask *fieldmaskpb.FieldMask) (int64, error) {
+func (r *Repository[DTO, ENTITY]) UpsertXWithFilters(ctx context.Context, db *gorm.DB, whereSelectors []func(*gorm.DB) *gorm.DB, dto *DTO, fields ...gormField.Expr) (int64, error) {
 	if db == nil {
 		return 0, errors.New("db is nil")
 	}
 	if dto == nil {
 		return 0, errors.New("dto is nil")
 	}
-
-	// 规范 updateMask 路径
-	field.NormalizeFieldMaskPaths(updateMask)
 
 	// DTO -> ENTITY
 	ent := r.mapper.ToEntity(dto)
@@ -859,10 +855,12 @@ func (r *Repository[DTO, ENTITY]) UpsertXWithFilters(ctx context.Context, db *go
 
 	// 构造 OnConflict 子句
 	var onConflict clause.OnConflict
-	if updateMask != nil && len(updateMask.Paths) > 0 {
-		onConflict = clause.OnConflict{
-			DoUpdates: clause.AssignmentColumns(updateMask.GetPaths()),
+	if len(fields) > 0 {
+		expr := make([]string, len(fields))
+		for i, f := range fields {
+			expr[i] = string(f.ColumnName())
 		}
+		qdb = qdb.Select(expr)
 	} else {
 		onConflict = clause.OnConflict{
 			UpdateAll: true,

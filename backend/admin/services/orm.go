@@ -9,27 +9,27 @@ import (
 	gormCrud "orm-crud/gorm"
 )
 
-type Repo struct {
+type Orm struct {
 	ormConf config.OrmConfig
 	client  *gormCrud.Client
 }
 
-func NewOrm(conf config.OrmConfig) *Repo {
-	return &Repo{
+func NewOrm(conf config.OrmConfig) *Orm {
+	return &Orm{
 		ormConf: conf,
 		client:  orm.New(conf),
 	}
 }
 
-func (o *Repo) Start(ctx context.Context) error {
+func (o *Orm) Start(ctx context.Context) error {
 	return nil
 }
 
-func (o *Repo) String() string {
+func (o *Orm) String() string {
 	return "repo"
 }
 
-func (o *Repo) State(ctx context.Context) (string, error) {
+func (o *Orm) State(ctx context.Context) (string, error) {
 	sqlDB, err := o.client.DB.DB()
 	if err != nil {
 		return "UNHEALTHY", fmt.Errorf("failed to get sql.DB: %w", err)
@@ -48,7 +48,7 @@ func (o *Repo) State(ctx context.Context) (string, error) {
 	return state, nil
 }
 
-func (o *Repo) Terminate(ctx context.Context) error {
+func (o *Orm) Terminate(ctx context.Context) error {
 	zap.L().Info("database close start")
 	sqlDB, err := o.client.DB.DB()
 	if err != nil {

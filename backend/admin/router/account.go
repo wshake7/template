@@ -23,6 +23,6 @@ func registerAccountRouters(router fiber.Router) {
 		})
 		return res, err
 	}))
-	router.Post("/changePwd", middleware.AuthMiddleware(), middleware.EncryptMiddleware(), middleware.OperationLogMiddleware(middleware.WithChangeQuery(middleware.ChangeQueryParamsFn(accountHandler.ChangePwdQuery))), handler.CtxHandlerNilFunc(accountHandler.ChangePwd))
+	router.Post("/changePwd", middleware.AuthMiddleware(), middleware.EncryptMiddleware(), handler.CtxHandlerNilFunc(accountHandler.ChangePwd))
 	router.Get("/logout", middleware.AuthMiddleware(), handler.CtxHandlerNilFunc(accountHandler.Logout))
 }

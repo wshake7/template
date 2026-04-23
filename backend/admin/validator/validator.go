@@ -1,6 +1,10 @@
 package validator
 
 import (
+	"errors"
+	"reflect"
+	"strings"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -13,15 +17,49 @@ func init() {
 }
 
 func Struct[T any](t T) error {
-	return validate.Struct(t)
+	return ParseValidateErr(t, validate.Struct(t))
 }
 
 type StructValidator struct{}
 
 func (v *StructValidator) Validate(out any) error {
-	return validate.Struct(out)
+	return ParseValidateErr(out, validate.Struct(out))
 }
 
 type Validator interface {
 	Validate() error
+}
+
+func ParseValidateErr(req any, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var validationErrs validator.ValidationErrors
+	if !errors.As(err, &validationErrs) {
+		return err
+	}
+
+	t := reflect.TypeOf(req)
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	for _, e := range validationErrs {
+		field, ok := t.FieldByName(e.Field())
+		if !ok {
+			continue
+		}
+		msgTag, ok := field.Tag.Lookup("binding_msg")
+		if !ok {
+			continue
+		}
+		for _, item := range strings.Split(msgTag, ",") {
+			parts := strings.SplitN(item, "=", 2)
+			if len(parts) == 2 && parts[0] == e.Tag() {
+				return errors.New(parts[1])
+			}
+		}
+	}
+	return err
 }

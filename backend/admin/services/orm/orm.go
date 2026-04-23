@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gen"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"moul.io/zapgorm2"
 	gormCrud "orm-crud/gorm"
 )
@@ -18,14 +19,17 @@ func DB() *gorm.DB {
 	return Client.DB
 }
 
-func New(config config.RepoConfig) *gormCrud.Client {
+func New(config config.OrmConfig) *gormCrud.Client {
 	var options []gormCrud.Option
 	zapLogger := zap.L()
-	logger := zapgorm2.New(zapLogger)
-	logger.SetAsDefault()
+	l := zapgorm2.New(zapLogger)
+	l.SetAsDefault()
+	if config.IsLog {
+		l.LogLevel = logger.Info
+	}
 	options = append(options,
 		gormCrud.WithLogger(zapLogger.Sugar()),
-		gormCrud.WithGormConfig(&gorm.Config{Logger: logger}),
+		gormCrud.WithGormConfig(&gorm.Config{Logger: l}),
 		gormCrud.WithDriverName(config.DriverName),
 		gormCrud.WithDSN(config.DataSource),
 		gormCrud.WithEnableTrace(true),
@@ -56,7 +60,7 @@ func New(config config.RepoConfig) *gormCrud.Client {
 	return Client
 }
 
-func initSqlDB(sqlDB *sql.DB, config config.RepoConfig) {
+func initSqlDB(sqlDB *sql.DB, config config.OrmConfig) {
 	sqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
 	sqlDB.SetConnMaxIdleTime(config.ConnMaxIdleTime)
 	sqlDB.SetMaxIdleConns(config.MaxIdleConn)

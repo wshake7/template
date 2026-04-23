@@ -155,7 +155,7 @@ func (s *Storage) Set(key string, value any, expiration time.Duration) (err erro
 	case string:
 		data = value.(string)
 	case []byte:
-		data = value.(string)
+		data = string(value.([]byte))
 	default:
 		data, err = sonic.MarshalString(value)
 		if err != nil {
@@ -186,7 +186,7 @@ func (s *Storage) SetKeepTTL(key string, value any) error {
 	case string:
 		data = value.(string)
 	case []byte:
-		data = value.(string)
+		data = string(value.([]byte))
 	default:
 		data, err = sonic.MarshalString(value)
 		if err != nil {

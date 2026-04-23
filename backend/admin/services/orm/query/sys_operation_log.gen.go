@@ -36,6 +36,7 @@ func newSysOperationLog(db *gorm.DB, opts ...gen.DOOption) sysOperationLog {
 	_sysOperationLog.Referer = field.NewString(tableName, "referer")
 	_sysOperationLog.BeforeChange = field.NewString(tableName, "before_change")
 	_sysOperationLog.AfterChange = field.NewString(tableName, "after_change")
+	_sysOperationLog.FormatChange = field.NewString(tableName, "format_change")
 	_sysOperationLog.RequestURI = field.NewString(tableName, "request_uri")
 	_sysOperationLog.RequestBody = field.NewString(tableName, "request_body")
 	_sysOperationLog.RequestHeader = field.NewString(tableName, "request_header")
@@ -74,6 +75,7 @@ type sysOperationLog struct {
 	Referer        field.String // 请求源
 	BeforeChange   field.String // 变更前内容
 	AfterChange    field.String // 变更后内容
+	FormatChange   field.String // 格式化变化内容
 	RequestURI     field.String // 请求URI
 	RequestBody    field.String // 请求体
 	RequestHeader  field.String // 请求头
@@ -118,6 +120,7 @@ func (s *sysOperationLog) updateTableName(table string) *sysOperationLog {
 	s.Referer = field.NewString(table, "referer")
 	s.BeforeChange = field.NewString(table, "before_change")
 	s.AfterChange = field.NewString(table, "after_change")
+	s.FormatChange = field.NewString(table, "format_change")
 	s.RequestURI = field.NewString(table, "request_uri")
 	s.RequestBody = field.NewString(table, "request_body")
 	s.RequestHeader = field.NewString(table, "request_header")
@@ -153,7 +156,7 @@ func (s *sysOperationLog) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (s *sysOperationLog) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 28)
+	s.fieldMap = make(map[string]field.Expr, 29)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["request_id"] = s.RequestID
@@ -163,6 +166,7 @@ func (s *sysOperationLog) fillFieldMap() {
 	s.fieldMap["referer"] = s.Referer
 	s.fieldMap["before_change"] = s.BeforeChange
 	s.fieldMap["after_change"] = s.AfterChange
+	s.fieldMap["format_change"] = s.FormatChange
 	s.fieldMap["request_uri"] = s.RequestURI
 	s.fieldMap["request_body"] = s.RequestBody
 	s.fieldMap["request_header"] = s.RequestHeader

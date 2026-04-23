@@ -1,7 +1,10 @@
 package casbin
 
 import (
+	"admin/services/orm"
 	"admin/services/orm/query"
+	"admin/services/orm/repo"
+	"context"
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
@@ -18,11 +21,9 @@ func New(db *gorm.DB) {
 	if err != nil {
 		panic(err)
 	}
-	var result struct {
-		Content string
-	}
 	sysCasbinModel := query.SysCasbinModel
-	err = sysCasbinModel.Where(sysCasbinModel.Status.Eq(1)).Select(sysCasbinModel.Content).Scan(&result)
+	sysCasbinModel.Where().Select(sysCasbinModel.ID)
+	result, err := repo.SysCasbinModelRepo.Get(context.Background(), orm.DB().Where(sysCasbinModel.Status.Eq(1)), sysCasbinModel.Content)
 	if err != nil {
 		panic(err)
 	}

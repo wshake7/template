@@ -11,13 +11,13 @@ type Config struct {
 	RestPrefix string `mapstructure:"RestPrefix" default:"/"`
 	Auth       AuthConfig
 	Fiber      FiberConfig
-	Repo       RepoConfig
+	Orm        OrmConfig
 	Redis      RedisConfig
 }
 
 var Conf = new(Config)
 
-type RepoConfig struct {
+type OrmConfig struct {
 	DriverName      string        `mapstructure:"DriverName"`
 	DataSource      string        `mapstructure:"DataSource"`
 	ConnMaxIdleTime time.Duration `mapstructure:"ConnMaxIdleTime" default:"60s"`
@@ -26,6 +26,7 @@ type RepoConfig struct {
 	MaxOpenConn     int           `mapstructure:"MaxOpenConn" default:"20"`
 	IsGenCode       bool          `mapstructure:"IsGenCode" default:"false"`
 	IsAutoMigrate   bool          `mapstructure:"IsAutoMigrate" default:"false"`
+	IsLog           bool          `mapstructure:"IsLog" default:"false"`
 }
 
 type RedisConfig struct {

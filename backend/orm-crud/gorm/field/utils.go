@@ -14,7 +14,8 @@ func NormalizeFieldMaskPaths(fm *fieldmaskpb.FieldMask) {
 
 	fm.Normalize()
 
-	fm.Paths = NormalizePaths(fm.Paths)
+	// pgsql不支持
+	//fm.Paths = NormalizePaths(fm.Paths)
 }
 
 // NormalizePaths 将字段路径标准化（简单地为标识符添加反引号，保留 *）。

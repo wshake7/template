@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"admin/fiberc/handler"
+	"admin/services/orm"
 	"admin/services/orm/models"
-	"admin/services/orm/query"
+	"admin/services/orm/repo"
 	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v3"
@@ -123,7 +124,6 @@ func ChangeQueryParamsFn[T any, R any](fn func(ctx *handler.Ctx, t *T) (*R, erro
 		}
 		return r, nil
 	}
-
 }
 
 type OperationConfig struct {
@@ -244,7 +244,7 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 					OSName:         "",
 					OSVersion:      "",
 				}
-				err = query.SysOperationLog.Create(m)
+				_, err = repo.SysOperationLogRepo.Create(ctx.Context(), orm.DB(), m)
 				if err != nil {
 					logger.Error("SysOperationLog.Create fail", zap.Error(err))
 				}

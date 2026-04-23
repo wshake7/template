@@ -1,6 +1,9 @@
 package auth
 
 import (
+	"admin/fiberc/res"
+	"errors"
+	"github.com/click33/sa-token-go/core/manager"
 	"github.com/click33/sa-token-go/core/session"
 	"github.com/click33/sa-token-go/stputil"
 	"go-common/utils/trans"
@@ -55,4 +58,25 @@ func GetSessionByToken(token string) (*Session, error) {
 		return nil, err
 	}
 	return &Session{s}, nil
+}
+
+func CheckLoginErr(err error) error {
+	switch {
+	case errors.Is(err, manager.ErrAccountDisabled):
+		return res.FailAccountDisabled
+	case errors.Is(err, manager.ErrNotLogin):
+		return res.FailNotLogin
+	case errors.Is(err, manager.ErrTokenNotFound):
+		return res.FailTokenNotFound
+	case errors.Is(err, manager.ErrInvalidTokenData):
+		return res.FailInvalidTokenData
+	case errors.Is(err, manager.ErrLoginLimitExceeded):
+		return res.FailLoginLimitExceeded
+	case errors.Is(err, manager.ErrTokenKickout):
+		return res.FailTokenKickout
+	case errors.Is(err, manager.ErrTokenReplaced):
+		return res.FailTokenReplaced
+	default:
+		return res.FailDefault
+	}
 }

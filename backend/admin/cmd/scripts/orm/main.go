@@ -33,13 +33,13 @@ func main() {
 	options = append(options,
 		gormCrud.WithLogger(zapLogger.Sugar()),
 		gormCrud.WithGormConfig(&gorm.Config{Logger: logger}),
-		gormCrud.WithDriverName(conf.Repo.DriverName),
-		gormCrud.WithDSN(conf.Repo.DataSource),
+		gormCrud.WithDriverName(conf.Orm.DriverName),
+		gormCrud.WithDSN(conf.Orm.DataSource),
 		gormCrud.WithEnableTrace(true),
 		gormCrud.WithEnableMetrics(true),
 	)
 
-	if conf.Repo.IsAutoMigrate {
+	if conf.Orm.IsAutoMigrate {
 		options = append(options, gormCrud.WithAutoMigrate(models.Models...))
 	}
 
@@ -59,7 +59,6 @@ func genUserAdd() {
 	_ = sysUser.Create(&models.SysUser{Username: "admin", Password: pwd})
 }
 
-// 从数据库生成代码
 func dbGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{
 		OutPath:           "./services/orm/query",
@@ -73,10 +72,6 @@ func dbGenCode(db *gorm.DB, models []any) {
 		FieldWithTypeTag:  true,
 		Mode:              gen.WithDefaultQuery | gen.WithoutContext | gen.WithQueryInterface,
 	}
-	// 驼峰
-	//cfg.WithJSONTagNameStrategy(func(columnName string) (tagContent string) {
-	//	return strcase.LowerCamelCase(columnName)
-	//})
 	g := gen.NewGenerator(cfg)
 	g.UseDB(db)
 	m := g.GenerateAllTable()
@@ -99,10 +94,6 @@ func codeGenCode(db *gorm.DB, models []any) {
 		FieldWithTypeTag:  true,
 		Mode:              gen.WithDefaultQuery | gen.WithoutContext | gen.WithQueryInterface,
 	}
-	// 驼峰
-	//cfg.WithJSONTagNameStrategy(func(columnName string) (tagContent string) {
-	//	return strcase.LowerCamelCase(columnName)
-	//})
 	g := gen.NewGenerator(cfg)
 	g.UseDB(db)
 	g.ApplyBasic(models...)
@@ -118,12 +109,9 @@ func generateExtraFiles(models []any) {
 	wd, _ := os.Getwd()
 	fmt.Println("current working dir:", wd)
 
-	// 确认后再硬改路径，或者：
-	templateDir := filepath.Join(wd, "cmd/orm/templates")
-	outDir := filepath.Join(wd, "services/orm")
+	templateDir := filepath.Join(wd, "cmd/scripts/orm/templates")
+	outDir := filepath.Join(wd, "services/orm/repo")
 
-	var err error
-	// 读取 templates 目录下所有模板文件
 	entries, err := os.ReadDir(templateDir)
 	if err != nil {
 		panic(fmt.Sprintf("failed to read template dir: %v", err))
@@ -131,6 +119,11 @@ func generateExtraFiles(models []any) {
 
 	if err = os.MkdirAll(outDir, 0755); err != nil {
 		panic(fmt.Sprintf("failed to create output dir: %v", err))
+	}
+
+	moduleName, err := getModuleName()
+	if err != nil {
+		panic(fmt.Sprintf("failed to get module name: %v", err))
 	}
 
 	for _, entry := range entries {
@@ -144,13 +137,22 @@ func generateExtraFiles(models []any) {
 			panic(fmt.Sprintf("failed to read template %s: %v", tplPath, err))
 		}
 
-		tmpl, err := template.New(entry.Name()).Parse(string(tplContent))
+		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{
+			"toLower": func(s string) string {
+				if len(s) == 0 {
+					return s
+				}
+				return strings.ToLower(s[:1]) + s[1:]
+			},
+		}).Parse(string(tplContent))
 		if err != nil {
 			panic(fmt.Sprintf("failed to parse template %s: %v", tplPath, err))
 		}
 
-		// 模板文件名去掉 .tpl 作为生成文件的后缀规则，例如 repo.go.tpl -> {model}_repo.go
-		baseName := strings.TrimSuffix(entry.Name(), ".tpl") // e.g. "repo.go"
+		baseName := strings.TrimSuffix(entry.Name(), ".tpl")
+		if !strings.HasSuffix(baseName, ".go") {
+			baseName += ".go"
+		}
 
 		for _, model := range models {
 			t := reflect.TypeOf(model)
@@ -160,14 +162,21 @@ func generateExtraFiles(models []any) {
 			modelName := t.Name()
 
 			data := struct {
-				ModelName string
+				ModelName  string
+				ModuleName string
 			}{
-				ModelName: modelName,
+				ModelName:  modelName,
+				ModuleName: moduleName,
 			}
 
-			// 生成文件名：sys_user_repo.go
 			fileName := toSnakeCase(modelName) + "_" + baseName
 			filePath := filepath.Join(outDir, fileName)
+
+			// 文件已存在则跳过
+			if _, err = os.Stat(filePath); err == nil {
+				fmt.Printf("skipping existing file: %s\n", filePath)
+				continue
+			}
 
 			f, err := os.Create(filePath)
 			if err != nil {
@@ -193,4 +202,20 @@ func toSnakeCase(s string) string {
 		result = append(result, unicode.ToLower(r))
 	}
 	return string(result)
+}
+
+func getModuleName() (string, error) {
+	wd, _ := os.Getwd()
+	goModPath := filepath.Join(wd, "go.mod")
+	content, err := os.ReadFile(goModPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read go.mod: %v", err)
+	}
+	for _, line := range strings.Split(string(content), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "module ") {
+			return strings.TrimPrefix(line, "module "), nil
+		}
+	}
+	return "", fmt.Errorf("module name not found in go.mod")
 }

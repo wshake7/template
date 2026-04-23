@@ -7,7 +7,7 @@ import (
 )
 
 func New(conf *config.Config) {
-	repoService := NewRepo(conf.Repo)
+	ormService := NewOrm(conf.Orm)
 	redisService := NewRedis(conf.Redis)
-	conf.Fiber.Services = append(conf.Fiber.Services, NewHttpc(), repoService, redisService, NewAuth(conf.Auth, redisc.Client), NewGeo(), NewAsynq(conf.Redis), NewCasbin(orm.Client.DB))
+	conf.Fiber.Services = append(conf.Fiber.Services, NewHttpc(), ormService, redisService, NewAuth(conf.Auth, redisc.Client), NewGeo(), NewAsynq(conf.Redis), NewCasbin(orm.Client.DB))
 }

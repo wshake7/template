@@ -2,15 +2,23 @@ package logic
 
 import (
 	"admin/fiberc/handler"
+	"admin/fiberc/res"
+	"admin/services/orm"
 	"admin/services/orm/models"
+	"admin/services/orm/repo"
 	"orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gorm"
+	"orm-crud/gorm/mixin"
 )
 
 type RoleHandler struct{}
 
 func (h *RoleHandler) List(ctx *handler.Ctx, req *v1.PaginationRequest) (*gorm.PagingResult[models.SysRole], error) {
-	return nil, nil
+	pagination, err := repo.SysRoleRepo.ListWithPagination(ctx.Context(), orm.DB(), req)
+	if err != nil {
+		return nil, res.FailDefault
+	}
+	return pagination, nil
 }
 
 type ReqRoleCreate struct {
@@ -20,6 +28,10 @@ type ReqRoleCreate struct {
 }
 
 func (*RoleHandler) Create(ctx *handler.Ctx, req *ReqRoleCreate) error {
+	_, err := repo.SysRoleRepo.Create(ctx.Context(), orm.DB(), &models.SysRole{Code: req.Code, Name: req.Name, Remark: mixin.Remark{Remark: req.Remark}})
+	if err != nil {
+		return res.FailDefault
+	}
 	return nil
 }
 
