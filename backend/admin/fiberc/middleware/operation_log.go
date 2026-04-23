@@ -46,10 +46,10 @@ func diffByTag(before, after any) string {
 	bVal := reflect.ValueOf(before)
 	aVal := reflect.ValueOf(after)
 	// 解指针
-	for bVal.Kind() == reflect.Ptr {
+	for bVal.Kind() == reflect.Pointer {
 		bVal = bVal.Elem()
 	}
-	for aVal.Kind() == reflect.Ptr {
+	for aVal.Kind() == reflect.Pointer {
 		aVal = aVal.Elem()
 	}
 	if bVal.Kind() != reflect.Struct || aVal.Kind() != reflect.Struct {
@@ -74,7 +74,7 @@ func diffByTag(before, after any) string {
 
 func diffNewByTag(after any) string {
 	aVal := reflect.ValueOf(after)
-	for aVal.Kind() == reflect.Ptr {
+	for aVal.Kind() == reflect.Pointer {
 		aVal = aVal.Elem()
 	}
 	if aVal.Kind() != reflect.Struct {

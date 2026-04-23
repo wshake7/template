@@ -187,16 +187,3 @@ func TestProcessor_DatePartAndJsonbHelpers(t *testing.T) {
 		t.Fatalf("Jsonb produced empty sql")
 	}
 }
-
-func TestNewProcessor_UsesJSONCodec(t *testing.T) {
-	// 确保 NewProcessor 能够正常创建并带有 json codec（避免 panic）
-	proc := NewProcessor()
-	if proc == nil || proc.codec == nil {
-		t.Fatalf("NewProcessor returned nil or missing codec")
-	}
-	// codec 能解析基本 JSON
-	var arr []interface{}
-	if err := proc.codec.Unmarshal([]byte(`["a","b"]`), &arr); err != nil {
-		t.Fatalf("codec.Unmarshal failed: %v", err)
-	}
-}

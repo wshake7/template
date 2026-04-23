@@ -41,7 +41,7 @@ func (s *Session) SaveInfo(info *SessionInfo, ttl ...time.Duration) error {
 	return nil
 }
 
-func GetSession(loginID interface{}) (*Session, error) {
+func GetSession(loginID any) (*Session, error) {
 	s, err := stputil.GetSession(loginID)
 	if err != nil {
 		return nil, err

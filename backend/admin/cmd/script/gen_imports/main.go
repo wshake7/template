@@ -44,17 +44,14 @@ func main() {
 			return nil
 		}
 
-		// ❌ 跳过无关目录
 		if shouldSkipDir(path) {
 			return filepath.SkipDir
 		}
 
-		// ❌ 跳过扫描根目录本身
 		if filepath.Clean(path) == filepath.Clean(rootAbs) {
 			return nil
 		}
 
-		// ❌ 没有 go 文件的目录直接跳过
 		if !hasGoFiles(path) {
 			return nil
 		}
@@ -64,15 +61,12 @@ func main() {
 			return nil
 		}
 
-		// ❌ 过滤非法路径
 		if rel == "." || rel == "" {
 			return nil
 		}
 
 		parts := strings.Split(rel, string(os.PathSeparator))
 
-		// ❌ 关键：禁止导入 scanDir 第一层（cmd / tools / scripts 等）
-		// 例如 orm-crud/gorm/cmd → parts[0] = cmd
 		if len(parts) > 0 {
 			if isIgnoredTopDir(parts[0]) {
 				return nil
@@ -136,8 +130,8 @@ func getModuleName(goModPath string) (string, error) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(line, "module ") {
-			return strings.TrimSpace(strings.TrimPrefix(line, "module ")), nil
+		if after, ok := strings.CutPrefix(line, "module "); ok {
+			return strings.TrimSpace(after), nil
 		}
 	}
 
@@ -185,7 +179,6 @@ func shouldSkipDir(path string) bool {
 }
 
 func isIgnoredTopDir(name string) bool {
-	// ❌ 关键：禁止工具型顶层目录被 import
 	switch name {
 	case "cmd", "tools", "scripts", "example":
 		return true

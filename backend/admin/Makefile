@@ -9,7 +9,7 @@ bob:
 .PHONY: script-imports
 
 script-imports:
-	go run ./cmd/script/gen_imports.go
+	go run ./cmd/script/gen_imports
 
 script-repo:
-	go run ./cmd/script/repo.go
+	go run ./cmd/script/repo

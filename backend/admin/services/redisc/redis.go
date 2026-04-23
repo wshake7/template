@@ -13,8 +13,8 @@ import (
 
 type RedisClient struct {
 	rueidis.Client
-	marshal   func(interface{}) ([]byte, error)
-	unmarshal func([]byte, interface{}) error
+	marshal   func(any) ([]byte, error)
+	unmarshal func([]byte, any) error
 }
 
 var Client *RedisClient
