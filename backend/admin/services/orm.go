@@ -10,14 +10,14 @@ import (
 )
 
 type Repo struct {
-	repoConf config.RepoConfig
-	client   *gormCrud.Client
+	ormConf config.OrmConfig
+	client  *gormCrud.Client
 }
 
-func NewRepo(conf config.RepoConfig) *Repo {
+func NewOrm(conf config.OrmConfig) *Repo {
 	return &Repo{
-		repoConf: conf,
-		client:   orm.New(conf),
+		ormConf: conf,
+		client:  orm.New(conf),
 	}
 }
 
