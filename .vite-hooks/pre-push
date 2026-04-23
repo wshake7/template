@@ -1,0 +1,4 @@
+vp staged
+vp run test -r
+vp run build -r 
+vp run clean:build
