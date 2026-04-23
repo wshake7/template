@@ -37,3 +37,14 @@
 - 结果: 通过，已新增 `repo-models` 专项 skill 并接入 backend 索引
 - 风险/待办: `sys_login_log.go` 当前为空文件，后续启用前需补完整模型定义
 - Git 依据: 复用上次提交记录
+
+## [2026-04-23 17:11] 新增 Backend Services 专项 Skills
+- 目标: 总结 backend `services` 的生命周期与依赖编排，便于后续 AI 修改服务初始化逻辑
+- 改动文件:
+  - skills/backend/services-lifecycle.md
+  - AGENTS.md
+  - AI_WORK_LOG.md
+- 执行命令:
+  - Get-Date -Format "yyyy-MM-dd HH:mm"
+- 结果: 通过，已新增 `services-lifecycle` skill 并挂载到 Backend 技能索引
+- Git 依据: 复用上次提交记录

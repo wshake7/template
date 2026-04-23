@@ -18,6 +18,7 @@
 ## Backend
 - Backend 工作区总览: [skills/backend/workspace-overview.md](skills/backend/workspace-overview.md)
 - Backend Admin 服务开发: [skills/backend/admin-service.md](skills/backend/admin-service.md)
+- Backend Services 生命周期与依赖编排: [skills/backend/services-lifecycle.md](skills/backend/services-lifecycle.md)
 - Backend FiberC 核心结构: [skills/backend/fiberc-core.md](skills/backend/fiberc-core.md)
 - Backend Router 编写风格: [skills/backend/router-style.md](skills/backend/router-style.md)
 - Backend Repo Models 编写与维护: [skills/backend/repo-models.md](skills/backend/repo-models.md)

@@ -73,7 +73,7 @@ func (a *Auth) String() string {
 }
 
 func (a *Auth) State(ctx context.Context) (string, error) {
-	return "healthy", nil
+	return "HEALTHY", nil
 }
 
 func (a *Auth) Terminate(ctx context.Context) error {

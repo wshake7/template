@@ -32,14 +32,14 @@ func (o *Repo) String() string {
 func (o *Repo) State(ctx context.Context) (string, error) {
 	sqlDB, err := o.client.DB.DB()
 	if err != nil {
-		return "unhealthy", fmt.Errorf("failed to get sql.DB: %w", err)
+		return "UNHEALTHY", fmt.Errorf("failed to get sql.DB: %w", err)
 	}
 	if err = sqlDB.PingContext(ctx); err != nil {
-		return "unhealthy", fmt.Errorf("database ping failed: %w", err)
+		return "UNHEALTHY", fmt.Errorf("database ping failed: %w", err)
 	}
 	stats := sqlDB.Stats()
 	state := fmt.Sprintf(
-		"healthy | open=%d idle=%d inUse=%d waitCount=%d",
+		"HEALTHY | open=%d idle=%d inUse=%d waitCount=%d",
 		stats.OpenConnections,
 		stats.Idle,
 		stats.InUse,

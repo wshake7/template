@@ -29,9 +29,9 @@ func (r *Redis) String() string {
 
 func (r *Redis) State(ctx context.Context) (string, error) {
 	if err := redisc.Client.Do(context.Background(), redisc.Client.B().Ping().Build()).Error(); err != nil {
-		return "unhealthy", fmt.Errorf("redis ping failed: %w", err)
+		return "UNHEALTHY", fmt.Errorf("redis ping failed: %w", err)
 	}
-	return "healthy", nil
+	return "HEALTHY", nil
 }
 
 func (r *Redis) Terminate(ctx context.Context) error {
