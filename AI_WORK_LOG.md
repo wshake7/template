@@ -54,3 +54,20 @@
 - 结果: 通过，机制已接入；当前环境不是 Git 仓库，未能采集分支/状态/日志
 - 风险/待办: 若需 Git 证据，请在真实 Git 仓库目录执行同样命令
 - Git 依据: [2026-04-23 16:40] 新增 Git 辅助记录机制
+
+## [2026-04-23 16:44] 新增需求清单文件
+- 目标: 增加统一需求清单，让后续 AI 能按总需求/前端需求/后端需求执行
+- 改动文件:
+  - AI_REQUIREMENTS.md
+  - AGENTS.md
+  - AI_GIT_LOG.md
+  - AI_WORK_LOG.md
+- 执行命令:
+  - Get-Date -Format "yyyy-MM-dd HH:mm"
+  - git branch --show-current
+  - git status --short
+  - git diff --name-only
+  - git log -n 5 --oneline
+- 结果: 通过，需求清单与 AGENTS 规则已接入；Git 已可采集分支/状态，当前分支尚无提交历史
+- 风险/待办: 建议先完成首次 commit，便于后续 Git 追溯更完整
+- Git 依据: [2026-04-23 16:44] 新增需求清单文件机制
