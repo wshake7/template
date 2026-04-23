@@ -16,14 +16,14 @@
 - 国际化 (i18next): [skills/front/admin/i18n.md](skills/front/admin/i18n.md)
 
 ## Backend
-- Backend 工作区总览: [skills/backend/workspace-overview.md](skills/backend/workspace-overview.md)
-- Backend Admin 服务开发: [skills/backend/admin-service.md](skills/backend/admin-service.md)
-- Backend Services 生命周期与依赖编排: [skills/backend/services-lifecycle.md](skills/backend/services-lifecycle.md)
-- Backend FiberC 核心结构: [skills/backend/fiberc-core.md](skills/backend/fiberc-core.md)
-- Backend Router 编写风格: [skills/backend/router-style.md](skills/backend/router-style.md)
-- Backend Repo Models 编写与维护: [skills/backend/repo-models.md](skills/backend/repo-models.md)
-- Backend go-common 公共库: [skills/backend/go-common.md](skills/backend/go-common.md)
-- Backend orm-crud 能力: [skills/backend/orm-crud.md](skills/backend/orm-crud.md)
+- Backend 工作区总览: [skills/backend/workspace/workspace-overview.md](skills/backend/workspace/workspace-overview.md)
+- Backend Admin 服务开发: [skills/backend/admin/admin-service.md](skills/backend/admin/admin-service.md)
+- Backend Services 生命周期与依赖编排: [skills/backend/framework/services-lifecycle.md](skills/backend/framework/services-lifecycle.md)
+- Backend FiberC 核心结构: [skills/backend/framework/fiberc-core.md](skills/backend/framework/fiberc-core.md)
+- Backend Router 编写风格: [skills/backend/framework/router-style.md](skills/backend/framework/router-style.md)
+- Backend Repo Models 编写与维护: [skills/backend/libraries/repo-models.md](skills/backend/libraries/repo-models.md)
+- Backend go-common 公共库: [skills/backend/libraries/go-common.md](skills/backend/libraries/go-common.md)
+- Backend orm-crud 能力: [skills/backend/libraries/orm-crud.md](skills/backend/libraries/orm-crud.md)
 
 ## Front 代码改动检查规则
 - AI 只要修改 `front/**` 代码，提交结果前必须先执行：`vp run lint:fix`
