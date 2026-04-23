@@ -1,0 +1,13 @@
+Host: "0.0.0.0"
+Port: 3001
+Repo:
+  DriverName: "postgres"
+  DataSource: "host=localhost port=5432 user=postgres password=yourpassword dbname=wshake sslmode=disable"
+#  DriverName: "mysql"
+#  DataSource: "root:@tcp(localhost:3306)/wshake?parseTime=true&charset=utf8mb4&loc=Asia%2FShanghai"
+  IsGenCode: false
+  IsAutoMigrate: true
+Redis:
+  Addr: "127.0.0.1:6379"
+  Username:
+  Password:

@@ -1,0 +1,10 @@
+go 1.25.7
+
+use (
+	./go-common
+	./orm-crud/api
+	./orm-crud/gorm
+	./orm-crud/pagination
+	./admin
+	./sa-token/rueidis
+)

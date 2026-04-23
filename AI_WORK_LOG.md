@@ -1,10 +1,11 @@
 # AI 工作记录
 
-本文件用于记录 AI 在本项目中的每次实际改动与验证结果。
+本文件用于记录 AI 在本项目中的里程碑改动与验证结果。
 
 ## 记录规范
 
-- 每次涉及代码或配置改动时，新增一条记录
+- 采用里程碑记录：同一任务的小步改动优先更新最近条目
+- 仅在阶段完成、关键决策变更或最终交付前新增条目
 - 记录时间使用本地时间，格式 `YYYY-MM-DD HH:mm`
 - 内容必须包含：目标、改动文件、执行命令、结果、风险/待办
 - 不记录与项目无关的对话
@@ -22,52 +23,17 @@
   - <command2>
 - 结果: <通过/失败 + 简述>
 - 风险/待办: <无/具体项>
-- Git 依据: <对应 AI_GIT_LOG.md 的时间戳标题 / 无（未采集）>
+- Git 依据: <对应 AI_GIT_LOG.md 的时间戳标题 / 复用上次提交记录>
 ```
 
-## [2026-04-23 16:37] 新增 AI 工作记录机制
-- 目标: 增加 AI 固定工作记录文件与对应 skill 规则，确保后续改动可追踪
+## [2026-04-23 17:06] 新增 Backend Repo Models Skills
+- 目标: 总结 backend `services/repo/models` 结构与维护方式，提升后续改模型时的检索效率
 - 改动文件:
-  - AI_WORK_LOG.md
-  - skills/global/work-log.md
-  - AGENTS.md
-- 执行命令:
-  - Get-Date -Format "yyyy-MM-dd HH:mm"
-- 结果: 通过，记录文件与 skill 已创建并接入 AGENTS 规则
-- 风险/待办: 无
-- Git 依据: 无（未采集）
-
-## [2026-04-23 16:40] 新增 Git 辅助记录机制
-- 目标: 增加 Git 辅助记录文件与 skill，支持用户手动改动后的记录追溯
-- 改动文件:
-  - AI_GIT_LOG.md
-  - skills/global/git-record.md
-  - skills/global/work-log.md
+  - skills/backend/repo-models.md
   - AGENTS.md
   - AI_WORK_LOG.md
 - 执行命令:
   - Get-Date -Format "yyyy-MM-dd HH:mm"
-  - git branch --show-current
-  - git status --short
-  - git diff --name-only
-  - git log -n 5 --oneline
-- 结果: 通过，机制已接入；当前环境不是 Git 仓库，未能采集分支/状态/日志
-- 风险/待办: 若需 Git 证据，请在真实 Git 仓库目录执行同样命令
-- Git 依据: [2026-04-23 16:40] 新增 Git 辅助记录机制
-
-## [2026-04-23 16:44] 新增需求清单文件
-- 目标: 增加统一需求清单，让后续 AI 能按总需求/前端需求/后端需求执行
-- 改动文件:
-  - AI_REQUIREMENTS.md
-  - AGENTS.md
-  - AI_GIT_LOG.md
-  - AI_WORK_LOG.md
-- 执行命令:
-  - Get-Date -Format "yyyy-MM-dd HH:mm"
-  - git branch --show-current
-  - git status --short
-  - git diff --name-only
-  - git log -n 5 --oneline
-- 结果: 通过，需求清单与 AGENTS 规则已接入；Git 已可采集分支/状态，当前分支尚无提交历史
-- 风险/待办: 建议先完成首次 commit，便于后续 Git 追溯更完整
-- Git 依据: [2026-04-23 16:44] 新增需求清单文件机制
+- 结果: 通过，已新增 `repo-models` 专项 skill 并接入 backend 索引
+- 风险/待办: `sys_login_log.go` 当前为空文件，后续启用前需补完整模型定义
+- Git 依据: 复用上次提交记录

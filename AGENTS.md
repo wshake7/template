@@ -4,6 +4,7 @@
 - Vite+ 构建工具: [skills/viteplus.md](skills/viteplus.md)
 - AI 工作记录规范: [skills/global/work-log.md](skills/global/work-log.md)
 - Git 辅助记录规范: [skills/global/git-record.md](skills/global/git-record.md)
+- Skills 编写风格规范: [skills/global/skill-authoring-style.md](skills/global/skill-authoring-style.md)
 
 ## Front 通用
 - 工具库开发: [skills/front/utils-library.md](skills/front/utils-library.md)
@@ -14,15 +15,25 @@
 - E2E 测试 (Playwright): [skills/front/admin/playwright-e2e.md](skills/front/admin/playwright-e2e.md)
 - 国际化 (i18next): [skills/front/admin/i18n.md](skills/front/admin/i18n.md)
 
+## Backend
+- Backend 工作区总览: [skills/backend/workspace-overview.md](skills/backend/workspace-overview.md)
+- Backend Admin 服务开发: [skills/backend/admin-service.md](skills/backend/admin-service.md)
+- Backend FiberC 核心结构: [skills/backend/fiberc-core.md](skills/backend/fiberc-core.md)
+- Backend Router 编写风格: [skills/backend/router-style.md](skills/backend/router-style.md)
+- Backend Repo Models 编写与维护: [skills/backend/repo-models.md](skills/backend/repo-models.md)
+- Backend go-common 公共库: [skills/backend/go-common.md](skills/backend/go-common.md)
+- Backend orm-crud 能力: [skills/backend/orm-crud.md](skills/backend/orm-crud.md)
+
 ## Front 代码改动检查规则
 - AI 只要修改 `front/**` 代码，提交结果前必须先执行：`vp run lint:fix`
 - 然后执行：`vp run test -r`
 - 如果命令失败，先询问是否需要修复
 
 ## AI 工作记录规则
-- AI 发生实际改动后，必须把本次工作记录追加到 `AI_WORK_LOG.md`
+- AI 工作记录采用“里程碑记录”，避免每次小改都追加新条目
 - 记录格式与字段必须遵循：`skills/global/work-log.md`
-- AI 写工作记录时，应同步采集 Git 证据并记录到 `AI_GIT_LOG.md`
+- AI 写工作记录时，Git 依据优先引用 `AI_GIT_LOG.md` 最近有效提交记录
+- 仅当出现新提交或用户要求追溯时，才更新 `AI_GIT_LOG.md`
 
 ## 需求清单规则
 - 需求总入口：`AI_REQUIREMENTS.md`
