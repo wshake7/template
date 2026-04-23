@@ -1,56 +1,68 @@
-# Backend ORM Models 编写与维护
+# Backend ORM 数据库操作与 Models 维护
 
 ## 场景与目标
-- 适用场景：修改 `backend/admin/services/orm/models` 下实体模型、字段、关联关系、表结构时
-- 目标：保持模型定义、自动迁移、`gorm/gen` 查询代码三者一致，降低回归风险
+- 适用场景：在 `router/logic` 中新增或调整数据库读写逻辑，或修改 `services/orm` 下模型/仓储能力时
+- 目标：统一 `router -> logic -> orm/repo -> query/models` 的数据库操作风格，减少 SQL 行为偏差和回归风险
 
 ## 目录/文件位置
+- 路由逻辑入口：`backend/admin/router/logic/*.go`
+- ORM 服务初始化：`backend/admin/services/orm.go`
+- ORM 核心：`backend/admin/services/orm/orm.go`
 - 模型目录：`backend/admin/services/orm/models/`
-- 模型注册入口：`backend/admin/services/orm/models/models.go`
-- ORM 初始化：`backend/admin/services/orm/orm.go`
-- 查询代码生成目录：`backend/admin/services/orm/query/`
-- 生成脚本：`backend/admin/cmd/scripts/orm/main.go`
+- 查询代码：`backend/admin/services/orm/query/`
+- 仓储封装：`backend/admin/services/orm/repo/`
+- 代码生成脚本：`backend/admin/cmd/scripts/orm/main.go`
 
-## 当前模型组织方式（按现状）
-1. 每个模型文件通过 `init()` 执行 `Models = append(Models, &Xxx{})`
-2. `orm.New()` 中通过 `gormCrud.WithAutoMigrate(models.Models...)` 执行自动迁移
-3. `orm.New()` / `cmd/scripts/orm/main.go` 可触发 `gen` 生成 `query/*.gen.go`
-4. 业务层统一通过 `query.SysUser`、`query.SysRole` 等访问
+## 当前数据库调用链（按现状）
+1. 路由层通过 `handler.Ctx*` 包装器进入 `router/logic/*.go`
+2. `logic` 层使用 `orm.DB()` 获取数据库实例，调用 `repo.XxxRepo` 执行读写
+3. 条件构造优先使用 `query.Xxx`（`gorm/gen` 生成对象）而不是手写字符串字段
+4. 返回错误统一转换为业务错误（如 `res.FailDefault` 或可读提示）
 
-## 字段风格与约定
-- 通用字段优先复用 `orm-crud/gorm/mixin`（如 `CreatedAt`、`Status`、`OperatorID`）
-- 软删除字段统一使用 `gorm.DeletedAt` 或 `soft_delete.DeletedAt`，并配合唯一索引
-- 表名必须实现 `TableName()`，保持显式可控
-- 关联字段显式声明 `foreignKey` / `references` / `constraint`
+## 常见操作模式
+1. 分页查询：`repo.XxxRepo.ListWithPagination(ctx.Context(), orm.DB(), req)`
+2. 新增记录：`repo.XxxRepo.Create(ctx.Context(), orm.DB(), &models.Xxx{...})`
+3. 按条件更新：`repo.XxxRepo.UpdateMap(map[field.Expr]any{...}, conds...)`
+4. 软删除：`repo.XxxRepo.SoftDelete(ctx.Context(), orm.DB().Where(...))`
+5. 查询字段：通过 `query.Xxx.<Field>` 明确列，避免硬编码字段名
 
-## 常见模型关系（当前）
-- 用户与角色：`SysUser` <-> `SysRole`（`sys_user_role` 多对多中间表）
-- 字典类型与字典项：`SysDictType` -> `[]SysDictEntry`（一对多）
-- 角色树：`SysRole` 的 `ParentSysRole` / `Children`（自关联）
+## UpdateMap 约定（重点）
+1. `repo/*_repo.go` 中统一接收 `map[field.Expr]any`
+2. 由仓储层将 `field.Expr` 转换为列名字符串后执行 `Updates`
+3. `logic` 层只负责组织“字段表达式 + 条件”，不在上层拼接列名
+4. 条件模型要与仓储模型一致，避免误用其它 `query` 对象
+
+## Models 维护约定
+1. 每个模型文件通过 `init()` 把模型 append 到 `models.Models`
+2. `orm.New()` 按配置启用 `WithAutoMigrate(models.Models...)`
+3. 需要生成查询代码时，执行 `go run ./cmd/scripts/orm`
+4. 表名通过 `TableName()` 显式定义，字段尽量复用 `orm-crud/gorm/mixin`
 
 ## 修改步骤（推荐）
-1. 改模型结构：编辑 `models/*.go`
-2. 确认模型已注册：检查对应 `init()` 是否 append 到 `Models`
-3. 若涉及迁移：确认 `config.Orm.IsAutoMigrate` 或手工迁移策略
-4. 重新生成查询代码（必要时）：运行脚本更新 `query/*.gen.go`
-5. 回归调用点：检查 `router/logic` 和 `services` 中的 query 使用
+1. 先在 `router/logic/xxx.go` 明确读写需求、请求参数和错误语义
+2. 复用现有 `repo` 能力；缺失方法再补到 `services/orm/repo/*.go`
+3. 需要新字段/新表时同步修改 `models/*.go` 并确认已注册到 `models.Models`
+4. 运行生成脚本更新 `query/*.gen.go`，再回归 `logic` 调用点
+5. 启动服务或执行测试验证行为与返回结构
 
 ## 常用命令
 ```bash
 cd backend/admin
 
-# 启动服务（带自动迁移配置时可触发表结构更新）
+# 启动服务（可联动自动迁移与 query 默认实例）
 go run ./cmd/main.go -f ./etc/config.yaml
 
 # 生成 orm query 代码
 go run ./cmd/scripts/orm
 
-# 全量测试
+# 基础修复与回归
+go fix ./...
 go test ./...
 ```
 
 ## 注意事项
-1. 新增模型但未注册到 `Models`，会导致迁移与代码生成遗漏
-2. 改字段名/类型后，必须同步关注生成的 `query` 与业务使用处
-3. 索引与唯一约束变更要先评估线上数据兼容性
-4. `sys_login_log.go` 当前为占位文件，若计划启用请先补完整模型并注册
+1. `logic` 层保持“编排为主”，不要堆积底层 SQL 细节
+2. 更新与删除务必带条件，避免全表更新/误删
+3. 变更字段名或类型后，要同步检查 `query/*.gen.go` 与 `repo.UpdateMap` 调用点
+4. 新增模型未注册到 `models.Models` 会导致迁移与生成遗漏
+5. `sys_login_log.go` 当前仍是占位文件，启用前需补全模型并注册
