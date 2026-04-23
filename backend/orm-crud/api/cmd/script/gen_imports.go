@@ -136,8 +136,8 @@ func getModuleName(goModPath string) (string, error) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(line, "module ") {
-			return strings.TrimSpace(strings.TrimPrefix(line, "module ")), nil
+		if after, ok := strings.CutPrefix(line, "module "); ok {
+			return strings.TrimSpace(after), nil
 		}
 	}
 

@@ -96,10 +96,7 @@ func (bm *BytesBitMap) Set(index int, b bool) {
 
 	if byteIndex >= len(bm.value) {
 		// 使用更合理的增长策略
-		newLen := byteIndex + 1
-		if newLen < len(bm.value)*2 {
-			newLen = len(bm.value) * 2
-		}
+		newLen := max(byteIndex+1, len(bm.value)*2)
 		value := make([]byte, newLen)
 		copy(value, bm.value)
 		bm.value = value
@@ -142,7 +139,7 @@ func (bm *BytesBitMap) get(index int) bool {
 
 func (bm *BytesBitMap) ForEach(fn func(index int, b bool)) {
 	length := len(bm.value) * 8
-	for i := 0; i < length; i++ {
+	for i := range length {
 		fn(i, bm.get(i))
 	}
 }
@@ -154,7 +151,7 @@ func (bm *BytesBitMap) ForEachSet(fn func(index int)) {
 			continue
 		}
 		baseIndex := byteIndex << 3
-		for bitIndex := 0; bitIndex < 8; bitIndex++ {
+		for bitIndex := range 8 {
 			if (b>>bitIndex)&1 == 1 {
 				fn(baseIndex + bitIndex)
 			}

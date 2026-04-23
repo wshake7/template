@@ -18,7 +18,7 @@ func TestMixtureLog(t *testing.T) {
 		zapcore.WarnLevel:  DefaultLumberjack("", "warn.log"),
 		zapcore.ErrorLevel: DefaultLumberjack("", "error.log"),
 	}
-	prodZapConfig.IsJSON = true
+	prodZapConfig.IsJson = true
 	devZapConfig.ProjectName = "111"
 	devZapConfig.FieldFunc = func() []zapcore.Field {
 		return []zapcore.Field{
@@ -59,7 +59,7 @@ func TestDevLog(t *testing.T) {
 func TestSlog(t *testing.T) {
 	devZapConfig := DevConfig()
 	prodZapConfig := ProdConfig()
-	prodZapConfig.IsJSON = true
+	prodZapConfig.IsJson = true
 	InitZapGlobal(devZapConfig, prodZapConfig)
 	zap.S().Infof("hello world")
 	InitSlogGlobal(devZapConfig, prodZapConfig)

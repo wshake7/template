@@ -23,7 +23,7 @@ func TestJavascriptEngine(t *testing.T) {
 	}
 
 	// 注册全局变量
-	err = eng.RegisterGlobal("config", map[string]interface{}{
+	err = eng.RegisterGlobal("config", map[string]any{
 		"host": "localhost",
 		"port": 8080,
 	})
@@ -82,11 +82,11 @@ func TestConcurrentExecuteAndCallFunction(t *testing.T) {
 	wg.Add(goroutines)
 
 	// 并发调用 ExecuteString 与 CallFunction
-	for i := 0; i < goroutines; i++ {
+	for i := range goroutines {
 		go func(i int) {
 			defer wg.Done()
 			// 每个 goroutine 做若干次调用
-			for j := 0; j < 20; j++ {
+			for range 20 {
 				// ExecuteString
 				ctxExe, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
 				_, _ = eng.ExecuteString(ctxExe, "1 + 2 + 3")
@@ -126,10 +126,8 @@ func TestConcurrentInitCloseAndExecute(t *testing.T) {
 	// 后台反复 Init / Register / Close
 	stopBg := make(chan struct{})
 	var bgWg sync.WaitGroup
-	bgWg.Add(1)
-	go func() {
-		defer bgWg.Done()
-		for i := 0; i < 50; i++ {
+	bgWg.Go(func() {
+		for i := range 50 {
 			_ = eng.Init(ctx)
 			// 尝试注册一个全局，忽略错误（可能未初始化/已初始化）
 			_ = eng.RegisterGlobal("g", map[string]any{"i": i})
@@ -138,17 +136,17 @@ func TestConcurrentInitCloseAndExecute(t *testing.T) {
 			time.Sleep(5 * time.Millisecond)
 		}
 		close(stopBg)
-	}()
+	})
 
 	// 并发执行短时脚本，可能在 Init/Close 切换期间产生 ErrJavascriptEngineNotInitialized，属可接受
 	const callers = 200
 	var wg sync.WaitGroup
 	wg.Add(callers)
-	for i := 0; i < callers; i++ {
+	for i := range callers {
 		go func(i int) {
 			defer wg.Done()
 			// 每个 caller 重复多次短调用
-			for j := 0; j < 30; j++ {
+			for range 30 {
 				c, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
 				_, _ = eng.ExecuteString(c, "1+2+3+"+time.Now().Format("150405")) // 短计算
 				cancel()

@@ -38,7 +38,7 @@ func TestNewGUIDv4CollisionRate(t *testing.T) {
 	const testCount = 100000
 
 	ids := make(map[string]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id := NewGUIDv4(true)
 		if _, exists := ids[id]; exists {
 			t.Errorf("碰撞发生: %s 已存在", id)
@@ -78,7 +78,7 @@ func TestNewGUIDv7CollisionRate(t *testing.T) {
 	const testCount = 100000
 
 	ids := make(map[string]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id := NewGUIDv7(true)
 		if _, exists := ids[id]; exists {
 			t.Errorf("碰撞发生: %s 已存在", id)
@@ -102,7 +102,7 @@ func TestNewShortUUIDCollisionRate(t *testing.T) {
 	const testCount = 100000 // 测试生成的ShortUUID数量
 
 	ids := make(map[string]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id := NewShortUUID()
 		if _, exists := ids[id]; exists {
 			t.Errorf("碰撞发生: %s 已存在", id)
@@ -126,7 +126,7 @@ func TestNewKSUIDCollisionRate(t *testing.T) {
 	const testCount = 100000 // 测试生成的KSUID数量
 
 	ids := make(map[string]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id := NewKSUID()
 		if _, exists := ids[id]; exists {
 			t.Errorf("碰撞发生: %s 已存在", id)
@@ -151,7 +151,7 @@ func TestNewXIDCollisionRate(t *testing.T) {
 	const testCount = 100000 // 测试生成的XID数量
 
 	ids := make(map[string]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id := NewXID()
 		if _, exists := ids[id]; exists {
 			t.Errorf("碰撞发生: %s 已存在", id)
@@ -193,7 +193,7 @@ func TestNewSnowflakeIDCollisionRate(t *testing.T) {
 	)
 
 	ids := make(map[int64]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id, err := NewSnowflakeID(workerId)
 		if err != nil {
 			t.Errorf("生成ID时出现错误: %v", err)
@@ -219,11 +219,9 @@ func TestConcurrentNewSnowflakeIDCollisionRate(t *testing.T) {
 	ids := make(map[int64]struct{})
 	var wg sync.WaitGroup
 
-	for w := 0; w < workerCount; w++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for i := 0; i < testCount/workerCount; i++ {
+	for range workerCount {
+		wg.Go(func() {
+			for range testCount / workerCount {
 				id, err := NewSnowflakeID(workerId)
 				if err != nil {
 					t.Errorf("生成 Snowflake ID 时出现错误: %v", err)
@@ -236,7 +234,7 @@ func TestConcurrentNewSnowflakeIDCollisionRate(t *testing.T) {
 				ids[id] = struct{}{}
 				mu.Unlock()
 			}
-		}()
+		})
 	}
 
 	wg.Wait()
@@ -255,7 +253,7 @@ func TestNewSonyflakeIDCollisionRate(t *testing.T) {
 	const testCount = 100000 // 测试生成的 Sonyflake ID 数量
 
 	ids := make(map[uint64]struct{})
-	for i := 0; i < testCount; i++ {
+	for range testCount {
 		id, err := NewSonyflakeID()
 		if err != nil {
 			t.Errorf("生成 Sonyflake ID 时出现错误: %v", err)
@@ -280,11 +278,9 @@ func TestConcurrentNewSonyflakeIDCollisionRate(t *testing.T) {
 	ids := make(map[uint64]struct{})
 	var wg sync.WaitGroup
 
-	for w := 0; w < workerCount; w++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for i := 0; i < testCount/workerCount; i++ {
+	for range workerCount {
+		wg.Go(func() {
+			for range testCount / workerCount {
 				id, err := NewSonyflakeID()
 				if err != nil {
 					t.Errorf("生成 Sonyflake ID 时出现错误: %v", err)
@@ -297,7 +293,7 @@ func TestConcurrentNewSonyflakeIDCollisionRate(t *testing.T) {
 				ids[id] = struct{}{}
 				mu.Unlock()
 			}
-		}()
+		})
 	}
 
 	wg.Wait()

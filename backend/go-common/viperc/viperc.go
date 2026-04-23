@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func watchConfig(obj interface{}, reloads ...func()) {
+func watchConfig(obj any, reloads ...func()) {
 	viper.WatchConfig()
 
 	// Note: OnConfigChange is called twice on Windows
@@ -35,7 +35,7 @@ func watchConfig(obj interface{}, reloads ...func()) {
 func ParseFile(filePath string, obj any, reloads ...func()) (*viper.Viper, error) {
 	viper0 := viper.New()
 	v := reflect.ValueOf(obj)
-	if v.Kind() != reflect.Ptr || v.IsNil() {
+	if v.Kind() != reflect.Pointer || v.IsNil() {
 		return nil, fmt.Errorf("obj must be a non-nil pointer")
 	}
 
@@ -75,7 +75,7 @@ func ParseFile(filePath string, obj any, reloads ...func()) (*viper.Viper, error
 
 func ParseGlobalFile(filePath string, obj any, reloads ...func()) error {
 	v := reflect.ValueOf(obj)
-	if v.Kind() != reflect.Ptr || v.IsNil() {
+	if v.Kind() != reflect.Pointer || v.IsNil() {
 		return fmt.Errorf("obj must be a non-nil pointer")
 	}
 

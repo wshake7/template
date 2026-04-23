@@ -14,8 +14,8 @@ import (
 
 // StructuredFilter 基于 FilterExpr 的 GORM 过滤器
 type StructuredFilter struct {
-	Unmarshal func([]byte, interface{}) error
-	Marshal   func(interface{}) ([]byte, error)
+	Unmarshal func([]byte, any) error
+	Marshal   func(any) ([]byte, error)
 	processor *Processor
 }
 

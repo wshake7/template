@@ -28,7 +28,7 @@ type gormLogger struct {
 	logger *zap.SugaredLogger
 }
 
-func (w gormLogger) Printf(format string, args ...interface{}) {
+func (w gormLogger) Printf(format string, args ...any) {
 	w.logger.Debugf(format, args...)
 }
 
@@ -58,11 +58,11 @@ type Client struct {
 	enableMetrics    bool
 	enableDbResolver bool
 
-	migrateModels    []interface{}
+	migrateModels    []any
 	getMigrateModels GetMigrateModelsFunc
 
 	gormCfg   *gorm.Config
-	cfgStruct interface{}
+	cfgStruct any
 	mixins    []Mixin
 
 	ctx       context.Context
@@ -156,8 +156,8 @@ func (c *Client) Use(m Mixin) {
 	c.mixins = append(c.mixins, m)
 }
 
-func (c *Client) resolveMigrateModels() []interface{} {
-	var out []interface{}
+func (c *Client) resolveMigrateModels() []any {
+	var out []any
 
 	// 已注册的模型（全局注册函数）
 	if regs := getRegisteredMigrateModels(); len(regs) > 0 {

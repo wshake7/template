@@ -34,7 +34,7 @@ func NewEnginePool(size int, typ EngineType) (*EnginePool, error) {
 
 	// 创建并初始化子 engine
 	created := make([]Engine, 0, size)
-	for i := 0; i < size; i++ {
+	for range size {
 		eng, err := NewEngine(typ)
 		if err != nil {
 			// 清理已创建的 engines

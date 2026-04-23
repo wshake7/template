@@ -4,7 +4,7 @@ var binary = New([]byte("234sdfn234ksjdf"))
 
 func Encrypt(bytes []byte) {
 	j := 0
-	for i := 0; i < len(bytes); i++ {
+	for i := range bytes {
 		bytes[i] = bytes[i] ^ binary.secret[j]
 		j = (j + 1) % binary.length
 	}

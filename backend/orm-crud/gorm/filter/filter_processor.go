@@ -19,8 +19,8 @@ var jsonKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_\.]+$`)
 // Processor 过滤处理器（GORM 版）
 type Processor struct {
 	//codec encoding.Codec
-	Unmarshal func([]byte, interface{}) error
-	Marshal   func(interface{}) ([]byte, error)
+	Unmarshal func([]byte, any) error
+	Marshal   func(any) ([]byte, error)
 }
 
 // NewProcessor 返回带 json codec 的 Processor
@@ -377,7 +377,7 @@ func (poc Processor) Jsonb(db *gorm.DB, jsonbField, field string) *gorm.DB {
 }
 
 // JsonbFieldExpr 返回一个表达式字符串与对应参数，可用于 Select/Order 等
-func (poc Processor) JsonbFieldExpr(db *gorm.DB, jsonbField, field string) (string, []interface{}) {
+func (poc Processor) JsonbFieldExpr(db *gorm.DB, jsonbField, field string) (string, []any) {
 	jsonbField = strings.TrimSpace(jsonbField)
 	if jsonbField == "" || !jsonKeyPattern.MatchString(jsonbField) {
 		return "", nil

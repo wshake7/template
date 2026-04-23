@@ -1,5 +1,7 @@
 package i18n
 
+import "maps"
+
 import "fmt"
 
 type Dict struct {
@@ -86,7 +88,5 @@ func (d *Dict) BatchSetCodes(language Language, codes map[Code]string) {
 		l = make(map[Code]string, len(codes))
 		d.languages[language] = l
 	}
-	for code, value := range codes {
-		l[code] = value
-	}
+	maps.Copy(l, codes)
 }

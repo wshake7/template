@@ -1,5 +1,4 @@
 //go:build windows
-// +build windows
 
 package machineid
 
@@ -55,8 +54,8 @@ func getBIOSUUID() (string, error) {
 	// 1. 先尝试 wmic
 	out, err := exec.Command("wmic", "csproduct", "get", "uuid").Output()
 	if err == nil {
-		lines := strings.Split(string(out), "\n")
-		for _, line := range lines {
+		lines := strings.SplitSeq(string(out), "\n")
+		for line := range lines {
 			line = strings.TrimSpace(line)
 			if line != "" && !strings.EqualFold(line, "UUID") {
 				return line, nil
@@ -82,8 +81,8 @@ func getPrimaryMAC() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	lines := strings.Split(string(out), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(string(out), "\n")
+	for line := range lines {
 		fields := strings.Fields(line)
 		if len(fields) > 0 && strings.Contains(fields[0], "-") {
 			return fields[0], nil

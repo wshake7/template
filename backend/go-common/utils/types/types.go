@@ -14,5 +14,5 @@ func IsPointer(v any) bool {
 	rv := reflect.ValueOf(v)
 
 	// 检查 Kind 是否为 Ptr
-	return rv.Kind() == reflect.Ptr
+	return rv.Kind() == reflect.Pointer
 }

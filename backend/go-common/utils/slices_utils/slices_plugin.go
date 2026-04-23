@@ -386,10 +386,7 @@ func ChunkList[T any, TS ~[]T, RS ~[]TS](slice TS, size int) RS {
 	result := make(RS, 0, n)
 
 	for i := 0; i < len(slice); i += size {
-		end := i + size
-		if end > len(slice) {
-			end = len(slice)
-		}
+		end := min(i+size, len(slice))
 		result = append(result, slice[i:end])
 	}
 	return result

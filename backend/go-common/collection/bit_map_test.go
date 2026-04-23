@@ -147,7 +147,7 @@ func TestBytesBitMapAutoGrow(t *testing.T) {
 	}
 
 	// 验证之前未设置的位仍然是 false
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		if bm.Get(i) {
 			t.Errorf("Expected bit %d to be false", i)
 		}
@@ -316,7 +316,7 @@ func TestNewBytesBitMapWithCapacity(t *testing.T) {
 	}
 
 	// 验证可以设置所有位
-	for i := 0; i < bitCount; i++ {
+	for i := range bitCount {
 		bm.Set(i, true)
 	}
 
@@ -346,7 +346,7 @@ func TestBytesBitMapClear(t *testing.T) {
 	}
 
 	// 验证所有位都是 false
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		if bm.Get(i) {
 			t.Errorf("Expected bit %d to be false after clear", i)
 		}
@@ -445,7 +445,7 @@ func BenchmarkBytesBitMapForEachSet(b *testing.B) {
 	bm := NewBytesBitMapWithCapacity(10000)
 
 	// 设置 10% 的位
-	for i := 0; i < 1000; i++ {
+	for i := range 1000 {
 		bm.Set(i*10, true)
 	}
 

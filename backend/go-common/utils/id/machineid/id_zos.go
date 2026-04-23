@@ -1,5 +1,4 @@
 //go:build zos
-// +build zos
 
 package machineid
 

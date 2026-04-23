@@ -2,6 +2,7 @@ package machineid_test
 
 import (
 	"fmt"
+	"go-common/utils/id/machineid"
 	"log"
 )
 

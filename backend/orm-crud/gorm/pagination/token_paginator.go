@@ -12,8 +12,8 @@ import (
 // TokenPaginator 基于 Token 的分页器
 type TokenPaginator struct {
 	impl      pagination.Paginator
-	Unmarshal func([]byte, interface{}) error
-	Marshal   func(interface{}) ([]byte, error)
+	Unmarshal func([]byte, any) error
+	Marshal   func(any) ([]byte, error)
 }
 
 func NewTokenPaginator() *TokenPaginator {

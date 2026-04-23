@@ -24,8 +24,8 @@ type QueryMap map[string]any
 type QueryMapArray []QueryMap
 
 type QueryStringConverter struct {
-	Unmarshal func([]byte, interface{}) error
-	Marshal   func(interface{}) ([]byte, error)
+	Unmarshal func([]byte, any) error
+	Marshal   func(any) ([]byte, error)
 }
 
 func NewQueryStringConverter() *QueryStringConverter {

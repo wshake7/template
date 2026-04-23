@@ -91,13 +91,13 @@ func (e *virtualMachine) ExecuteFile(filePath string) error {
 }
 
 // Register 注册方法或者变量到js
-func (e *virtualMachine) Register(name string, value interface{}) error {
+func (e *virtualMachine) Register(name string, value any) error {
 	err := e.vm.Set(name, value)
 	return err
 }
 
 // GetFunction 获取js中的方法
-func (e *virtualMachine) GetFunction(name string, fn interface{}) error {
+func (e *virtualMachine) GetFunction(name string, fn any) error {
 	err := e.vm.ExportTo(e.vm.Get(name), fn)
 	return err
 }

@@ -184,7 +184,7 @@ func TestDequeAutoGrow(t *testing.T) {
 	d := New[int](2)
 
 	// 添加超过初始容量的元素
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		d.PushBack(i)
 	}
 
@@ -197,7 +197,7 @@ func TestDequeAutoGrow(t *testing.T) {
 	}
 
 	// 验证所有元素
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if val, ok := d.Get(i); !ok || val != i {
 			t.Errorf("Expected Get(%d) = %d, got %d", i, i, val)
 		}
@@ -208,12 +208,12 @@ func TestDequeAutoGrow(t *testing.T) {
 func TestDequeGetSet(t *testing.T) {
 	d := New[int](10)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		d.PushBack(i)
 	}
 
 	// 测试 Get
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		if val, ok := d.Get(i); !ok || val != i {
 			t.Errorf("Expected Get(%d) = %d, got %d", i, i, val)
 		}
@@ -269,7 +269,7 @@ func TestDequeForEach(t *testing.T) {
 func TestDequeForEachWithIndex(t *testing.T) {
 	d := New[int](10)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		d.PushBack(i * 10)
 	}
 
@@ -326,7 +326,7 @@ func TestDequeToSeq2(t *testing.T) {
 func TestDequeClear(t *testing.T) {
 	d := New[int](10)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		d.PushBack(i)
 	}
 
@@ -376,7 +376,7 @@ func TestDequeReverse(t *testing.T) {
 func TestDequeClone(t *testing.T) {
 	d := New[int](10)
 
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		d.PushBack(i)
 	}
 
@@ -407,7 +407,7 @@ func TestDequeClone(t *testing.T) {
 func TestDequeShrink(t *testing.T) {
 	d := New[int](100)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		d.PushBack(i)
 	}
 
@@ -424,7 +424,7 @@ func TestDequeShrink(t *testing.T) {
 	}
 
 	// 验证数据完整性
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if val, ok := d.Get(i); !ok || val != i {
 			t.Errorf("Data corrupted after shrink at index %d", i)
 		}
@@ -634,7 +634,7 @@ func BenchmarkDequePopFront(b *testing.B) {
 // BenchmarkDequeGet 性能测试：随机访问
 func BenchmarkDequeGet(b *testing.B) {
 	d := New[int](1000)
-	for i := 0; i < 1000; i++ {
+	for i := range 1000 {
 		d.PushBack(i)
 	}
 	b.ResetTimer()
@@ -646,7 +646,7 @@ func BenchmarkDequeGet(b *testing.B) {
 // BenchmarkDequeToSlice 性能测试：转换为切片
 func BenchmarkDequeToSlice(b *testing.B) {
 	d := New[int](1000)
-	for i := 0; i < 1000; i++ {
+	for i := range 1000 {
 		d.PushBack(i)
 	}
 	b.ResetTimer()

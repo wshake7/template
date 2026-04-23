@@ -30,7 +30,7 @@ func TestGenerateOrderIdWithIndex(t *testing.T) {
 
 	ids := make(map[string]bool)
 	count := 100
-	for i := 0; i < count; i++ {
+	for range count {
 		ids[GenerateOrderIdWithIncreaseIndex(prefix, &(tm))] = true
 	}
 	assert.Equal(t, count, len(ids))
@@ -41,20 +41,18 @@ func TestGenerateOrderIdWithIndexThread(t *testing.T) {
 
 	var wg sync.WaitGroup
 	var ids sync.Map
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go func() {
-			for i := 0; i < 100; i++ {
+	for range 10 {
+		wg.Go(func() {
+			for range 100 {
 				id := GenerateOrderIdWithIncreaseIndex("PT", &(tm))
 				ids.Store(id, true)
 			}
-			wg.Done()
-		}()
+		})
 	}
 	wg.Wait()
 
 	aLen := 0
-	ids.Range(func(k, v interface{}) bool {
+	ids.Range(func(k, v any) bool {
 		aLen++
 		return true
 	})
@@ -88,7 +86,7 @@ func TestGenerateOrderIdWithTenantIdCollision(t *testing.T) {
 	count := 1000 // 生成订单号的数量
 	ids := make(map[string]bool)
 
-	for i := 0; i < count; i++ {
+	for range count {
 		orderID := GenerateOrderIdWithTenantId(tenantID)
 		if ids[orderID] {
 			t.Errorf("碰撞的订单号: %s", orderID)
@@ -116,7 +114,7 @@ func TestGenerateOrderIdWithPrefixSonyflakeCollision(t *testing.T) {
 	count := 100000 // 生成订单号的数量
 	ids := make(map[string]bool)
 
-	for i := 0; i < count; i++ {
+	for range count {
 		orderID := GenerateOrderIdWithPrefixSonyflake(prefix)
 		if ids[orderID] {
 			t.Errorf("碰撞的订单号: %s", orderID)
@@ -146,7 +144,7 @@ func TestGenerateOrderIdWithPrefixSnowflakeCollision(t *testing.T) {
 	count := 1000000 // 生成订单号的数量
 	ids := make(map[string]bool)
 
-	for i := 0; i < count; i++ {
+	for range count {
 		orderID := GenerateOrderIdWithPrefixSnowflake(workerId, prefix)
 		if ids[orderID] {
 			t.Errorf("碰撞的订单号: %s", orderID)

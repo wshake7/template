@@ -1,6 +1,8 @@
 package filter
 
 import (
+	"go-common/utils/pt"
+	"slices"
 	"testing"
 
 	paginationV1 "orm-crud/api/gen/go/pagination/v1"
@@ -73,29 +75,29 @@ func TestIsValidOperatorString(t *testing.T) {
 
 func TestConverterStringToDatePart(t *testing.T) {
 	cases := map[string]*paginationV1.DatePart{
-		"date":         trans.Ptr(paginationV1.DatePart_DATE),
-		"Date":         trans.Ptr(paginationV1.DatePart_DATE),
-		"DATE":         trans.Ptr(paginationV1.DatePart_DATE),
-		"year":         trans.Ptr(paginationV1.DatePart_YEAR),
-		"yr":           trans.Ptr(paginationV1.DatePart_YEAR),
-		"iso_year":     trans.Ptr(paginationV1.DatePart_ISO_YEAR),
-		"iso-year":     trans.Ptr(paginationV1.DatePart_ISO_YEAR),
-		"quarter":      trans.Ptr(paginationV1.DatePart_QUARTER),
-		"month":        trans.Ptr(paginationV1.DatePart_MONTH),
-		"week":         trans.Ptr(paginationV1.DatePart_WEEK),
-		"week_day":     trans.Ptr(paginationV1.DatePart_WEEK_DAY),
-		"week-day":     trans.Ptr(paginationV1.DatePart_WEEK_DAY),
-		"weekday":      trans.Ptr(paginationV1.DatePart_WEEK_DAY),
-		"iso_week_day": trans.Ptr(paginationV1.DatePart_ISO_WEEK_DAY),
-		"iso-week-day": trans.Ptr(paginationV1.DatePart_ISO_WEEK_DAY),
-		"day":          trans.Ptr(paginationV1.DatePart_DAY),
-		"time":         trans.Ptr(paginationV1.DatePart_TIME),
-		"hour":         trans.Ptr(paginationV1.DatePart_HOUR),
-		"minute":       trans.Ptr(paginationV1.DatePart_MINUTE),
-		"min":          trans.Ptr(paginationV1.DatePart_MINUTE),
-		"second":       trans.Ptr(paginationV1.DatePart_SECOND),
-		"sec":          trans.Ptr(paginationV1.DatePart_SECOND),
-		"microsecond":  trans.Ptr(paginationV1.DatePart_MICROSECOND),
+		"date":         pt.Ptr(paginationV1.DatePart_DATE),
+		"Date":         pt.Ptr(paginationV1.DatePart_DATE),
+		"DATE":         pt.Ptr(paginationV1.DatePart_DATE),
+		"year":         pt.Ptr(paginationV1.DatePart_YEAR),
+		"yr":           pt.Ptr(paginationV1.DatePart_YEAR),
+		"iso_year":     pt.Ptr(paginationV1.DatePart_ISO_YEAR),
+		"iso-year":     pt.Ptr(paginationV1.DatePart_ISO_YEAR),
+		"quarter":      pt.Ptr(paginationV1.DatePart_QUARTER),
+		"month":        pt.Ptr(paginationV1.DatePart_MONTH),
+		"week":         pt.Ptr(paginationV1.DatePart_WEEK),
+		"week_day":     pt.Ptr(paginationV1.DatePart_WEEK_DAY),
+		"week-day":     pt.Ptr(paginationV1.DatePart_WEEK_DAY),
+		"weekday":      pt.Ptr(paginationV1.DatePart_WEEK_DAY),
+		"iso_week_day": pt.Ptr(paginationV1.DatePart_ISO_WEEK_DAY),
+		"iso-week-day": pt.Ptr(paginationV1.DatePart_ISO_WEEK_DAY),
+		"day":          pt.Ptr(paginationV1.DatePart_DAY),
+		"time":         pt.Ptr(paginationV1.DatePart_TIME),
+		"hour":         pt.Ptr(paginationV1.DatePart_HOUR),
+		"minute":       pt.Ptr(paginationV1.DatePart_MINUTE),
+		"min":          pt.Ptr(paginationV1.DatePart_MINUTE),
+		"second":       pt.Ptr(paginationV1.DatePart_SECOND),
+		"sec":          pt.Ptr(paginationV1.DatePart_SECOND),
+		"microsecond":  pt.Ptr(paginationV1.DatePart_MICROSECOND),
 
 		// unknown / empty -> unspecified
 		"":       nil,
@@ -161,13 +163,7 @@ func TestConverterDatePartToString(t *testing.T) {
 
 	for _, c := range cases {
 		got := ConverterDatePartToString(c.in)
-		ok := false
-		for _, w := range c.want {
-			if got == w {
-				ok = true
-				break
-			}
-		}
+		ok := slices.Contains(c.want, got)
 		if !ok {
 			t.Fatalf("ConverterDatePartToString(%v) = %q, want one of %v", c.in, got, c.want)
 		}
