@@ -22,7 +22,6 @@ func New(db *gorm.DB) {
 		panic(err)
 	}
 	sysCasbinModel := query.SysCasbinModel
-	sysCasbinModel.Where().Select(sysCasbinModel.ID)
 	result, err := repo.SysCasbinModelRepo.Get(context.Background(), orm.DB().Where(sysCasbinModel.Status.Eq(1)), sysCasbinModel.Content)
 	if err != nil {
 		panic(err)

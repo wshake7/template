@@ -13,6 +13,7 @@ import (
 	"go-common/utils/encrypt/rsa_util"
 	"go-common/utils/passwd"
 	"go.uber.org/zap"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -117,7 +118,10 @@ func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) err
 		ctx.L().Error("密码加密失败", zap.Error(err))
 		return res.FailDefault
 	}
-	err = repo.SysUserRepo.ChangePwd(info.Id, encodePwd)
+	sysUser = query.SysUser
+	_, err = repo.SysUserRepo.UpdateMap(map[field.Expr]any{
+		sysUser.Password: encodePwd,
+	}, sysUser.ID.Eq(info.Id))
 	if err != nil {
 		ctx.L().Error("修改密码失败", zap.Error(err))
 		return res.FailDefault

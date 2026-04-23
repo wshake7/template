@@ -12,7 +12,7 @@
 - 路由注册：`backend/admin/router/router.go`
 - 路由逻辑：`backend/admin/router/logic/`
 - 服务初始化：`backend/admin/services/init.go`
-- 数据层：`backend/admin/services/repo/`
+- 数据层：`backend/admin/services/orm/`
 
 ## 核心依赖或组件
 - `github.com/gofiber/fiber/v3`：HTTP 框架
@@ -24,7 +24,7 @@
 
 ## 启动链路
 1. `cmd/main.go` 读取 `-f` 指定配置（默认 `./etc/config.yaml`）
-2. 初始化日志与 services（Repo/Redis/Auth/Geo/Asynq/Casbin 等）
+2. 初始化日志与 services（Httpc/Orm/Redis/Auth/Geo/Asynq/Casbin 等）
 3. 创建 Fiber App 并注册路由组（默认 `/api` 前缀）
 4. 启动服务并等待优雅退出
 
@@ -46,12 +46,12 @@ go run ./cmd/main.go -f ./etc/config.yaml
 go test ./...
 
 # 生成脚本（项目内置）
-make script-imports
-make script-repo
+go run ./cmd/scripts/gen_imports
+go run ./cmd/scripts/orm
 ```
 
 ## 注意事项
 1. 新增路由要挂到 `router/router.go`，否则不会生效
 2. 业务逻辑尽量放在 `router/logic`，避免路由文件过重
 3. 配置新增字段要“结构体 + yaml”双向同步
-4. 涉及 DB 变更时，注意 `repo` 层与生成查询代码一致性
+4. 涉及 DB 变更时，注意 `orm/models`、`orm/repo` 与生成查询代码一致性

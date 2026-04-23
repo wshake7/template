@@ -21,7 +21,7 @@
 - Backend Services 生命周期与依赖编排: [skills/backend/framework/services-lifecycle.md](skills/backend/framework/services-lifecycle.md)
 - Backend FiberC 核心结构: [skills/backend/framework/fiberc-core.md](skills/backend/framework/fiberc-core.md)
 - Backend Router 编写风格: [skills/backend/framework/router-style.md](skills/backend/framework/router-style.md)
-- Backend Repo Models 编写与维护: [skills/backend/libraries/repo-models.md](skills/backend/libraries/repo-models.md)
+- Backend ORM Models 编写与维护: [skills/backend/libraries/orm-models.md](skills/backend/libraries/orm-models.md)
 - Backend go-common 公共库: [skills/backend/libraries/go-common.md](skills/backend/libraries/go-common.md)
 - Backend orm-crud 能力: [skills/backend/libraries/orm-crud.md](skills/backend/libraries/orm-crud.md)
 

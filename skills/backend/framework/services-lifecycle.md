@@ -8,7 +8,7 @@
 - 服务装配入口：`backend/admin/services/init.go`
 - 服务包装层：`backend/admin/services/*.go`
 - 各服务实现：
-  - `backend/admin/services/repo/`
+  - `backend/admin/services/orm/`
   - `backend/admin/services/redisc/`
   - `backend/admin/services/httpc/`
   - `backend/admin/services/asynq/`
@@ -18,15 +18,15 @@
 1. `services.New(conf)` 统一构建服务并 append 到 `conf.Fiber.Services`
 2. 当前装配顺序：
    - `NewHttpc()`
-   - `NewRepo(conf.Repo)`
+   - `NewOrm(conf.Orm)`
    - `NewRedis(conf.Redis)`
    - `NewAuth(conf.Auth, redisc.Client)`
    - `NewGeo()`
    - `NewAsynq(conf.Redis)`
-   - `NewCasbin(repo.Client.DB)`
+   - `NewCasbin(orm.Client.DB)`
 3. 下游依赖上游的包级客户端：
    - `Auth` 依赖 `redisc.Client`
-   - `Casbin` 依赖 `repo.Client.DB`
+   - `Casbin` 依赖 `orm.Client.DB`
 
 ## 服务接口风格
 - 每个服务封装为结构体，并实现统一方法：
@@ -37,7 +37,7 @@
 - `State` 用于健康探针输出；`Terminate` 负责释放资源
 
 ## 各服务职责速览
-- `repo.go`：初始化 DB 客户端，健康检查通过 `PingContext`
+- `orm.go`：初始化 DB 客户端，健康检查通过 `PingContext`
 - `redis.go`：初始化 Redis 客户端，健康检查 `PING`
 - `auth.go`：初始化 sa-token manager（基于 rueidis storage）
 - `httpc.go`：初始化 HTTP 客户端并在关闭时释放
@@ -48,7 +48,7 @@
 ## 修改步骤（推荐）
 1. 新增服务：先在 `services/xxx.go` 实现统一四个方法
 2. 在 `services/init.go` 按依赖顺序注入 `conf.Fiber.Services`
-3. 若依赖包级客户端（如 `repo.Client`），确认启动顺序在依赖之前
+3. 若依赖包级客户端（如 `orm.Client`），确认启动顺序在依赖之前
 4. 增加必要的 `State` 与 `Terminate` 逻辑，避免“能启动不能关闭”
 
 ## 常用命令
@@ -64,5 +64,5 @@ go test ./...
 
 ## 注意事项
 1. `init.go` 顺序是关键，改顺序前先评估依赖链
-2. 包级变量客户端（`repo.Client` / `redisc.Client`）使用方便但耦合高，改动要谨慎
+2. 包级变量客户端（`orm.Client` / `redisc.Client`）使用方便但耦合高，改动要谨慎
 3. 新服务必须实现 `Terminate`，避免资源泄漏

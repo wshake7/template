@@ -2,8 +2,11 @@ package main
 
 import (
 	"admin/config"
+	"admin/services/orm"
 	"admin/services/orm/models"
 	"admin/services/orm/query"
+	"admin/services/orm/repo"
+	"context"
 	"fmt"
 	"go-common/utils/passwd"
 	"go-common/viperc"
@@ -54,9 +57,8 @@ func main() {
 }
 
 func genUserAdd() {
-	sysUser := query.SysUser
 	pwd, _ := passwd.Encode("123456")
-	_ = sysUser.Create(&models.SysUser{Username: "admin", Password: pwd})
+	repo.SysUserRepo.Create(context.Background(), orm.DB(), &models.SysUser{Username: "admin", Password: pwd})
 }
 
 func dbGenCode(db *gorm.DB, models []any) {
