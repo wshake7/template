@@ -10,7 +10,6 @@ import (
 	_ "admin/fiberc/handler"
 	_ "admin/fiberc/middleware"
 	_ "admin/fiberc/res"
-	_ "admin/fiberc/services/repo/query"
 	_ "admin/router"
 	_ "admin/router/logic"
 	_ "admin/services"
@@ -18,8 +17,5 @@ import (
 	_ "admin/services/casbin"
 	_ "admin/services/httpc"
 	_ "admin/services/redisc"
-	_ "admin/services/repo"
-	_ "admin/services/repo/models"
-	_ "admin/services/repo/query"
 	_ "admin/validator"
 )

@@ -1,9 +1,9 @@
-package repo
+package orm
 
 import (
 	"admin/config"
-	"admin/services/repo/models"
-	"admin/services/repo/query"
+	"admin/services/orm/models"
+	"admin/services/orm/query"
 	"database/sql"
 	"go.uber.org/zap"
 	"gorm.io/gen"
@@ -13,6 +13,10 @@ import (
 )
 
 var Client *gormCrud.Client // 包级变量
+
+func DB() *gorm.DB {
+	return Client.DB
+}
 
 func New(config config.RepoConfig) *gormCrud.Client {
 	var options []gormCrud.Option

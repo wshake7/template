@@ -4,7 +4,7 @@ import "C"
 import (
 	"admin/auth"
 	"admin/fiberc/handler"
-	"admin/services/repo/query"
+	"admin/services/orm/query"
 	"errors"
 	"github.com/click33/sa-token-go/stputil"
 	"go-common/utils/encrypt/rsa_util"

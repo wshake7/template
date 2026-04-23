@@ -1,11 +1,11 @@
 psql:
   dsn: "postgres://postgres@127.0.0.1:5432/wshake?sslmode=disable"
   # 模式
-  schemas: ["public"]
+  schemas: [public]
   # 不包含前缀的模型架构
   shared_schema:
   # 使用的 UUID 包（gofrs 或 google）
-  uuid_pkg: "gofrs"
+  uuid_pkg: gofrs
   # 包含 sql 查询文件的文件夹
   queries:
     - ./queries
@@ -15,30 +15,30 @@ psql:
   except:
   # 并行获取多少张表
   concurrency:
-  output: "./gen"
+  output: ./gen
 
-plugins_preset: "all" # Valid values are "default", "all" or "none".
+plugins_preset: all # Valid values are "default", "all" or "none".
 plugins:
   dbinfo:
     disabled: true
-    pkgname: "dbinfo"
-    destination: "dbinfo"
+    pkgname: dbinfo
+    destination: dbinfo
   enums:
     disabled: false
-    pkgname: "enums"
-    destination: "enums"
+    pkgname: enums
+    destination: enums
   models:
     disabled: false
-    pkgname: "models"
-    destination: "models"
+    pkgname: models
+    destination: models
   factory:
     disabled: false
-    pkgname: "factory"
-    destination: "factory"
+    pkgname: factory
+    destination: factory
   dberrors:
     disabled: false
-    pkgname: "dberrors"
-    destination: "dberrors"
+    pkgname: dberrors
+    destination: dberrors
   where:
     disabled: false
   loaders:
@@ -47,16 +47,16 @@ plugins:
     disabled: false
   queries:
     disabled: false
-## 如何处理可选和可空类型。可用选项为 github.com/aarondl/opt 和 database/sql
-type_system: "github.com/aarondl/opt"
+# # 如何处理可选和可空类型。可用选项为 github.com/aarondl/opt 和 database/sql
+type_system: github.com/aarondl/opt
 # 生成 Struct 标签
-tags: "json"
+tags: json
 # 禁用生成 go test 文件
 no_tests: false
 # 如果设置为 true，在加载关系时，父级不会被添加到已加载对象的关联中
 no_back_referencing: false
 # 决定 Go 结构体标签名称的大小写。camel、title 或 snake（默认 snake）
-struct_tag_casing: "camel"
+struct_tag_casing: camel
 # 关系对象的结构标签
 relation_tag: "-"
 # 应将标签值设置为"-"的列名列表

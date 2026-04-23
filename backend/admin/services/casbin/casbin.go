@@ -1,7 +1,7 @@
 package casbin
 
 import (
-	"admin/services/repo/query"
+	"admin/services/orm/query"
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"

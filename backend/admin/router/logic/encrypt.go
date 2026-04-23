@@ -3,7 +3,7 @@ package logic
 import (
 	"admin/fiberc/handler"
 	"admin/fiberc/res"
-	redisc2 "admin/services/redisc"
+	"admin/services/redisc"
 	"errors"
 	"go-common/utils/encrypt/rsa_util"
 
@@ -19,8 +19,8 @@ type ResPublicKey struct {
 }
 
 func (r *EncryptHandler) PublicKey(ctx *handler.Ctx) (*ResPublicKey, error) {
-	var keyPair redisc2.DtoKeyPair
-	err := redisc2.Client.GetJson(ctx, redisc2.KeyGlobalEncryptPublicKey, &keyPair)
+	var keyPair redisc.DtoKeyPair
+	err := redisc.Client.GetJson(ctx, redisc.KeyGlobalEncryptPublicKey, &keyPair)
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			keyPair.PrivateKey, keyPair.PublicKey, err = rsa_util.GenerateKeyPair()
@@ -28,7 +28,7 @@ func (r *EncryptHandler) PublicKey(ctx *handler.Ctx) (*ResPublicKey, error) {
 				ctx.L().Error("生成rsaKey错误", zap.Error(err))
 				return nil, res.FailDefault
 			}
-			err = redisc2.Client.Do(ctx, redisc2.Client.B().Set().Key(redisc2.KeyGlobalEncryptPublicKey).Value(rueidis.JSON(keyPair)).Build()).Error()
+			err = redisc.Client.Do(ctx, redisc.Client.B().Set().Key(redisc.KeyGlobalEncryptPublicKey).Value(rueidis.JSON(keyPair)).Build()).Error()
 			if err != nil {
 				ctx.L().Error("保存rsaKey错误", zap.Error(err))
 				return nil, res.FailDefault

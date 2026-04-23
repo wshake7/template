@@ -2,7 +2,7 @@ package services
 
 import (
 	"admin/config"
-	"admin/services/repo"
+	"admin/services/orm"
 	"context"
 	"fmt"
 	"go.uber.org/zap"
@@ -17,7 +17,7 @@ type Repo struct {
 func NewRepo(conf config.RepoConfig) *Repo {
 	return &Repo{
 		repoConf: conf,
-		client:   repo.New(conf),
+		client:   orm.New(conf),
 	}
 }
 

@@ -2,6 +2,8 @@ package router
 
 import (
 	"admin/fiberc/middleware"
+	"admin/router/auth_router"
+
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -15,4 +17,5 @@ func (r *Router) RegisterRouters(group fiber.Router) {
 	)
 	registerAccountRouters(defaultGroup.Group("account"))
 	registerEncryptRouters(defaultGroup.Group("encrypt"))
+	auth_router.RegisterRouters(defaultGroup.Group("role"))
 }

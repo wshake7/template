@@ -5,7 +5,7 @@
 package query
 
 import (
-	"admin/services/repo/models"
+	"admin/services/orm/models"
 	"context"
 	"database/sql"
 

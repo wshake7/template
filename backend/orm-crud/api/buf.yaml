@@ -9,7 +9,7 @@ modules:
       use:
         - FILE
 deps:
-  - 'buf.build/gnostic/gnostic'
+  - buf.build/gnostic/gnostic
 
 breaking:
   use:

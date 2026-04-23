@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"admin/fiberc/handler"
-	"admin/services/repo/models"
-	"admin/services/repo/query"
+	"admin/services/orm/models"
+	"admin/services/orm/query"
 	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v3"
