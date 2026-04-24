@@ -18,6 +18,12 @@ type ResPublicKey struct {
 	PublicKey string `json:"publicKey"`
 }
 
+// @Summary 获取加密公钥
+// @Description 获取用于敏感数据加密的 RSA 公钥
+// @Tags Encrypt
+// @Produce json
+// @Success 200 {object} res.Response{data=ResPublicKey} "成功"
+// @Router /api/encrypt/public/key [get]
 func (r *EncryptHandler) PublicKey(ctx *handler.Ctx) (*ResPublicKey, error) {
 	var keyPair redisc.DtoKeyPair
 	err := redisc.Client.GetJson(ctx, redisc.KeyGlobalEncryptPublicKey, &keyPair)

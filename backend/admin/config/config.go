@@ -5,14 +5,16 @@ import (
 )
 
 type Config struct {
-	AppName    string `mapstructure:"AppName"`
-	Host       string `mapstructure:"Host" default:"0.0.0.0"`
-	Port       int    `mapstructure:"Port" default:"3000"`
-	RestPrefix string `mapstructure:"RestPrefix" default:"/"`
-	Auth       AuthConfig
-	Fiber      FiberConfig
-	Orm        OrmConfig
-	Redis      RedisConfig
+	AppName       string `mapstructure:"AppName"`
+	Host          string `mapstructure:"Host" default:"0.0.0.0"`
+	Port          int    `mapstructure:"Port" default:"3000"`
+	RestPrefix    string `mapstructure:"RestPrefix" default:"/"`
+	IsSwagger     bool   `mapstructure:"IsSwagger" default:"false"`
+	SwaggerPrefix string `mapstructure:"SwaggerPrefix" default:"/swagger"`
+	Auth          AuthConfig
+	Fiber         FiberConfig
+	Orm           OrmConfig
+	Redis         RedisConfig
 }
 
 var Conf = new(Config)

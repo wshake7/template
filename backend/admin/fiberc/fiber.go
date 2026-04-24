@@ -9,19 +9,23 @@ import (
 	"context"
 	"encoding/xml"
 	"errors"
+	fiberzap "github.com/gofiber/contrib/v3/zap"
+	"html/template"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/contrib/monitor"
-	fiberzap "github.com/gofiber/contrib/v3/zap"
 	"github.com/gofiber/fiber/v3/binder"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/gofiber/fiber/v3/middleware/pprof"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"os"
-	"os/signal"
-	"syscall"
 
+	_ "admin/docs"
+	"github.com/gofiber/contrib/v3/swaggo"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"go.uber.org/zap"
@@ -36,13 +40,31 @@ func NewFiber(conf *config.Config) *App {
 		StackTraceHandler: func(c fiber.Ctx, err any) {},
 		EnableStackTrace:  true,
 	}))
+	app.Use(middleware.LogMiddleware(logger))
+	app.Use(middleware.TraceMiddleware())
 	app.Use(cors.New())
 	app.Use(pprof.New(pprof.Config{Prefix: "/pprof"}))
 	app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
 	app.Get("/metrics", monitor.New())
 	app.Get("/prometheus", adaptor.HTTPHandler(promhttp.Handler()))
-	app.Use(middleware.LogMiddleware(logger))
-	app.Use(middleware.TraceMiddleware())
+	if app.conf.IsSwagger {
+		swgCfg := swaggo.Config{
+			Title:              "Swagger UI",
+			Layout:             "StandaloneLayout",
+			URL:                "doc.json",
+			DeepLinking:        true,
+			ShowMutatedRequest: true,
+			Plugins: []template.JS{
+				template.JS("SwaggerUIBundle.plugins.DownloadUrl"),
+			},
+			Presets: []template.JS{
+				template.JS("SwaggerUIBundle.presets.apis"),
+				template.JS("SwaggerUIStandalonePreset"),
+			},
+			SyntaxHighlight: &swaggo.SyntaxHighlightConfig{Activate: true, Theme: "agate"},
+		}
+		app.Get(app.conf.SwaggerPrefix+"/*", swaggo.New(swgCfg))
+	}
 	logCfg := fiberzap.Config{
 		Logger: logger,
 		Fields: []string{"ip", "latency", "status", "method", "url", "resBody", "body", "queryParams"},

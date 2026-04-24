@@ -2,14 +2,15 @@ package res
 
 import (
 	"admin/domains"
-	"github.com/bytedance/sonic"
 	"strconv"
 	"strings"
+
+	"github.com/bytedance/sonic"
 )
 
 type Response struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
+	Code int    `json:"code" example:"1"`
+	Msg  string `json:"msg" example:"success"`
 	Data any    `json:"data"`
 }
 

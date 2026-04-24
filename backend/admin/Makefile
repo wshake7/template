@@ -14,3 +14,6 @@ script-repo:
 
 run:
 	go run ./cmd
+
+swagger:
+	swag init -g cmd/main.go --parseDependency

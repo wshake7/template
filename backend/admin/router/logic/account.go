@@ -9,9 +9,10 @@ import (
 	"admin/services/orm/query"
 	"admin/services/orm/repo"
 	"errors"
-	"github.com/click33/sa-token-go/stputil"
 	"go-common/utils/encrypt/rsa_util"
 	"go-common/utils/passwd"
+
+	"github.com/click33/sa-token-go/stputil"
 	"go.uber.org/zap"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -29,6 +30,14 @@ type ResAccountPwdLogin struct {
 	PublicKey string `json:"publicKey"`
 }
 
+// @Summary 用户密码登录
+// @Description 通过用户名和密码登录系统，并返回 token 与会话公钥
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param req body ReqAccountPwdLogin true "登录请求"
+// @Success 200 {object} res.Response{data=ResAccountPwdLogin} "成功"
+// @Router /api/account/login/pwd [post]
 func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*ResAccountPwdLogin, error) {
 	logger := ctx.L().With(zap.String("username", req.Username))
 	sysUser := query.SysUser
@@ -81,6 +90,13 @@ type ReqAccountLogout struct {
 	Token string `cookie:"token" binding:"required" binding_msg:"required=请求错误'"`
 }
 
+// @Summary 退出登录
+// @Description 使当前登录态失效
+// @Tags Account
+// @Produce json
+// @Param token header string true "登录 token"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/account/logout [get]
 func (*AccountHandler) Logout(ctx *handler.Ctx, req *ReqAccountLogout) error {
 	loginID, err := stputil.GetLoginID(req.Token)
 	if err != nil {
@@ -100,6 +116,14 @@ type ReqAccountChangePwd struct {
 	NewPwd string `json:"newPwd" binding:"required,min=6" binding_msg:"required=新密码不能为空,min=新密码最少6位"`
 }
 
+// @Summary 修改密码
+// @Description 修改当前登录用户的密码
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param req body ReqAccountChangePwd true "修改密码请求"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/account/changePwd [post]
 func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) error {
 	info := ctx.SessionInfo
 	sysUser := query.SysUser

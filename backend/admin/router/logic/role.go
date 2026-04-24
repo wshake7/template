@@ -16,6 +16,14 @@ import (
 
 type RoleHandler struct{}
 
+// @Summary 获取角色分页列表
+// @Description 分页查询角色信息
+// @Tags Role
+// @Accept json
+// @Produce json
+// @Param req body v1.PagingRequest true "分页参数"
+// @Success 200 {object} res.Response{data=gorm.PagingResult[models.SysRole]} "成功"
+// @Router /api/role/list [get]
 func (h *RoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm.PagingResult[models.SysRole], error) {
 	pagination, err := repo.SysRoleRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
 	if err != nil {
@@ -30,6 +38,14 @@ type ReqRoleCreate struct {
 	Remark string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
+// @Summary 创建角色
+// @Description 创建新的角色
+// @Tags Role
+// @Accept json
+// @Produce json
+// @Param req body ReqRoleCreate true "角色创建参数"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/role/create [post]
 func (*RoleHandler) Create(ctx *handler.Ctx, req *ReqRoleCreate) error {
 	_, err := repo.SysRoleRepo.Create(ctx.Context(), orm.DB(), &models.SysRole{Code: req.Code, Name: req.Name, Remark: mixin.Remark{Remark: req.Remark}})
 	if err != nil {
@@ -45,6 +61,14 @@ type ReqRoleUpdate struct {
 	Remark string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
+// @Summary 更新角色
+// @Description 根据角色 ID 更新角色信息
+// @Tags Role
+// @Accept json
+// @Produce json
+// @Param req body ReqRoleUpdate true "角色更新参数"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/role/update [post]
 func (*RoleHandler) Update(ctx *handler.Ctx, req *ReqRoleUpdate) error {
 	sysRole := query.SysRole
 	_, err := repo.SysRoleRepo.UpdateMap(map[field.Expr]any{
@@ -63,6 +87,14 @@ type ReqRoleSwitchStatus struct {
 	Status uint8  `json:"status" binding:"required" binding_msg:"required=角色状态不能为空"`
 }
 
+// @Summary 切换角色状态
+// @Description 根据角色 ID 修改启用状态
+// @Tags Role
+// @Accept json
+// @Produce json
+// @Param req body ReqRoleSwitchStatus true "角色状态参数"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/role/switch [post]
 func (*RoleHandler) Switch(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
 	sysRole := query.SysRole
 	_, err := repo.SysRoleRepo.UpdateMap(map[field.Expr]any{
@@ -78,6 +110,14 @@ type ReqRoleDelete struct {
 	ID uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
 }
 
+// @Summary 删除角色
+// @Description 根据角色 ID 删除角色
+// @Tags Role
+// @Accept json
+// @Produce json
+// @Param req body ReqRoleDelete true "角色删除参数"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/role/del [post]
 func (*RoleHandler) Del(ctx *handler.Ctx, req *ReqRoleDelete) error {
 	_, err := repo.SysRoleRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysUser.ID.Eq(req.ID)))
 	if err != nil {

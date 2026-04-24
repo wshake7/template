@@ -1,0 +1,449 @@
+basePath: /
+definitions:
+  admin_fiberc_res.Response:
+    properties:
+      code:
+        example: 1
+        type: integer
+      data: {}
+      msg:
+        example: success
+        type: string
+    type: object
+  admin_services_orm_models.SysRole:
+    properties:
+      apis:
+        items:
+          type: string
+        type: array
+      childIDs:
+        items:
+          type: integer
+        type: array
+      children:
+        items:
+          $ref: '#/definitions/admin_services_orm_models.SysRole'
+        type: array
+      code:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      dataScope:
+        type: string
+      deleted_by:
+        type: integer
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      menus:
+        items:
+          type: integer
+        type: array
+      name:
+        type: string
+      parentID:
+        type: integer
+      parentSysRole:
+        $ref: '#/definitions/admin_services_orm_models.SysRole'
+      path:
+        type: string
+      remark:
+        type: string
+      status:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  fieldmaskpb.FieldMask:
+    properties:
+      paths:
+        description: The set of field mask paths.
+        items:
+          type: string
+        type: array
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  gorm.PagingResult-admin_services_orm_models_SysRole:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/admin_services_orm_models.SysRole'
+        type: array
+      total:
+        type: integer
+    type: object
+  router_logic.ReqAccountChangePwd:
+    properties:
+      newPwd:
+        minLength: 6
+        type: string
+      oldPwd:
+        minLength: 6
+        type: string
+    required:
+      - newPwd
+      - oldPwd
+    type: object
+  router_logic.ReqAccountPwdLogin:
+    properties:
+      pwd:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 24
+        type: string
+    required:
+      - pwd
+      - username
+    type: object
+  router_logic.ReqRoleCreate:
+    properties:
+      code:
+        maxLength: 64
+        minLength: 1
+        type: string
+      name:
+        maxLength: 64
+        minLength: 1
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+    required:
+      - code
+      - name
+    type: object
+  router_logic.ReqRoleDelete:
+    properties:
+      id:
+        type: integer
+    required:
+      - id
+    type: object
+  router_logic.ReqRoleSwitchStatus:
+    properties:
+      id:
+        type: integer
+      status:
+        type: integer
+    required:
+      - id
+      - status
+    type: object
+  router_logic.ReqRoleUpdate:
+    properties:
+      code:
+        maxLength: 64
+        minLength: 1
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 64
+        minLength: 1
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+    required:
+      - code
+      - id
+      - name
+    type: object
+  router_logic.ResAccountPwdLogin:
+    properties:
+      publicKey:
+        type: string
+      token:
+        type: string
+    type: object
+  router_logic.ResPublicKey:
+    properties:
+      publicKey:
+        type: string
+    type: object
+  v1.PagingRequest:
+    properties:
+      field_mask:
+        allOf:
+          - $ref: '#/definitions/fieldmaskpb.FieldMask'
+        description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT
+          *。
+      filteringType:
+        description: "Types that are valid to be assigned to FilteringType:\n\n\t*PagingRequest_Query\n\t*PagingRequest_Filter\n\t*PagingRequest_FilterExpr"
+      limit:
+        description: 最多返回的记录数（默认10，建议设置上限如100）
+        type: integer
+      no_paging:
+        description: 是否不分页，如果为true，则page和pageSize参数无效。
+        type: boolean
+      offset:
+        description: 跳过的记录数（从0开始，默认0）
+        type: integer
+      order_by:
+        description: 排序条件
+        type: string
+      page:
+        description: 当前页码（从1开始，默认1）
+        type: integer
+      page_size:
+        description: 每页条数（默认10，建议设置上限如100）
+        type: integer
+      sorting:
+        description: 排序规则
+        items:
+          $ref: '#/definitions/v1.Sorting'
+        type: array
+      token:
+        description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
+        type: string
+    type: object
+  v1.Sorting:
+    properties:
+      direction:
+        allOf:
+          - $ref: '#/definitions/v1.Sorting_Direction'
+        description: 排序方向
+      field:
+        description: 排序字段（如"id"、"create_time"）
+        type: string
+    type: object
+  v1.Sorting_Direction:
+    enum:
+      - 0
+      - 1
+    format: int32
+    type: integer
+    x-enum-varnames:
+      - Sorting_ASC
+      - Sorting_DESC
+info:
+  contact: {}
+  description: |-
+    Admin 后端服务 API 文档。
+    所有接口均返回 HTTP 200，通过响应体中的 code 区分业务状态：
+    | Code | Msg | 说明 |
+    | :--- | :--- | :--- |
+    | 1 | success | 成功 |
+    | 2 | 服务繁忙 | 通用失败 |
+    | 3 | 请求超时 | 请求过期 |
+    | 4 | 请求重放 | Nonce 校验失败 |
+    | 5 | 请求错误 | 客户端请求错误 |
+    | 100 | - | 登录/权限相关失败 |
+  title: Admin API
+  version: "1.0"
+paths:
+  /api/account/changePwd:
+    post:
+      consumes:
+        - application/json
+      description: 修改当前登录用户的密码
+      parameters:
+        - description: 修改密码请求
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqAccountChangePwd'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 修改密码
+      tags:
+        - Account
+  /api/account/login/pwd:
+    post:
+      consumes:
+        - application/json
+      description: 通过用户名和密码登录系统，并返回 token 与会话公钥
+      parameters:
+        - description: 登录请求
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqAccountPwdLogin'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/router_logic.ResAccountPwdLogin'
+                type: object
+      summary: 用户密码登录
+      tags:
+        - Account
+  /api/account/logout:
+    get:
+      description: 使当前登录态失效
+      parameters:
+        - description: 登录 token
+          in: header
+          name: token
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 退出登录
+      tags:
+        - Account
+  /api/encrypt/public/key:
+    get:
+      description: 获取用于敏感数据加密的 RSA 公钥
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/router_logic.ResPublicKey'
+                type: object
+      summary: 获取加密公钥
+      tags:
+        - Encrypt
+  /api/role/create:
+    post:
+      consumes:
+        - application/json
+      description: 创建新的角色
+      parameters:
+        - description: 角色创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqRoleCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 创建角色
+      tags:
+        - Role
+  /api/role/del:
+    post:
+      consumes:
+        - application/json
+      description: 根据角色 ID 删除角色
+      parameters:
+        - description: 角色删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqRoleDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 删除角色
+      tags:
+        - Role
+  /api/role/list:
+    get:
+      consumes:
+        - application/json
+      description: 分页查询角色信息
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gorm.PagingResult-admin_services_orm_models_SysRole'
+                type: object
+      summary: 获取角色分页列表
+      tags:
+        - Role
+  /api/role/switch:
+    post:
+      consumes:
+        - application/json
+      description: 根据角色 ID 修改启用状态
+      parameters:
+        - description: 角色状态参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqRoleSwitchStatus'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 切换角色状态
+      tags:
+        - Role
+  /api/role/update:
+    post:
+      consumes:
+        - application/json
+      description: 根据角色 ID 更新角色信息
+      parameters:
+        - description: 角色更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqRoleUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 更新角色
+      tags:
+        - Role
+swagger: "2.0"
