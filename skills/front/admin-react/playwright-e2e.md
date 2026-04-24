@@ -5,7 +5,7 @@
 ## 测试目录
 
 ```
-front/apps/admin/
+front/apps/admin-react/
 ├── tests/                      # E2E 测试
 │   ├── example.spec.ts
 │   └── test.spec.ts
@@ -18,7 +18,7 @@ front/apps/admin/
 
 ## 测试配置
 
-位置: `front/apps/admin/playwright.config.ts`
+位置: `front/apps/admin-react/playwright.config.ts`
 
 主要配置:
 - `testDir`: 测试文件目录
@@ -30,21 +30,21 @@ front/apps/admin/
 
 ```bash
 # 运行 E2E 测试
-vp run admin#e2e:test
+vp run admin-react#e2e:test
 
 # UI 模式 (可视化)
-vp run admin#e2e:test-ui
+vp run admin-react#e2e:test-ui
 
 # 查看测试报告
-vp run admin#e2e:show
+vp run admin-react#e2e:show
 
 # 代码生成 (录制模式)
-vp run admin#e2e:codegen
+vp run admin-react#e2e:codegen
 ```
 
 ## 组件测试配置
 
-位置: `front/apps/admin/playwright-ct.config.ts`
+位置: `front/apps/admin-react/playwright-ct.config.ts`
 
 用于测试 React 组件的独立渲染。
 
@@ -87,8 +87,8 @@ GitHub Actions 配置: `.github/workflows/playwright.yml`
   with:
     cache: true
 - run: vp install
-- run: vp run admin#build
-- run: vp run admin#e2e:test
+- run: vp run admin-react#build
+- run: vp run admin-react#e2e:test
 ```
 
 ## 测试工具
@@ -99,7 +99,7 @@ GitHub Actions 配置: `.github/workflows/playwright.yml`
 
 ## 调试技巧
 
-1. 使用 `vp run admin#e2e:test-ui` 可视化调试
+1. 使用 `vp run admin-react#e2e:test-ui` 可视化调试
 2. 使用 `page.pause()` 暂停测试
 3. 使用 `page.screenshot()` 截图
-4. 使用 `vp run admin#e2e:show` 查看详细报告
+4. 使用 `vp run admin-react#e2e:show` 查看详细报告

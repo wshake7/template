@@ -1,6 +1,6 @@
 import type { MenuDataItem, ProSettings } from '@ant-design/pro-components'
 import type { FormListFieldData } from 'antd'
-import type { ChangePwdFormValues } from '~/components/business/changePwdModal'
+import type { ChangePwdFormValues } from '~/components/business/account/changePwdModal'
 
 import { LockOutlined, LogoutOutlined } from '@ant-design/icons'
 import {
@@ -25,7 +25,7 @@ import useApp from 'antd/es/app/useApp'
 
 import { useState } from 'react'
 
-import ChangePwdModal from '~/components/business/changePwdModal'
+import ChangePwdModal from '~/components/business/account/changePwdModal'
 import { buildMenuTree } from '~/utils/menu'
 
 export const Route = createFileRoute('/_app')({
@@ -128,7 +128,7 @@ function AppLayout() {
             location={{ pathname }}
             token={{
               header: {
-                colorBgMenuItemSelected: 'rgba(0,0,0,0.04)',
+                // colorBgMenuItemSelected: 'rgba(0,0,0,0.04)',
               },
             }}
             menu={{
@@ -200,11 +200,7 @@ function AppLayout() {
                 type: 'editable-card',
               }}
             >
-              <ProCard
-                style={{
-                  minHeight: 800,
-                }}
-              >
+              <ProCard style={{ minHeight: 1000 }}>
                 <Outlet />
               </ProCard>
             </PageContainer>

@@ -4,7 +4,7 @@
 
 ## 主题目录
 
-位置: `front/apps/admin/src/config/themes/`
+位置: `front/apps/admin-react/src/config/themes/`
 
 ## 现有主题
 

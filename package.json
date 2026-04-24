@@ -9,13 +9,13 @@
   },
   "scripts": {
     "ready": "eslint . && vp run test -r && vp run build -r",
-    "dev": "vp run admin#dev",
-    "build": "vp run admin#build",
-    "preview": "vp run admin#preview",
+    "dev": "vp run admin-react#dev",
+    "build": "vp run admin-react#build",
+    "preview": "vp run admin-react#preview",
     "prepare": "vp config",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
-    "clean:build": "node -e \"const fs=require('node:fs');['front/apps/admin/dist','front/packages/utils/dist'].forEach(p=>fs.rmSync(p,{recursive:true,force:true}))\""
+    "clean:build": "node -e \"const fs=require('node:fs');['front/apps/admin-react/dist','front/packages/utils/dist'].forEach(p=>fs.rmSync(p,{recursive:true,force:true}))\""
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",

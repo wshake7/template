@@ -45,3 +45,8 @@
 - 需求总入口：`AI_REQUIREMENTS.md`
 - AI 开始任务前，应先查看 `AI_REQUIREMENTS.md` 中相关分区（总需求/前端需求/后端需求）
 - 若需求执行后有状态变化，AI 应同步更新 `AI_REQUIREMENTS.md` 对应条目状态
+
+## 低 Token 执行规则
+- AI 默认遵循“先定位、后读取、最小充分验证”原则，减少无关文件读取与重复检索
+- 优先使用 `Glob/Grep` 缩小范围，再按需 `Read` 关键文件，避免一次性读取大文件
+- 前端任务默认按 `skills/front/admin/admin-framework.md` 的“低 Token 执行清单（Admin）”执行

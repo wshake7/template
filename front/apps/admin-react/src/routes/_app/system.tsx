@@ -1,20 +1,16 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_app/account')({
+export const Route = createFileRoute('/_app/system')({
   staticData: {
     menu: {
-      name: '账号管理',
+      name: '系统管理',
       menuType: 'catalog',
+      order: 1,
     },
   },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return (
-    <>
-      <div>Account</div>
-      <Outlet />
-    </>
-  )
+  return <Outlet />
 }

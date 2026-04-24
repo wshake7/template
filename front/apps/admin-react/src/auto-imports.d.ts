@@ -16,6 +16,7 @@ declare global {
   const HttpCodeChaeck: typeof import('./domains/constant').HttpCodeChaeck
   const HttpCodeCheck: typeof import('./domains/constant').HttpCodeCheck
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
+  const RoleApi: typeof import('./api/role').RoleApi
   const Suspense: typeof import('react').Suspense
   const XHeader: typeof import('./domains/constant').Header
   const aesDecrypt: typeof import('./utils/encrypt').aesDecrypt
@@ -29,7 +30,7 @@ declare global {
   const buildMenuTree: typeof import('./utils/menu').buildMenuTree
   const cache: typeof import('react').cache
   const cacheSignal: typeof import('react').cacheSignal
-  const changePwdModal: typeof import('./components/business/changePwdModal').default
+  const changePwdModal: typeof import('./components/business/account/changePwdModal').default
   const cn: typeof import('./components/lib/utils').cn
   const createContext: typeof import('react').createContext
   const createRef: typeof import('react').createRef
@@ -48,6 +49,7 @@ declare global {
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
   const sortByOrder: typeof import('./utils/menu').sortByOrder
   const startTransition: typeof import('react').startTransition
+  const t: typeof import('./config/themes/t').default
   const uriSort: typeof import('./utils/encrypt').uriSort
   const use: typeof import('react').use
   const useAccountStore: typeof import('./stores/account').useAccountStore
@@ -176,6 +178,6 @@ declare global {
   export type { ResPublicKey } from './domains/encrypt'
   import('./domains/encrypt')
   // @ts-ignore
-  export type { ChangePwdFormValues } from './components/business/changePwdModal'
-  import('./components/business/changePwdModal')
+  export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
+  import('./components/business/account/changePwdModal')
 }

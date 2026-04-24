@@ -13,7 +13,7 @@ export const getMenu = (route: AnyRoute) =>
  * 获取排序权重
  */
 export const getOrder = (route: AnyRoute) =>
-  getMenu(route)?.order ?? 99
+  getMenu(route)?.order ?? 0
 
 /**
  * 排序函数

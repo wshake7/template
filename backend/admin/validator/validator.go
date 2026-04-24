@@ -41,7 +41,7 @@ func ParseValidateErr(req any, err error) error {
 	}
 
 	t := reflect.TypeOf(req)
-	for t.Kind() == reflect.Ptr {
+	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 
@@ -54,7 +54,7 @@ func ParseValidateErr(req any, err error) error {
 		if !ok {
 			continue
 		}
-		for _, item := range strings.Split(msgTag, ",") {
+		for item := range strings.SplitSeq(msgTag, ",") {
 			parts := strings.SplitN(item, "=", 2)
 			if len(parts) == 2 && parts[0] == e.Tag() {
 				return errors.New(parts[1])

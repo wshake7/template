@@ -208,7 +208,7 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 			costTime := time.Since(now).Milliseconds()
 			var formatChange string
 			function.RecFn(func() {
-				formatChange = DiffChange(beforeChangeData, afterChangeData)
+				//formatChange = DiffChange(beforeChangeData, afterChangeData)
 			})
 			coroutine.Launch(func() {
 				result, err := ip_util.Client.Query(ip)

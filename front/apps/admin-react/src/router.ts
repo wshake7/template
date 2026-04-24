@@ -22,6 +22,7 @@ declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     menu?: {
       menuType?: MenuType
+      order?: number
     } & MenuDataItem
   }
 }

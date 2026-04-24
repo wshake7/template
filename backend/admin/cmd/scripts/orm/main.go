@@ -158,7 +158,7 @@ func generateExtraFiles(models []any) {
 
 		for _, model := range models {
 			t := reflect.TypeOf(model)
-			for t.Kind() == reflect.Ptr {
+			for t.Kind() == reflect.Pointer {
 				t = t.Elem()
 			}
 			modelName := t.Name()
@@ -213,10 +213,10 @@ func getModuleName() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to read go.mod: %v", err)
 	}
-	for _, line := range strings.Split(string(content), "\n") {
+	for line := range strings.SplitSeq(string(content), "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "module ") {
-			return strings.TrimPrefix(line, "module "), nil
+		if after, ok := strings.CutPrefix(line, "module "); ok {
+			return after, nil
 		}
 	}
 	return "", fmt.Errorf("module name not found in go.mod")

@@ -17,8 +17,8 @@
 位置: `package.json`
 
 - 主要脚本:
-  - `vp run admin#dev`：启动 admin 开发
-  - `vp run admin#build`：构建 admin
+  - `vp run admin-react#dev`：启动 admin-react 开发
+  - `vp run admin-react#build`：构建 admin-react
   - `vp run lint:fix`：修复 lint
   - `vp run test -r`：递归执行工作区测试
   - `vp run build -r`：递归执行工作区构建
@@ -26,9 +26,9 @@
   - `vite-plus`：统一工具链入口
   - `eslint` / `@antfu/eslint-config`：代码规范与校验
 
-### Admin package.json（front/apps/admin）
+### Admin package.json（front/apps/admin-react）
 
-位置: `front/apps/admin/package.json`
+位置: `front/apps/admin-react/package.json`
 
 - UI 与样式:
   - `antd`、`@ant-design/pro-components`、`antd-style`
@@ -68,7 +68,7 @@
 ## 目录结构
 
 ```
-front/apps/admin/src/
+front/apps/admin-react/src/
 ├── api/          # API 请求定义
 ├── components/   # React 组件
 │   ├── business/ # 业务组件
@@ -191,7 +191,7 @@ export const xxxAPI = {
 
 ## 环境变量
 
-位置: `front/apps/admin/.env.*`
+位置: `front/apps/admin-react/.env.*`
 
 - `.env` - 默认环境
 - `.env.dev` - 开发环境
@@ -201,17 +201,17 @@ export const xxxAPI = {
 ## 常用命令
 
 ```bash
-# 根目录启动 admin 开发
-vp run admin#dev
+# 根目录启动 admin-react 开发
+vp run admin-react#dev
 
-# 根目录构建 admin
-vp run admin#build
+# 根目录构建 admin-react
+vp run admin-react#build
 
 # E2E 测试
-vp run admin#e2e:test
-vp run admin#e2e:test-ui    # UI 模式
-vp run admin#e2e:show       # 查看报告
-vp run admin#e2e:codegen    # 生成测试代码
+vp run admin-react#e2e:test
+vp run admin-react#e2e:test-ui    # UI 模式
+vp run admin-react#e2e:show       # 查看报告
+vp run admin-react#e2e:codegen    # 生成测试代码
 ```
 
 ## 开发注意事项
@@ -221,3 +221,28 @@ vp run admin#e2e:codegen    # 生成测试代码
 3. 状态管理优先使用 Zustand，避免 Redux 过于复杂
 4. 组件放在 `components/business/` 或 `components/lib/` 下
 5. 工具函数放在 `utils/` 下，领域逻辑放在 `domains/` 下
+
+## 低 Token 执行清单（Admin）
+
+用于减少前端任务中的上下文消耗，默认按以下顺序执行：
+
+1. 先定位再读取
+   - 先用 `Glob` 找页面/接口文件（如 `routes/**`、`api/**`）
+   - 再用 `Grep` 找符号（组件名、接口路径、store 名）
+   - 最后只 `Read` 命中的关键文件
+2. 新增页面最小读取集
+   - `src/routes/_app.tsx`（布局约束）
+   - 目标父级路由文件（如 `src/routes/_app/account.tsx`）
+   - 目标页面文件（如 `src/routes/_app/account/user.tsx`）
+   - 对应 `src/api/*.ts` 与 `src/domains/*.ts`
+3. 角色/列表页优先复用模式
+   - 表格优先 `ProTable`
+   - 弹窗表单优先 `ModalForm`
+   - 请求优先复用 `API.Get/Post(...).send()` 封装
+4. 避免高消耗文件反复读取
+   - `src/routeTree.gen.ts` 仅在路由异常时查看
+   - `auto-imports.d.ts` 仅在类型提示异常时查看
+5. 命令执行节奏
+   - 开发阶段优先局部验证（类型/页面行为）
+   - 改动收敛后再执行一次：`vp run lint:fix`、`vp run test -r`
+   - 命令失败先汇报错误原因，不重复盲跑

@@ -12,7 +12,7 @@ interface ThemeStore {
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set, get) => ({
-      themeType: 'default',
+      themeType: 'shadcn',
       setThemeType: themeType => set({ themeType }),
       resolveTheme: themes => themes[get().themeType],
     }),

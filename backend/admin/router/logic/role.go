@@ -16,8 +16,8 @@ import (
 
 type RoleHandler struct{}
 
-func (h *RoleHandler) List(ctx *handler.Ctx, req *v1.PaginationRequest) (*gorm.PagingResult[models.SysRole], error) {
-	pagination, err := repo.SysRoleRepo.ListWithPagination(ctx.Context(), orm.DB(), req)
+func (h *RoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm.PagingResult[models.SysRole], error) {
+	pagination, err := repo.SysRoleRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -63,7 +63,7 @@ type ReqRoleSwitchStatus struct {
 	Status uint8  `json:"status" binding:"required" binding_msg:"required=角色状态不能为空"`
 }
 
-func (*RoleHandler) SwitchStatus(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
+func (*RoleHandler) Switch(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
 	sysRole := query.SysRole
 	_, err := repo.SysRoleRepo.UpdateMap(map[field.Expr]any{
 		sysRole.Status: req.Status,
@@ -78,7 +78,7 @@ type ReqRoleDelete struct {
 	ID uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
 }
 
-func (*RoleHandler) Delete(ctx *handler.Ctx, req *ReqRoleDelete) error {
+func (*RoleHandler) Del(ctx *handler.Ctx, req *ReqRoleDelete) error {
 	_, err := repo.SysRoleRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysUser.ID.Eq(req.ID)))
 	if err != nil {
 		return res.FailDefault

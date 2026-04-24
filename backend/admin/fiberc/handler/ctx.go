@@ -7,9 +7,12 @@ import (
 	"admin/fiberc/res"
 	"admin/validator"
 	"errors"
-	"github.com/gofiber/fiber/v3"
 	"go-common/utils/types"
+
+	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func Trans(ctx fiber.Ctx) *Ctx {
@@ -241,6 +244,11 @@ func (ctx *Ctx) bindFn(obj any, fn func() error) error {
 
 func (ctx *Ctx) StructBind(obj any) error {
 	return ctx.bindFn(obj, func() error {
+		if _, ok := obj.(protoreflect.ProtoMessage); ok {
+			body := ctx.Request().Body()
+			err := protojson.Unmarshal(body, obj.(protoreflect.ProtoMessage))
+			return err
+		}
 		return ctx.DefaultCtx.Bind().All(obj)
 	})
 }
@@ -251,7 +259,7 @@ func (ctx *Ctx) BodyBind(obj any) error {
 	})
 }
 
-func (ctx *Ctx) ParamsBind(obj any) error {
+func (ctx *Ctx) URIBind(obj any) error {
 	return ctx.bindFn(obj, func() error {
 		return ctx.DefaultCtx.Bind().URI(obj)
 	})

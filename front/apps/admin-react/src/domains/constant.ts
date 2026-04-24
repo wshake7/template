@@ -13,11 +13,11 @@ export type CodeType = (typeof HttpCode)[keyof typeof HttpCode]
 const HttpCodeSet = new Set(Object.values(HttpCode))
 
 export const Header = {
-  XRequestTimestamp: "X-Request-Timestamp",
-  XRequestID: "X-Request-ID",
-  XRequestEncryptedKey: "X-Request-Encrypted-Key",
-  XRequestSignature: "X-Request-Signature",
-  XResponseIsEncrypt: "X-Response-Is-Encrypt",
+  XRequestTimestamp: 'X-Request-Timestamp',
+  XRequestID: 'X-Request-ID',
+  XRequestEncryptedKey: 'X-Request-Encrypted-Key',
+  XRequestSignature: 'X-Request-Signature',
+  XResponseIsEncrypt: 'X-Response-Is-Encrypt',
   Token: 'Token',
 }
 
@@ -64,5 +64,3 @@ export async function HttpCodeCheck(res: Res) {
     throw new Error(msg)
   }
 }
-
-

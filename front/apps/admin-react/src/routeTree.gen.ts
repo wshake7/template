@@ -11,11 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as AppDashboard2RouteImport } from './routes/_app/dashboard2'
+import { Route as AppSystemRouteImport } from './routes/_app/system'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as loginLoginRouteImport } from './routes/(login)/login'
-import { Route as AppAccountUserRouteImport } from './routes/_app/account/user'
+import { Route as AppSystemDictRouteImport } from './routes/_app/system/dict'
+import { Route as AppAccountRoleRouteImport } from './routes/_app/account/role'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -26,9 +27,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDashboard2Route = AppDashboard2RouteImport.update({
-  id: '/dashboard2',
-  path: '/dashboard2',
+const AppSystemRoute = AppSystemRouteImport.update({
+  id: '/system',
+  path: '/system',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -46,9 +47,14 @@ const loginLoginRoute = loginLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppAccountUserRoute = AppAccountUserRouteImport.update({
-  id: '/user',
-  path: '/user',
+const AppSystemDictRoute = AppSystemDictRouteImport.update({
+  id: '/dict',
+  path: '/dict',
+  getParentRoute: () => AppSystemRoute,
+} as any)
+const AppAccountRoleRoute = AppAccountRoleRouteImport.update({
+  id: '/role',
+  path: '/role',
   getParentRoute: () => AppAccountRoute,
 } as any)
 
@@ -57,16 +63,18 @@ export interface FileRoutesByFullPath {
   '/login': typeof loginLoginRoute
   '/account': typeof AppAccountRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
-  '/dashboard2': typeof AppDashboard2Route
-  '/account/user': typeof AppAccountUserRoute
+  '/system': typeof AppSystemRouteWithChildren
+  '/account/role': typeof AppAccountRoleRoute
+  '/system/dict': typeof AppSystemDictRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginLoginRoute
   '/account': typeof AppAccountRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
-  '/dashboard2': typeof AppDashboard2Route
+  '/system': typeof AppSystemRouteWithChildren
   '/': typeof AppIndexRoute
-  '/account/user': typeof AppAccountUserRoute
+  '/account/role': typeof AppAccountRoleRoute
+  '/system/dict': typeof AppSystemDictRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -74,9 +82,10 @@ export interface FileRoutesById {
   '/(login)/login': typeof loginLoginRoute
   '/_app/account': typeof AppAccountRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
-  '/_app/dashboard2': typeof AppDashboard2Route
+  '/_app/system': typeof AppSystemRouteWithChildren
   '/_app/': typeof AppIndexRoute
-  '/_app/account/user': typeof AppAccountUserRoute
+  '/_app/account/role': typeof AppAccountRoleRoute
+  '/_app/system/dict': typeof AppSystemDictRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -85,25 +94,28 @@ export interface FileRouteTypes {
     | '/login'
     | '/account'
     | '/dashboard'
-    | '/dashboard2'
-    | '/account/user'
+    | '/system'
+    | '/account/role'
+    | '/system/dict'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/account'
     | '/dashboard'
-    | '/dashboard2'
+    | '/system'
     | '/'
-    | '/account/user'
+    | '/account/role'
+    | '/system/dict'
   id:
     | '__root__'
     | '/_app'
     | '/(login)/login'
     | '/_app/account'
     | '/_app/dashboard'
-    | '/_app/dashboard2'
+    | '/_app/system'
     | '/_app/'
-    | '/_app/account/user'
+    | '/_app/account/role'
+    | '/_app/system/dict'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -127,11 +139,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/dashboard2': {
-      id: '/_app/dashboard2'
-      path: '/dashboard2'
-      fullPath: '/dashboard2'
-      preLoaderRoute: typeof AppDashboard2RouteImport
+    '/_app/system': {
+      id: '/_app/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof AppSystemRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
@@ -155,39 +167,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof loginLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/account/user': {
-      id: '/_app/account/user'
-      path: '/user'
-      fullPath: '/account/user'
-      preLoaderRoute: typeof AppAccountUserRouteImport
+    '/_app/system/dict': {
+      id: '/_app/system/dict'
+      path: '/dict'
+      fullPath: '/system/dict'
+      preLoaderRoute: typeof AppSystemDictRouteImport
+      parentRoute: typeof AppSystemRoute
+    }
+    '/_app/account/role': {
+      id: '/_app/account/role'
+      path: '/role'
+      fullPath: '/account/role'
+      preLoaderRoute: typeof AppAccountRoleRouteImport
       parentRoute: typeof AppAccountRoute
     }
   }
 }
 
 interface AppAccountRouteChildren {
-  AppAccountUserRoute: typeof AppAccountUserRoute
+  AppAccountRoleRoute: typeof AppAccountRoleRoute
 }
 
 const AppAccountRouteChildren: AppAccountRouteChildren = {
-  AppAccountUserRoute: AppAccountUserRoute,
+  AppAccountRoleRoute: AppAccountRoleRoute,
 }
 
 const AppAccountRouteWithChildren = AppAccountRoute._addFileChildren(
   AppAccountRouteChildren,
 )
 
+interface AppSystemRouteChildren {
+  AppSystemDictRoute: typeof AppSystemDictRoute
+}
+
+const AppSystemRouteChildren: AppSystemRouteChildren = {
+  AppSystemDictRoute: AppSystemDictRoute,
+}
+
+const AppSystemRouteWithChildren = AppSystemRoute._addFileChildren(
+  AppSystemRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
-  AppDashboard2Route: typeof AppDashboard2Route
+  AppSystemRoute: typeof AppSystemRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
-  AppDashboard2Route: AppDashboard2Route,
+  AppSystemRoute: AppSystemRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
 }
 

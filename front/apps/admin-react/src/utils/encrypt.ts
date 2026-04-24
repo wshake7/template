@@ -12,65 +12,10 @@ export async function generateAesKey() {
   }
 }
 
-// AES-GCM加密
-// export async function aesEncrypt(key: CryptoKey, aad: string, data?: any) {
-//   const encoder = new TextEncoder()
-//   const iv = window.crypto.getRandomValues(new Uint8Array(12))
-//   let encodeData
-//   if (data) {
-//     encodeData = encoder.encode(JSON.stringify(data))
-//   }
-//   else {
-//     encodeData = new Uint8Array()
-//   }
-//   const encrypted = await window.crypto.subtle.encrypt(
-//     { name: 'AES-GCM', iv, additionalData: encoder.encode(aad), tagLength: 128 },
-//     key,
-//     encodeData,
-//   )
-//   const encryptedArray = new Uint8Array(encrypted)
-//   const result = new Uint8Array(iv.length + encryptedArray.length)
-//   result.set(iv, 0)
-//   result.set(encryptedArray, iv.length)
-//   return arrayBufferToBase64(result)
-// }
-
-
-// export async function aesEncrypt(key: CryptoKey, aad: string, data?: any) {
-//   const encoder = new TextEncoder()
-//   const iv = window.crypto.getRandomValues(new Uint8Array(12))
-
-//   let encodeData
-//   if (data) {
-//     encodeData = encoder.encode(JSON.stringify(data))
-//   } else {
-//     encodeData = new Uint8Array()
-//   }
-
-//   const encrypted = await window.crypto.subtle.encrypt(
-//     {
-//       name: 'AES-GCM',
-//       iv,
-//       additionalData: encoder.encode(aad),
-//       tagLength: 128,
-//     },
-//     key,
-//     encodeData,
-//   )
-
-//   const encryptedArray = new Uint8Array(encrypted)
-
-//   const result = new Uint8Array(encryptedArray.length + iv.length)
-//   result.set(encryptedArray, 0) // ciphertext + tag
-//   result.set(iv, encryptedArray.length)
-
-//   return arrayBufferToBase64(result)
-// }
-
 export async function aesEncrypt(
   key: CryptoKey,
   aad: string,
-  data?: any
+  data?: any,
 ) {
   const encoder = new TextEncoder()
   const iv = window.crypto.getRandomValues(new Uint8Array(12))
@@ -87,7 +32,7 @@ export async function aesEncrypt(
       tagLength: 128,
     },
     key,
-    plainBytes
+    plainBytes,
   )
 
   const encrypted = new Uint8Array(encryptedBuffer)

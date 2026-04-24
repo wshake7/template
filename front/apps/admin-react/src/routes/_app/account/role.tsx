@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_app/dashboard2')({
+export const Route = createFileRoute('/_app/account/role')({
   staticData: {
     menu: {
-      name: '控制台2',
+      name: '角色管理',
       menuType: 'menu',
     },
   },
@@ -11,5 +11,5 @@ export const Route = createFileRoute('/_app/dashboard2')({
 })
 
 function RouteComponent() {
-  return <div>Hello "/_app/dashboard2"!</div>
+  return <div>Hello "/_app/account/role"!</div>
 }
