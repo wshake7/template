@@ -124,6 +124,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/dict/entry/batch/copy": {
+            "post": {
+                "description": "将选中的字典数据项批量复制到指定字典类型下",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "批量复制字典数据项",
+                "parameters": [
+                    {
+                        "description": "批量复制参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictEntryBatchCopy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/dict/entry/create": {
             "post": {
                 "description": "创建新的字典数据项",
@@ -781,7 +815,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "integer"
                 },
                 "deletedBy": {
                     "type": "integer"
@@ -852,7 +886,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                    "type": "integer"
                 },
                 "deletedBy": {
                     "type": "integer"
@@ -901,18 +935,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
                 }
             }
         },
@@ -989,6 +1011,25 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "maxLength": 24
+                }
+            }
+        },
+        "router_logic.ReqDictEntryBatchCopy": {
+            "type": "object",
+            "required": [
+                "entryIds",
+                "targetTypeId"
+            ],
+            "properties": {
+                "entryIds": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "targetTypeId": {
+                    "type": "integer"
                 }
             }
         },

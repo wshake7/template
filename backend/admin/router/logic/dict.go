@@ -71,12 +71,15 @@ func (*DictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.Pa
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/create [post]
 func (*DictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
+	operationID := ctx.SessionInfo.Id
 	_, err := repo.SysDictTypeRepo.Create(ctx.Context(), orm.DB(), &models.SysDictType{
-		TypeCode:    req.TypeCode,
-		TypeName:    req.TypeName,
+		CreatedBy:   mixin.CreatedBy{CreatedBy: operationID},
+		UpdatedBy:   mixin.UpdatedBy{UpdatedBy: operationID},
 		IsEnabled:   mixin.IsEnabled{IsEnabled: req.IsEnabled},
 		SortOrder:   mixin.SortOrder{SortOrder: req.SortOrder},
 		Description: mixin.Description{Description: req.Description},
+		TypeCode:    req.TypeCode,
+		TypeName:    req.TypeName,
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -96,8 +99,10 @@ func (*DictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/update [post]
 func (*DictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
+	operationID := ctx.SessionInfo.Id
 	sysDictType := query.SysDictType
 	m := map[string]any{
+		sysDictType.UpdatedBy.ColumnName().String():   operationID,
 		sysDictType.TypeCode.ColumnName().String():    req.TypeCode,
 		sysDictType.TypeName.ColumnName().String():    req.TypeName,
 		sysDictType.IsEnabled.ColumnName().String():   req.IsEnabled,
@@ -123,8 +128,10 @@ func (*DictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/switch [post]
 func (*DictHandler) TypeSwitch(ctx *handler.Ctx, req *ReqDictTypeSwitchStatus) error {
+	operationID := ctx.SessionInfo.Id
 	sysDictType := query.SysDictType
 	_, err := repo.SysDictTypeRepo.UpdateMap(map[string]any{
+		sysDictType.UpdatedBy.ColumnName().String(): operationID,
 		sysDictType.IsEnabled.ColumnName().String(): req.IsEnabled,
 	}, sysDictType.ID.Eq(req.ID))
 	if err != nil {
@@ -199,6 +206,11 @@ type ReqDictEntryDelete struct {
 	ID uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
 }
 
+type ReqDictEntryBatchCopy struct {
+	EntryIds     []uint64 `json:"entryIds" binding:"required,min=1" binding_msg:"required=请选择字典项,min=至少选择一项"`
+	TargetTypeId uint64   `json:"targetTypeId" binding:"required" binding_msg:"required=目标字典类型不能为空"`
+}
+
 // @Summary 获取字典数据项分页列表
 // @Description 分页查询字典数据项信息
 // @Tags Dict
@@ -224,6 +236,7 @@ func (*DictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.P
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/create [post]
 func (*DictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error {
+	operationID := ctx.SessionInfo.Id
 	// 校验字典类型是否存在
 	exists, err := repo.SysDictTypeRepo.Exists(ctx.Context(), orm.DB().Where(query.SysDictType.ID.Eq(req.SysDictTypeId), query.SysDictType.IsEnabled.Is(req.IsEnabled)))
 	if err != nil {
@@ -234,14 +247,17 @@ func (*DictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error
 	}
 
 	_, err = repo.SysDictEntryRepo.Create(ctx.Context(), orm.DB(), &models.SysDictEntry{
+		CreatedBy:     mixin.CreatedBy{CreatedBy: operationID},
+		UpdatedBy:     mixin.UpdatedBy{UpdatedBy: operationID},
+		SortOrder:     mixin.SortOrder{SortOrder: req.SortOrder},
+		IsEnabled:     mixin.IsEnabled{IsEnabled: req.IsEnabled},
+		Remark:        mixin.Remark{Remark: req.Remark},
 		EntryLabel:    req.EntryLabel,
 		EntryValue:    req.EntryValue,
 		NumericValue:  req.NumericValue,
 		LanguageCode:  req.LanguageCode,
 		SysDictTypeId: req.SysDictTypeId,
-		SortOrder:     mixin.SortOrder{SortOrder: req.SortOrder},
-		IsEnabled:     mixin.IsEnabled{IsEnabled: req.IsEnabled},
-		Remark:        mixin.Remark{Remark: req.Remark},
+		SysDictType:   nil,
 	})
 	if err != nil {
 		return res.FailDefault
@@ -258,6 +274,7 @@ func (*DictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/update [post]
 func (*DictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error {
+	operationID := ctx.SessionInfo.Id
 	// 如果更新了 SysDictTypeId，校验其是否存在
 	if req.SysDictTypeId != nil {
 		exists, err := repo.SysDictTypeRepo.Exists(ctx.Context(), orm.DB().Where(query.SysDictType.ID.Eq(*req.SysDictTypeId)))
@@ -271,6 +288,7 @@ func (*DictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error
 
 	sysDictEntry := query.SysDictEntry
 	_, err := repo.SysDictEntryRepo.UpdateNoNilMap(map[string]any{
+		sysDictEntry.UpdatedBy.ColumnName().String():     operationID,
 		sysDictEntry.EntryLabel.ColumnName().String():    req.EntryLabel,
 		sysDictEntry.EntryValue.ColumnName().String():    req.EntryValue,
 		sysDictEntry.NumericValue.ColumnName().String():  req.NumericValue,
@@ -295,8 +313,10 @@ func (*DictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/switch [post]
 func (*DictHandler) EntrySwitch(ctx *handler.Ctx, req *ReqDictEntrySwitchStatus) error {
+	operationID := ctx.SessionInfo.Id
 	sysDictEntry := query.SysDictEntry
 	_, err := repo.SysDictEntryRepo.UpdateMap(map[string]any{
+		sysDictEntry.UpdatedBy.ColumnName().String(): operationID,
 		sysDictEntry.IsEnabled.ColumnName().String(): req.IsEnabled,
 	}, sysDictEntry.ID.Eq(req.ID))
 	if err != nil {
@@ -318,5 +338,59 @@ func (*DictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryDelete) error {
 	if err != nil {
 		return res.FailDefault
 	}
+	return nil
+}
+
+// @Summary 批量复制字典数据项
+// @Description 将选中的字典数据项批量复制到指定字典类型下
+// @Tags Dict
+// @Accept json
+// @Produce json
+// @Param req body ReqDictEntryBatchCopy true "批量复制参数"
+// @Success 200 {object} res.Response "成功"
+// @Router /api/dict/entry/batch/copy [post]
+func (*DictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCopy) error {
+	// 校验目标字典类型是否存在
+	exists, err := repo.SysDictTypeRepo.Exists(ctx.Context(), orm.DB().Where(query.SysDictType.ID.Eq(req.TargetTypeId)))
+	if err != nil {
+		ctx.L().Error("校验字典类型失败", zap.Error(err), zap.Uint64("targetTypeId", req.TargetTypeId))
+		return res.FailDefault
+	}
+	if !exists {
+		return res.FailMsg("目标字典类型不存在")
+	}
+
+	// 查询源字典项
+	var sourceEntries []models.SysDictEntry
+	err = orm.DB().WithContext(ctx.Context()).Where("id IN ?", req.EntryIds).Find(&sourceEntries).Error
+	if err != nil {
+		ctx.L().Error("查询源字典项失败", zap.Error(err), zap.Uint64s("entryIds", req.EntryIds))
+		return res.FailDefault
+	}
+	if len(sourceEntries) == 0 {
+		return res.FailMsg("未找到要复制的字典项")
+	}
+
+	// 创建新字典项（复制到目标类型）
+	var newEntries []*models.SysDictEntry
+	for _, entry := range sourceEntries {
+		newEntries = append(newEntries, &models.SysDictEntry{
+			EntryLabel:    entry.EntryLabel,
+			EntryValue:    entry.EntryValue,
+			NumericValue:  entry.NumericValue,
+			LanguageCode:  entry.LanguageCode,
+			SysDictTypeId: req.TargetTypeId,
+			SortOrder:     mixin.SortOrder{SortOrder: entry.SortOrder.SortOrder},
+			IsEnabled:     mixin.IsEnabled{IsEnabled: entry.IsEnabled.IsEnabled},
+			Remark:        mixin.Remark{Remark: entry.Remark.Remark},
+		})
+	}
+
+	_, err = repo.SysDictEntryRepo.BatchCreate(ctx.Context(), orm.DB(), newEntries)
+	if err != nil {
+		ctx.L().Error("批量复制字典项失败", zap.Error(err), zap.Uint64s("entryIds", req.EntryIds), zap.Uint64("targetTypeId", req.TargetTypeId))
+		return res.FailDefault
+	}
+
 	return nil
 }

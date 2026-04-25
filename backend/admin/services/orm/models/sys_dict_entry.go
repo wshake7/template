@@ -12,7 +12,8 @@ func init() {
 type SysDictEntry struct {
 	mixin.AutoIncrementID
 	mixin.TimeAt
-	mixin.OperatorID
+	mixin.CreatedBy
+	mixin.UpdatedBy
 	mixin.SortOrder
 	mixin.IsEnabled
 	mixin.Remark

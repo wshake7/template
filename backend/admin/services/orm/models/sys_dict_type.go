@@ -13,7 +13,8 @@ type SysDictType struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.OperatorID
+	mixin.CreatedBy
+	mixin.UpdatedBy
 	mixin.IsEnabled
 	mixin.SortOrder
 	mixin.Description

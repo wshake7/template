@@ -13,7 +13,8 @@ type SysLanguage struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.OperatorID
+	mixin.CreatedBy
+	mixin.UpdatedBy
 	mixin.SortOrder
 	mixin.IsEnabled
 

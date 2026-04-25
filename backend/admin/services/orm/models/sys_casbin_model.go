@@ -9,7 +9,8 @@ func init() {
 type SysCasbinModel struct {
 	mixin.AutoIncrementID
 	mixin.TimeAt
-	mixin.OperatorID
+	mixin.CreatedBy
+	mixin.UpdatedBy
 	mixin.IsEnabled
 	mixin.Remark
 	Name    string `gorm:"column:name;type:varchar(255);not null;comment:模型名称" json:"name"`

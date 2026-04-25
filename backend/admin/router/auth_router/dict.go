@@ -25,4 +25,5 @@ func registerDictRouters(router fiber.Router) {
 	dictEntry.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(dictHandler.EntryUpdate))
 	dictEntry.Post("/switch", logMiddleware, handler.CtxHandlerNilFunc(dictHandler.EntrySwitch))
 	dictEntry.Post("/del", logMiddleware, handler.CtxHandlerNilFunc(dictHandler.EntryDel))
+	dictEntry.Post("/batch/copy", logMiddleware, handler.CtxHandlerNilFunc(dictHandler.EntryBatchCopy))
 }

@@ -52,7 +52,7 @@ definitions:
       createdBy:
         type: integer
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        type: integer
       deletedBy:
         type: integer
       description:
@@ -99,7 +99,7 @@ definitions:
       dataScope:
         type: string
       deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
+        type: integer
       deletedBy:
         type: integer
       id:
@@ -132,14 +132,6 @@ definitions:
         items:
           type: string
         type: array
-    type: object
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
     type: object
   gormc.PagingResult-admin_services_orm_models_SysDictEntry:
     properties:
@@ -191,6 +183,19 @@ definitions:
     required:
       - pwd
       - username
+    type: object
+  router_logic.ReqDictEntryBatchCopy:
+    properties:
+      entryIds:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      targetTypeId:
+        type: integer
+    required:
+      - entryIds
+      - targetTypeId
     type: object
   router_logic.ReqDictEntryCreate:
     properties:
@@ -521,6 +526,28 @@ paths:
       summary: 退出登录
       tags:
         - Account
+  /api/dict/entry/batch/copy:
+    post:
+      consumes:
+        - application/json
+      description: 将选中的字典数据项批量复制到指定字典类型下
+      parameters:
+        - description: 批量复制参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictEntryBatchCopy'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 批量复制字典数据项
+      tags:
+        - Dict
   /api/dict/entry/create:
     post:
       consumes:
