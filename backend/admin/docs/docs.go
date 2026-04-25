@@ -126,7 +126,7 @@ const docTemplate = `{
         },
         "/api/dict/entry/batch/copy": {
             "post": {
-                "description": "将选中的字典数据项批量复制到指定字典类型下",
+                "description": "将选中的字典数据项批量复制到指定字典类型下（不支持复制到同一类型）",
                 "consumes": [
                     "application/json"
                 ],
@@ -194,7 +194,7 @@ const docTemplate = `{
         },
         "/api/dict/entry/del": {
             "post": {
-                "description": "根据 ID 删除字典数据项",
+                "description": "根据 ID 列表批量删除字典数据项",
                 "consumes": [
                     "application/json"
                 ],
@@ -204,15 +204,15 @@ const docTemplate = `{
                 "tags": [
                     "Dict"
                 ],
-                "summary": "删除字典数据项",
+                "summary": "批量删除字典数据项",
                 "parameters": [
                     {
-                        "description": "删除参数",
+                        "description": "批量删除参数",
                         "name": "req",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictEntryDelete"
+                            "$ref": "#/definitions/router_logic.ReqDictEntryBatchDelete"
                         }
                     }
                 ],
@@ -376,7 +376,7 @@ const docTemplate = `{
         },
         "/api/dict/type/del": {
             "post": {
-                "description": "根据 ID 删除字典类型及其关联的所有字典项",
+                "description": "根据 ID 列表批量删除字典类型及其关联的所有字典项",
                 "consumes": [
                     "application/json"
                 ],
@@ -386,15 +386,15 @@ const docTemplate = `{
                 "tags": [
                     "Dict"
                 ],
-                "summary": "删除字典类型",
+                "summary": "批量删除字典类型",
                 "parameters": [
                     {
-                        "description": "删除参数",
+                        "description": "批量删除参数",
                         "name": "req",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictTypeDelete"
+                            "$ref": "#/definitions/router_logic.ReqDictTypeBatchDelete"
                         }
                     }
                 ],
@@ -764,9 +764,6 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "string"
                 },
-                "deletedBy": {
-                    "type": "integer"
-                },
                 "entryLabel": {
                     "type": "string"
                 },
@@ -815,9 +812,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "deletedAt": {
-                    "type": "integer"
-                },
-                "deletedBy": {
                     "type": "integer"
                 },
                 "description": {
@@ -886,9 +880,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "deletedAt": {
-                    "type": "integer"
-                },
-                "deletedBy": {
                     "type": "integer"
                 },
                 "id": {
@@ -1033,6 +1024,21 @@ const docTemplate = `{
                 }
             }
         },
+        "router_logic.ReqDictEntryBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "router_logic.ReqDictEntryCreate": {
             "type": "object",
             "required": [
@@ -1067,17 +1073,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "sysDictTypeId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "router_logic.ReqDictEntryDelete": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
                     "type": "integer"
                 }
             }
@@ -1135,6 +1130,21 @@ const docTemplate = `{
                 }
             }
         },
+        "router_logic.ReqDictTypeBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "router_logic.ReqDictTypeCreate": {
             "type": "object",
             "required": [
@@ -1159,17 +1169,6 @@ const docTemplate = `{
                 "typeName": {
                     "type": "string",
                     "maxLength": 255
-                }
-            }
-        },
-        "router_logic.ReqDictTypeDelete": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
                 }
             }
         },

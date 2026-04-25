@@ -42,8 +42,8 @@ type ReqDictTypeSwitchStatus struct {
 	IsEnabled bool   `json:"isEnabled"`
 }
 
-type ReqDictTypeDelete struct {
-	ID uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
+type ReqDictTypeBatchDelete struct {
+	IDs []uint64 `json:"ids" binding:"required,min=1" binding_msg:"required=请选择字典类型,min=至少选择一项"`
 }
 
 // @Summary 获取字典类型分页列表
@@ -140,24 +140,24 @@ func (*DictHandler) TypeSwitch(ctx *handler.Ctx, req *ReqDictTypeSwitchStatus) e
 	return nil
 }
 
-// @Summary 删除字典类型
-// @Description 根据 ID 删除字典类型及其关联的所有字典项
+// @Summary 批量删除字典类型
+// @Description 根据 ID 列表批量删除字典类型及其关联的所有字典项
 // @Tags Dict
 // @Accept json
 // @Produce json
-// @Param req body ReqDictTypeDelete true "删除参数"
+// @Param req body ReqDictTypeBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/del [post]
-func (*DictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeDelete) error {
+func (*DictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) error {
 	err := orm.DB().Transaction(func(tx *gorm.DB) error {
 		// 1. 删除关联的字典项
-		_, err := repo.SysDictEntryRepo.SoftDelete(ctx.Context(), tx.Where(query.SysDictEntry.SysDictTypeId.Eq(req.ID)))
+		_, err := repo.SysDictEntryRepo.SoftDelete(ctx.Context(), tx.Where(query.SysDictEntry.SysDictTypeId.In(req.IDs...)))
 		if err != nil {
 			return err
 		}
 
 		// 2. 删除字典类型
-		_, err = repo.SysDictTypeRepo.SoftDelete(ctx.Context(), tx.Where(query.SysDictType.ID.Eq(req.ID)))
+		_, err = repo.SysDictTypeRepo.SoftDelete(ctx.Context(), tx.Where(query.SysDictType.ID.In(req.IDs...)))
 		if err != nil {
 			return err
 		}
@@ -166,7 +166,7 @@ func (*DictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeDelete) error {
 	})
 
 	if err != nil {
-		ctx.L().Error("删除字典类型失败", zap.Error(err), zap.Uint64("id", req.ID))
+		ctx.L().Error("批量删除字典类型失败", zap.Error(err), zap.Uint64s("ids", req.IDs))
 		return res.FailDefault
 	}
 	return nil
@@ -202,8 +202,8 @@ type ReqDictEntrySwitchStatus struct {
 	IsEnabled bool   `json:"isEnabled"`
 }
 
-type ReqDictEntryDelete struct {
-	ID uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
+type ReqDictEntryBatchDelete struct {
+	IDs []uint64 `json:"ids" binding:"required,min=1" binding_msg:"required=请选择字典项,min=至少选择一项"`
 }
 
 type ReqDictEntryBatchCopy struct {
@@ -325,16 +325,16 @@ func (*DictHandler) EntrySwitch(ctx *handler.Ctx, req *ReqDictEntrySwitchStatus)
 	return nil
 }
 
-// @Summary 删除字典数据项
-// @Description 根据 ID 删除字典数据项
+// @Summary 批量删除字典数据项
+// @Description 根据 ID 列表批量删除字典数据项
 // @Tags Dict
 // @Accept json
 // @Produce json
-// @Param req body ReqDictEntryDelete true "删除参数"
+// @Param req body ReqDictEntryBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/del [post]
-func (*DictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryDelete) error {
-	_, err := repo.SysDictEntryRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysDictEntry.ID.Eq(req.ID)))
+func (*DictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) error {
+	_, err := repo.SysDictEntryRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysDictEntry.ID.In(req.IDs...)))
 	if err != nil {
 		return res.FailDefault
 	}
@@ -342,7 +342,7 @@ func (*DictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryDelete) error {
 }
 
 // @Summary 批量复制字典数据项
-// @Description 将选中的字典数据项批量复制到指定字典类型下
+// @Description 将选中的字典数据项批量复制到指定字典类型下（不支持复制到同一类型）
 // @Tags Dict
 // @Accept json
 // @Produce json
@@ -369,6 +369,11 @@ func (*DictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCopy)
 	}
 	if len(sourceEntries) == 0 {
 		return res.FailMsg("未找到要复制的字典项")
+	}
+
+	// 不能复制到同一类型
+	if sourceEntries[0].SysDictTypeId == req.TargetTypeId {
+		return res.FailMsg("不能复制到相同字典类型")
 	}
 
 	// 创建新字典项（复制到目标类型）

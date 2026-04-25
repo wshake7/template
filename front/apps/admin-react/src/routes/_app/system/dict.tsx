@@ -66,14 +66,18 @@ function DictTypePanel({
   onSelectType,
   onDeleteSelectedType,
   onUpdateSelectedType,
+  onBatchCopyEntries,
 }: {
   selectedType: DictType | undefined
   onSelectType: (record: DictType) => void
   onDeleteSelectedType: () => void
   onUpdateSelectedType: (record: DictType) => void
+  onBatchCopyEntries: (entryIds: number[], targetTypeId: number) => void
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<DictType>()
+  const [hoveredDropTypeId, setHoveredDropTypeId] = useState<number | undefined>()
+  const [selectedTypeIds, setSelectedTypeIds] = useState<number[]>([])
   const {
     data,
     total,
@@ -222,7 +226,7 @@ function DictTypePanel({
           title="确认删除该字典类型吗？"
           onConfirm={async (event) => {
             event?.stopPropagation()
-            await DictApi.typeDel({ id: record.id })
+            await DictApi.typeDel({ ids: [record.id] })
             gMessage.success('删除成功')
             if (selectedType?.id === record.id) {
               onDeleteSelectedType()
@@ -266,14 +270,83 @@ function DictTypePanel({
           reload: () => send(),
         }}
         toolBarRender={() => [
+          selectedTypeIds.length > 0
+            ? (
+                <Popconfirm
+                  key="batchDel"
+                  title={`确认批量删除选中的 ${selectedTypeIds.length} 个字典类型吗？（将同时删除其下的所有字典项）`}
+                  onConfirm={async () => {
+                    await DictApi.typeDel({ ids: selectedTypeIds })
+                    gMessage.success(`成功删除 ${selectedTypeIds.length} 项`)
+                    setSelectedTypeIds([])
+                    if (selectedType && selectedTypeIds.includes(selectedType.id)) {
+                      onDeleteSelectedType()
+                    }
+                    await send()
+                  }}
+                >
+                  <Button key="batchDel" danger>
+                    批量删除
+                    {selectedTypeIds.length > 0 && ` (${selectedTypeIds.length})`}
+                  </Button>
+                </Popconfirm>
+              )
+            : null,
           <Button key="add" type="primary" onClick={openCreate}>
             新增类型
           </Button>,
         ]}
-        rowClassName={record => (record.id === selectedType?.id ? 'ant-table-row-selected' : '')}
+        rowSelection={{
+          selectedRowKeys: selectedTypeIds,
+          onChange: (keys) => {
+            setSelectedTypeIds(keys as number[])
+          },
+        }}
+        rowClassName={(record) => {
+          const classes: string[] = []
+          if (record.id === selectedType?.id) {
+            classes.push('ant-table-row-selected')
+          }
+          if (record.id === hoveredDropTypeId && record.id !== selectedType?.id) {
+            classes.push('ant-table-row-drop-target')
+          }
+          return classes.join(' ')
+        }}
         onRow={record => ({
           onClick: () => {
             onSelectType(record)
+          },
+          onDragOver: (e) => {
+            if (record.id === selectedType?.id) {
+              e.dataTransfer.dropEffect = 'none'
+              return
+            }
+            e.preventDefault()
+            e.dataTransfer.dropEffect = 'copy'
+          },
+          onDragEnter: (e) => {
+            if (record.id === selectedType?.id) { return }
+            e.preventDefault()
+            setHoveredDropTypeId(record.id)
+          },
+          onDragLeave: () => {
+            setHoveredDropTypeId(undefined)
+          },
+          onDrop: (e) => {
+            e.preventDefault()
+            setHoveredDropTypeId(undefined)
+            if (record.id === selectedType?.id) { return }
+            const raw = e.dataTransfer.getData('text/plain')
+            if (!raw) { return }
+            try {
+              const entryIds: number[] = JSON.parse(raw)
+              if (entryIds.length > 0) {
+                onBatchCopyEntries(entryIds, record.id)
+              }
+            }
+            catch {
+              // ignore parse errors
+            }
           },
         })}
       />
@@ -303,8 +376,12 @@ function DictTypePanel({
 
 function DictEntryPanel({
   selectedType,
+  selectedEntryIds,
+  onSelectionChange,
 }: {
   selectedType: DictType | undefined
+  selectedEntryIds: number[]
+  onSelectionChange: (ids: number[]) => void
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<DictEntry>()
@@ -469,7 +546,7 @@ function DictEntryPanel({
           key="del"
           title="确认删除该字典项吗？"
           onConfirm={async () => {
-            await DictApi.entryDel({ id: record.id })
+            await DictApi.entryDel({ ids: [record.id] })
             gMessage.success('删除成功')
             await send()
           }}
@@ -503,6 +580,20 @@ function DictEntryPanel({
         options={{
           reload: () => send(),
         }}
+        rowSelection={{
+          selectedRowKeys: selectedEntryIds,
+          onChange: (keys) => {
+            onSelectionChange(keys as number[])
+          },
+        }}
+        onRow={record => ({
+          draggable: true,
+          onDragStart: (e) => {
+            const ids = selectedEntryIds.length > 0 ? selectedEntryIds : [record.id]
+            e.dataTransfer.setData('text/plain', JSON.stringify(ids))
+            e.dataTransfer.effectAllowed = 'copy'
+          },
+        })}
         headerTitle={selectedType ? `字典项 - ${selectedType.typeName}` : '字典项'}
         toolBarRender={() => [
           <Space key="tips" size="middle">
@@ -514,6 +605,25 @@ function DictEntryPanel({
                   </Tag>
                 )
               : <Tag>请先点击左侧字典类型</Tag>}
+            {selectedEntryIds.length > 0
+              ? (
+                  <Popconfirm
+                    key="batchDel"
+                    title={`确认批量删除选中的 ${selectedEntryIds.length} 个字典项吗？`}
+                    onConfirm={async () => {
+                      await DictApi.entryDel({ ids: selectedEntryIds })
+                      gMessage.success(`成功删除 ${selectedEntryIds.length} 项`)
+                      onSelectionChange([])
+                      await send()
+                    }}
+                  >
+                    <Button key="batchDel" danger>
+                      批量删除
+                      {selectedEntryIds.length > 0 && ` (${selectedEntryIds.length})`}
+                    </Button>
+                  </Popconfirm>
+                )
+              : null}
             <Button type="primary" disabled={!selectedType} onClick={openCreate}>
               新增字典项
             </Button>
@@ -548,17 +658,31 @@ function DictEntryPanel({
 
 function RouteComponent() {
   const [selectedType, setSelectedType] = useState<DictType>()
+  const [selectedEntryIds, setSelectedEntryIds] = useState<number[]>([])
 
   const handleSelectType = useCallback((record: DictType) => {
     setSelectedType(record)
+    setSelectedEntryIds([])
   }, [])
 
   const handleDeleteSelectedType = useCallback(() => {
     setSelectedType(undefined)
+    setSelectedEntryIds([])
   }, [])
 
   const handleUpdateSelectedType = useCallback((record: DictType) => {
     setSelectedType(record)
+  }, [])
+
+  const handleBatchCopyEntries = useCallback(async (entryIds: number[], targetTypeId: number) => {
+    try {
+      await DictApi.entryBatchCopy({ entryIds, targetTypeId })
+      gMessage.success(`成功复制 ${entryIds.length} 项`)
+      setSelectedEntryIds([])
+    }
+    catch {
+      gMessage.error('复制失败')
+    }
   }, [])
 
   return (
@@ -569,11 +693,14 @@ function RouteComponent() {
           onSelectType={handleSelectType}
           onDeleteSelectedType={handleDeleteSelectedType}
           onUpdateSelectedType={handleUpdateSelectedType}
+          onBatchCopyEntries={handleBatchCopyEntries}
         />
       </Splitter.Panel>
       <Splitter.Panel>
         <DictEntryPanel
           selectedType={selectedType}
+          selectedEntryIds={selectedEntryIds}
+          onSelectionChange={setSelectedEntryIds}
         />
       </Splitter.Panel>
     </Splitter>

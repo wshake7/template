@@ -185,6 +185,6 @@ declare global {
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
   // @ts-ignore
-  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeSwitchStatus, ReqDictTypeDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntrySwitchStatus, ReqDictEntryDelete } from './api/dict'
+  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeSwitchStatus, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntrySwitchStatus, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/dict'
   import('./api/dict')
 }

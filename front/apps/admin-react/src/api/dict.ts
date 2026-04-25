@@ -38,8 +38,8 @@ export interface ReqDictTypeSwitchStatus {
   isEnabled: boolean
 }
 
-export interface ReqDictTypeDelete {
-  id: number
+export interface ReqDictTypeBatchDelete {
+  ids: number[]
 }
 
 export interface ReqDictEntryCreate {
@@ -62,8 +62,13 @@ export interface ReqDictEntrySwitchStatus {
   isEnabled: boolean
 }
 
-export interface ReqDictEntryDelete {
-  id: number
+export interface ReqDictEntryBatchDelete {
+  ids: number[]
+}
+
+export interface ReqDictEntryBatchCopy {
+  entryIds: number[]
+  targetTypeId: number
 }
 
 async function typeList(req: PagingRequest) {
@@ -90,7 +95,7 @@ async function typeSwitch(req: ReqDictTypeSwitchStatus) {
   }).send()
 }
 
-async function typeDel(req: ReqDictTypeDelete) {
+async function typeDel(req: ReqDictTypeBatchDelete) {
   await API.Post<Res>('/api/dict/type/del', req, {
     cacheFor: 0,
   }).send()
@@ -120,8 +125,14 @@ async function entrySwitch(req: ReqDictEntrySwitchStatus) {
   }).send()
 }
 
-async function entryDel(req: ReqDictEntryDelete) {
+async function entryDel(req: ReqDictEntryBatchDelete) {
   await API.Post<Res>('/api/dict/entry/del', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function entryBatchCopy(req: ReqDictEntryBatchCopy) {
+  await API.Post<Res>('/api/dict/entry/batch/copy', req, {
     cacheFor: 0,
   }).send()
 }
@@ -137,4 +148,5 @@ export const DictApi = {
   entryUpdate,
   entrySwitch,
   entryDel,
+  entryBatchCopy,
 }
