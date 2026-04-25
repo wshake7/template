@@ -11,7 +11,7 @@ import "gorm.io/gorm"
 //
 // 字段使用指针以支持 nullable；`index` 创建索引；BeforeCreate 在未设置时保证为 true。
 type IsEnabled struct {
-	IsEnabled bool `gorm:"column:is_enabled;default:true;index" json:"isEnabled,omitempty"`
+	IsEnabled bool `gorm:"column:is_enabled;default:true;index" json:"isEnabled"`
 }
 
 // BeforeCreate 在创建时如果未显式设置，保证默认启用。

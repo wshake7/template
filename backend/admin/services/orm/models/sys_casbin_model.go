@@ -12,8 +12,8 @@ type SysCasbinModel struct {
 	mixin.OperatorID
 	mixin.IsEnabled
 	mixin.Remark
-	Name    string `gorm:"column:name;type:varchar(255);not null;comment:模型名称" json:"name,omitempty"`
-	Content string `gorm:"column:content;type:text;not null;comment:模型内容" json:"content,omitempty"`
+	Name    string `gorm:"column:name;type:varchar(255);not null;comment:模型名称" json:"name"`
+	Content string `gorm:"column:content;type:text;not null;comment:模型内容" json:"content"`
 }
 
 func (SysCasbinModel) TableName() string {

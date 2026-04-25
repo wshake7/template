@@ -7,6 +7,7 @@ import (
 	"admin/services/orm/models"
 	"admin/services/orm/query"
 	"admin/services/orm/repo"
+	"errors"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 	"orm-crud/gormc/mixin"
@@ -29,11 +30,11 @@ type ReqDictTypeCreate struct {
 
 type ReqDictTypeUpdate struct {
 	ID          uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	TypeCode    *string `json:"typeCode" binding:"max=128" binding_msg:"max=字典类型代码最多128位"`
-	TypeName    *string `json:"typeName" binding:"max=255" binding_msg:"max=字典类型名称最多255位"`
+	TypeCode    *string `json:"typeCode" binding:"omitempty,max=128" binding_msg:"max=字典类型代码最多128位"`
+	TypeName    *string `json:"typeName" binding:"omitempty,max=255" binding_msg:"max=字典类型名称最多255位"`
 	IsEnabled   *bool   `json:"isEnabled"`
 	SortOrder   *int32  `json:"sortOrder"`
-	Description *string `json:"description" binding:"max=255" binding_msg:"max=描述最多255位"`
+	Description *string `json:"description" binding:"omitempty,max=255" binding_msg:"max=描述最多255位"`
 }
 
 type ReqDictTypeSwitchStatus struct {
@@ -78,6 +79,9 @@ func (*DictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
 		Description: mixin.Description{Description: req.Description},
 	})
 	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return res.FailMsg("类型编码已存在")
+		}
 		return res.FailDefault
 	}
 	return nil
@@ -102,6 +106,9 @@ func (*DictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
 	}
 	_, err := repo.SysDictTypeRepo.UpdateNoNilMap(m, sysDictType.ID.Eq(req.ID))
 	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return res.FailMsg("类型编码已存在")
+		}
 		return res.FailDefault
 	}
 	return nil
@@ -173,14 +180,14 @@ type ReqDictEntryCreate struct {
 
 type ReqDictEntryUpdate struct {
 	ID            uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	EntryLabel    *string `json:"entryLabel" binding:"max=255" binding_msg:"max=显示标签最多255位"`
-	EntryValue    *string `json:"entryValue" binding:"max=255" binding_msg:"max=数据值最多255位"`
+	EntryLabel    *string `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
+	EntryValue    *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
 	NumericValue  *int32  `json:"numericValue"`
-	LanguageCode  *string `json:"languageCode" binding:"max=32" binding_msg:"max=语言代码最多32位"`
+	LanguageCode  *string `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
 	SysDictTypeId *uint64 `json:"sysDictTypeId"`
 	SortOrder     *int32  `json:"sortOrder"`
 	IsEnabled     *bool   `json:"isEnabled"`
-	Remark        *string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	Remark        *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqDictEntrySwitchStatus struct {

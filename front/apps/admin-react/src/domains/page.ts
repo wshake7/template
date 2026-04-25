@@ -3,6 +3,7 @@ export interface PagingRequest {
   pageSize?: number
   noPaging?: boolean
   orderBy?: string
+  query?: string
 }
 
 export interface PagingResult<T> {

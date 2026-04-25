@@ -50,6 +50,40 @@ go run ./cmd/scripts/gen_imports
 go run ./cmd/scripts/orm
 ```
 
+## Handler 编写风格（以 router/logic/dict.go 为例）
+
+### 1) 文件职责与组织
+- 一个资源（如 `Dict`）集中在同一个 `router/logic/*.go` 文件内，按“类型/数据项”分段组织
+- `Req*` 结构体与 Handler 方法就近定义，便于维护请求约束与业务逻辑的一致性
+- 方法签名保持统一：读操作返回 `(*Data, error)`，写操作返回 `error`
+
+### 2) 请求结构体与校验风格
+- 入参统一使用 `json` + `binding` + `binding_msg`，错误文案直接面向业务语义
+- `Update` 请求中的可选字段使用指针类型（如 `*string`、`*int32`），用于区分“未传”与“传零值”
+- `Switch/Delete` 等简单动作使用最小请求体（如 `ID` + 状态位），避免冗余字段
+- 分页列表统一复用 `v1.PagingRequest`，不重复定义分页 DTO
+
+### 3) Repo 调用与更新模式
+- 列表查询优先使用 `repo.XxxRepo.ListWithPaging(...)`，保持分页、排序、过滤能力一致
+- 更新优先使用 `UpdateNoNilMap`（Patch 语义），结合指针字段实现“仅更新传入字段”
+- 状态切换使用 `UpdateMap`，只更新目标列，避免误写其他字段
+- 软删除统一使用 `SoftDelete`，与项目数据生命周期策略保持一致
+
+### 4) 业务校验与事务边界
+- 创建/更新涉及外键时，先用 `repo.XxxRepo.Exists(...)` 做关联存在性校验
+- 需要联动删除或多表一致性时，使用 `orm.DB().Transaction(...)` 包裹
+- 事务内步骤建议显式编号（先删子表，再删主表），降低维护成本
+
+### 5) 错误处理与返回风格
+- 用户可感知错误使用 `res.FailMsg("...")`（如“类型编码已存在”“字典类型不存在”）
+- 通用异常统一返回 `res.FailDefault`，避免泄漏底层错误细节
+- 对关键失败点补日志：`ctx.L().Error(..., zap.Error(err), ...)`，日志与返回语义解耦
+
+### 6) Swagger 与注释风格
+- 每个 Handler 前保持完整 Swagger 注释：`@Summary/@Description/@Tags/@Param/@Success/@Router`
+- 分页接口 `@Success` 使用 `res.Response{data=gormc.PagingResult[models.Xxx]}`
+- 若修改了 Swagger 注释，需在 `backend/admin` 执行 `make swagger`
+
 ## 注意事项
 1. 新增路由要挂到 `router/router.go`，否则不会生效
 2. 业务逻辑尽量放在 `router/logic`，避免路由文件过重

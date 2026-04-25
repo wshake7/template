@@ -26,7 +26,14 @@ func (sysRoleRepo[T, R]) UpdateMap(m map[string]any, conds ...gen.Condition) (ge
         return gen.ResultInfo{}, nil
     }
     q := query.SysRole
-    return q.Where(conds...).Updates(m)
+    result, err := q.Where(conds...).Updates(m)
+    if err != nil {
+        return result, err
+    }
+    if result.Error !=nil {
+        return result, result.Error
+    }
+    return result, err
 }
 
 func (sysRoleRepo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
@@ -43,5 +50,12 @@ func (sysRoleRepo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition
         return gen.ResultInfo{}, nil
     }
     q := query.SysRole
-    return q.Where(conds...).Updates(d)
+    result, err := q.Where(conds...).Updates(d)
+    if err != nil {
+        return result, err
+    }
+    if result.Error !=nil {
+        return result, result.Error
+    }
+    return result, err
 }

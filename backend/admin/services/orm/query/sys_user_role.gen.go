@@ -36,7 +36,7 @@ func newSysUserRole(db *gorm.DB, opts ...gen.DOOption) sysUserRole {
 	_sysUserRole.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysUserRole.UserID = field.NewUint64(tableName, "user_id")
 	_sysUserRole.RoleID = field.NewUint64(tableName, "role_id")
-	_sysUserRole.DeletedAt = field.NewField(tableName, "deleted_at")
+	_sysUserRole.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysUserRole.SysUser = sysUserRoleBelongsToSysUser{
 		db: db.Session(&gorm.Session{}),
 
@@ -88,7 +88,7 @@ type sysUserRole struct {
 	IsEnabled field.Bool
 	UserID    field.Uint64 // 用户ID
 	RoleID    field.Uint64 // 角色ID
-	DeletedAt field.Field
+	DeletedAt field.Uint
 	SysUser   sysUserRoleBelongsToSysUser
 
 	SysRole sysUserRoleBelongsToSysRole
@@ -117,7 +117,7 @@ func (s *sysUserRole) updateTableName(table string) *sysUserRole {
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.UserID = field.NewUint64(table, "user_id")
 	s.RoleID = field.NewUint64(table, "role_id")
-	s.DeletedAt = field.NewField(table, "deleted_at")
+	s.DeletedAt = field.NewUint(table, "deleted_at")
 
 	s.fillFieldMap()
 

@@ -26,7 +26,14 @@ func (sysDictTypeRepo[T, R]) UpdateMap(m map[string]any, conds ...gen.Condition)
         return gen.ResultInfo{}, nil
     }
     q := query.SysDictType
-    return q.Where(conds...).Updates(m)
+    result, err := q.Where(conds...).Updates(m)
+    if err != nil {
+        return result, err
+    }
+    if result.Error !=nil {
+        return result, result.Error
+    }
+    return result, err
 }
 
 func (sysDictTypeRepo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
@@ -43,5 +50,12 @@ func (sysDictTypeRepo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condi
         return gen.ResultInfo{}, nil
     }
     q := query.SysDictType
-    return q.Where(conds...).Updates(d)
+    result, err := q.Where(conds...).Updates(d)
+    if err != nil {
+        return result, err
+    }
+    if result.Error !=nil {
+        return result, result.Error
+    }
+    return result, err
 }

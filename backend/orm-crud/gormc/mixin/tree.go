@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 // ParentID 是 GORM 可复用的 mixin，表示父节点 ID（可为空）。
 // 使用指针以支持 nullable，并在数据库中建立索引。
 type ParentID struct {
-	ParentID *uint32 `gorm:"column:parent_id;type:bigint;index" json:"parentId,omitempty"`
+	ParentID *uint32 `gorm:"column:parent_id;type:bigint;index" json:"parentId"`
 }
 
 // 钩子占位：保持行为一致（可在此处添加校验不可变性等逻辑）。
@@ -19,8 +19,8 @@ type Tree[T any] struct {
 	ParentID
 
 	// Parent 指向父节点（可为 nil）
-	Parent *T `gorm:"foreignKey:ParentID;references:ID" json:"parent,omitempty"`
+	Parent *T `gorm:"foreignKey:ParentID;references:ID" json:"parent"`
 
 	// Children 列表，使用子表的 parent_id 字段作为外键
-	Children []T `gorm:"foreignKey:ParentID;references:ID" json:"children,omitempty"`
+	Children []T `gorm:"foreignKey:ParentID;references:ID" json:"children"`
 }

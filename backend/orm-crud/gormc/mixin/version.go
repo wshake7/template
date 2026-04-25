@@ -10,7 +10,7 @@ import (
 // 注意：钩子只负责在创建时设置初始版本。乐观锁的检查与递增
 // 需要在更新操作时在仓储/业务层使用带 WHERE version = ? 的更新语句来保证原子性。
 type Version struct {
-	Version uint32 `gorm:"column:version;type:bigint;default:1;not null;index" json:"version,omitempty"`
+	Version uint32 `gorm:"column:version;type:bigint;default:1;not null;index" json:"version"`
 }
 
 func (m *Version) BeforeCreate(tx *gorm.DB) (err error) {

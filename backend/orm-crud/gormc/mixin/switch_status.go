@@ -16,7 +16,7 @@ const (
 // 字段使用指针以支持 nullable，带有 gorm 标签与 json 标签。
 // BeforeCreate/BeforeSave 钩子用于填充默认值并校验合法枚举。
 type SwitchStatus struct {
-	Status *string `gorm:"column:status;type:varchar(10);default:ON;index" json:"status,omitempty"`
+	Status *string `gorm:"column:status;type:varchar(10);default:ON;index" json:"status"`
 }
 
 func (m *SwitchStatus) BeforeCreate(tx *gorm.DB) (err error) {

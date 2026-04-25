@@ -36,7 +36,7 @@ func newSysDictType(db *gorm.DB, opts ...gen.DOOption) sysDictType {
 	_sysDictType.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictType.SortOrder = field.NewInt32(tableName, "sort_order")
 	_sysDictType.Description = field.NewString(tableName, "description")
-	_sysDictType.DeletedAt = field.NewField(tableName, "deleted_at")
+	_sysDictType.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysDictType.TypeCode = field.NewString(tableName, "type_code")
 	_sysDictType.TypeName = field.NewString(tableName, "type_name")
 	_sysDictType.Entries = sysDictTypeHasManyEntries{
@@ -76,7 +76,7 @@ type sysDictType struct {
 	IsEnabled   field.Bool
 	SortOrder   field.Int32
 	Description field.String
-	DeletedAt   field.Field
+	DeletedAt   field.Uint
 	TypeCode    field.String // 字典类型唯一代码
 	TypeName    field.String // 字典类型名称
 	Entries     sysDictTypeHasManyEntries
@@ -105,7 +105,7 @@ func (s *sysDictType) updateTableName(table string) *sysDictType {
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.SortOrder = field.NewInt32(table, "sort_order")
 	s.Description = field.NewString(table, "description")
-	s.DeletedAt = field.NewField(table, "deleted_at")
+	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.TypeCode = field.NewString(table, "type_code")
 	s.TypeName = field.NewString(table, "type_name")
 

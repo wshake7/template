@@ -29,7 +29,7 @@ func New(config config.OrmConfig) *gormCrud.Client {
 	}
 	options = append(options,
 		gormCrud.WithLogger(zapLogger.Sugar()),
-		gormCrud.WithGormConfig(&gorm.Config{Logger: l}),
+		gormCrud.WithGormConfig(&gorm.Config{Logger: l, TranslateError: true}),
 		gormCrud.WithDriverName(config.DriverName),
 		gormCrud.WithDSN(config.DataSource),
 		gormCrud.WithEnableTrace(true),

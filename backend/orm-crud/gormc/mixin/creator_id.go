@@ -5,5 +5,5 @@ package mixin
 // - `gorm:"<-:create"` 只允许在 Create 时写入（GORM 层面不可在 Update 时修改）。
 // - `index` 为该列创建索引。
 type CreatorID struct {
-	CreatorID *uint32 `gorm:"column:creator_id;index;<-:create" json:"creatorId,omitempty"`
+	CreatorID *uint32 `gorm:"column:creator_id;index;<-:create" json:"creatorId"`
 }

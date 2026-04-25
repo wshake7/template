@@ -8,7 +8,7 @@ import (
 
 // CreatedAt created_at
 type CreatedAt struct {
-	CreatedAt *time.Time `gorm:"column:created_at" json:"createdAt,omitempty"`
+	CreatedAt *time.Time `gorm:"column:created_at" json:"createdAt"`
 }
 
 func (m *CreatedAt) BeforeCreate(tx *gorm.DB) (err error) {
@@ -21,7 +21,7 @@ func (m *CreatedAt) BeforeCreate(tx *gorm.DB) (err error) {
 
 // UpdatedAt updated_at
 type UpdatedAt struct {
-	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updatedAt,omitempty"`
+	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updatedAt"`
 }
 
 func (m *UpdatedAt) BeforeCreate(tx *gorm.DB) (err error) {
@@ -40,7 +40,7 @@ func (m *UpdatedAt) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeletedAt deleted_at
 type DeletedAt struct {
-	DeletedAt *time.Time `gorm:"column:deleted_at;index" json:"deletedAt,omitempty"`
+	DeletedAt *time.Time `gorm:"column:deleted_at;index" json:"deletedAt"`
 }
 
 func (m *DeletedAt) BeforeDelete(tx *gorm.DB) (err error) {
@@ -60,7 +60,7 @@ type TimeAt struct {
 
 // CreateTime (create_time)
 type CreateTime struct {
-	CreateTime *time.Time `gorm:"column:create_time" json:"createTime,omitempty"`
+	CreateTime *time.Time `gorm:"column:create_time" json:"createTime"`
 }
 
 func (m *CreateTime) BeforeCreate(tx *gorm.DB) (err error) {
@@ -73,7 +73,7 @@ func (m *CreateTime) BeforeCreate(tx *gorm.DB) (err error) {
 
 // UpdateTime (update_time)
 type UpdateTime struct {
-	UpdateTime *time.Time `gorm:"column:update_time" json:"updateTime,omitempty"`
+	UpdateTime *time.Time `gorm:"column:update_time" json:"updateTime"`
 }
 
 func (m *UpdateTime) BeforeCreate(tx *gorm.DB) (err error) {
@@ -92,7 +92,7 @@ func (m *UpdateTime) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeleteTime (delete_time)
 type DeleteTime struct {
-	DeleteTime *time.Time `gorm:"column:delete_time;index" json:"deleteTime,omitempty"`
+	DeleteTime *time.Time `gorm:"column:delete_time;index" json:"deleteTime"`
 }
 
 func (m *DeleteTime) BeforeDelete(tx *gorm.DB) (err error) {

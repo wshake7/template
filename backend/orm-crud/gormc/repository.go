@@ -429,8 +429,7 @@ func (r *Repository[DTO, ENTITY]) Create(ctx context.Context, db *gorm.DB, dto *
 	qdb := db.WithContext(ctx).Model(new(ENTITY))
 	res := qdb.Create(&ent)
 	if res.Error != nil {
-		zap.S().Errorf("create failed: %s", res.Error.Error())
-		return nil, errors.New("create failed")
+		return nil, res.Error
 	}
 
 	// 返回创建后的 DTO（ent 已由 GORM 填充自增等字段）
@@ -464,7 +463,6 @@ func (r *Repository[DTO, ENTITY]) CreateX(ctx context.Context, db *gorm.DB, dto 
 	// 执行创建
 	res := qdb.Create(&ent)
 	if res.Error != nil {
-		zap.S().Errorf("create failed: %s", res.Error.Error())
 		return 0, errors.New("create failed")
 	}
 	return res.RowsAffected, nil

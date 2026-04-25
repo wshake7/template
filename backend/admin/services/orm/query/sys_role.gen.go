@@ -35,7 +35,7 @@ func newSysRole(db *gorm.DB, opts ...gen.DOOption) sysRole {
 	_sysRole.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysRole.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysRole.IsEnabled = field.NewBool(tableName, "is_enabled")
-	_sysRole.DeletedAt = field.NewField(tableName, "deleted_at")
+	_sysRole.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysRole.Name = field.NewString(tableName, "name")
 	_sysRole.Code = field.NewString(tableName, "code")
 	_sysRole.Menus = field.NewField(tableName, "menus")
@@ -83,7 +83,7 @@ type sysRole struct {
 	UpdatedBy field.Uint64
 	DeletedBy field.Uint64
 	IsEnabled field.Bool
-	DeletedAt field.Field
+	DeletedAt field.Uint
 	Name      field.String // 角色名称
 	Code      field.String // 角色标识
 	Menus     field.Field  // 分配的菜单列表
@@ -119,7 +119,7 @@ func (s *sysRole) updateTableName(table string) *sysRole {
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
-	s.DeletedAt = field.NewField(table, "deleted_at")
+	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.Name = field.NewString(table, "name")
 	s.Code = field.NewString(table, "code")
 	s.Menus = field.NewField(table, "menus")

@@ -13,7 +13,7 @@ var stringIDRegexp = regexp.MustCompile(`^[0-9a-zA-Z_\-]+$`)
 // StringID 是 GORM 可复用的 mixin，提供长度上限为 25 的字符串主键字段。
 // 嵌入到模型后会在创建前自动生成 ID（当为空时），并校验格式与长度。
 type StringID struct {
-	ID string `gorm:"column:id;type:varchar(25);primaryKey" json:"id,omitempty"`
+	ID string `gorm:"column:id;type:varchar(25);primaryKey" json:"id"`
 }
 
 func (m *StringID) BeforeCreate(_ *gorm.DB) (err error) {

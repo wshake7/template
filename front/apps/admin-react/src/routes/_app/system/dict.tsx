@@ -24,6 +24,7 @@ export const Route = createFileRoute('/_app/system/dict')({
       menuType: 'menu',
     },
   },
+  staleTime: 1000 * 60 * 2,
   component: RouteComponent,
 })
 
@@ -37,22 +38,26 @@ function statusTag(isEnabled: boolean) {
 const DictTypeSchema = z.object({
   typeCode: z.string('请输入类型编码').min(1, '请输入类型编码'),
   typeName: z.string('请输入类型名称').min(1, '请输入类型名称'),
-  isEnabled: z.boolean(),
-  sortOrder: z.number(),
-  description: z.string(),
+  isEnabled: z.boolean().default(true),
+  sortOrder: z.number().default(0),
+  description: z.string().default(''),
 })
+
+const dictTypeDefaults = DictTypeSchema.partial().parse({})
 
 export type DictTypeFormValues = z.infer<typeof DictTypeSchema>
 
 const DictEntrySchema = z.object({
   entryLabel: z.string('请输入显示标签').min(1, '请输入显示标签'),
   entryValue: z.string('请输入数据值').min(1, '请输入数据值'),
-  numericValue: z.number(),
-  languageCode: z.string(),
-  sortOrder: z.number(),
-  isEnabled: z.boolean(),
-  remark: z.string(),
+  numericValue: z.number().default(0),
+  languageCode: z.string().default(''),
+  sortOrder: z.number().default(0),
+  isEnabled: z.boolean().default(true),
+  remark: z.string().default(''),
 })
+
+const dictEntryDefaults = DictEntrySchema.partial().parse({})
 
 export type DictEntryFormValues = z.infer<typeof DictEntrySchema>
 
@@ -84,7 +89,7 @@ function DictTypePanel({
         pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',
       }, {
-        cacheFor: 5 * 60 * 1000,
+        cacheFor: 0,
       }),
     {
       initialData: {
@@ -131,9 +136,9 @@ function DictTypePanel({
       }
 
       gMessage.success('保存成功')
-      setFormOpen(false)
       setEditing(undefined)
       form.resetFields()
+      setFormOpen(false)
       await send()
     },
   })
@@ -141,6 +146,7 @@ function DictTypePanel({
   const openCreate = () => {
     setEditing(undefined)
     form.resetFields()
+    form.setFieldsValue(dictTypeDefaults as DictTypeFormValues)
     setFormOpen(true)
   }
 
@@ -256,6 +262,9 @@ function DictTypePanel({
             })
           },
         }}
+        options={{
+          reload: () => send(),
+        }}
         toolBarRender={() => [
           <Button key="add" type="primary" onClick={openCreate}>
             新增类型
@@ -308,10 +317,12 @@ function DictEntryPanel({
     update,
     send,
   } = usePagination(
-    () =>
+    (nextPage, nextPageSize) =>
       API.Post<Res<PagingResult<DictEntry>>>('/api/dict/entry/list', {
-        noPaging: true,
+        page: nextPage,
+        pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',
+        query: selectedType ? JSON.stringify({ sysDictTypeId: selectedType.id }) : undefined,
       }, {
         cacheFor: 0,
       }),
@@ -324,26 +335,14 @@ function DictEntryPanel({
       initialPageSize: 10,
       immediate: false,
       watchingStates: [selectedType?.id],
-      data: (response) => {
-        const allItems = response.data?.items ?? []
-        if (!selectedType) {
-          return []
-        }
-        return allItems.filter(item => item.sysDictTypeId === selectedType.id)
-      },
-      total: (response) => {
-        const allItems = response.data?.items ?? []
-        if (!selectedType) {
-          return 0
-        }
-        return allItems.filter(item => item.sysDictTypeId === selectedType.id).length
-      },
+      data: response => response.data?.items?.map(item => ({
+        ...item,
+        numericValue: item.numericValue ?? 0,
+        sortOrder: item.sortOrder ?? 0,
+      })) ?? [],
+      total: response => response.data?.total ?? 0,
     },
   )
-  const pagedData = useMemo(() => {
-    const start = (page - 1) * pageSize
-    return data.slice(start, start + pageSize)
-  }, [data, page, pageSize])
 
   const { form, rules, onFinish } = useZodForm<DictEntryFormValues>({
     schema: DictEntrySchema,
@@ -380,9 +379,9 @@ function DictEntryPanel({
       }
 
       gMessage.success('保存成功')
-      setFormOpen(false)
       setEditing(undefined)
       form.resetFields()
+      setFormOpen(false)
       await send()
     },
   })
@@ -390,20 +389,16 @@ function DictEntryPanel({
   const openCreate = () => {
     setEditing(undefined)
     form.resetFields()
+    form.setFieldsValue(dictEntryDefaults as DictEntryFormValues)
     setFormOpen(true)
   }
 
   const openEdit = useCallback((record: DictEntry) => {
     setEditing(record)
     form.setFieldsValue({
-      entryLabel: record.entryLabel,
-      entryValue: record.entryValue,
-      numericValue: record.numericValue,
-      languageCode: record.languageCode,
-      sortOrder: record.sortOrder,
-      isEnabled: record.isEnabled,
-      remark: record.remark,
-    })
+      ...dictEntryDefaults,
+      ...record,
+    } as DictEntryFormValues)
     setFormOpen(true)
   }, [form])
 
@@ -491,7 +486,7 @@ function DictEntryPanel({
         rowKey="id"
         search={false}
         columns={columns}
-        dataSource={pagedData}
+        dataSource={data}
         loading={loading}
         pagination={{
           showSizeChanger: true,
@@ -504,6 +499,9 @@ function DictEntryPanel({
               pageSize: nextPageSize,
             })
           },
+        }}
+        options={{
+          reload: () => send(),
         }}
         headerTitle={selectedType ? `字典项 - ${selectedType.typeName}` : '字典项'}
         toolBarRender={() => [

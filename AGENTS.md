@@ -23,6 +23,7 @@
 - Backend Router 编写风格: [skills/backend/framework/router-style.md](skills/backend/framework/router-style.md)
 - Backend Swagger 编写风格: [skills/backend/framework/swagger-style.md](skills/backend/framework/swagger-style.md)
 - Backend ORM 数据库操作与 Models 维护: [skills/backend/libraries/orm-models.md](skills/backend/libraries/orm-models.md)
+- Backend ORM 数据库List分页查询语法: [skills/backend/libraries/orm-query.md](skills/backend/libraries/orm-query.md)
 - Backend go-common 公共库: [skills/backend/libraries/go-common.md](skills/backend/libraries/go-common.md)
 - Backend orm-crud 能力: [skills/backend/libraries/orm-crud.md](skills/backend/libraries/orm-crud.md)
 

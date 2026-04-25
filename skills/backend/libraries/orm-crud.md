@@ -32,12 +32,81 @@ go test ./...
 cd ../pagination
 go test ./...
 
-# api 模块构建/测试
+# api 模块测试
 cd ../api
 go test ./...
+```
+
+## PagingRequest query 过滤语法
+
+`PagingRequest` 的 `query` 字段是一个 JSON 字符串，`ListWithPaging` 会自动解析为 SQL WHERE 条件。详细参考 `skills/backend/libraries/orm-query.md`。
+
+### 基础语法
+- 无显式操作符时默认执行 `=`（等于）
+- 操作符通过双下划线 `__` 写在字段名后
+
+```jsonc
+// 等于
+{"sysDictTypeId": 1}
+// 等价于
+{"sysDictTypeId__eq": 1}
+
+// 大于等于
+{"createTime__gte": "2024-01-01"}
+
+// 包含（不区分大小写）
+{"userName__icontains": "张"}
+```
+
+### 常见操作符
+| 操作符 | 含义 | SQL |
+|--------|------|-----|
+| `__eq` | 等于 | `=` |
+| `__ne` | 不等于 | `!=` |
+| `__gt` / `__gte` | 大于 / 大于等于 | `>` / `>=` |
+| `__lt` / `__lte` | 小于 / 小于等于 | `<` / `<=` |
+| `__in` | 在集合中 | `IN (...)` |
+| `__not_in` | 不在集合中 | `NOT IN (...)` |
+| `__contains` | 包含 | `LIKE '%val%'` |
+| `__icontains` | 包含（不区分大小写） | `ILIKE '%val%'` |
+| `__startswith` | 前缀匹配 | `LIKE 'val%'` |
+| `__endswith` | 后缀匹配 | `LIKE '%val'` |
+| `__isnull` | 为空 | `IS NULL` |
+| `__not_isnull` | 不为空 | `IS NOT NULL` |
+| `__range` | 范围 | `BETWEEN a AND b` |
+
+### 组合条件
+- 顶层数组默认等价于 `$and`
+- 支持 `$and` / `$or` 嵌套
+
+```jsonc
+// AND 组合：sysDictTypeId=1 且 isEnabled=true
+{"$and": [{"sysDictTypeId": 1}, {"isEnabled": true}]}
+
+// OR 组合：sysDictTypeId=1 或 sysDictTypeId=2
+{"$or": [{"sysDictTypeId": 1}, {"sysDictTypeId": 2}]}
+
+// AND 嵌套 OR：sysDictTypeId=1 且 (isEnabled=true 或 其他条件)
+{"$and": [
+  {"sysDictTypeId": 1},
+  {"$or": [{"isEnabled": true}, {"remark__icontains": "test"}]}
+]}
+```
+
+### 前端使用示例
+```typescript
+const payload = {
+  page: 1,
+  pageSize: 10,
+  query: JSON.stringify({ sysDictTypeId: selectedType.id }),
+  orderBy: 'sort_order asc,id desc',
+}
+// POST 请求 body 中 query 是 JSON 字符串
+// 后端会自动解析为 WHERE sys_dict_type_id = {id}
 ```
 
 ## 注意事项
 1. `orm-crud` 属于基础设施层，避免耦合业务字段语义
 2. 分页/过滤协议改动要关注兼容性
 3. 生成代码文件改动前先确认对应脚本与来源文件
+4. `query` 字段在 GET 请求时注意 URL 编码
