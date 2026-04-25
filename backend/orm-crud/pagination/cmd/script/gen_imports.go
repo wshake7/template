@@ -72,7 +72,7 @@ func main() {
 		parts := strings.Split(rel, string(os.PathSeparator))
 
 		// ❌ 关键：禁止导入 scanDir 第一层（cmd / tools / scripts 等）
-		// 例如 orm-crud/gorm/cmd → parts[0] = cmd
+		// 例如 orm-crud/gormc/cmd → parts[0] = cmd
 		if len(parts) > 0 {
 			if isIgnoredTopDir(parts[0]) {
 				return nil
