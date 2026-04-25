@@ -16,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type DictHandler struct{}
+type SysDictHandler struct{}
 
 // --- 字典类型 (DictType) ---
 
@@ -54,7 +54,7 @@ type ReqDictTypeBatchDelete struct {
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysDictType]} "成功"
 // @Router /api/dict/type/list [post]
-func (*DictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictType], error) {
+func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictType], error) {
 	pagination, err := repo.SysDictTypeRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
 	if err != nil {
 		return nil, res.FailDefault
@@ -70,7 +70,7 @@ func (*DictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.Pa
 // @Param req body ReqDictTypeCreate true "字典类型创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/create [post]
-func (*DictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
+func (*SysDictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
 	operationID := ctx.SessionInfo.Id
 	_, err := repo.SysDictTypeRepo.Create(ctx.Context(), orm.DB(), &models.SysDictType{
 		CreatedBy:   mixin.CreatedBy{CreatedBy: operationID},
@@ -98,7 +98,7 @@ func (*DictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
 // @Param req body ReqDictTypeUpdate true "字典类型更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/update [post]
-func (*DictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
+func (*SysDictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
 	operationID := ctx.SessionInfo.Id
 	sysDictType := query.SysDictType
 	m := map[string]any{
@@ -127,7 +127,7 @@ func (*DictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
 // @Param req body ReqDictTypeSwitchStatus true "状态参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/switch [post]
-func (*DictHandler) TypeSwitch(ctx *handler.Ctx, req *ReqDictTypeSwitchStatus) error {
+func (*SysDictHandler) TypeSwitch(ctx *handler.Ctx, req *ReqDictTypeSwitchStatus) error {
 	operationID := ctx.SessionInfo.Id
 	sysDictType := query.SysDictType
 	_, err := repo.SysDictTypeRepo.UpdateMap(map[string]any{
@@ -148,7 +148,7 @@ func (*DictHandler) TypeSwitch(ctx *handler.Ctx, req *ReqDictTypeSwitchStatus) e
 // @Param req body ReqDictTypeBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/del [post]
-func (*DictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) error {
+func (*SysDictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) error {
 	err := orm.DB().Transaction(func(tx *gorm.DB) error {
 		// 1. 删除关联的字典项
 		_, err := repo.SysDictEntryRepo.SoftDelete(ctx.Context(), tx.Where(query.SysDictEntry.SysDictTypeId.In(req.IDs...)))
@@ -219,7 +219,7 @@ type ReqDictEntryBatchCopy struct {
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysDictEntry]} "成功"
 // @Router /api/dict/entry/list [post]
-func (*DictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictEntry], error) {
+func (*SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictEntry], error) {
 	pagination, err := repo.SysDictEntryRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
 	if err != nil {
 		return nil, res.FailDefault
@@ -235,7 +235,7 @@ func (*DictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.P
 // @Param req body ReqDictEntryCreate true "字典数据项创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/create [post]
-func (*DictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error {
+func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error {
 	operationID := ctx.SessionInfo.Id
 	// 校验字典类型是否存在
 	exists, err := repo.SysDictTypeRepo.Exists(ctx.Context(), orm.DB().Where(query.SysDictType.ID.Eq(req.SysDictTypeId), query.SysDictType.IsEnabled.Is(req.IsEnabled)))
@@ -273,7 +273,7 @@ func (*DictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error
 // @Param req body ReqDictEntryUpdate true "字典数据项更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/update [post]
-func (*DictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error {
+func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error {
 	operationID := ctx.SessionInfo.Id
 	// 如果更新了 SysDictTypeId，校验其是否存在
 	if req.SysDictTypeId != nil {
@@ -312,7 +312,7 @@ func (*DictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error
 // @Param req body ReqDictEntrySwitchStatus true "状态参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/switch [post]
-func (*DictHandler) EntrySwitch(ctx *handler.Ctx, req *ReqDictEntrySwitchStatus) error {
+func (*SysDictHandler) EntrySwitch(ctx *handler.Ctx, req *ReqDictEntrySwitchStatus) error {
 	operationID := ctx.SessionInfo.Id
 	sysDictEntry := query.SysDictEntry
 	_, err := repo.SysDictEntryRepo.UpdateMap(map[string]any{
@@ -333,7 +333,7 @@ func (*DictHandler) EntrySwitch(ctx *handler.Ctx, req *ReqDictEntrySwitchStatus)
 // @Param req body ReqDictEntryBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/del [post]
-func (*DictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) error {
+func (*SysDictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) error {
 	_, err := repo.SysDictEntryRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysDictEntry.ID.In(req.IDs...)))
 	if err != nil {
 		return res.FailDefault
@@ -349,7 +349,7 @@ func (*DictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) err
 // @Param req body ReqDictEntryBatchCopy true "批量复制参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/batch/copy [post]
-func (*DictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCopy) error {
+func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCopy) error {
 	// 校验目标字典类型是否存在
 	exists, err := repo.SysDictTypeRepo.Exists(ctx.Context(), orm.DB().Where(query.SysDictType.ID.Eq(req.TargetTypeId)))
 	if err != nil {

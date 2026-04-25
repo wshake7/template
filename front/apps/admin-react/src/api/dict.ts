@@ -72,67 +72,67 @@ export interface ReqDictEntryBatchCopy {
 }
 
 async function typeList(req: PagingRequest) {
-  return await API.Post<Res<PagingResult<DictType>>>('/api/dict/type/list', req, {
+  return await API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function typeCreate(req: ReqDictTypeCreate) {
-  await API.Post<Res>('/api/dict/type/create', req, {
+  await API.Post<Res>('/api/sys/dict/type/create', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function typeUpdate(req: ReqDictTypeUpdate) {
-  await API.Post<Res>('/api/dict/type/update', req, {
+  await API.Post<Res>('/api/sys/dict/type/update', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function typeSwitch(req: ReqDictTypeSwitchStatus) {
-  await API.Post<Res>('/api/dict/type/switch', req, {
+  await API.Post<Res>('/api/sys/dict/type/switch', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function typeDel(req: ReqDictTypeBatchDelete) {
-  await API.Post<Res>('/api/dict/type/del', req, {
+  await API.Post<Res>('/api/sys/dict/type/del', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function entryList(req: PagingRequest) {
-  return await API.Post<Res<PagingResult<DictEntry>>>('/api/dict/entry/list', req, {
+  return await API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function entryCreate(req: ReqDictEntryCreate) {
-  await API.Post<Res>('/api/dict/entry/create', req, {
+  await API.Post<Res>('/api/sys/dict/entry/create', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function entryUpdate(req: ReqDictEntryUpdate) {
-  await API.Post<Res>('/api/dict/entry/update', req, {
+  await API.Post<Res>('/api/sys/dict/entry/update', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function entrySwitch(req: ReqDictEntrySwitchStatus) {
-  await API.Post<Res>('/api/dict/entry/switch', req, {
+  await API.Post<Res>('/api/sys/dict/entry/switch', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function entryDel(req: ReqDictEntryBatchDelete) {
-  await API.Post<Res>('/api/dict/entry/del', req, {
+  await API.Post<Res>('/api/sys/dict/entry/del', req, {
     cacheFor: 0,
   }).send()
 }
 
 async function entryBatchCopy(req: ReqDictEntryBatchCopy) {
-  await API.Post<Res>('/api/dict/entry/batch/copy', req, {
+  await API.Post<Res>('/api/sys/dict/entry/batch/copy', req, {
     cacheFor: 0,
   }).send()
 }

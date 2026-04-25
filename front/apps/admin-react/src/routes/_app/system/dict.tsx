@@ -88,7 +88,7 @@ function DictTypePanel({
     send,
   } = usePagination(
     (nextPage, nextPageSize) =>
-      API.Post<Res<PagingResult<DictType>>>('/api/dict/type/list', {
+      API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', {
         page: nextPage,
         pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',
@@ -395,7 +395,7 @@ function DictEntryPanel({
     send,
   } = usePagination(
     (nextPage, nextPageSize) =>
-      API.Post<Res<PagingResult<DictEntry>>>('/api/dict/entry/list', {
+      API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', {
         page: nextPage,
         pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',

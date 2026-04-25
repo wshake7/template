@@ -554,6 +554,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/log/detail": {
+            "post": {
+                "description": "根据 ID 获取操作日志详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "获取操作日志详情",
+                "parameters": [
+                    {
+                        "description": "日志ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqLogDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin_services_orm_models.SysOperationLog"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/log/list": {
+            "post": {
+                "description": "分页查询操作日志信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "获取操作日志分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysOperationLog"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/role/create": {
             "post": {
                 "description": "创建新的角色",
@@ -846,6 +938,98 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_services_orm_models.SysOperationLog": {
+            "type": "object",
+            "properties": {
+                "afterChange": {
+                    "type": "string"
+                },
+                "beforeChange": {
+                    "type": "string"
+                },
+                "browserName": {
+                    "type": "string"
+                },
+                "browserVersion": {
+                    "type": "string"
+                },
+                "clientID": {
+                    "type": "string"
+                },
+                "clientIP": {
+                    "type": "string"
+                },
+                "clientName": {
+                    "type": "string"
+                },
+                "costTime": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "formatChange": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "module": {
+                    "type": "string"
+                },
+                "oSName": {
+                    "type": "string"
+                },
+                "oSVersion": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "referer": {
+                    "type": "string"
+                },
+                "requestBody": {
+                    "type": "string"
+                },
+                "requestHeader": {
+                    "type": "string"
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "requestURI": {
+                    "type": "string"
+                },
+                "response": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "userAgent": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "admin_services_orm_models.SysRole": {
             "type": "object",
             "properties": {
@@ -950,6 +1134,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/admin_services_orm_models.SysDictType"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-admin_services_orm_models_SysOperationLog": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_services_orm_models.SysOperationLog"
                     }
                 },
                 "total": {
@@ -1212,6 +1410,17 @@ const docTemplate = `{
                 "typeName": {
                     "type": "string",
                     "maxLength": 255
+                }
+            }
+        },
+        "router_logic.ReqLogDetail": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },

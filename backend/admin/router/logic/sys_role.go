@@ -12,7 +12,7 @@ import (
 	"orm-crud/gormc/mixin"
 )
 
-type RoleHandler struct{}
+type SysRoleHandler struct{}
 
 // @Summary 获取角色分页列表
 // @Description 分页查询角色信息
@@ -22,7 +22,7 @@ type RoleHandler struct{}
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysRole]} "成功"
 // @Router /api/role/list [get]
-func (*RoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysRole], error) {
+func (*SysRoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysRole], error) {
 	pagination, err := repo.SysRoleRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
 	if err != nil {
 		return nil, res.FailDefault
@@ -44,7 +44,7 @@ type ReqRoleCreate struct {
 // @Param req body ReqRoleCreate true "角色创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/role/create [post]
-func (*RoleHandler) Create(ctx *handler.Ctx, req *ReqRoleCreate) error {
+func (*SysRoleHandler) Create(ctx *handler.Ctx, req *ReqRoleCreate) error {
 	_, err := repo.SysRoleRepo.Create(ctx.Context(), orm.DB(), &models.SysRole{Code: req.Code, Name: req.Name, Remark: mixin.Remark{Remark: req.Remark}})
 	if err != nil {
 		return res.FailDefault
@@ -67,7 +67,7 @@ type ReqRoleUpdate struct {
 // @Param req body ReqRoleUpdate true "角色更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/role/update [post]
-func (*RoleHandler) Update(ctx *handler.Ctx, req *ReqRoleUpdate) error {
+func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqRoleUpdate) error {
 	sysRole := query.SysRole
 	_, err := repo.SysRoleRepo.UpdateMap(map[string]any{
 		sysRole.Name.ColumnName().String():   req.Name,
@@ -93,7 +93,7 @@ type ReqRoleSwitchStatus struct {
 // @Param req body ReqRoleSwitchStatus true "角色状态参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/role/switch [post]
-func (*RoleHandler) Switch(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
+func (*SysRoleHandler) Switch(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
 	sysRole := query.SysRole
 	_, err := repo.SysRoleRepo.UpdateMap(map[string]any{
 		sysRole.IsEnabled.ColumnName().String(): req.IsEnabled,
@@ -116,7 +116,7 @@ type ReqRoleDelete struct {
 // @Param req body ReqRoleDelete true "角色删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/role/del [post]
-func (*RoleHandler) Del(ctx *handler.Ctx, req *ReqRoleDelete) error {
+func (*SysRoleHandler) Del(ctx *handler.Ctx, req *ReqRoleDelete) error {
 	_, err := repo.SysRoleRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysUser.ID.Eq(req.ID)))
 	if err != nil {
 		return res.FailDefault

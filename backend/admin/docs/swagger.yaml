@@ -72,6 +72,67 @@ definitions:
       updatedBy:
         type: integer
     type: object
+  admin_services_orm_models.SysOperationLog:
+    properties:
+      afterChange:
+        type: string
+      beforeChange:
+        type: string
+      browserName:
+        type: string
+      browserVersion:
+        type: string
+      clientID:
+        type: string
+      clientIP:
+        type: string
+      clientName:
+        type: string
+      costTime:
+        type: integer
+      createdAt:
+        type: string
+      formatChange:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      method:
+        type: string
+      module:
+        type: string
+      oSName:
+        type: string
+      oSVersion:
+        type: string
+      path:
+        type: string
+      reason:
+        type: string
+      referer:
+        type: string
+      requestBody:
+        type: string
+      requestHeader:
+        type: string
+      requestID:
+        type: string
+      requestURI:
+        type: string
+      response:
+        type: string
+      statusCode:
+        type: integer
+      success:
+        type: boolean
+      userAgent:
+        type: string
+      userID:
+        type: integer
+      username:
+        type: string
+    type: object
   admin_services_orm_models.SysRole:
     properties:
       apis:
@@ -141,6 +202,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/admin_services_orm_models.SysDictType'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-admin_services_orm_models_SysOperationLog:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/admin_services_orm_models.SysOperationLog'
         type: array
       total:
         type: integer
@@ -319,6 +389,13 @@ definitions:
       typeName:
         maxLength: 255
         type: string
+    required:
+      - id
+    type: object
+  router_logic.ReqLogDetail:
+    properties:
+      id:
+        type: integer
     required:
       - id
     type: object
@@ -796,6 +873,60 @@ paths:
       summary: 获取加密公钥
       tags:
         - Encrypt
+  /api/log/detail:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 获取操作日志详情
+      parameters:
+        - description: 日志ID
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqLogDetail'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/admin_services_orm_models.SysOperationLog'
+                type: object
+      summary: 获取操作日志详情
+      tags:
+        - Log
+  /api/log/list:
+    post:
+      consumes:
+        - application/json
+      description: 分页查询操作日志信息
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-admin_services_orm_models_SysOperationLog'
+                type: object
+      summary: 获取操作日志分页列表
+      tags:
+        - Log
   /api/role/create:
     post:
       consumes:
