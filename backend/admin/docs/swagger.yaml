@@ -10,6 +10,72 @@ definitions:
         example: success
         type: string
     type: object
+  admin_services_orm_models.SysDictEntry:
+    properties:
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: string
+      deletedBy:
+        type: integer
+      entryLabel:
+        type: string
+      entryValue:
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      languageCode:
+        type: string
+      numericValue:
+        type: integer
+      remark:
+        type: string
+      sortOrder:
+        type: integer
+      sysDictType:
+        $ref: '#/definitions/admin_services_orm_models.SysDictType'
+      sysDictTypeId:
+        type: integer
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
+  admin_services_orm_models.SysDictType:
+    properties:
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      deletedBy:
+        type: integer
+      description:
+        type: string
+      entries:
+        items:
+          $ref: '#/definitions/admin_services_orm_models.SysDictEntry'
+        type: array
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      sortOrder:
+        type: integer
+      typeCode:
+        type: string
+      typeName:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
   admin_services_orm_models.SysRole:
     properties:
       apis:
@@ -26,18 +92,20 @@ definitions:
         type: array
       code:
         type: string
-      created_at:
+      createdAt:
         type: string
-      created_by:
+      createdBy:
         type: integer
       dataScope:
         type: string
-      deleted_by:
-        type: integer
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
+      deletedBy:
+        type: integer
       id:
         type: integer
+      isEnabled:
+        type: boolean
       menus:
         items:
           type: integer
@@ -52,11 +120,9 @@ definitions:
         type: string
       remark:
         type: string
-      status:
-        type: integer
-      updated_at:
+      updatedAt:
         type: string
-      updated_by:
+      updatedBy:
         type: integer
     type: object
   fieldmaskpb.FieldMask:
@@ -75,7 +141,25 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
-  gorm.PagingResult-admin_services_orm_models_SysRole:
+  gormc.PagingResult-admin_services_orm_models_SysDictEntry:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/admin_services_orm_models.SysDictEntry'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-admin_services_orm_models_SysDictType:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/admin_services_orm_models.SysDictType'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-admin_services_orm_models_SysRole:
     properties:
       items:
         items:
@@ -108,6 +192,131 @@ definitions:
       - pwd
       - username
     type: object
+  router_logic.ReqDictEntryCreate:
+    properties:
+      entryLabel:
+        maxLength: 255
+        type: string
+      entryValue:
+        maxLength: 255
+        type: string
+      isEnabled:
+        type: boolean
+      languageCode:
+        maxLength: 32
+        type: string
+      numericValue:
+        type: integer
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+      sysDictTypeId:
+        type: integer
+    required:
+      - entryLabel
+      - entryValue
+      - sysDictTypeId
+    type: object
+  router_logic.ReqDictEntryDelete:
+    properties:
+      id:
+        type: integer
+    required:
+      - id
+    type: object
+  router_logic.ReqDictEntrySwitchStatus:
+    properties:
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+    required:
+      - id
+    type: object
+  router_logic.ReqDictEntryUpdate:
+    properties:
+      entryLabel:
+        maxLength: 255
+        type: string
+      entryValue:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      languageCode:
+        maxLength: 32
+        type: string
+      numericValue:
+        type: integer
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+      sysDictTypeId:
+        type: integer
+    required:
+      - id
+    type: object
+  router_logic.ReqDictTypeCreate:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      isEnabled:
+        type: boolean
+      sortOrder:
+        type: integer
+      typeCode:
+        maxLength: 128
+        type: string
+      typeName:
+        maxLength: 255
+        type: string
+    required:
+      - typeCode
+      - typeName
+    type: object
+  router_logic.ReqDictTypeDelete:
+    properties:
+      id:
+        type: integer
+    required:
+      - id
+    type: object
+  router_logic.ReqDictTypeSwitchStatus:
+    properties:
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+    required:
+      - id
+    type: object
+  router_logic.ReqDictTypeUpdate:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      sortOrder:
+        type: integer
+      typeCode:
+        maxLength: 128
+        type: string
+      typeName:
+        maxLength: 255
+        type: string
+    required:
+      - id
+    type: object
   router_logic.ReqRoleCreate:
     properties:
       code:
@@ -136,11 +345,10 @@ definitions:
     properties:
       id:
         type: integer
-      status:
+      isEnabled:
         type: integer
     required:
       - id
-      - status
     type: object
   router_logic.ReqRoleUpdate:
     properties:
@@ -176,7 +384,12 @@ definitions:
     type: object
   v1.PagingRequest:
     properties:
-      field_mask:
+      Sorting:
+        description: 排序规则
+        items:
+          $ref: '#/definitions/v1.Sorting'
+        type: array
+      fieldMask:
         allOf:
           - $ref: '#/definitions/fieldmaskpb.FieldMask'
         description: 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT
@@ -186,26 +399,21 @@ definitions:
       limit:
         description: 最多返回的记录数（默认10，建议设置上限如100）
         type: integer
-      no_paging:
+      noPaging:
         description: 是否不分页，如果为true，则page和pageSize参数无效。
         type: boolean
       offset:
         description: 跳过的记录数（从0开始，默认0）
         type: integer
-      order_by:
+      orderBy:
         description: 排序条件
         type: string
       page:
         description: 当前页码（从1开始，默认1）
         type: integer
-      page_size:
+      pageSize:
         description: 每页条数（默认10，建议设置上限如100）
         type: integer
-      sorting:
-        description: 排序规则
-        items:
-          $ref: '#/definitions/v1.Sorting'
-        type: array
       token:
         description: 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
         type: string
@@ -313,6 +521,236 @@ paths:
       summary: 退出登录
       tags:
         - Account
+  /api/dict/entry/create:
+    post:
+      consumes:
+        - application/json
+      description: 创建新的字典数据项
+      parameters:
+        - description: 字典数据项创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictEntryCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 创建字典数据项
+      tags:
+        - Dict
+  /api/dict/entry/del:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 删除字典数据项
+      parameters:
+        - description: 删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictEntryDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 删除字典数据项
+      tags:
+        - Dict
+  /api/dict/entry/list:
+    post:
+      consumes:
+        - application/json
+      description: 分页查询字典数据项信息
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-admin_services_orm_models_SysDictEntry'
+                type: object
+      summary: 获取字典数据项分页列表
+      tags:
+        - Dict
+  /api/dict/entry/switch:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 修改启用状态
+      parameters:
+        - description: 状态参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictEntrySwitchStatus'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 切换字典数据项状态
+      tags:
+        - Dict
+  /api/dict/entry/update:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 更新字典数据项信息
+      parameters:
+        - description: 字典数据项更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictEntryUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 更新字典数据项
+      tags:
+        - Dict
+  /api/dict/type/create:
+    post:
+      consumes:
+        - application/json
+      description: 创建新的字典类型
+      parameters:
+        - description: 字典类型创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictTypeCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 创建字典类型
+      tags:
+        - Dict
+  /api/dict/type/del:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 删除字典类型及其关联的所有字典项
+      parameters:
+        - description: 删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictTypeDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 删除字典类型
+      tags:
+        - Dict
+  /api/dict/type/list:
+    post:
+      consumes:
+        - application/json
+      description: 分页查询字典类型信息
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-admin_services_orm_models_SysDictType'
+                type: object
+      summary: 获取字典类型分页列表
+      tags:
+        - Dict
+  /api/dict/type/switch:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 修改启用状态
+      parameters:
+        - description: 状态参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictTypeSwitchStatus'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 切换字典类型状态
+      tags:
+        - Dict
+  /api/dict/type/update:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 更新字典类型信息
+      parameters:
+        - description: 字典类型更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/router_logic.ReqDictTypeUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_fiberc_res.Response'
+      summary: 更新字典类型
+      tags:
+        - Dict
   /api/encrypt/public/key:
     get:
       description: 获取用于敏感数据加密的 RSA 公钥
@@ -397,7 +835,7 @@ paths:
               - $ref: '#/definitions/admin_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/gorm.PagingResult-admin_services_orm_models_SysRole'
+                    $ref: '#/definitions/gormc.PagingResult-admin_services_orm_models_SysRole'
                 type: object
       summary: 获取角色分页列表
       tags:

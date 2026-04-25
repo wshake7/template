@@ -5,27 +5,42 @@ import (
     "admin/services/orm/query"
     "go-common/mapper"
     "gorm.io/gen"
-    "gorm.io/gen/field"
-    "orm-crud/gorm"
+    "orm-crud/gormc"
 )
 
 type sysUserRepo[T, R any] struct {
-    *gorm.Repository[T, R]
+    *gormc.Repository[T, R]
 }
 
 var SysUserRepo *sysUserRepo[models.SysUser, models.SysUser]
 
 func init() {
-    repository := gorm.NewRepository(mapper.NewCopierMapper[models.SysUser, models.SysUser]())
+    repository := gormc.NewRepository(mapper.NewCopierMapper[models.SysUser, models.SysUser]())
     SysUserRepo = &sysUserRepo[models.SysUser, models.SysUser]{
         Repository: repository,
     }
 }
 
-func (sysUserRepo[T, R]) UpdateMap(m map[field.Expr]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+func (sysUserRepo[T, R]) UpdateMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+    if len(m) == 0 {
+        return gen.ResultInfo{}, nil
+    }
+    q := query.SysUser
+    return q.Where(conds...).Updates(m)
+}
+
+func (sysUserRepo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+    if len(m) == 0 {
+        return gen.ResultInfo{}, nil
+    }
     d := make(map[string]any, len(m))
     for k, v := range m {
-        d[k.ColumnName().String()] = v
+        if v != nil {
+            d[k] = v
+        }
+    }
+    if len(d) == 0 {
+        return gen.ResultInfo{}, nil
     }
     q := query.SysUser
     return q.Where(conds...).Updates(d)

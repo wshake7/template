@@ -8,6 +8,7 @@ export {}
 declare global {
   const AccountApi: typeof import('./api/account').AccountApi
   const Activity: typeof import('react').Activity
+  const DictApi: typeof import('./api/dict').DictApi
   const EncryptApi: typeof import('./api/encrypt').EncryptApi
   const ErrorComponent: typeof import('./components/error').ErrorComponent
   const Fragment: typeof import('react').Fragment
@@ -178,6 +179,12 @@ declare global {
   export type { ResPublicKey } from './domains/encrypt'
   import('./domains/encrypt')
   // @ts-ignore
+  export type { PagingRequest, PagingResult } from './domains/page'
+  import('./domains/page')
+  // @ts-ignore
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
+  // @ts-ignore
+  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeSwitchStatus, ReqDictTypeDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntrySwitchStatus, ReqDictEntryDelete } from './api/dict'
+  import('./api/dict')
 }

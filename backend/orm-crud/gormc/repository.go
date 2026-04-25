@@ -1,4 +1,4 @@
-package gorm
+package gormc
 
 import (
 	"context"
@@ -6,16 +6,16 @@ import (
 	"go-common/mapper"
 	"go.uber.org/zap"
 	paginationV1 "orm-crud/api/gen/go/pagination/v1"
-	"orm-crud/gorm/field"
-	"orm-crud/gorm/filter"
-	"orm-crud/gorm/sorting"
+	"orm-crud/gormc/field"
+	"orm-crud/gormc/filter"
+	"orm-crud/gormc/sorting"
 	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	gormField "gorm.io/gen/field"
-	paging "orm-crud/gorm/pagination"
+	paging "orm-crud/gormc/pagination"
 	paginationFilter "orm-crud/pagination/filter"
 	paginationSorting "orm-crud/pagination/sorting"
 )

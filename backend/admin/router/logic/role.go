@@ -8,10 +8,8 @@ import (
 	"admin/services/orm/query"
 	"admin/services/orm/repo"
 	v1 "orm-crud/api/gen/go/pagination/v1"
-	"orm-crud/gorm"
-	"orm-crud/gorm/mixin"
-
-	"gorm.io/gen/field"
+	"orm-crud/gormc"
+	"orm-crud/gormc/mixin"
 )
 
 type RoleHandler struct{}
@@ -22,9 +20,9 @@ type RoleHandler struct{}
 // @Accept json
 // @Produce json
 // @Param req body v1.PagingRequest true "分页参数"
-// @Success 200 {object} res.Response{data=gorm.PagingResult[models.SysRole]} "成功"
+// @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysRole]} "成功"
 // @Router /api/role/list [get]
-func (h *RoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm.PagingResult[models.SysRole], error) {
+func (*RoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysRole], error) {
 	pagination, err := repo.SysRoleRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
 	if err != nil {
 		return nil, res.FailDefault
@@ -71,10 +69,10 @@ type ReqRoleUpdate struct {
 // @Router /api/role/update [post]
 func (*RoleHandler) Update(ctx *handler.Ctx, req *ReqRoleUpdate) error {
 	sysRole := query.SysRole
-	_, err := repo.SysRoleRepo.UpdateMap(map[field.Expr]any{
-		sysRole.Name:   req.Name,
-		sysRole.Code:   req.Code,
-		sysRole.Remark: mixin.Remark{Remark: req.Remark},
+	_, err := repo.SysRoleRepo.UpdateMap(map[string]any{
+		sysRole.Name.ColumnName().String():   req.Name,
+		sysRole.Code.ColumnName().String():   req.Code,
+		sysRole.Remark.ColumnName().String(): mixin.Remark{Remark: req.Remark},
 	}, sysRole.ID.Eq(req.ID))
 	if err != nil {
 		return res.FailDefault
@@ -83,8 +81,8 @@ func (*RoleHandler) Update(ctx *handler.Ctx, req *ReqRoleUpdate) error {
 }
 
 type ReqRoleSwitchStatus struct {
-	ID     uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	Status uint8  `json:"status" binding:"required" binding_msg:"required=角色状态不能为空"`
+	ID        uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
+	IsEnabled uint8  `json:"isEnabled"`
 }
 
 // @Summary 切换角色状态
@@ -97,8 +95,8 @@ type ReqRoleSwitchStatus struct {
 // @Router /api/role/switch [post]
 func (*RoleHandler) Switch(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
 	sysRole := query.SysRole
-	_, err := repo.SysRoleRepo.UpdateMap(map[field.Expr]any{
-		sysRole.Status: req.Status,
+	_, err := repo.SysRoleRepo.UpdateMap(map[string]any{
+		sysRole.IsEnabled.ColumnName().String(): req.IsEnabled,
 	}, sysRole.ID.Eq(req.ID))
 	if err != nil {
 		return res.FailDefault

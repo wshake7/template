@@ -20,7 +20,6 @@
   - `vp run admin-react#dev`：启动 admin-react 开发
   - `vp run admin-react#build`：构建 admin-react
   - `vp run lint:fix`：修复 lint
-  - `vp run test -r`：递归执行工作区测试
   - `vp run build -r`：递归执行工作区构建
 - 关键开发依赖:
   - `vite-plus`：统一工具链入口
@@ -244,5 +243,5 @@ vp run admin-react#e2e:codegen    # 生成测试代码
    - `auto-imports.d.ts` 仅在类型提示异常时查看
 5. 命令执行节奏
    - 开发阶段优先局部验证（类型/页面行为）
-   - 改动收敛后再执行一次：`vp run lint:fix`、`vp run test -r`
+   - 改动收敛后再执行一次：`vp run lint:fix`
    - 命令失败先汇报错误原因，不重复盲跑

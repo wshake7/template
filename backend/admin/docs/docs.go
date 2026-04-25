@@ -124,6 +124,370 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/dict/entry/create": {
+            "post": {
+                "description": "创建新的字典数据项",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "创建字典数据项",
+                "parameters": [
+                    {
+                        "description": "字典数据项创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictEntryCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/entry/del": {
+            "post": {
+                "description": "根据 ID 删除字典数据项",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "删除字典数据项",
+                "parameters": [
+                    {
+                        "description": "删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictEntryDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/entry/list": {
+            "post": {
+                "description": "分页查询字典数据项信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "获取字典数据项分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysDictEntry"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/entry/switch": {
+            "post": {
+                "description": "根据 ID 修改启用状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "切换字典数据项状态",
+                "parameters": [
+                    {
+                        "description": "状态参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictEntrySwitchStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/entry/update": {
+            "post": {
+                "description": "根据 ID 更新字典数据项信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "更新字典数据项",
+                "parameters": [
+                    {
+                        "description": "字典数据项更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictEntryUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/type/create": {
+            "post": {
+                "description": "创建新的字典类型",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "创建字典类型",
+                "parameters": [
+                    {
+                        "description": "字典类型创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictTypeCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/type/del": {
+            "post": {
+                "description": "根据 ID 删除字典类型及其关联的所有字典项",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "删除字典类型",
+                "parameters": [
+                    {
+                        "description": "删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictTypeDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/type/list": {
+            "post": {
+                "description": "分页查询字典类型信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "获取字典类型分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysDictType"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/type/switch": {
+            "post": {
+                "description": "根据 ID 修改启用状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "切换字典类型状态",
+                "parameters": [
+                    {
+                        "description": "状态参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictTypeSwitchStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dict/type/update": {
+            "post": {
+                "description": "根据 ID 更新字典类型信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "更新字典类型",
+                "parameters": [
+                    {
+                        "description": "字典类型更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router_logic.ReqDictTypeUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/encrypt/public/key": {
             "get": {
                 "description": "获取用于敏感数据加密的 RSA 公钥",
@@ -260,7 +624,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gorm.PagingResult-admin_services_orm_models_SysRole"
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysRole"
                                         }
                                     }
                                 }
@@ -354,6 +718,106 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_services_orm_models.SysDictEntry": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "entryLabel": {
+                    "type": "string"
+                },
+                "entryValue": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "languageCode": {
+                    "type": "string"
+                },
+                "numericValue": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysDictType": {
+                    "$ref": "#/definitions/admin_services_orm_models.SysDictType"
+                },
+                "sysDictTypeId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "admin_services_orm_models.SysDictType": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_services_orm_models.SysDictEntry"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string"
+                },
+                "typeName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
         "admin_services_orm_models.SysRole": {
             "type": "object",
             "properties": {
@@ -378,10 +842,10 @@ const docTemplate = `{
                 "code": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "created_by": {
+                "createdBy": {
                     "type": "integer"
                 },
                 "dataScope": {
@@ -390,11 +854,14 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
-                "deleted_by": {
+                "deletedBy": {
                     "type": "integer"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
                 },
                 "menus": {
                     "type": "array",
@@ -417,13 +884,10 @@ const docTemplate = `{
                 "remark": {
                     "type": "string"
                 },
-                "status": {
-                    "type": "integer"
-                },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 },
-                "updated_by": {
+                "updatedBy": {
                     "type": "integer"
                 }
             }
@@ -452,7 +916,35 @@ const docTemplate = `{
                 }
             }
         },
-        "gorm.PagingResult-admin_services_orm_models_SysRole": {
+        "gormc.PagingResult-admin_services_orm_models_SysDictEntry": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_services_orm_models.SysDictEntry"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-admin_services_orm_models_SysDictType": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_services_orm_models.SysDictType"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-admin_services_orm_models_SysRole": {
             "type": "object",
             "properties": {
                 "items": {
@@ -500,6 +992,189 @@ const docTemplate = `{
                 }
             }
         },
+        "router_logic.ReqDictEntryCreate": {
+            "type": "object",
+            "required": [
+                "entryLabel",
+                "entryValue",
+                "sysDictTypeId"
+            ],
+            "properties": {
+                "entryLabel": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "entryValue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "languageCode": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "numericValue": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysDictTypeId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "router_logic.ReqDictEntryDelete": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "router_logic.ReqDictEntrySwitchStatus": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "router_logic.ReqDictEntryUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "entryLabel": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "entryValue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "languageCode": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "numericValue": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysDictTypeId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "router_logic.ReqDictTypeCreate": {
+            "type": "object",
+            "required": [
+                "typeCode",
+                "typeName"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "typeName": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "router_logic.ReqDictTypeDelete": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "router_logic.ReqDictTypeSwitchStatus": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "router_logic.ReqDictTypeUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "typeName": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "router_logic.ReqRoleCreate": {
             "type": "object",
             "required": [
@@ -537,14 +1212,13 @@ const docTemplate = `{
         "router_logic.ReqRoleSwitchStatus": {
             "type": "object",
             "required": [
-                "id",
-                "status"
+                "id"
             ],
             "properties": {
                 "id": {
                     "type": "integer"
                 },
-                "status": {
+                "isEnabled": {
                     "type": "integer"
                 }
             }
@@ -598,7 +1272,14 @@ const docTemplate = `{
         "v1.PagingRequest": {
             "type": "object",
             "properties": {
-                "field_mask": {
+                "Sorting": {
+                    "description": "排序规则",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.Sorting"
+                    }
+                },
+                "fieldMask": {
                     "description": "字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。",
                     "allOf": [
                         {
@@ -613,7 +1294,7 @@ const docTemplate = `{
                     "description": "最多返回的记录数（默认10，建议设置上限如100）",
                     "type": "integer"
                 },
-                "no_paging": {
+                "noPaging": {
                     "description": "是否不分页，如果为true，则page和pageSize参数无效。",
                     "type": "boolean"
                 },
@@ -621,7 +1302,7 @@ const docTemplate = `{
                     "description": "跳过的记录数（从0开始，默认0）",
                     "type": "integer"
                 },
-                "order_by": {
+                "orderBy": {
                     "description": "排序条件",
                     "type": "string"
                 },
@@ -629,16 +1310,9 @@ const docTemplate = `{
                     "description": "当前页码（从1开始，默认1）",
                     "type": "integer"
                 },
-                "page_size": {
+                "pageSize": {
                     "description": "每页条数（默认10，建议设置上限如100）",
                     "type": "integer"
-                },
-                "sorting": {
-                    "description": "排序规则",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.Sorting"
-                    }
                 },
                 "token": {
                     "description": "上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）",

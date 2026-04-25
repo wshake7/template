@@ -806,7 +806,7 @@ type PagingRequest struct {
 	// 当前页码（从1开始，默认1）
 	Page *uint32 `protobuf:"varint,1,opt,name=page,proto3,oneof" json:"page,omitempty"`
 	// 每页条数（默认10，建议设置上限如100）
-	PageSize *uint32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	PageSize *uint32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3,oneof" json:"pageSize,omitempty"`
 	// 跳过的记录数（从0开始，默认0）
 	Offset *uint64 `protobuf:"varint,3,opt,name=offset,proto3,oneof" json:"offset,omitempty"`
 	// 最多返回的记录数（默认10，建议设置上限如100）
@@ -814,7 +814,7 @@ type PagingRequest struct {
 	// 上一页最后一条记录的游标（如ID/时间戳+ID，首次请求为空）
 	Token *string `protobuf:"bytes,5,opt,name=token,proto3,oneof" json:"token,omitempty"`
 	// 是否不分页，如果为true，则page和pageSize参数无效。
-	NoPaging *bool `protobuf:"varint,6,opt,name=no_paging,json=noPaging,proto3,oneof" json:"no_paging,omitempty"`
+	NoPaging *bool `protobuf:"varint,6,opt,name=no_paging,json=noPaging,proto3,oneof" json:"noPaging,omitempty"`
 	// Types that are valid to be assigned to FilteringType:
 	//
 	//	*PagingRequest_Query
@@ -822,11 +822,11 @@ type PagingRequest struct {
 	//	*PagingRequest_FilterExpr
 	FilteringType isPagingRequest_FilteringType `protobuf_oneof:"filtering_type"`
 	// 排序条件
-	OrderBy *string `protobuf:"bytes,20,opt,name=order_by,json=orderBy,proto3,oneof" json:"order_by,omitempty"`
+	OrderBy *string `protobuf:"bytes,20,opt,name=order_by,json=orderBy,proto3,oneof" json:"orderBy,omitempty"`
 	// 排序规则
-	Sorting []*Sorting `protobuf:"bytes,21,rep,name=sorting,proto3" json:"sorting,omitempty"`
+	Sorting []*Sorting `protobuf:"bytes,21,rep,name=sorting,proto3" json:"Sorting,omitempty"`
 	// 字段掩码，其作用为SELECT中的字段，其语法为使用逗号分隔字段名，例如：id,realName,userName。如果为空则选中所有字段，即SELECT *。
-	FieldMask     *fieldmaskpb.FieldMask `protobuf:"bytes,30,opt,name=field_mask,json=fieldMask,proto3,oneof" json:"field_mask,omitempty"`
+	FieldMask     *fieldmaskpb.FieldMask `protobuf:"bytes,30,opt,name=field_mask,json=fieldMask,proto3,oneof" json:"fieldMask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

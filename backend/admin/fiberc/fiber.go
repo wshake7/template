@@ -13,6 +13,7 @@ import (
 	"html/template"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 
 	"github.com/bytedance/sonic"
@@ -36,9 +37,16 @@ func NewFiber(conf *config.Config) *App {
 	initializeHoos(app)
 	logger := zap.L().With(zap.String("module", "fiberc"))
 	app.Use(recover.New(recover.Config{
-		Next:              nil,
-		StackTraceHandler: func(c fiber.Ctx, err any) {},
-		EnableStackTrace:  true,
+		EnableStackTrace: true,
+		StackTraceHandler: func(c fiber.Ctx, err any) {
+			ctx := handler.Trans(c)
+			ctx.IsPanic = true
+			// 用 zap 打印，包含完整堆栈
+			ctx.L().Error("panic recovered",
+				zap.Any("error", err),
+				zap.String("stack", string(debug.Stack())),
+			)
+		},
 	}))
 	app.Use(middleware.LogMiddleware(logger))
 	app.Use(middleware.TraceMiddleware())
@@ -109,6 +117,8 @@ func initialize(conf *config.Config) *App {
 		GETOnly:                 fiberConfig.GETOnly,
 		ErrorHandler: func(c fiber.Ctx, err error) error {
 			ctx := handler.Trans(c)
+			isPanic := ctx.IsPanic
+			ctx.IsPanic = false
 			code := fiber.StatusOK
 			var fe *fiber.Error
 			if errors.As(err, &fe) {
@@ -126,7 +136,9 @@ func initialize(conf *config.Config) *App {
 						ctx.L().Error("Fiber返回信息错误", zap.Error(err))
 					}
 				default:
-					ctx.L().Error("Fiber处理信息错误", zap.Error(err))
+					if !isPanic {
+						ctx.L().Error("Fiber处理信息错误", zap.Error(err))
+					}
 					err = ctx.JSON(domains.JsonErr)
 					if err != nil {
 						ctx.L().Error("Fiber返回信息错误", zap.Error(err))

@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"moul.io/zapgorm2"
-	gormCrud "orm-crud/gorm"
+	gormCrud "orm-crud/gormc"
 )
 
 var Client *gormCrud.Client // 包级变量

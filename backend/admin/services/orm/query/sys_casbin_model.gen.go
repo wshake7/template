@@ -34,7 +34,7 @@ func newSysCasbinModel(db *gorm.DB, opts ...gen.DOOption) sysCasbinModel {
 	_sysCasbinModel.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysCasbinModel.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysCasbinModel.DeletedBy = field.NewUint64(tableName, "deleted_by")
-	_sysCasbinModel.Status = field.NewUint8(tableName, "status")
+	_sysCasbinModel.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysCasbinModel.Remark = field.NewString(tableName, "remark")
 	_sysCasbinModel.Name = field.NewString(tableName, "name")
 	_sysCasbinModel.Content = field.NewString(tableName, "content")
@@ -55,7 +55,7 @@ type sysCasbinModel struct {
 	CreatedBy field.Uint64
 	UpdatedBy field.Uint64
 	DeletedBy field.Uint64
-	Status    field.Uint8
+	IsEnabled field.Bool
 	Remark    field.String
 	Name      field.String // 模型名称
 	Content   field.String // 模型内容
@@ -82,7 +82,7 @@ func (s *sysCasbinModel) updateTableName(table string) *sysCasbinModel {
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
-	s.Status = field.NewUint8(table, "status")
+	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
 	s.Name = field.NewString(table, "name")
 	s.Content = field.NewString(table, "content")
@@ -110,7 +110,7 @@ func (s *sysCasbinModel) fillFieldMap() {
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["deleted_by"] = s.DeletedBy
-	s.fieldMap["status"] = s.Status
+	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["content"] = s.Content

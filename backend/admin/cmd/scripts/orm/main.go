@@ -2,11 +2,8 @@ package main
 
 import (
 	"admin/config"
-	"admin/services/orm"
 	"admin/services/orm/models"
 	"admin/services/orm/query"
-	"admin/services/orm/repo"
-	"context"
 	"fmt"
 	"go-common/utils/passwd"
 	"go-common/viperc"
@@ -14,7 +11,8 @@ import (
 	"gorm.io/gen"
 	"gorm.io/gorm"
 	"moul.io/zapgorm2"
-	gormCrud "orm-crud/gorm"
+	gormCrud "orm-crud/gormc"
+	"orm-crud/gormc/mixin"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -57,8 +55,16 @@ func main() {
 }
 
 func genUserAdd() {
+	sysUser := query.SysUser
 	pwd, _ := passwd.Encode("123456")
-	repo.SysUserRepo.Create(context.Background(), orm.DB(), &models.SysUser{Username: "admin", Password: pwd})
+	_ = sysUser.Create(&models.SysUser{Username: "admin", Password: pwd})
+
+	sysCasbinModel := query.SysCasbinModel
+	_ = sysCasbinModel.Create(&models.SysCasbinModel{
+		IsEnabled: mixin.IsEnabled{IsEnabled: true},
+		Name:      "pbac",
+		Content:   "[request_definition]\nr = sub, obj, act\n\n[policy_definition]\np = sub_rule, obj_rule, act\n\n[policy_effect]\ne = some(where (p.eft == allow))\n\n[matchers]\nm = eval(p.sub_rule) && eval(p.obj_rule) && r.act == p.act",
+	})
 }
 
 func dbGenCode(db *gorm.DB, models []any) {

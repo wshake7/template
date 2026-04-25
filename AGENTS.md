@@ -21,17 +21,18 @@
 - Backend Services 生命周期与依赖编排: [skills/backend/framework/services-lifecycle.md](skills/backend/framework/services-lifecycle.md)
 - Backend FiberC 核心结构: [skills/backend/framework/fiberc-core.md](skills/backend/framework/fiberc-core.md)
 - Backend Router 编写风格: [skills/backend/framework/router-style.md](skills/backend/framework/router-style.md)
+- Backend Swagger 编写风格: [skills/backend/framework/swagger-style.md](skills/backend/framework/swagger-style.md)
 - Backend ORM 数据库操作与 Models 维护: [skills/backend/libraries/orm-models.md](skills/backend/libraries/orm-models.md)
 - Backend go-common 公共库: [skills/backend/libraries/go-common.md](skills/backend/libraries/go-common.md)
 - Backend orm-crud 能力: [skills/backend/libraries/orm-crud.md](skills/backend/libraries/orm-crud.md)
 
 ## Front 代码改动检查规则
 - AI 只要修改 `front/**` 代码，提交结果前必须先执行：`vp run lint:fix`
-- 然后执行：`vp run test -r`
 - 如果命令失败，先询问是否需要修复
 
 ## Backend 代码改动检查规则
 - AI 只要修改 `backend/**` 代码，提交结果前必须在对应模块目录执行：`go fix ./...`,`go test ./...`
+- **Swagger 更新**：如果 AI 修改了 `backend/admin` 中涉及 Swagger 注释的内容，必须在 `backend/admin` 目录执行 `make swagger` 重新生成文档。
 - 如果涉及多个模块改动，需要在每个受影响模块分别执行：`go fix ./...`,`go test ./...`
 - 如果命令失败，先询问是否需要修复
 

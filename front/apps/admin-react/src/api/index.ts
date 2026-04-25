@@ -72,6 +72,7 @@ const API = createAlova({
   statesHook: reactHook,
   cacheFor: null,
   requestAdapter: adapterFetch(),
+  shareRequest: false,
   beforeRequest: onAuthRequired(async (method) => {
     NProgress.start()
     let publicKey = useDeviceStore.getState().publicKey
@@ -98,6 +99,7 @@ const API = createAlova({
       method.meta = {
         ...method.meta,
         aesKey: key,
+        nonce,
       }
       const encryptedKey = await rsaEncrypt(keyBase64, publicCryptoKey)
       method.config.headers[Header.XRequestEncryptedKey] = encryptedKey
@@ -118,6 +120,7 @@ const API = createAlova({
   responded: onResponseRefreshToken({
     onSuccess: async (response, method) => {
       if (!response.ok) {
+        gMessage.error('请求错误')
         throw new Error(`[${response.status}]${response.statusText}`)
       }
       const contentType = response.headers.get('Content-Type') || ''
@@ -134,6 +137,7 @@ const API = createAlova({
       if (contentType.includes('application/json')) {
         const json = await response.clone().json()
         const res = json as Res
+        console.log('response', res)
         if (method.url !== '/api/account/logout') {
           await HttpCodeCheck(res)
         }

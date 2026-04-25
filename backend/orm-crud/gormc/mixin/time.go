@@ -8,7 +8,7 @@ import (
 
 // CreatedAt created_at
 type CreatedAt struct {
-	CreatedAt *time.Time `gorm:"column:created_at" json:"created_at,omitempty"`
+	CreatedAt *time.Time `gorm:"column:created_at" json:"createdAt,omitempty"`
 }
 
 func (m *CreatedAt) BeforeCreate(tx *gorm.DB) (err error) {
@@ -21,7 +21,7 @@ func (m *CreatedAt) BeforeCreate(tx *gorm.DB) (err error) {
 
 // UpdatedAt updated_at
 type UpdatedAt struct {
-	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updated_at,omitempty"`
+	UpdatedAt *time.Time `gorm:"column:updated_at" json:"updatedAt,omitempty"`
 }
 
 func (m *UpdatedAt) BeforeCreate(tx *gorm.DB) (err error) {
@@ -40,7 +40,7 @@ func (m *UpdatedAt) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeletedAt deleted_at
 type DeletedAt struct {
-	DeletedAt *time.Time `gorm:"column:deleted_at;index" json:"deleted_at,omitempty"`
+	DeletedAt *time.Time `gorm:"column:deleted_at;index" json:"deletedAt,omitempty"`
 }
 
 func (m *DeletedAt) BeforeDelete(tx *gorm.DB) (err error) {
@@ -60,7 +60,7 @@ type TimeAt struct {
 
 // CreateTime (create_time)
 type CreateTime struct {
-	CreateTime *time.Time `gorm:"column:create_time" json:"create_time,omitempty"`
+	CreateTime *time.Time `gorm:"column:create_time" json:"createTime,omitempty"`
 }
 
 func (m *CreateTime) BeforeCreate(tx *gorm.DB) (err error) {
@@ -73,7 +73,7 @@ func (m *CreateTime) BeforeCreate(tx *gorm.DB) (err error) {
 
 // UpdateTime (update_time)
 type UpdateTime struct {
-	UpdateTime *time.Time `gorm:"column:update_time" json:"update_time,omitempty"`
+	UpdateTime *time.Time `gorm:"column:update_time" json:"updateTime,omitempty"`
 }
 
 func (m *UpdateTime) BeforeCreate(tx *gorm.DB) (err error) {
@@ -92,7 +92,7 @@ func (m *UpdateTime) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeleteTime (delete_time)
 type DeleteTime struct {
-	DeleteTime *time.Time `gorm:"column:delete_time;index" json:"delete_time,omitempty"`
+	DeleteTime *time.Time `gorm:"column:delete_time;index" json:"deleteTime,omitempty"`
 }
 
 func (m *DeleteTime) BeforeDelete(tx *gorm.DB) (err error) {

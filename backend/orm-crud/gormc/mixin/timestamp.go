@@ -8,7 +8,7 @@ import (
 
 // CreateTimestamp (create_time)
 type CreateTimestamp struct {
-	CreateTime int64 `gorm:"column:create_time;type:bigint" json:"create_time"`
+	CreateTime int64 `gorm:"column:create_time;type:bigint" json:"createTime,omitempty"`
 }
 
 func (m *CreateTimestamp) BeforeCreate(tx *gorm.DB) (err error) {
@@ -21,7 +21,7 @@ func (m *CreateTimestamp) BeforeCreate(tx *gorm.DB) (err error) {
 
 // UpdateTimestamp (update_time)
 type UpdateTimestamp struct {
-	UpdateTime int64 `gorm:"column:update_time;type:bigint" json:"update_time"`
+	UpdateTime int64 `gorm:"column:update_time;type:bigint" json:"updateTime,omitempty"`
 }
 
 func (m *UpdateTimestamp) BeforeCreate(tx *gorm.DB) (err error) {
@@ -40,7 +40,7 @@ func (m *UpdateTimestamp) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeleteTimestamp (delete_time)
 type DeleteTimestamp struct {
-	DeleteTime int64 `gorm:"column:delete_time;type:bigint;index;default:0" json:"delete_time"`
+	DeleteTime int64 `gorm:"column:delete_time;type:bigint;index;default:0" json:"deleteTime,omitempty"`
 }
 
 func (m *DeleteTimestamp) BeforeDelete(tx *gorm.DB) (err error) {
@@ -60,7 +60,7 @@ type Timestamp struct {
 
 // CreatedAtTimestamp (created_at)
 type CreatedAtTimestamp struct {
-	CreatedAt int64 `gorm:"column:created_at;type:bigint" json:"created_at"`
+	CreatedAt int64 `gorm:"column:created_at;type:bigint" json:"createdAt,omitempty"`
 }
 
 func (m *CreatedAtTimestamp) BeforeCreate(tx *gorm.DB) (err error) {
@@ -73,7 +73,7 @@ func (m *CreatedAtTimestamp) BeforeCreate(tx *gorm.DB) (err error) {
 
 // UpdatedAtTimestamp (updated_at)
 type UpdatedAtTimestamp struct {
-	UpdatedAt int64 `gorm:"column:updated_at;type:bigint" json:"updated_at"`
+	UpdatedAt int64 `gorm:"column:updated_at;type:bigint" json:"updatedAt,omitempty"`
 }
 
 func (m *UpdatedAtTimestamp) BeforeCreate(tx *gorm.DB) (err error) {
@@ -92,7 +92,7 @@ func (m *UpdatedAtTimestamp) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeletedAtTimestamp (deleted_at)
 type DeletedAtTimestamp struct {
-	DeletedAt int64 `gorm:"column:deleted_at;type:bigint;index;default:0" json:"deleted_at"`
+	DeletedAt int64 `gorm:"column:deleted_at;type:bigint;index;default:0" json:"deletedAt,omitempty"`
 }
 
 func (m *DeletedAtTimestamp) BeforeDelete(tx *gorm.DB) (err error) {

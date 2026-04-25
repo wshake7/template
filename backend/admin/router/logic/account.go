@@ -14,7 +14,6 @@ import (
 
 	"github.com/click33/sa-token-go/stputil"
 	"go.uber.org/zap"
-	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -143,8 +142,8 @@ func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) err
 		return res.FailDefault
 	}
 	sysUser = query.SysUser
-	_, err = repo.SysUserRepo.UpdateMap(map[field.Expr]any{
-		sysUser.Password: encodePwd,
+	_, err = repo.SysUserRepo.UpdateMap(map[string]any{
+		sysUser.Password.ColumnName().String(): encodePwd,
 	}, sysUser.ID.Eq(info.Id))
 	if err != nil {
 		ctx.L().Error("修改密码失败", zap.Error(err))

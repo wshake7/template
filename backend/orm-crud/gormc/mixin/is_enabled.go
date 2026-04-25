@@ -11,14 +11,13 @@ import "gorm.io/gorm"
 //
 // 字段使用指针以支持 nullable；`index` 创建索引；BeforeCreate 在未设置时保证为 true。
 type IsEnabled struct {
-	IsEnabled *bool `gorm:"column:is_enabled;type:boolean;default:true;index" json:"is_enabled,omitempty"`
+	IsEnabled bool `gorm:"column:is_enabled;default:true;index" json:"isEnabled,omitempty"`
 }
 
 // BeforeCreate 在创建时如果未显式设置，保证默认启用。
 func (m *IsEnabled) BeforeCreate(tx *gorm.DB) (err error) {
-	if m.IsEnabled == nil {
-		v := true
-		m.IsEnabled = &v
+	if m.IsEnabled == false {
+		m.IsEnabled = true
 	}
 	return nil
 }

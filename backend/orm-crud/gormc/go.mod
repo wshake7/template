@@ -1,4 +1,4 @@
-module orm-crud/gorm
+module orm-crud/gormc
 
 go 1.25.7
 

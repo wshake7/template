@@ -34,7 +34,7 @@ func newSysRole(db *gorm.DB, opts ...gen.DOOption) sysRole {
 	_sysRole.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysRole.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysRole.DeletedBy = field.NewUint64(tableName, "deleted_by")
-	_sysRole.Status = field.NewUint8(tableName, "status")
+	_sysRole.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysRole.DeletedAt = field.NewField(tableName, "deleted_at")
 	_sysRole.Name = field.NewString(tableName, "name")
 	_sysRole.Code = field.NewString(tableName, "code")
@@ -82,7 +82,7 @@ type sysRole struct {
 	CreatedBy field.Uint64
 	UpdatedBy field.Uint64
 	DeletedBy field.Uint64
-	Status    field.Uint8
+	IsEnabled field.Bool
 	DeletedAt field.Field
 	Name      field.String // 角色名称
 	Code      field.String // 角色标识
@@ -118,7 +118,7 @@ func (s *sysRole) updateTableName(table string) *sysRole {
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
-	s.Status = field.NewUint8(table, "status")
+	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.DeletedAt = field.NewField(table, "deleted_at")
 	s.Name = field.NewString(table, "name")
 	s.Code = field.NewString(table, "code")
@@ -152,7 +152,7 @@ func (s *sysRole) fillFieldMap() {
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["deleted_by"] = s.DeletedBy
-	s.fieldMap["status"] = s.Status
+	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["code"] = s.Code

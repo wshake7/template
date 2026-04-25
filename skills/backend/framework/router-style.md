@@ -30,6 +30,13 @@
 - `handler.CtxHandlerNilFunc(fn)`：有请求结构体，仅返回 `error`（如 create/update/delete）
 - 入参统一使用结构体标签校验（`binding` + `binding_msg`），避免在路由层手写解析
 
+### 更新接口 (Patch 模式) 规范
+- **结构体定义**：Update 请求结构体中的可选字段必须使用 **指针类型**（如 `*string`, `*int32`），以区分“未传值”与“传零值”。
+- **逻辑实现**：使用 Repository 提供的 `UpdateNoNilMap` 方法进行更新，该方法会自动过滤掉 `nil` 指针，实现按需更新。
+- **校验逻辑**：
+    - 状态位校验：使用 `binding:"oneof=0 1"` 限制开关状态。
+    - 关联性校验：在创建或更新包含外键（如 `SysDictTypeId`）的记录前，必须先调用 `repo.XxxRepo.Exists` 校验关联数据是否存在。
+
 ## Middleware 串联风格
 - 公共接口（如登录）：`PublicMiddleware()` + `EncryptMiddleware()`
 - 鉴权接口组：优先在分组层统一挂 `AuthMiddleware()` + `EncryptMiddleware()`

@@ -33,7 +33,7 @@ func newSysDictType(db *gorm.DB, opts ...gen.DOOption) sysDictType {
 	_sysDictType.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysDictType.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysDictType.DeletedBy = field.NewUint64(tableName, "deleted_by")
-	_sysDictType.Status = field.NewUint8(tableName, "status")
+	_sysDictType.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictType.SortOrder = field.NewInt32(tableName, "sort_order")
 	_sysDictType.Description = field.NewString(tableName, "description")
 	_sysDictType.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -73,7 +73,7 @@ type sysDictType struct {
 	CreatedBy   field.Uint64
 	UpdatedBy   field.Uint64
 	DeletedBy   field.Uint64
-	Status      field.Uint8
+	IsEnabled   field.Bool
 	SortOrder   field.Int32
 	Description field.String
 	DeletedAt   field.Field
@@ -102,7 +102,7 @@ func (s *sysDictType) updateTableName(table string) *sysDictType {
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
-	s.Status = field.NewUint8(table, "status")
+	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.SortOrder = field.NewInt32(table, "sort_order")
 	s.Description = field.NewString(table, "description")
 	s.DeletedAt = field.NewField(table, "deleted_at")
@@ -131,7 +131,7 @@ func (s *sysDictType) fillFieldMap() {
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["deleted_by"] = s.DeletedBy
-	s.fieldMap["status"] = s.Status
+	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["sort_order"] = s.SortOrder
 	s.fieldMap["description"] = s.Description
 	s.fieldMap["deleted_at"] = s.DeletedAt

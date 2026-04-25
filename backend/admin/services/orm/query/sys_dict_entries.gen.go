@@ -35,7 +35,7 @@ func newSysDictEntry(db *gorm.DB, opts ...gen.DOOption) sysDictEntry {
 	_sysDictEntry.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysDictEntry.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysDictEntry.SortOrder = field.NewInt32(tableName, "sort_order")
-	_sysDictEntry.Status = field.NewUint8(tableName, "status")
+	_sysDictEntry.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictEntry.Remark = field.NewString(tableName, "remark")
 	_sysDictEntry.EntryLabel = field.NewString(tableName, "entry_label")
 	_sysDictEntry.EntryValue = field.NewString(tableName, "entry_value")
@@ -78,7 +78,7 @@ type sysDictEntry struct {
 	UpdatedBy     field.Uint64
 	DeletedBy     field.Uint64
 	SortOrder     field.Int32
-	Status        field.Uint8
+	IsEnabled     field.Bool
 	Remark        field.String
 	EntryLabel    field.String // 字典项的显示标签
 	EntryValue    field.String // 字典项的实际值
@@ -110,7 +110,7 @@ func (s *sysDictEntry) updateTableName(table string) *sysDictEntry {
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.SortOrder = field.NewInt32(table, "sort_order")
-	s.Status = field.NewUint8(table, "status")
+	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
 	s.EntryLabel = field.NewString(table, "entry_label")
 	s.EntryValue = field.NewString(table, "entry_value")
@@ -142,7 +142,7 @@ func (s *sysDictEntry) fillFieldMap() {
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["sort_order"] = s.SortOrder
-	s.fieldMap["status"] = s.Status
+	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["entry_label"] = s.EntryLabel
 	s.fieldMap["entry_value"] = s.EntryValue

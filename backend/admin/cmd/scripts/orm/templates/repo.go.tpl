@@ -5,27 +5,42 @@ import (
     "{{.ModuleName}}/services/orm/query"
     "go-common/mapper"
     "gorm.io/gen"
-    "gorm.io/gen/field"
-    "orm-crud/gorm"
+    "orm-crud/gormc"
 )
 
 type {{.ModelName | toLower}}Repo[T, R any] struct {
-    *gorm.Repository[T, R]
+    *gormc.Repository[T, R]
 }
 
 var {{.ModelName}}Repo *{{.ModelName | toLower}}Repo[models.{{.ModelName}}, models.{{.ModelName}}]
 
 func init() {
-    repository := gorm.NewRepository(mapper.NewCopierMapper[models.{{.ModelName}}, models.{{.ModelName}}]())
+    repository := gormc.NewRepository(mapper.NewCopierMapper[models.{{.ModelName}}, models.{{.ModelName}}]())
     {{.ModelName}}Repo = &{{.ModelName | toLower}}Repo[models.{{.ModelName}}, models.{{.ModelName}}]{
         Repository: repository,
     }
 }
 
-func ({{.ModelName | toLower}}Repo[T, R]) UpdateMap(m map[field.Expr]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+func ({{.ModelName | toLower}}Repo[T, R]) UpdateMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+    if len(m) == 0 {
+        return gen.ResultInfo{}, nil
+    }
+    q := query.{{.ModelName}}
+    return q.Where(conds...).Updates(m)
+}
+
+func ({{.ModelName | toLower}}Repo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+    if len(m) == 0 {
+        return gen.ResultInfo{}, nil
+    }
     d := make(map[string]any, len(m))
     for k, v := range m {
-        d[k.ColumnName().String()] = v
+        if v != nil {
+            d[k] = v
+        }
+    }
+    if len(d) == 0 {
+        return gen.ResultInfo{}, nil
     }
     q := query.{{.ModelName}}
     return q.Where(conds...).Updates(d)

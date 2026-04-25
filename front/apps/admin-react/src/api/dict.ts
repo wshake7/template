@@ -1,0 +1,140 @@
+import API from './index'
+
+export interface DictType {
+  id: number
+  typeCode: string
+  typeName: string
+  isEnabled: boolean
+  sortOrder: number
+  description: string
+}
+
+export interface DictEntry {
+  id: number
+  entryLabel: string
+  entryValue: string
+  numericValue: number
+  languageCode: string
+  sysDictTypeId: number
+  sortOrder: number
+  isEnabled: boolean
+  remark: string
+}
+
+export interface ReqDictTypeCreate {
+  typeCode: string
+  typeName: string
+  isEnabled: boolean
+  sortOrder: number
+  description: string
+}
+
+export interface ReqDictTypeUpdate extends Partial<ReqDictTypeCreate> {
+  id: number
+}
+
+export interface ReqDictTypeSwitchStatus {
+  id: number
+  isEnabled: boolean
+}
+
+export interface ReqDictTypeDelete {
+  id: number
+}
+
+export interface ReqDictEntryCreate {
+  entryLabel: string
+  entryValue: string
+  numericValue: number
+  languageCode: string
+  sysDictTypeId: number
+  sortOrder: number
+  isEnabled: boolean
+  remark: string
+}
+
+export interface ReqDictEntryUpdate extends Partial<ReqDictEntryCreate> {
+  id: number
+}
+
+export interface ReqDictEntrySwitchStatus {
+  id: number
+  isEnabled: boolean
+}
+
+export interface ReqDictEntryDelete {
+  id: number
+}
+
+async function typeList(req: PagingRequest) {
+  return await API.Post<Res<PagingResult<DictType>>>('/api/dict/type/list', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function typeCreate(req: ReqDictTypeCreate) {
+  await API.Post<Res>('/api/dict/type/create', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function typeUpdate(req: ReqDictTypeUpdate) {
+  await API.Post<Res>('/api/dict/type/update', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function typeSwitch(req: ReqDictTypeSwitchStatus) {
+  await API.Post<Res>('/api/dict/type/switch', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function typeDel(req: ReqDictTypeDelete) {
+  await API.Post<Res>('/api/dict/type/del', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function entryList(req: PagingRequest) {
+  return await API.Post<Res<PagingResult<DictEntry>>>('/api/dict/entry/list', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function entryCreate(req: ReqDictEntryCreate) {
+  await API.Post<Res>('/api/dict/entry/create', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function entryUpdate(req: ReqDictEntryUpdate) {
+  await API.Post<Res>('/api/dict/entry/update', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function entrySwitch(req: ReqDictEntrySwitchStatus) {
+  await API.Post<Res>('/api/dict/entry/switch', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+async function entryDel(req: ReqDictEntryDelete) {
+  await API.Post<Res>('/api/dict/entry/del', req, {
+    cacheFor: 0,
+  }).send()
+}
+
+export const DictApi = {
+  typeList,
+  typeCreate,
+  typeUpdate,
+  typeSwitch,
+  typeDel,
+  entryList,
+  entryCreate,
+  entryUpdate,
+  entrySwitch,
+  entryDel,
+}

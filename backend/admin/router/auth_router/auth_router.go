@@ -8,5 +8,6 @@ import (
 
 func RegisterRouters(router fiber.Router) {
 	group := router.Use(middleware.AuthMiddleware(), middleware.EncryptMiddleware())
-	registerRoleRouters(group)
+	registerRoleRouters(group.Group("/role"))
+	registerDictRouters(group.Group("/dict"))
 }

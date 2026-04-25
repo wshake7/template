@@ -34,7 +34,7 @@ func newSysLanguage(db *gorm.DB, opts ...gen.DOOption) sysLanguage {
 	_sysLanguage.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysLanguage.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysLanguage.SortOrder = field.NewInt32(tableName, "sort_order")
-	_sysLanguage.Status = field.NewUint8(tableName, "status")
+	_sysLanguage.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysLanguage.DeletedAt = field.NewField(tableName, "deleted_at")
 	_sysLanguage.LanguageCode = field.NewString(tableName, "language_code")
 	_sysLanguage.LanguageName = field.NewString(tableName, "language_name")
@@ -57,7 +57,7 @@ type sysLanguage struct {
 	UpdatedBy    field.Uint64
 	DeletedBy    field.Uint64
 	SortOrder    field.Int32
-	Status       field.Uint8
+	IsEnabled    field.Bool
 	DeletedAt    field.Field
 	LanguageCode field.String // 标准语言代码
 	LanguageName field.String // 语言名称
@@ -86,7 +86,7 @@ func (s *sysLanguage) updateTableName(table string) *sysLanguage {
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.SortOrder = field.NewInt32(table, "sort_order")
-	s.Status = field.NewUint8(table, "status")
+	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.DeletedAt = field.NewField(table, "deleted_at")
 	s.LanguageCode = field.NewString(table, "language_code")
 	s.LanguageName = field.NewString(table, "language_name")
@@ -116,7 +116,7 @@ func (s *sysLanguage) fillFieldMap() {
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["sort_order"] = s.SortOrder
-	s.fieldMap["status"] = s.Status
+	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["language_code"] = s.LanguageCode
 	s.fieldMap["language_name"] = s.LanguageName

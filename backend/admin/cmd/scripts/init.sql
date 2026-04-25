@@ -1,6 +1,6 @@
-insert into sys_casbin_model (created_at, updated_at, deleted_at, created_by, updated_by, deleted_by, status,
+insert into sys_casbin_model (created_at, updated_at, deleted_at, created_by, updated_by, deleted_by, is_enabled,
                               remark, name, content)
-values (null, null, null, 0, 0, 0, 1, '', 'pbac', '[request_definition]
+values (null, null, null, 0, 0, 0, true, '', 'pbac', '[request_definition]
 r = sub, obj, act
 
 [policy_definition]

@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap"
-	gormCrud "orm-crud/gorm"
+	gormCrud "orm-crud/gormc"
 )
 
 type Orm struct {

@@ -141,6 +141,7 @@ type Ctx struct {
 	LogResFields []zap.Field
 	ErrCode      *int
 	ErrMsg       string
+	IsPanic      bool
 }
 
 func (ctx *Ctx) SetLogger(logger *zap.Logger) {
