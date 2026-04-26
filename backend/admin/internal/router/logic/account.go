@@ -5,9 +5,7 @@ import (
 	"admin/internal/auth"
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
-	"admin/internal/services/orm"
 	"admin/internal/services/orm/query"
-	"admin/internal/services/orm/repo"
 	"errors"
 	"go-common/utils/encrypt/rsa_util"
 	"go-common/utils/passwd"
@@ -40,7 +38,7 @@ type ResAccountPwdLogin struct {
 func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*ResAccountPwdLogin, error) {
 	logger := ctx.L().With(zap.String("username", req.Username))
 	sysUser := query.SysUser
-	result, err := repo.SysUserRepo.Get(ctx.Context(), orm.DB(), sysUser.ID, sysUser.Password)
+	result, err := sysUser.Where(sysUser.Username.Eq(req.Username)).Select(sysUser.ID, sysUser.Password).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("用户名或密码无效")
@@ -126,7 +124,7 @@ type ReqAccountChangePwd struct {
 func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) error {
 	info := ctx.SessionInfo
 	sysUser := query.SysUser
-	result, err := repo.SysUserRepo.Get(ctx.Context(), orm.DB().Where(sysUser.ID.Eq(info.Id)), sysUser.Password)
+	result, err := sysUser.Where(sysUser.ID.Eq(info.Id)).Select(sysUser.ID, sysUser.Password).First()
 	if err != nil {
 		ctx.L().Error("获取用户密码失败", zap.Error(err))
 		return res.FailDefault
@@ -141,14 +139,10 @@ func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) err
 		ctx.L().Error("密码加密失败", zap.Error(err))
 		return res.FailDefault
 	}
-	sysUser = query.SysUser
-	_, err = repo.SysUserRepo.UpdateMap(map[string]any{
-		sysUser.Password.ColumnName().String(): encodePwd,
-	}, sysUser.ID.Eq(info.Id))
+	_, err = sysUser.Where(sysUser.ID.Eq(info.Id)).Update(sysUser.Password, encodePwd)
 	if err != nil {
 		ctx.L().Error("修改密码失败", zap.Error(err))
 		return res.FailDefault
 	}
-
 	return err
 }

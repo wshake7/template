@@ -1,10 +1,7 @@
 package casbin
 
 import (
-	"admin/internal/services/orm"
 	"admin/internal/services/orm/query"
-	"admin/internal/services/orm/repo"
-	"context"
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
@@ -22,7 +19,7 @@ func New(db *gorm.DB) {
 		panic(err)
 	}
 	sysCasbinModel := query.SysCasbinModel
-	result, err := repo.SysCasbinModelRepo.Get(context.Background(), orm.DB().Where(sysCasbinModel.IsEnabled.Is(true)), sysCasbinModel.Content)
+	result, err := sysCasbinModel.Where(sysCasbinModel.IsEnabled.Is(true)).Select(sysCasbinModel.Content).First()
 	if err != nil {
 		panic(err)
 	}

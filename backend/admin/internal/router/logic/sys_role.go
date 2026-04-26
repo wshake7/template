@@ -3,10 +3,8 @@ package logic
 import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
-	"admin/internal/services/orm"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
-	"admin/internal/services/orm/repo"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 	"orm-crud/gormc/mixin"
@@ -23,7 +21,7 @@ type SysRoleHandler struct{}
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysRole]} "成功"
 // @Router /api/role/list [get]
 func (*SysRoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysRole], error) {
-	pagination, err := repo.SysRoleRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
+	pagination, err := query.SysRole.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -45,7 +43,7 @@ type ReqRoleCreate struct {
 // @Success 200 {object} res.Response "成功"
 // @Router /api/role/create [post]
 func (*SysRoleHandler) Create(ctx *handler.Ctx, req *ReqRoleCreate) error {
-	_, err := repo.SysRoleRepo.Create(ctx.Context(), orm.DB(), &models.SysRole{Code: req.Code, Name: req.Name, Remark: mixin.Remark{Remark: req.Remark}})
+	err := query.SysRole.Create(&models.SysRole{Code: req.Code, Name: req.Name, Remark: mixin.Remark{Remark: req.Remark}})
 	if err != nil {
 		return res.FailDefault
 	}
@@ -69,11 +67,11 @@ type ReqRoleUpdate struct {
 // @Router /api/role/update [post]
 func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqRoleUpdate) error {
 	sysRole := query.SysRole
-	_, err := repo.SysRoleRepo.UpdateMap(map[string]any{
-		sysRole.Name.ColumnName().String():   req.Name,
-		sysRole.Code.ColumnName().String():   req.Code,
-		sysRole.Remark.ColumnName().String(): mixin.Remark{Remark: req.Remark},
-	}, sysRole.ID.Eq(req.ID))
+	_, err := sysRole.Where(sysRole.ID.Eq(req.ID)).UpdateSimple(
+		sysRole.Name.Value(req.Name),
+		sysRole.Code.Value(req.Code),
+		sysRole.Remark.Value(req.Remark),
+	)
 	if err != nil {
 		return res.FailDefault
 	}
@@ -95,9 +93,9 @@ type ReqRoleSwitchStatus struct {
 // @Router /api/role/switch [post]
 func (*SysRoleHandler) Switch(ctx *handler.Ctx, req *ReqRoleSwitchStatus) error {
 	sysRole := query.SysRole
-	_, err := repo.SysRoleRepo.UpdateMap(map[string]any{
-		sysRole.IsEnabled.ColumnName().String(): req.IsEnabled,
-	}, sysRole.ID.Eq(req.ID))
+	_, err := sysRole.Where(sysRole.ID.Eq(req.ID)).UpdateSimple(
+		sysRole.IsEnabled.Value(req.IsEnabled != 0),
+	)
 	if err != nil {
 		return res.FailDefault
 	}
@@ -117,7 +115,7 @@ type ReqRoleDelete struct {
 // @Success 200 {object} res.Response "成功"
 // @Router /api/role/del [post]
 func (*SysRoleHandler) Del(ctx *handler.Ctx, req *ReqRoleDelete) error {
-	_, err := repo.SysRoleRepo.SoftDelete(ctx.Context(), orm.DB().Where(query.SysUser.ID.Eq(req.ID)))
+	_, err := query.SysRole.Where(query.SysRole.ID.Eq(req.ID)).Delete()
 	if err != nil {
 		return res.FailDefault
 	}

@@ -34,7 +34,7 @@ func newSysDictType(db *gorm.DB, opts ...gen.DOOption) sysDictType {
 	_sysDictType.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysDictType.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictType.SortOrder = field.NewInt32(tableName, "sort_order")
-	_sysDictType.Description = field.NewString(tableName, "description")
+	_sysDictType.Remark = field.NewString(tableName, "remark")
 	_sysDictType.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysDictType.TypeCode = field.NewString(tableName, "type_code")
 	_sysDictType.TypeName = field.NewString(tableName, "type_name")
@@ -65,19 +65,19 @@ func newSysDictType(db *gorm.DB, opts ...gen.DOOption) sysDictType {
 type sysDictType struct {
 	sysDictTypeDo
 
-	ALL         field.Asterisk
-	ID          field.Uint64
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	CreatedBy   field.Uint64
-	UpdatedBy   field.Uint64
-	IsEnabled   field.Bool
-	SortOrder   field.Int32
-	Description field.String
-	DeletedAt   field.Uint
-	TypeCode    field.String // 字典类型唯一代码
-	TypeName    field.String // 字典类型名称
-	Entries     sysDictTypeHasManyEntries
+	ALL       field.Asterisk
+	ID        field.Uint64
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	CreatedBy field.Uint64
+	UpdatedBy field.Uint64
+	IsEnabled field.Bool
+	SortOrder field.Int32
+	Remark    field.String
+	DeletedAt field.Uint
+	TypeCode  field.String // 字典类型唯一代码
+	TypeName  field.String // 字典类型名称
+	Entries   sysDictTypeHasManyEntries
 
 	fieldMap map[string]field.Expr
 }
@@ -101,7 +101,7 @@ func (s *sysDictType) updateTableName(table string) *sysDictType {
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.SortOrder = field.NewInt32(table, "sort_order")
-	s.Description = field.NewString(table, "description")
+	s.Remark = field.NewString(table, "remark")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.TypeCode = field.NewString(table, "type_code")
 	s.TypeName = field.NewString(table, "type_name")
@@ -129,7 +129,7 @@ func (s *sysDictType) fillFieldMap() {
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["sort_order"] = s.SortOrder
-	s.fieldMap["description"] = s.Description
+	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["type_code"] = s.TypeCode
 	s.fieldMap["type_name"] = s.TypeName

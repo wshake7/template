@@ -14,7 +14,6 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 import z from 'zod'
 import { DictApi } from '~/api/dict'
-import API from '~/api/index'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -41,7 +40,7 @@ const DictTypeSchema = z.object({
   typeName: z.string('请输入类型名称').min(1, '请输入类型名称'),
   isEnabled: z.boolean().default(true),
   sortOrder: z.number().default(0),
-  description: z.string().default(''),
+  remark: z.string().default(''),
 })
 
 const dictTypeDefaults = DictTypeSchema.partial().parse({})
@@ -100,13 +99,11 @@ function DictTypePanel({
           $or: [
             { typeCode__icontains: searchText.trim() },
             { typeName__icontains: searchText.trim() },
-            { description__icontains: searchText.trim() },
+            { remark__icontains: searchText.trim() },
           ],
         })
       }
-      return API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', params, {
-        cacheFor: 0,
-      })
+      return DictApi.typeList(params)
     },
     {
       initialData: {
@@ -135,7 +132,7 @@ function DictTypePanel({
         typeName: values.typeName,
         isEnabled: values.isEnabled,
         sortOrder: values.sortOrder,
-        description: values.description,
+        remark: values.remark ?? '',
       }
 
       if (editing) {
@@ -176,7 +173,7 @@ function DictTypePanel({
       typeName: record.typeName,
       isEnabled: record.isEnabled,
       sortOrder: record.sortOrder,
-      description: record.description,
+      remark: record.remark,
     })
     setFormOpen(true)
   }, [form])
@@ -210,8 +207,8 @@ function DictTypePanel({
       width: 80,
     },
     {
-      title: '描述',
-      dataIndex: 'description',
+      title: '备注',
+      dataIndex: 'remark',
       ellipsis: true,
     },
     {
@@ -232,7 +229,7 @@ function DictTypePanel({
           key="switch"
           onClick={async (event) => {
             event.stopPropagation()
-            await DictApi.typeSwitch({
+            await DictApi.typeUpdate({
               id: record.id,
               isEnabled: !record.isEnabled,
             })
@@ -293,7 +290,7 @@ function DictTypePanel({
         toolBarRender={() => [
           <Input.Search
             key="search"
-            placeholder="搜索类型编码、名称、描述"
+            placeholder="搜索类型编码、名称、备注"
             allowClear
             value={searchText}
             onChange={(e) => {
@@ -396,7 +393,7 @@ function DictTypePanel({
         <ProFormText required name="typeName" label="类型名称" rules={rules} placeholder="请输入类型名称" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />
         <ProFormSwitch name="isEnabled" label="启用状态" />
-        <ProFormText name="description" label="描述" placeholder="请输入描述" />
+        <ProFormText name="remark" label="备注" placeholder="请输入备注" />
       </ModalForm>
     </>
   )
@@ -441,13 +438,11 @@ function DictEntryPanel({
           ],
         })
       }
-      return API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', {
+      return DictApi.entryList({
         page: nextPage,
         pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',
         query: conditions.length > 0 ? JSON.stringify({ $and: conditions }) : undefined,
-      }, {
-        cacheFor: 0,
       })
     },
     {
@@ -475,7 +470,8 @@ function DictEntryPanel({
         return
       }
 
-      if (!selectedType) {
+      const typeId = editing?.sysDictTypeId ?? selectedType?.id
+      if (!typeId) {
         gMessage.error('请先选择字典类型')
         return
       }
@@ -485,10 +481,10 @@ function DictEntryPanel({
         entryValue: values.entryValue,
         numericValue: values.numericValue,
         languageCode: values.languageCode,
-        sysDictTypeId: selectedType.id,
+        sysDictTypeId: typeId,
         sortOrder: values.sortOrder,
         isEnabled: values.isEnabled,
-        remark: values.remark,
+        remark: values.remark ?? '',
       }
 
       if (editing) {
@@ -584,7 +580,7 @@ function DictEntryPanel({
         <a
           key="switch"
           onClick={async () => {
-            await DictApi.entrySwitch({
+            await DictApi.entryUpdate({
               id: record.id,
               isEnabled: !record.isEnabled,
             })

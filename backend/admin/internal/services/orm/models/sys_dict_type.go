@@ -17,7 +17,7 @@ type SysDictType struct {
 	mixin.UpdatedBy
 	mixin.IsEnabled
 	mixin.SortOrder
-	mixin.Description
+	mixin.Remark
 	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;softDelete:milli;default:0;uniqueIndex:idx_sys_dict_type_type_code_deleted_at,priority:2" json:"deletedAt"`
 	TypeCode  string                `gorm:"column:type_code;type:varchar(128);not null;uniqueIndex:idx_sys_dict_type_type_code_deleted_at,priority:1;comment:字典类型唯一代码" json:"typeCode"`
 	TypeName  string                `gorm:"column:type_name;type:varchar(255);not null;comment:字典类型名称" json:"typeName"`
@@ -26,5 +26,5 @@ type SysDictType struct {
 
 // TableName 指定表名
 func (SysDictType) TableName() string {
-	return "sys_dict_types"
+	return "sys_dict_type"
 }

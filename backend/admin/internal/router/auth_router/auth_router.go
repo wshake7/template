@@ -10,5 +10,6 @@ func RegisterRouters(router fiber.Router) {
 	group := router.Use(middleware2.AuthMiddleware(), middleware2.EncryptMiddleware())
 	registerSysRoleRouters(group.Group("/sys/role"))
 	registerSysDictRouters(group.Group("/sys/dict"))
+	registerSysLanguageRouters(group.Group("/sys/language"))
 	registerSysOperationLogRouters(group.Group("/sys/operation/log"))
 }

@@ -3,14 +3,12 @@ package logic
 import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
-	"admin/internal/services/orm"
 	"admin/internal/services/orm/models"
-	"admin/internal/services/orm/repo"
+	"admin/internal/services/orm/query"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type SysOperationLogHandler struct{}
@@ -28,7 +26,7 @@ type ReqLogDetail struct {
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysOperationLog]} "成功"
 // @Router /api/log/list [post]
 func (*SysOperationLogHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysOperationLog], error) {
-	pagination, err := repo.SysOperationLogRepo.ListWithPaging(ctx.Context(), orm.DB(), req)
+	pagination, err := query.SysOperationLog.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -44,11 +42,9 @@ func (*SysOperationLogHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*g
 // @Success 200 {object} res.Response{data=models.SysOperationLog} "成功"
 // @Router /api/log/detail [post]
 func (*SysOperationLogHandler) Detail(ctx *handler.Ctx, req *ReqLogDetail) (*models.SysOperationLog, error) {
-	logEntry, err := repo.SysOperationLogRepo.GetWithFilters(ctx.Context(), orm.DB(), []func(*gorm.DB) *gorm.DB{
-		func(db *gorm.DB) *gorm.DB {
-			return db.Where("id = ?", req.ID)
-		},
-	})
+	logEntry, err := query.SysOperationLog.
+		Where(query.SysOperationLog.ID.Eq(req.ID)).
+		First()
 	if err != nil {
 		ctx.L().Error("查询操作日志失败", zap.Error(err), zap.Uint64("id", req.ID))
 		return nil, res.FailDefault

@@ -3,9 +3,9 @@
 package main
 
 import (
+	_ "admin/docs"
 	_ "admin/internal/auth"
 	_ "admin/internal/config"
-	_ "admin/internal/docs"
 	_ "admin/internal/domains"
 	_ "admin/internal/fiberc"
 	_ "admin/internal/fiberc/handler"
@@ -21,7 +21,6 @@ import (
 	_ "admin/internal/services/orm"
 	_ "admin/internal/services/orm/models"
 	_ "admin/internal/services/orm/query"
-	_ "admin/internal/services/orm/repo"
 	_ "admin/internal/services/redisc"
 	_ "admin/internal/validator"
 )

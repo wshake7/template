@@ -1,7 +1,7 @@
 import { HttpCode } from '~/domains/http'
 import { gEnv } from '~/env'
 
-const baseUrl = `http://localhost:${gEnv.VITE_PORT}/mock`
+const baseUrl = `http://localhost:${gEnv.VITE_PORT}`
 
 export function url(path: string) {
   return `${baseUrl}${path}`

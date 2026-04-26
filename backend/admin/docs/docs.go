@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqAccountChangePwd"
+                            "$ref": "#/definitions/internal_router_logic.ReqAccountChangePwd"
                         }
                     }
                 ],
@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -69,7 +69,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqAccountPwdLogin"
+                            "$ref": "#/definitions/internal_router_logic.ReqAccountPwdLogin"
                         }
                     }
                 ],
@@ -79,13 +79,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/router_logic.ResAccountPwdLogin"
+                                            "$ref": "#/definitions/internal_router_logic.ResAccountPwdLogin"
                                         }
                                     }
                                 }
@@ -118,7 +118,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -144,7 +144,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictEntryBatchCopy"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchCopy"
                         }
                     }
                 ],
@@ -152,7 +152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -178,7 +178,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictEntryCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryCreate"
                         }
                     }
                 ],
@@ -186,7 +186,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -212,7 +212,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictEntryBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchDelete"
                         }
                     }
                 ],
@@ -220,7 +220,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -256,13 +256,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysDictEntry"
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysDictEntry"
                                         }
                                     }
                                 }
@@ -292,7 +292,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictEntrySwitchStatus"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntrySwitchStatus"
                         }
                     }
                 ],
@@ -300,7 +300,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -326,7 +326,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictEntryUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdate"
                         }
                     }
                 ],
@@ -334,7 +334,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -360,7 +360,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictTypeCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeCreate"
                         }
                     }
                 ],
@@ -368,7 +368,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -394,7 +394,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictTypeBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeBatchDelete"
                         }
                     }
                 ],
@@ -402,7 +402,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -438,13 +438,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysDictType"
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysDictType"
                                         }
                                     }
                                 }
@@ -474,7 +474,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictTypeSwitchStatus"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeSwitchStatus"
                         }
                     }
                 ],
@@ -482,7 +482,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -508,7 +508,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqDictTypeUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeUpdate"
                         }
                     }
                 ],
@@ -516,7 +516,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -538,13 +538,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/router_logic.ResPublicKey"
+                                            "$ref": "#/definitions/internal_router_logic.ResPublicKey"
                                         }
                                     }
                                 }
@@ -574,7 +574,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqLogDetail"
+                            "$ref": "#/definitions/internal_router_logic.ReqLogDetail"
                         }
                     }
                 ],
@@ -584,13 +584,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/admin_services_orm_models.SysOperationLog"
+                                            "$ref": "#/definitions/admin_internal_services_orm_models.SysOperationLog"
                                         }
                                     }
                                 }
@@ -630,13 +630,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysOperationLog"
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysOperationLog"
                                         }
                                     }
                                 }
@@ -666,7 +666,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqRoleCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleCreate"
                         }
                     }
                 ],
@@ -674,7 +674,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -700,7 +700,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqRoleDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleDelete"
                         }
                     }
                 ],
@@ -708,7 +708,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -744,13 +744,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/admin_fiberc_res.Response"
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_services_orm_models_SysRole"
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysRole"
                                         }
                                     }
                                 }
@@ -780,7 +780,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqRoleSwitchStatus"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleSwitchStatus"
                         }
                     }
                 ],
@@ -788,7 +788,7 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -814,7 +814,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router_logic.ReqRoleUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleUpdate"
                         }
                     }
                 ],
@@ -822,7 +822,337 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/admin_fiberc_res.Response"
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/entry/batch/create": {
+            "post": {
+                "description": "根据条目编码和语言值映射批量创建语言条目，已存在的则更新",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "批量创建语言条目",
+                "parameters": [
+                    {
+                        "description": "批量创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/entry/create": {
+            "post": {
+                "description": "创建新的语言条目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "创建语言条目",
+                "parameters": [
+                    {
+                        "description": "语言条目创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/entry/del": {
+            "post": {
+                "description": "根据 ID 列表批量删除语言条目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "批量删除语言条目",
+                "parameters": [
+                    {
+                        "description": "批量删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/entry/list": {
+            "post": {
+                "description": "分页查询语言条目信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "获取语言条目分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysLanguageEntry"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/entry/update": {
+            "post": {
+                "description": "根据 ID 更新语言条目信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "更新语言条目",
+                "parameters": [
+                    {
+                        "description": "语言条目更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/type/create": {
+            "post": {
+                "description": "创建新的语言类型",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "创建语言类型",
+                "parameters": [
+                    {
+                        "description": "语言类型创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/type/del": {
+            "post": {
+                "description": "根据 ID 列表批量删除语言类型及其关联的所有语言条目",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "批量删除语言类型",
+                "parameters": [
+                    {
+                        "description": "批量删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeBatchDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/type/list": {
+            "post": {
+                "description": "分页查询语言类型信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "获取语言类型分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysLanguageType"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/language/type/update": {
+            "post": {
+                "description": "根据 ID 更新语言类型信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Language"
+                ],
+                "summary": "更新语言类型",
+                "parameters": [
+                    {
+                        "description": "语言类型更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
                         }
                     }
                 }
@@ -830,7 +1160,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "admin_fiberc_res.Response": {
+        "admin_internal_fiberc_res.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -844,7 +1174,7 @@ const docTemplate = `{
                 }
             }
         },
-        "admin_services_orm_models.SysDictEntry": {
+        "admin_internal_services_orm_models.SysDictEntry": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -881,7 +1211,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "sysDictType": {
-                    "$ref": "#/definitions/admin_services_orm_models.SysDictType"
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysDictType"
                 },
                 "sysDictTypeId": {
                     "type": "integer"
@@ -894,7 +1224,7 @@ const docTemplate = `{
                 }
             }
         },
-        "admin_services_orm_models.SysDictType": {
+        "admin_internal_services_orm_models.SysDictType": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -912,7 +1242,7 @@ const docTemplate = `{
                 "entries": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_services_orm_models.SysDictEntry"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysDictEntry"
                     }
                 },
                 "id": {
@@ -938,7 +1268,95 @@ const docTemplate = `{
                 }
             }
         },
-        "admin_services_orm_models.SysOperationLog": {
+        "admin_internal_services_orm_models.SysLanguageEntry": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "entryCode": {
+                    "type": "string"
+                },
+                "entryValue": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysLanguageType": {
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysLanguageType"
+                },
+                "sysLanguageTypeId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "admin_internal_services_orm_models.SysLanguageType": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysLanguageEntry"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string"
+                },
+                "typeName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "admin_internal_services_orm_models.SysOperationLog": {
             "type": "object",
             "properties": {
                 "afterChange": {
@@ -1030,7 +1448,7 @@ const docTemplate = `{
                 }
             }
         },
-        "admin_services_orm_models.SysRole": {
+        "admin_internal_services_orm_models.SysRole": {
             "type": "object",
             "properties": {
                 "apis": {
@@ -1048,7 +1466,7 @@ const docTemplate = `{
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_services_orm_models.SysRole"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
                     }
                 },
                 "code": {
@@ -1085,7 +1503,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "parentSysRole": {
-                    "$ref": "#/definitions/admin_services_orm_models.SysRole"
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
                 },
                 "path": {
                     "type": "string"
@@ -1113,13 +1531,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_services_orm_models_SysDictEntry": {
+        "gormc.PagingResult-admin_internal_services_orm_models_SysDictEntry": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_services_orm_models.SysDictEntry"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysDictEntry"
                     }
                 },
                 "total": {
@@ -1127,13 +1545,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_services_orm_models_SysDictType": {
+        "gormc.PagingResult-admin_internal_services_orm_models_SysDictType": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_services_orm_models.SysDictType"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysDictType"
                     }
                 },
                 "total": {
@@ -1141,13 +1559,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_services_orm_models_SysOperationLog": {
+        "gormc.PagingResult-admin_internal_services_orm_models_SysLanguageEntry": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_services_orm_models.SysOperationLog"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysLanguageEntry"
                     }
                 },
                 "total": {
@@ -1155,13 +1573,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_services_orm_models_SysRole": {
+        "gormc.PagingResult-admin_internal_services_orm_models_SysLanguageType": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_services_orm_models.SysRole"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysLanguageType"
                     }
                 },
                 "total": {
@@ -1169,7 +1587,35 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqAccountChangePwd": {
+        "gormc.PagingResult-admin_internal_services_orm_models_SysOperationLog": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysOperationLog"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-admin_internal_services_orm_models_SysRole": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqAccountChangePwd": {
             "type": "object",
             "required": [
                 "newPwd",
@@ -1186,7 +1632,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqAccountPwdLogin": {
+        "internal_router_logic.ReqAccountPwdLogin": {
             "type": "object",
             "required": [
                 "pwd",
@@ -1203,7 +1649,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictEntryBatchCopy": {
+        "internal_router_logic.ReqDictEntryBatchCopy": {
             "type": "object",
             "required": [
                 "entryIds",
@@ -1222,7 +1668,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictEntryBatchDelete": {
+        "internal_router_logic.ReqDictEntryBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -1237,7 +1683,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictEntryCreate": {
+        "internal_router_logic.ReqDictEntryCreate": {
             "type": "object",
             "required": [
                 "entryLabel",
@@ -1275,7 +1721,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictEntrySwitchStatus": {
+        "internal_router_logic.ReqDictEntrySwitchStatus": {
             "type": "object",
             "required": [
                 "id"
@@ -1289,7 +1735,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictEntryUpdate": {
+        "internal_router_logic.ReqDictEntryUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -1328,7 +1774,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictTypeBatchDelete": {
+        "internal_router_logic.ReqDictTypeBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -1343,7 +1789,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictTypeCreate": {
+        "internal_router_logic.ReqDictTypeCreate": {
             "type": "object",
             "required": [
                 "typeCode",
@@ -1370,7 +1816,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictTypeSwitchStatus": {
+        "internal_router_logic.ReqDictTypeSwitchStatus": {
             "type": "object",
             "required": [
                 "id"
@@ -1384,7 +1830,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqDictTypeUpdate": {
+        "internal_router_logic.ReqDictTypeUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -1413,7 +1859,179 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqLogDetail": {
+        "internal_router_logic.ReqLangEntryBatchCreate": {
+            "type": "object",
+            "required": [
+                "entryCode",
+                "values"
+            ],
+            "properties": {
+                "entryCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "values": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqLangEntryBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqLangEntryCreate": {
+            "type": "object",
+            "required": [
+                "entryCode",
+                "entryValue",
+                "sysLanguageTypeId"
+            ],
+            "properties": {
+                "entryCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "entryValue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysLanguageTypeId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqLangEntryUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "entryCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "entryValue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysLanguageTypeId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqLangTypeBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqLangTypeCreate": {
+            "type": "object",
+            "required": [
+                "typeCode",
+                "typeName"
+            ],
+            "properties": {
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "typeName": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "internal_router_logic.ReqLangTypeUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "typeName": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "internal_router_logic.ReqLogDetail": {
             "type": "object",
             "required": [
                 "id"
@@ -1424,7 +2042,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqRoleCreate": {
+        "internal_router_logic.ReqRoleCreate": {
             "type": "object",
             "required": [
                 "code",
@@ -1447,7 +2065,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqRoleDelete": {
+        "internal_router_logic.ReqRoleDelete": {
             "type": "object",
             "required": [
                 "id"
@@ -1458,7 +2076,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqRoleSwitchStatus": {
+        "internal_router_logic.ReqRoleSwitchStatus": {
             "type": "object",
             "required": [
                 "id"
@@ -1472,7 +2090,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ReqRoleUpdate": {
+        "internal_router_logic.ReqRoleUpdate": {
             "type": "object",
             "required": [
                 "code",
@@ -1499,7 +2117,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ResAccountPwdLogin": {
+        "internal_router_logic.ResAccountPwdLogin": {
             "type": "object",
             "properties": {
                 "publicKey": {
@@ -1510,7 +2128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router_logic.ResPublicKey": {
+        "internal_router_logic.ResPublicKey": {
             "type": "object",
             "properties": {
                 "publicKey": {

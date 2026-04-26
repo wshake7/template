@@ -2,9 +2,8 @@ package middleware
 
 import (
 	"admin/internal/fiberc/handler"
-	"admin/internal/services/orm"
 	"admin/internal/services/orm/models"
-	"admin/internal/services/orm/repo"
+	"admin/internal/services/orm/query"
 	"fmt"
 	"go-common/utils/coroutine"
 	"go-common/utils/function"
@@ -245,7 +244,7 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 					OSName:         "",
 					OSVersion:      "",
 				}
-				_, err = repo.SysOperationLogRepo.Create(ctx.Context(), orm.DB(), m)
+				err = query.SysOperationLog.Create(m)
 				if err != nil {
 					logger.Error("SysOperationLog.Create fail", zap.Error(err))
 				}

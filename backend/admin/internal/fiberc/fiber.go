@@ -25,7 +25,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/pprof"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	_ "admin/internal/docs"
+	_ "admin/docs"
 	"github.com/gofiber/contrib/v3/swaggo"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"

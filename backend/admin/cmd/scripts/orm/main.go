@@ -3,9 +3,7 @@ package main
 import (
 	"admin/internal/config"
 	models2 "admin/internal/services/orm/models"
-	"admin/internal/services/orm/query"
 	"fmt"
-	"go-common/utils/passwd"
 	"go-common/viperc"
 	"go.uber.org/zap"
 	"gorm.io/gen"
@@ -49,15 +47,15 @@ func main() {
 	}
 
 	codeGenCode(client.DB, models2.Models)
-	query.SetDefault(client.DB)
-	genUserAdd()
+	//query.SetDefault(client.DB)
+	//genUserAdd()
 }
 
-func genUserAdd() {
-	sysUser := query.SysUser
-	pwd, _ := passwd.Encode("123456")
-	_ = sysUser.Create(&models2.SysUser{Username: "admin", Password: pwd})
-}
+//func genUserAdd() {
+//	sysUser := query.SysUser
+//	pwd, _ := passwd.Encode("123456")
+//	_ = sysUser.Create(&models2.SysUser{Username: "admin", Password: pwd})
+//}
 
 func dbGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{
@@ -110,15 +108,10 @@ func generateExtraFiles(models []any) {
 	fmt.Println("current working dir:", wd)
 
 	templateDir := filepath.Join(wd, "cmd/scripts/orm/templates")
-	outDir := filepath.Join(wd, "internal/services/orm/repo")
 
 	entries, err := os.ReadDir(templateDir)
 	if err != nil {
 		panic(fmt.Sprintf("failed to read template dir: %v", err))
-	}
-
-	if err = os.MkdirAll(outDir, 0755); err != nil {
-		panic(fmt.Sprintf("failed to create output dir: %v", err))
 	}
 
 	moduleName, err := getModuleName()
@@ -129,6 +122,13 @@ func generateExtraFiles(models []any) {
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".tpl") {
 			continue
+		}
+
+		// 根据模板名前缀决定输出目录
+		var outDir = filepath.Join(wd, "internal/services/orm/query")
+
+		if err = os.MkdirAll(outDir, 0755); err != nil {
+			panic(fmt.Sprintf("failed to create output dir: %v", err))
 		}
 
 		tplPath := filepath.Join(templateDir, entry.Name())
@@ -149,6 +149,28 @@ func generateExtraFiles(models []any) {
 			panic(fmt.Sprintf("failed to parse template %s: %v", tplPath, err))
 		}
 
+		// 单文件模板（query_single_ 前缀），只生成一次，不按 model 循环
+		if strings.HasPrefix(entry.Name(), "single_") {
+			baseName := strings.TrimSuffix(strings.TrimPrefix(entry.Name(), "query_single_"), ".tpl")
+			if !strings.HasSuffix(baseName, ".go") {
+				baseName += ".go"
+			}
+			filePath := filepath.Join(outDir, baseName)
+
+			f, err := os.Create(filePath)
+			if err != nil {
+				panic(fmt.Sprintf("failed to create file %s: %v", filePath, err))
+			}
+			if err = tmpl.Execute(f, nil); err != nil {
+				_ = f.Close()
+				panic(fmt.Sprintf("failed to execute template %s: %v", entry.Name(), err))
+			}
+			_ = f.Close()
+			fmt.Printf("generated: %s\n", filePath)
+			continue
+		}
+
+		// 普通模板，按 model 循环生成
 		baseName := strings.TrimSuffix(entry.Name(), ".tpl")
 		if !strings.HasSuffix(baseName, ".go") {
 			baseName += ".go"
@@ -172,17 +194,10 @@ func generateExtraFiles(models []any) {
 			fileName := toSnakeCase(modelName) + "_" + baseName
 			filePath := filepath.Join(outDir, fileName)
 
-			// 文件已存在则跳过
-			if _, err = os.Stat(filePath); err == nil {
-				fmt.Printf("skipping existing file: %s\n", filePath)
-				continue
-			}
-
 			f, err := os.Create(filePath)
 			if err != nil {
 				panic(fmt.Sprintf("failed to create file %s: %v", filePath, err))
 			}
-
 			if err = tmpl.Execute(f, data); err != nil {
 				_ = f.Close()
 				panic(fmt.Sprintf("failed to execute template for %s: %v", modelName, err))

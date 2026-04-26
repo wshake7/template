@@ -17,6 +17,7 @@ declare global {
   const HttpCode: typeof import('./domains/http').HttpCode
   const HttpCodeChaeck: typeof import('./domains/http').HttpCodeChaeck
   const HttpCodeCheck: typeof import('./domains/http').HttpCodeCheck
+  const LangApi: typeof import('./api/language').LangApi
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
   const OperationLogApi: typeof import('./api/operationLog').OperationLogApi
   const RoleApi: typeof import('./api/role').RoleApi
@@ -189,8 +190,11 @@ declare global {
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
   // @ts-ignore
-  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeSwitchStatus, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntrySwitchStatus, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/dict'
+  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/dict'
   import('./api/dict')
+  // @ts-ignore
+  export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/language'
+  import('./api/language')
   // @ts-ignore
   export type { SysOperationLog, ReqLogDetail } from './api/operationLog'
   import('./api/operationLog')

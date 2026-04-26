@@ -16,15 +16,16 @@ import (
 )
 
 var (
-	Q               = new(Query)
-	SysCasbinModel  *sysCasbinModel
-	SysDictEntry    *sysDictEntry
-	SysDictType     *sysDictType
-	SysLanguage     *sysLanguage
-	SysOperationLog *sysOperationLog
-	SysRole         *sysRole
-	SysUser         *sysUser
-	SysUserRole     *sysUserRole
+	Q                = new(Query)
+	SysCasbinModel   *sysCasbinModel
+	SysDictEntry     *sysDictEntry
+	SysDictType      *sysDictType
+	SysLanguageEntry *sysLanguageEntry
+	SysLanguageType  *sysLanguageType
+	SysOperationLog  *sysOperationLog
+	SysRole          *sysRole
+	SysUser          *sysUser
+	SysUserRole      *sysUserRole
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -32,7 +33,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	SysCasbinModel = &Q.SysCasbinModel
 	SysDictEntry = &Q.SysDictEntry
 	SysDictType = &Q.SysDictType
-	SysLanguage = &Q.SysLanguage
+	SysLanguageEntry = &Q.SysLanguageEntry
+	SysLanguageType = &Q.SysLanguageType
 	SysOperationLog = &Q.SysOperationLog
 	SysRole = &Q.SysRole
 	SysUser = &Q.SysUser
@@ -41,44 +43,47 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:              db,
-		SysCasbinModel:  newSysCasbinModel(db, opts...),
-		SysDictEntry:    newSysDictEntry(db, opts...),
-		SysDictType:     newSysDictType(db, opts...),
-		SysLanguage:     newSysLanguage(db, opts...),
-		SysOperationLog: newSysOperationLog(db, opts...),
-		SysRole:         newSysRole(db, opts...),
-		SysUser:         newSysUser(db, opts...),
-		SysUserRole:     newSysUserRole(db, opts...),
+		db:               db,
+		SysCasbinModel:   newSysCasbinModel(db, opts...),
+		SysDictEntry:     newSysDictEntry(db, opts...),
+		SysDictType:      newSysDictType(db, opts...),
+		SysLanguageEntry: newSysLanguageEntry(db, opts...),
+		SysLanguageType:  newSysLanguageType(db, opts...),
+		SysOperationLog:  newSysOperationLog(db, opts...),
+		SysRole:          newSysRole(db, opts...),
+		SysUser:          newSysUser(db, opts...),
+		SysUserRole:      newSysUserRole(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	SysCasbinModel  sysCasbinModel
-	SysDictEntry    sysDictEntry
-	SysDictType     sysDictType
-	SysLanguage     sysLanguage
-	SysOperationLog sysOperationLog
-	SysRole         sysRole
-	SysUser         sysUser
-	SysUserRole     sysUserRole
+	SysCasbinModel   sysCasbinModel
+	SysDictEntry     sysDictEntry
+	SysDictType      sysDictType
+	SysLanguageEntry sysLanguageEntry
+	SysLanguageType  sysLanguageType
+	SysOperationLog  sysOperationLog
+	SysRole          sysRole
+	SysUser          sysUser
+	SysUserRole      sysUserRole
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:              db,
-		SysCasbinModel:  q.SysCasbinModel.clone(db),
-		SysDictEntry:    q.SysDictEntry.clone(db),
-		SysDictType:     q.SysDictType.clone(db),
-		SysLanguage:     q.SysLanguage.clone(db),
-		SysOperationLog: q.SysOperationLog.clone(db),
-		SysRole:         q.SysRole.clone(db),
-		SysUser:         q.SysUser.clone(db),
-		SysUserRole:     q.SysUserRole.clone(db),
+		db:               db,
+		SysCasbinModel:   q.SysCasbinModel.clone(db),
+		SysDictEntry:     q.SysDictEntry.clone(db),
+		SysDictType:      q.SysDictType.clone(db),
+		SysLanguageEntry: q.SysLanguageEntry.clone(db),
+		SysLanguageType:  q.SysLanguageType.clone(db),
+		SysOperationLog:  q.SysOperationLog.clone(db),
+		SysRole:          q.SysRole.clone(db),
+		SysUser:          q.SysUser.clone(db),
+		SysUserRole:      q.SysUserRole.clone(db),
 	}
 }
 
@@ -92,39 +97,42 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:              db,
-		SysCasbinModel:  q.SysCasbinModel.replaceDB(db),
-		SysDictEntry:    q.SysDictEntry.replaceDB(db),
-		SysDictType:     q.SysDictType.replaceDB(db),
-		SysLanguage:     q.SysLanguage.replaceDB(db),
-		SysOperationLog: q.SysOperationLog.replaceDB(db),
-		SysRole:         q.SysRole.replaceDB(db),
-		SysUser:         q.SysUser.replaceDB(db),
-		SysUserRole:     q.SysUserRole.replaceDB(db),
+		db:               db,
+		SysCasbinModel:   q.SysCasbinModel.replaceDB(db),
+		SysDictEntry:     q.SysDictEntry.replaceDB(db),
+		SysDictType:      q.SysDictType.replaceDB(db),
+		SysLanguageEntry: q.SysLanguageEntry.replaceDB(db),
+		SysLanguageType:  q.SysLanguageType.replaceDB(db),
+		SysOperationLog:  q.SysOperationLog.replaceDB(db),
+		SysRole:          q.SysRole.replaceDB(db),
+		SysUser:          q.SysUser.replaceDB(db),
+		SysUserRole:      q.SysUserRole.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	SysCasbinModel  ISysCasbinModelDo
-	SysDictEntry    ISysDictEntryDo
-	SysDictType     ISysDictTypeDo
-	SysLanguage     ISysLanguageDo
-	SysOperationLog ISysOperationLogDo
-	SysRole         ISysRoleDo
-	SysUser         ISysUserDo
-	SysUserRole     ISysUserRoleDo
+	SysCasbinModel   ISysCasbinModelDo
+	SysDictEntry     ISysDictEntryDo
+	SysDictType      ISysDictTypeDo
+	SysLanguageEntry ISysLanguageEntryDo
+	SysLanguageType  ISysLanguageTypeDo
+	SysOperationLog  ISysOperationLogDo
+	SysRole          ISysRoleDo
+	SysUser          ISysUserDo
+	SysUserRole      ISysUserRoleDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		SysCasbinModel:  q.SysCasbinModel.WithContext(ctx),
-		SysDictEntry:    q.SysDictEntry.WithContext(ctx),
-		SysDictType:     q.SysDictType.WithContext(ctx),
-		SysLanguage:     q.SysLanguage.WithContext(ctx),
-		SysOperationLog: q.SysOperationLog.WithContext(ctx),
-		SysRole:         q.SysRole.WithContext(ctx),
-		SysUser:         q.SysUser.WithContext(ctx),
-		SysUserRole:     q.SysUserRole.WithContext(ctx),
+		SysCasbinModel:   q.SysCasbinModel.WithContext(ctx),
+		SysDictEntry:     q.SysDictEntry.WithContext(ctx),
+		SysDictType:      q.SysDictType.WithContext(ctx),
+		SysLanguageEntry: q.SysLanguageEntry.WithContext(ctx),
+		SysLanguageType:  q.SysLanguageType.WithContext(ctx),
+		SysOperationLog:  q.SysOperationLog.WithContext(ctx),
+		SysRole:          q.SysRole.WithContext(ctx),
+		SysUser:          q.SysUser.WithContext(ctx),
+		SysUserRole:      q.SysUserRole.WithContext(ctx),
 	}
 }
 

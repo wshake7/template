@@ -26,5 +26,5 @@ type SysDictEntry struct {
 }
 
 func (SysDictEntry) TableName() string {
-	return "sys_dict_entries"
+	return "sys_dict_entry"
 }

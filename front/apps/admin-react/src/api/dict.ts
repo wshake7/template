@@ -6,7 +6,7 @@ export interface DictType {
   typeName: string
   isEnabled: boolean
   sortOrder: number
-  description: string
+  remark: string
 }
 
 export interface DictEntry {
@@ -26,16 +26,11 @@ export interface ReqDictTypeCreate {
   typeName: string
   isEnabled: boolean
   sortOrder: number
-  description: string
+  remark: string
 }
 
 export interface ReqDictTypeUpdate extends Partial<ReqDictTypeCreate> {
   id: number
-}
-
-export interface ReqDictTypeSwitchStatus {
-  id: number
-  isEnabled: boolean
 }
 
 export interface ReqDictTypeBatchDelete {
@@ -57,11 +52,6 @@ export interface ReqDictEntryUpdate extends Partial<ReqDictEntryCreate> {
   id: number
 }
 
-export interface ReqDictEntrySwitchStatus {
-  id: number
-  isEnabled: boolean
-}
-
 export interface ReqDictEntryBatchDelete {
   ids: number[]
 }
@@ -71,10 +61,10 @@ export interface ReqDictEntryBatchCopy {
   targetTypeId: number
 }
 
-async function typeList(req: PagingRequest) {
-  return await API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', req, {
+function typeList(req: PagingRequest) {
+  return API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', req, {
     cacheFor: 0,
-  }).send()
+  })
 }
 
 async function typeCreate(req: ReqDictTypeCreate) {
@@ -89,22 +79,16 @@ async function typeUpdate(req: ReqDictTypeUpdate) {
   }).send()
 }
 
-async function typeSwitch(req: ReqDictTypeSwitchStatus) {
-  await API.Post<Res>('/api/sys/dict/type/switch', req, {
-    cacheFor: 0,
-  }).send()
-}
-
 async function typeDel(req: ReqDictTypeBatchDelete) {
   await API.Post<Res>('/api/sys/dict/type/del', req, {
     cacheFor: 0,
   }).send()
 }
 
-async function entryList(req: PagingRequest) {
-  return await API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', req, {
+function entryList(req: PagingRequest) {
+  return API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', req, {
     cacheFor: 0,
-  }).send()
+  })
 }
 
 async function entryCreate(req: ReqDictEntryCreate) {
@@ -115,12 +99,6 @@ async function entryCreate(req: ReqDictEntryCreate) {
 
 async function entryUpdate(req: ReqDictEntryUpdate) {
   await API.Post<Res>('/api/sys/dict/entry/update', req, {
-    cacheFor: 0,
-  }).send()
-}
-
-async function entrySwitch(req: ReqDictEntrySwitchStatus) {
-  await API.Post<Res>('/api/sys/dict/entry/switch', req, {
     cacheFor: 0,
   }).send()
 }
@@ -141,12 +119,10 @@ export const DictApi = {
   typeList,
   typeCreate,
   typeUpdate,
-  typeSwitch,
   typeDel,
   entryList,
   entryCreate,
   entryUpdate,
-  entrySwitch,
   entryDel,
   entryBatchCopy,
 }

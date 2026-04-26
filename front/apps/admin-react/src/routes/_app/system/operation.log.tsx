@@ -1,5 +1,4 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type { SysOperationLog } from '~/api/operationlog'
 import { ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
@@ -10,9 +9,8 @@ import {
 } from 'antd'
 import { useCallback, useState } from 'react'
 import API from '~/api/index'
-import { OperationLogApi } from '~/api/operationlog'
 
-export const Route = createFileRoute('/_app/system/operationLog')({
+export const Route = createFileRoute('/_app/system/operation/log')({
   staticData: {
     menu: {
       name: '操作日志',
