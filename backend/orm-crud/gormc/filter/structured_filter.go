@@ -80,7 +80,6 @@ func (sf StructuredFilter) buildFilterSelector(expr *paginationV1.FilterExpr) (f
 			parts := strings.SplitN(cond.GetField(), ".", 2)
 			col := stringcase.ToSnakeCase(parts[0])
 			jsonKey := parts[1]
-			// 在运行时根据 db 方言生成表达式
 			exprStr, _ := sf.processor.JsonbFieldExpr(db, jsonKey, col)
 			if exprStr == "" {
 				return db
@@ -89,6 +88,72 @@ func (sf StructuredFilter) buildFilterSelector(expr *paginationV1.FilterExpr) (f
 		}
 
 		col := stringcase.ToSnakeCase(cond.GetField())
+
+		// 需要 CAST 的字符串模糊匹配操作
+		stringLikeOps := map[paginationV1.Operator]bool{
+			paginationV1.Operator_CONTAINS:     true,
+			paginationV1.Operator_ICONTAINS:    true,
+			paginationV1.Operator_STARTS_WITH:  true,
+			paginationV1.Operator_ISTARTS_WITH: true,
+			paginationV1.Operator_ENDS_WITH:    true,
+			paginationV1.Operator_IENDS_WITH:   true,
+			paginationV1.Operator_LIKE:         true,
+			paginationV1.Operator_ILIKE:        true,
+			paginationV1.Operator_NOT_LIKE:     true,
+		}
+
+		if stringLikeOps[cond.GetOp()] {
+			isPostgres := db.Dialector.Name() == "postgres"
+
+			var castCol string
+			if isPostgres {
+				castCol = "CAST(" + col + " AS TEXT)"
+			} else {
+				castCol = "CAST(" + col + " AS CHAR)"
+			}
+
+			switch cond.GetOp() {
+			case paginationV1.Operator_ICONTAINS:
+				if isPostgres {
+					return db.Where(castCol+" ILIKE ?", "%"+val+"%")
+				}
+				return db.Where(castCol+" LIKE ?", "%"+val+"%")
+
+			case paginationV1.Operator_CONTAINS:
+				return db.Where(castCol+" LIKE ?", "%"+val+"%")
+
+			case paginationV1.Operator_ISTARTS_WITH:
+				if isPostgres {
+					return db.Where(castCol+" ILIKE ?", val+"%")
+				}
+				return db.Where(castCol+" LIKE ?", val+"%")
+
+			case paginationV1.Operator_STARTS_WITH:
+				return db.Where(castCol+" LIKE ?", val+"%")
+
+			case paginationV1.Operator_IENDS_WITH:
+				if isPostgres {
+					return db.Where(castCol+" ILIKE ?", "%"+val)
+				}
+				return db.Where(castCol+" LIKE ?", "%"+val)
+
+			case paginationV1.Operator_ENDS_WITH:
+				return db.Where(castCol+" LIKE ?", "%"+val)
+
+			case paginationV1.Operator_ILIKE:
+				if isPostgres {
+					return db.Where(castCol+" ILIKE ?", val)
+				}
+				return db.Where(castCol+" LIKE ?", val)
+
+			case paginationV1.Operator_LIKE:
+				return db.Where(castCol+" LIKE ?", val)
+
+			case paginationV1.Operator_NOT_LIKE:
+				return db.Where(castCol+" NOT LIKE ?", val)
+			}
+		}
+
 		return sf.processor.Process(db, cond.GetOp(), col, val, cond.GetValues())
 	}
 
@@ -100,15 +165,12 @@ func (sf StructuredFilter) buildFilterSelector(expr *paginationV1.FilterExpr) (f
 
 		switch expr.GetType() {
 		case paginationV1.ExprType_AND:
-			// 先处理条件（顺序 AND）
 			for _, cond := range expr.GetConditions() {
 				db = applyCond(db, cond)
 			}
-			// 再处理子组（每个子组也是 AND 语义：子组内部依据其类型处理）
 			for _, g := range expr.GetGroups() {
 				subSel, err := sf.buildFilterSelector(g)
 				if err != nil {
-					// 忽略错误，但记录
 					zap.S().Errorf("buildFilterSelector sub-group error: %v", err)
 					continue
 				}
@@ -119,47 +181,41 @@ func (sf StructuredFilter) buildFilterSelector(expr *paginationV1.FilterExpr) (f
 			return db
 
 		case paginationV1.ExprType_OR:
-			// 为 OR，把所有条件和子组合并为一个 WHERE 子表达式，内部使用 Or 组合
-			db = db.Where(func(tx *gorm.DB) *gorm.DB {
-				first := true
-				// 条件集合
-				for _, cond := range expr.GetConditions() {
-					if first {
-						tx = applyCond(tx, cond)
-						first = false
-					} else {
-						// 每个后续项作为 OR 子句加入
-						c := cond // capture
-						tx = tx.Or(func(t2 *gorm.DB) *gorm.DB {
-							return applyCond(t2, c)
-						})
-					}
+			orDB := db.Session(&gorm.Session{NewDB: true})
+			first := true
+
+			for _, cond := range expr.GetConditions() {
+				c := cond
+				if first {
+					orDB = applyCond(orDB, c)
+					first = false
+				} else {
+					branch := applyCond(db.Session(&gorm.Session{NewDB: true}), c)
+					orDB = orDB.Or(branch)
 				}
-				// 子组集合
-				for _, g := range expr.GetGroups() {
-					subSel, err := sf.buildFilterSelector(g)
-					if err != nil {
-						zap.S().Errorf("buildFilterSelector sub-group error: %v", err)
-						continue
-					}
-					if subSel == nil {
-						continue
-					}
-					if first {
-						tx = subSel(tx)
-						first = false
-					} else {
-						s := subSel // capture
-						tx = tx.Or(func(t2 *gorm.DB) *gorm.DB {
-							return s(t2)
-						})
-					}
+			}
+
+			for _, g := range expr.GetGroups() {
+				subSel, err := sf.buildFilterSelector(g)
+				if err != nil {
+					zap.S().Errorf("buildFilterSelector sub-group error: %v", err)
+					continue
 				}
-				return tx
-			})
-			return db
+				if subSel == nil {
+					continue
+				}
+				branch := subSel(db.Session(&gorm.Session{NewDB: true}))
+				if first {
+					orDB = branch
+					first = false
+				} else {
+					orDB = orDB.Or(branch)
+				}
+			}
+
+			return db.Where(orDB)
+
 		default:
-			// 未知类型，直接返回原 db
 			return db
 		}
 	}

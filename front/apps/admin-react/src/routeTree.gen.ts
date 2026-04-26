@@ -15,6 +15,7 @@ import { Route as AppSystemRouteImport } from './routes/_app/system'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as loginLoginRouteImport } from './routes/(login)/login'
+import { Route as AppSystemOperationLogRouteImport } from './routes/_app/system/operationLog'
 import { Route as AppSystemDictRouteImport } from './routes/_app/system/dict'
 import { Route as AppAccountRoleRouteImport } from './routes/_app/account/role'
 
@@ -47,6 +48,11 @@ const loginLoginRoute = loginLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSystemOperationLogRoute = AppSystemOperationLogRouteImport.update({
+  id: '/operationLog',
+  path: '/operationLog',
+  getParentRoute: () => AppSystemRoute,
+} as any)
 const AppSystemDictRoute = AppSystemDictRouteImport.update({
   id: '/dict',
   path: '/dict',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/system': typeof AppSystemRouteWithChildren
   '/account/role': typeof AppAccountRoleRoute
   '/system/dict': typeof AppSystemDictRoute
+  '/system/operationLog': typeof AppSystemOperationLogRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginLoginRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/account/role': typeof AppAccountRoleRoute
   '/system/dict': typeof AppSystemDictRoute
+  '/system/operationLog': typeof AppSystemOperationLogRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/account/role': typeof AppAccountRoleRoute
   '/_app/system/dict': typeof AppSystemDictRoute
+  '/_app/system/operationLog': typeof AppSystemOperationLogRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/system'
     | '/account/role'
     | '/system/dict'
+    | '/system/operationLog'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account/role'
     | '/system/dict'
+    | '/system/operationLog'
   id:
     | '__root__'
     | '/_app'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/account/role'
     | '/_app/system/dict'
+    | '/_app/system/operationLog'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof loginLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/system/operationLog': {
+      id: '/_app/system/operationLog'
+      path: '/operationLog'
+      fullPath: '/system/operationLog'
+      preLoaderRoute: typeof AppSystemOperationLogRouteImport
+      parentRoute: typeof AppSystemRoute
+    }
     '/_app/system/dict': {
       id: '/_app/system/dict'
       path: '/dict'
@@ -198,10 +217,12 @@ const AppAccountRouteWithChildren = AppAccountRoute._addFileChildren(
 
 interface AppSystemRouteChildren {
   AppSystemDictRoute: typeof AppSystemDictRoute
+  AppSystemOperationLogRoute: typeof AppSystemOperationLogRoute
 }
 
 const AppSystemRouteChildren: AppSystemRouteChildren = {
   AppSystemDictRoute: AppSystemDictRoute,
+  AppSystemOperationLogRoute: AppSystemOperationLogRoute,
 }
 
 const AppSystemRouteWithChildren = AppSystemRoute._addFileChildren(

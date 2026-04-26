@@ -10,3 +10,5 @@ export interface PagingResult<T> {
   items: T[]
   total: number
 }
+
+export const DEFAULT_PAGE_SIZE = 20

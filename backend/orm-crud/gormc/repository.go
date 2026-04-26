@@ -3,6 +3,7 @@ package gormc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go-common/mapper"
 	"go.uber.org/zap"
 	paginationV1 "orm-crud/api/gen/go/pagination/v1"
@@ -217,9 +218,12 @@ func (r *Repository[DTO, ENTITY]) ListWithPaging(ctx context.Context, db *gorm.D
 
 	// 执行查询
 	var entities []*ENTITY
+	sql := listDB.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return tx
+	})
+	fmt.Println(sql)
 	if err = listDB.Find(&entities).Error; err != nil {
-		zap.S().Errorf("query list failed: %s", err.Error())
-		return nil, errors.New("query list failed")
+		return nil, err
 	}
 
 	// map to DTOs
@@ -231,7 +235,6 @@ func (r *Repository[DTO, ENTITY]) ListWithPaging(ctx context.Context, db *gorm.D
 	// 计数（只使用 whereSelectors）
 	total, err := r.Count(ctx, db, whereSelectors)
 	if err != nil {
-		zap.S().Errorf("count query failed: %s", err.Error())
 		return nil, err
 	}
 

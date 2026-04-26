@@ -8,18 +8,22 @@ export {}
 declare global {
   const AccountApi: typeof import('./api/account').AccountApi
   const Activity: typeof import('react').Activity
+  const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
   const DictApi: typeof import('./api/dict').DictApi
   const EncryptApi: typeof import('./api/encrypt').EncryptApi
   const ErrorComponent: typeof import('./components/error').ErrorComponent
   const Fragment: typeof import('react').Fragment
-  const Header: typeof import('./domains/constant').Header
-  const HttpCode: typeof import('./domains/constant').HttpCode
-  const HttpCodeChaeck: typeof import('./domains/constant').HttpCodeChaeck
-  const HttpCodeCheck: typeof import('./domains/constant').HttpCodeCheck
+  const Header: typeof import('./domains/http').Header
+  const HttpCode: typeof import('./domains/http').HttpCode
+  const HttpCodeChaeck: typeof import('./domains/http').HttpCodeChaeck
+  const HttpCodeCheck: typeof import('./domains/http').HttpCodeCheck
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
+  const OperationLogApi: typeof import('./api/operationLog').OperationLogApi
   const RoleApi: typeof import('./api/role').RoleApi
   const Suspense: typeof import('react').Suspense
-  const XHeader: typeof import('./domains/constant').Header
+  const SysOperationLog: typeof import('./api/operationLog').SysOperationLog
+  const SysOperationLogApi: typeof import('./api/operationLog').SysOperationLogApi
+  const XHeader: typeof import('./domains/http').Header
   const aesDecrypt: typeof import('./utils/encrypt').aesDecrypt
   const aesDecryptCiphertextAndTag: typeof import('./utils/encrypt').aesDecryptCiphertextAndTag
   const aesEncrypt: typeof import('./utils/encrypt').aesEncrypt
@@ -173,11 +177,11 @@ declare global {
   export type { ReqPwdLogin, ResLogin, ReqChangePwd } from './domains/account'
   import('./domains/account')
   // @ts-ignore
-  export type { CodeType } from './domains/constant'
-  import('./domains/constant')
-  // @ts-ignore
   export type { ResPublicKey } from './domains/encrypt'
   import('./domains/encrypt')
+  // @ts-ignore
+  export type { CodeType } from './domains/http'
+  import('./domains/http')
   // @ts-ignore
   export type { PagingRequest, PagingResult } from './domains/page'
   import('./domains/page')
@@ -187,4 +191,7 @@ declare global {
   // @ts-ignore
   export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeSwitchStatus, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntrySwitchStatus, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/dict'
   import('./api/dict')
+  // @ts-ignore
+  export type { SysOperationLog, ReqLogDetail } from './api/operationLog'
+  import('./api/operationLog')
 }

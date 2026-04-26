@@ -5,7 +5,7 @@ import adapterFetch from 'alova/fetch'
 import reactHook from 'alova/react'
 import Cookies from 'js-cookie'
 import NProgress from 'nprogress'
-import { Header, HttpCode } from '~/domains/constant'
+import { Header, HttpCode } from '~/domains/http'
 
 import { gEnv } from '~/env'
 import { router } from '~/router'

@@ -1,6 +1,6 @@
 import type { ReqChangePwd, ReqPwdLogin } from '~/domains/account'
 import Cookies from 'js-cookie'
-import { Header } from '~/domains/constant'
+import { Header } from '~/domains/http'
 import { router } from '~/router'
 import API from './index'
 

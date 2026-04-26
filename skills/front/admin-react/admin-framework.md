@@ -113,71 +113,14 @@ staticData: {
 - `filterValidMenu(routes)` - 过滤有效菜单
 - `groupByParentId(routes)` - 按父ID分组
 
-## 状态管理 (Zustand)
-
-### Account Store
-位置: `src/stores/account.ts`
-
-```typescript
-import { useAccountStore } from '~/stores/account'
-
-// 获取状态
-const { token, account } = useAccountStore()
-
-// 登录
-useAccountStore.getState().login(token)
-
-// 登出
-useAccountStore.getState().logout()
-```
-
-### Device Store
-位置: `src/stores/device.ts` - 设备相关信息
-
-### Theme Store
-位置: `src/stores/theme.ts` - 主题状态管理
-
-### MenuTabs Store
-位置: `src/stores/menuTabs.ts` - 多标签页状态
-
-## API 请求
-
-### API 实例配置
-位置: `src/api/index.ts`
-
-使用 Alova 创建，配置了:
-- Token 认证
-- AES + RSA 加密
-- 响应拦截器
-- NProgress 进度条
-
-### 定义新的 API
-```typescript
-// src/api/xxx.ts
-import type { ResXXX } from '~/domains/xxx'
-import API from '~/api'
-
-export const xxxAPI = {
-  list: (params: ListParams) =>
-    API.Post<Res<ResXXX[]>>('/api/xxx/list', params).send(),
-}
-```
-
-### 加密工具
-位置: `src/utils/encrypt.ts`
-
-- `generateAesKey()` - 生成 AES 密钥
-- `aesEncrypt(data, key, iv)` - AES 加密
-- `aesDecrypt(encrypted, key, iv)` - AES 解密
-- `rsaEncrypt(data, publicKey)` - RSA 加密
-
 ## 领域模型
 
 位置: `src/domains/`
 
 - `account.ts` - 账户相关类型
-- `constant.ts` - 常量定义
 - `encrypt.ts` - 加密相关类型
+- `http.ts` - HTTP 通用类型
+- `page.ts` - 分页请求/响应基础结构
 
 ## Mock 服务
 
@@ -213,161 +156,14 @@ vp run admin-react#e2e:show       # 查看报告
 vp run admin-react#e2e:codegen    # 生成测试代码
 ```
 
-## 列表页编写风格（以 system/dict.tsx 为例）
+## 相关 Skills
 
-### 1) 目录与职责分层
-
-- 页面放在 `src/routes/**`，只负责页面编排与交互流程
-- 接口调用封装在 `src/api/**`（如 `DictApi`），页面内不直接拼装请求细节
-- 请求/响应类型定义在 `src/api/**`（如 `ReqDictXxx`、`DictXxx`），分页基础结构放在 `src/domains/page.ts`
-
-### 2) 页面布局（分栏/联动面板）
-
-- 一对多联动关系使用 `Splitter` 实现左右分栏，左侧为主列表，右侧为从列表
-- 左侧行点击选中后驱动右侧数据刷新，选中状态提升到父组件（`RouteComponent`）
-- 切换左侧选中项时自动清除右侧选中状态
-
-```typescript
-<Splitter>
-  <Splitter.Panel defaultSize="50%" min="25%" max="75%">
-    <DictTypePanel ... />
-  </Splitter.Panel>
-  <Splitter.Panel>
-    <DictEntryPanel ... />
-  </Splitter.Panel>
-</Splitter>
-```
-
-### 3) 数据请求与分页规范
-
-- 列表统一使用 `usePagination` 驱动 `ProTable` 的 `current/pageSize/total`
-- **默认使用后端分页**，不要先拉全量再做前端切片
-- 筛选条件通过 `PagingRequest.query` 传入，使用 `JSON.stringify(...)`
-- 切换上下文（父级选中变化）时，使用 `watchingStates` 触发自动重拉
-- 请求参数统一显式传递：`page`、`pageSize`、`orderBy`、`query`
-
-```typescript
-const { data, total, page, pageSize, loading, update, send } = usePagination(
-  (nextPage, nextPageSize) =>
-    API.Post<Res<PagingResult<DictEntry>>>('/api/dict/entry/list', {
-      page: nextPage,
-      pageSize: nextPageSize,
-      orderBy: 'sort_order asc,id desc',
-      query: selectedType ? JSON.stringify({ sysDictTypeId: selectedType.id }) : undefined,
-    }, { cacheFor: 0 }),
-  {
-    initialPage: 1,
-    initialPageSize: 10,
-    immediate: false,
-    watchingStates: [selectedType?.id],
-    data: response => response.data?.items.map(item => ({
-      ...item,
-      numericValue: item.numericValue ?? 0,
-    })) ?? [],
-    total: response => response.data?.total ?? 0,
-  },
-)
-```
-
-### 4) 表单与校验规范
-
-- 表单字段用 `zod` 定义 schema，提交前统一走 `useZodForm`
-- `create` 与 `edit` 共用一个 `ModalForm`，通过 `editing` 状态切换模式
-- 默认值集中维护（如 `dictTypeDefaults`、`dictEntryDefaults`），避免散落硬编码
-- 提交时先做必要上下文校验（如"未选中字典类型不可新增字典项"）
-
-### 5) 表格与操作列规范
-
-- 表格列定义放在 `useMemo`，编辑/操作函数放在 `useCallback`，减少重复渲染
-- 操作列统一包含：编辑、启停、删除，每个操作成功后 `await send()` 刷新列表
-- 行点击用于切换上下文（如"选中类型 -> 刷新右侧字典项"）
-- 工具栏按钮的禁用状态与上下文绑定（如无 `selectedType` 禁用新增）
-- 删除使用 `Popconfirm` 二次确认，单行删除传 `{ ids: [record.id] }` 兼容批量接口
-
-### 6) 批量操作（多选 + 批量删除）
-
-- 启用 `ProTable` 的 `rowSelection`，受控绑定 `selectedXxxIds` 状态
-- 选中行后工具栏动态显示**红色危险**"批量删除 (N)"按钮，外层包裹 `Popconfirm`
-- 批量删除成功后：清空选中态、刷新列表；若当前上下文行被删除则重置上下文
-- 切换/删除父级时自动清空子级选中态
-
-```typescript
-<ProTable
-  rowSelection={{
-    selectedRowKeys: selectedTypeIds,
-    onChange: (keys) => setSelectedTypeIds(keys as number[]),
-  }}
-  toolBarRender={() => [
-    selectedTypeIds.length > 0 && (
-      <Popconfirm
-        key="batchDel"
-        title={`确认批量删除选中的 ${selectedTypeIds.length} 项吗？`}
-        onConfirm={async () => {
-          await DictApi.typeDel({ ids: selectedTypeIds })
-          setSelectedTypeIds([])
-          await send()
-        }}
-      >
-        <Button key="batchDel" danger>
-          批量删除 ({selectedTypeIds.length})
-        </Button>
-      </Popconfirm>
-    ),
-    <Button key="add" type="primary">新增</Button>,
-  ]}
-/>
-```
-
-### 7) 跨面板交互 — 拖拽复制
-
-- **源表**（右侧 `DictEntryPanel`）：每行设 `draggable: true` + `onDragStart`
-  - 有选中行时传递全部选中 ID，否则传递当前行 ID
-  - `effectAllowed = 'copy'` 表示复制而非移动
-- **目标表**（左侧 `DictTypePanel`）：通过 `onDragOver/onDragEnter/onDragLeave/onDrop` 接收
-  - 不能复制到自身类型（`record.id === selectedType?.id` 时拦截）
-  - `hoveredDropTypeId` 状态控制拖拽悬停高亮，`dropEffect` 在禁止时设为 `'none'`
-- 数据传输通过 `dataTransfer.setData('text/plain', JSON.stringify(ids))` 序列化
-
-```typescript
-// 源表：配置 draggable 行
-onRow={record => ({
-  draggable: true,
-  onDragStart: (e) => {
-    const ids = selectedEntryIds.length > 0 ? selectedEntryIds : [record.id]
-    e.dataTransfer.setData('text/plain', JSON.stringify(ids))
-    e.dataTransfer.effectAllowed = 'copy'
-  },
-})}
-
-// 目标表：接收拖放
-onRow={record => ({
-  onDragOver: (e) => {
-    if (record.id === selectedType?.id) { e.dataTransfer.dropEffect = 'none'; return }
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'copy'
-  },
-  onDragEnter: (e) => {
-    if (record.id === selectedType?.id) { return }
-    e.preventDefault()
-    setHoveredDropTypeId(record.id)
-  },
-  onDragLeave: () => setHoveredDropTypeId(undefined),
-  onDrop: (e) => {
-    e.preventDefault()
-    if (record.id === selectedType?.id) { return }
-    const raw = e.dataTransfer.getData('text/plain')
-    if (!raw) return
-    const entryIds: number[] = JSON.parse(raw)
-    onBatchCopyEntries(entryIds, record.id)
-  },
-})}
-```
-
-### 8) 数据映射与稳健性
-
-- 在 `usePagination` 的 `data` 适配阶段处理后端空值（如 `numericValue ?? 0`）
-- 页面内只处理"展示所需的最小映射"，复杂转换下沉到 API/domain 层
-- 成功提示文案统一简短（"保存成功""删除成功""操作成功"）
+- [CRUD 页面开发](crud-page.md) - ProTable + usePagination + ModalForm 模式
+- [API 请求层](api.md) - Alova 请求定义规范
+- [状态管理](stores.md) - Zustand store 定义规范
+- [Ant Design 主题配置](antd-theme.md) - 主题切换与配置
+- [国际化](i18n.md) - i18next 多语言
+- [E2E 测试](playwright-e2e.md) - Playwright 端到端测试
 
 ## 开发注意事项
 

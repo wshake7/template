@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
 import {
   Button,
+  Input,
   Popconfirm,
   Space,
   Splitter,
@@ -78,6 +79,7 @@ function DictTypePanel({
   const [editing, setEditing] = useState<DictType>()
   const [hoveredDropTypeId, setHoveredDropTypeId] = useState<number | undefined>()
   const [selectedTypeIds, setSelectedTypeIds] = useState<number[]>([])
+  const [searchText, setSearchText] = useState('')
   const {
     data,
     total,
@@ -87,23 +89,36 @@ function DictTypePanel({
     update,
     send,
   } = usePagination(
-    (nextPage, nextPageSize) =>
-      API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', {
+    (nextPage, nextPageSize) => {
+      const params: Record<string, unknown> = {
         page: nextPage,
         pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',
-      }, {
+      }
+      if (searchText.trim()) {
+        params.query = JSON.stringify({
+          $or: [
+            { typeCode__icontains: searchText.trim() },
+            { typeName__icontains: searchText.trim() },
+            { description__icontains: searchText.trim() },
+          ],
+        })
+      }
+      return API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', params, {
         cacheFor: 0,
-      }),
+      })
+    },
     {
       initialData: {
         total: 0,
         items: [],
       },
       initialPage: 1,
-      initialPageSize: 10,
+      initialPageSize: DEFAULT_PAGE_SIZE,
       total: response => response.data?.total ?? 0,
       data: response => response.data?.items ?? [],
+      watchingStates: [searchText],
+      debounce: [500],
     },
   )
 
@@ -167,6 +182,12 @@ function DictTypePanel({
   }, [form])
 
   const columns = useMemo<ProColumns<DictType>[]>(() => [
+    {
+      title: '序号',
+      dataIndex: 'index',
+      width: 60,
+      render: (_, __, index) => (page - 1) * pageSize + index + 1,
+    },
     {
       title: '类型编码',
       dataIndex: 'typeCode',
@@ -244,7 +265,7 @@ function DictTypePanel({
         </Popconfirm>,
       ],
     },
-  ], [openEdit, selectedType?.id, onDeleteSelectedType, send])
+  ], [openEdit, selectedType?.id, onDeleteSelectedType, send, page, pageSize])
 
   return (
     <>
@@ -270,6 +291,19 @@ function DictTypePanel({
           reload: () => send(),
         }}
         toolBarRender={() => [
+          <Input.Search
+            key="search"
+            placeholder="搜索类型编码、名称、描述"
+            allowClear
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value)
+            }}
+            onSearch={(value) => {
+              setSearchText(value)
+            }}
+            style={{ width: 280 }}
+          />,
           selectedTypeIds.length > 0
             ? (
                 <Popconfirm
@@ -317,15 +351,10 @@ function DictTypePanel({
             onSelectType(record)
           },
           onDragOver: (e) => {
-            if (record.id === selectedType?.id) {
-              e.dataTransfer.dropEffect = 'none'
-              return
-            }
             e.preventDefault()
             e.dataTransfer.dropEffect = 'copy'
           },
           onDragEnter: (e) => {
-            if (record.id === selectedType?.id) { return }
             e.preventDefault()
             setHoveredDropTypeId(record.id)
           },
@@ -335,7 +364,6 @@ function DictTypePanel({
           onDrop: (e) => {
             e.preventDefault()
             setHoveredDropTypeId(undefined)
-            if (record.id === selectedType?.id) { return }
             const raw = e.dataTransfer.getData('text/plain')
             if (!raw) { return }
             try {
@@ -378,13 +406,18 @@ function DictEntryPanel({
   selectedType,
   selectedEntryIds,
   onSelectionChange,
+  onClearType,
+  refreshKey,
 }: {
   selectedType: DictType | undefined
   selectedEntryIds: number[]
   onSelectionChange: (ids: number[]) => void
+  onClearType: () => void
+  refreshKey: number
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<DictEntry>()
+  const [searchText, setSearchText] = useState('')
   const {
     data,
     total,
@@ -394,24 +427,37 @@ function DictEntryPanel({
     update,
     send,
   } = usePagination(
-    (nextPage, nextPageSize) =>
-      API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', {
+    (nextPage, nextPageSize) => {
+      const conditions: Record<string, unknown>[] = []
+      if (selectedType) {
+        conditions.push({ sysDictTypeId: String(selectedType.id) })
+      }
+      if (searchText.trim()) {
+        conditions.push({
+          $or: [
+            { entryLabel__icontains: searchText.trim() },
+            { entryValue__icontains: searchText.trim() },
+            { numericValue__icontains: searchText.trim() },
+          ],
+        })
+      }
+      return API.Post<Res<PagingResult<DictEntry>>>('/api/sys/dict/entry/list', {
         page: nextPage,
         pageSize: nextPageSize,
         orderBy: 'sort_order asc,id desc',
-        query: selectedType ? JSON.stringify({ sysDictTypeId: selectedType.id }) : undefined,
+        query: conditions.length > 0 ? JSON.stringify({ $and: conditions }) : undefined,
       }, {
         cacheFor: 0,
-      }),
+      })
+    },
     {
       initialData: {
         total: 0,
         items: [],
       },
       initialPage: 1,
-      initialPageSize: 10,
-      immediate: false,
-      watchingStates: [selectedType?.id],
+      initialPageSize: DEFAULT_PAGE_SIZE,
+      watchingStates: [selectedType?.id, searchText, refreshKey],
       data: response => response.data?.items?.map(item => ({
         ...item,
         numericValue: item.numericValue ?? 0,
@@ -480,6 +526,12 @@ function DictEntryPanel({
   }, [form])
 
   const columns = useMemo<ProColumns<DictEntry>[]>(() => [
+    {
+      title: '序号',
+      dataIndex: 'index',
+      width: 60,
+      render: (_, __, index) => (page - 1) * pageSize + index + 1,
+    },
     {
       title: '显示标签',
       dataIndex: 'entryLabel',
@@ -555,7 +607,7 @@ function DictEntryPanel({
         </Popconfirm>,
       ],
     },
-  ], [openEdit, send])
+  ], [openEdit, send, page, pageSize])
 
   return (
     <>
@@ -594,17 +646,32 @@ function DictEntryPanel({
             e.dataTransfer.effectAllowed = 'copy'
           },
         })}
-        headerTitle={selectedType ? `字典项 - ${selectedType.typeName}` : '字典项'}
+        headerTitle={(
+          <Space>
+            {selectedType
+              ? (
+                  <>
+                    {`字典项 - ${selectedType.typeName}`}
+                    <Tag color="error" style={{ cursor: 'pointer' }} onClick={onClearType}>
+                      清除筛选
+                    </Tag>
+                  </>
+                )
+              : '字典项'}
+          </Space>
+        )}
         toolBarRender={() => [
           <Space key="tips" size="middle">
             {selectedType
               ? (
-                  <Tag color="processing">
-                    当前编码:
-                    {selectedType.typeCode}
-                  </Tag>
+                  <>
+                    <Tag color="processing">
+                      当前编码:
+                      {selectedType.typeCode}
+                    </Tag>
+                  </>
                 )
-              : <Tag>请先点击左侧字典类型</Tag>}
+              : null}
             {selectedEntryIds.length > 0
               ? (
                   <Popconfirm
@@ -628,6 +695,19 @@ function DictEntryPanel({
               新增字典项
             </Button>
           </Space>,
+          <Input.Search
+            key="search"
+            placeholder="搜索显示标签、数据值、数值"
+            allowClear
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value)
+            }}
+            onSearch={(value) => {
+              setSearchText(value)
+            }}
+            style={{ width: 280 }}
+          />,
         ]}
       />
       <ModalForm
@@ -659,6 +739,7 @@ function DictEntryPanel({
 function RouteComponent() {
   const [selectedType, setSelectedType] = useState<DictType>()
   const [selectedEntryIds, setSelectedEntryIds] = useState<number[]>([])
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const handleSelectType = useCallback((record: DictType) => {
     setSelectedType(record)
@@ -679,6 +760,7 @@ function RouteComponent() {
       await DictApi.entryBatchCopy({ entryIds, targetTypeId })
       gMessage.success(`成功复制 ${entryIds.length} 项`)
       setSelectedEntryIds([])
+      setRefreshKey(k => k + 1)
     }
     catch {
       gMessage.error('复制失败')
@@ -701,6 +783,8 @@ function RouteComponent() {
           selectedType={selectedType}
           selectedEntryIds={selectedEntryIds}
           onSelectionChange={setSelectedEntryIds}
+          onClearType={handleDeleteSelectedType}
+          refreshKey={refreshKey}
         />
       </Splitter.Panel>
     </Splitter>

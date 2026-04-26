@@ -371,11 +371,6 @@ func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCo
 		return res.FailMsg("未找到要复制的字典项")
 	}
 
-	// 不能复制到同一类型
-	if sourceEntries[0].SysDictTypeId == req.TargetTypeId {
-		return res.FailMsg("不能复制到相同字典类型")
-	}
-
 	// 创建新字典项（复制到目标类型）
 	var newEntries []*models.SysDictEntry
 	for _, entry := range sourceEntries {

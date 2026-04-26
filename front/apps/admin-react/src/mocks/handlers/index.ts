@@ -1,4 +1,4 @@
-import { HttpCode } from '~/domains/constant'
+import { HttpCode } from '~/domains/http'
 import { gEnv } from '~/env'
 
 const baseUrl = `http://localhost:${gEnv.VITE_PORT}/mock`
