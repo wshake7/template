@@ -1,10 +1,10 @@
 package main
 
 import (
-	"admin/config"
-	"admin/fiberc"
-	"admin/router"
-	"admin/services"
+	"admin/internal/config"
+	"admin/internal/fiberc"
+	"admin/internal/router"
+	"admin/internal/services"
 	"flag"
 	"go-common/log"
 	"go-common/viperc"

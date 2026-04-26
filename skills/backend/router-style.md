@@ -5,15 +5,15 @@
 - 目标：保持当前路由分层、签名、middleware 串联风格一致
 
 ## 目录/文件位置
-- 路由总注册：`backend/admin/router/router.go`
-- 公共资源路由：`backend/admin/router/account.go`、`backend/admin/router/encrypt.go`
-- 鉴权资源路由：`backend/admin/router/auth_router/*.go`
-- 业务逻辑层：`backend/admin/router/logic/*.go`
+- 路由总注册：`backend/admin/internal/router/router.go`
+- 公共资源路由：`backend/admin/internal/router/account.go`、`backend/admin/internal/router/encrypt.go`
+- 鉴权资源路由：`backend/admin/internal/router/auth_router/*.go`
+- 业务逻辑层：`backend/admin/internal/router/logic/*.go`
 
 ## 当前分层约定
-1. `router/*.go`：只做路由映射与 middleware 编排
-2. `router/auth_router/*.go`：承载“已鉴权资源”的路由映射
-3. `router/logic/*.go`：承载业务逻辑和请求/响应结构体
+1. `internal/router/*.go`：只做路由映射与 middleware 编排
+2. `internal/router/auth_router/*.go`：承载"已鉴权资源"的路由映射
+3. `internal/router/logic/*.go`：承载业务逻辑和请求/响应结构体
 4. 业务入参出参通过 `handler.Ctx*` 包装器自动绑定和输出
 
 ## 路由注册风格（按现状）
@@ -44,12 +44,12 @@
 - 中间件顺序不要随意互换，先鉴权/解密，再做业务审计
 
 ## 新增路由步骤
-1. 在 `router/logic/xxx.go` 定义 `Req/Res` 与 `XxxHandler` 方法（校验标签与错误语义一并补齐）
+1. 在 `internal/router/logic/xxx.go` 定义 `Req/Res` 与 `XxxHandler` 方法（校验标签与错误语义一并补齐）
 2. 根据接口类型选择路由文件：
-   - 公共接口：新增/修改 `router/xxx.go`
-   - 鉴权接口：新增/修改 `router/auth_router/xxx.go`
+   - 公共接口：新增/修改 `internal/router/xxx.go`
+   - 鉴权接口：新增/修改 `internal/router/auth_router/xxx.go`
 3. 用 `handler.Ctx*` 包装器挂载逻辑方法，不在路由层堆业务代码
-4. 在 `router/router.go` 挂载资源分组；若是鉴权资源，走 `auth_router.RegisterRouters(...)` 统一收口
+4. 在 `internal/router/router.go` 挂载资源分组；若是鉴权资源，走 `auth_router.RegisterRouters(...)` 统一收口
 5. 对写操作接口补 `OperationLogMiddleware`，并使用 `WithModule("<module>")` 标识模块
 
 ## 常用命令
@@ -67,5 +67,5 @@ go test ./...
 ## 注意事项
 1. 路由文件不要写重业务逻辑，保持“薄路由、厚 logic”
 2. middleware 顺序影响鉴权/加密/审计行为，不要随意交换
-3. 新资源必须在 `router/router.go` 或 `auth_router` 注册入口挂载，否则接口不会生效
+3. 新资源必须在 `internal/router/router.go` 或 `auth_router` 注册入口挂载，否则接口不会生效
 4. `logic` 层错误信息需区分用户可见错误与日志细节（日志写 `ctx.L().Error(...)`）

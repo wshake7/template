@@ -1,20 +1,20 @@
 # Backend ORM 数据库操作与 Models 维护
 
 ## 场景与目标
-- 适用场景：在 `router/logic` 中新增或调整数据库读写逻辑，或修改 `services/orm` 下模型/仓储能力时
+- 适用场景：在 `internal/router/logic` 中新增或调整数据库读写逻辑，或修改 `internal/services/orm` 下模型/仓储能力时
 - 目标：统一 `router -> logic -> orm/repo -> query/models` 的数据库操作风格，减少 SQL 行为偏差和回归风险
 
 ## 目录/文件位置
-- 路由逻辑入口：`backend/admin/router/logic/*.go`
-- ORM 服务初始化：`backend/admin/services/orm.go`
-- ORM 核心：`backend/admin/services/orm/orm.go`
-- 模型目录：`backend/admin/services/orm/models/`
-- 查询代码：`backend/admin/services/orm/query/`
-- 仓储封装：`backend/admin/services/orm/repo/`
+- 路由逻辑入口：`backend/admin/internal/router/logic/*.go`
+- ORM 服务初始化：`backend/admin/internal/services/orm.go`
+- ORM 核心：`backend/admin/internal/services/orm/orm.go`
+- 模型目录：`backend/admin/internal/services/orm/models/`
+- 查询代码：`backend/admin/internal/services/orm/query/`
+- 仓储封装：`backend/admin/internal/services/orm/repo/`
 - 代码生成脚本：`backend/admin/cmd/scripts/orm/main.go`
 
 ## 当前数据库调用链（按现状）
-1. 路由层通过 `handler.Ctx*` 包装器进入 `router/logic/*.go`
+1. 路由层通过 `handler.Ctx*` 包装器进入 `internal/router/logic/*.go`
 2. `logic` 层使用 `orm.DB()` 获取数据库实例，调用 `repo.XxxRepo` 执行读写
 3. 条件构造优先使用 `query.Xxx`（`gorm/gen` 生成对象）而不是手写字符串字段
 4. 返回错误统一转换为业务错误（如 `res.FailDefault` 或可读提示）
@@ -39,8 +39,8 @@
 4. 表名通过 `TableName()` 显式定义，字段尽量复用 `orm-crud/gorm/mixin`
 
 ## 修改步骤（推荐）
-1. 先在 `router/logic/xxx.go` 明确读写需求、请求参数和错误语义
-2. 复用现有 `repo` 能力；缺失方法再补到 `services/orm/repo/*.go`
+1. 先在 `internal/router/logic/xxx.go` 明确读写需求、请求参数和错误语义
+2. 复用现有 `repo` 能力；缺失方法再补到 `internal/services/orm/repo/*.go`
 3. 需要新字段/新表时同步修改 `models/*.go` 并确认已注册到 `models.Models`
 4. 运行生成脚本更新 `query/*.gen.go`，再回归 `logic` 调用点
 5. 启动服务或执行测试验证行为与返回结构

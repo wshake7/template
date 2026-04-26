@@ -74,7 +74,7 @@ func (h *RoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm.Pagin
 make swagger
 ```
 
-该命令会重新生成 `docs/docs.go`, `docs/swagger.json` 和 `docs/swagger.yaml`。
+该命令会重新生成 `internal/docs/docs.go`, `internal/docs/swagger.json` 和 `internal/docs/swagger.yaml`。
 
 ## 注意事项
 - 确保引用的 `models` 和 `res` 包路径正确。

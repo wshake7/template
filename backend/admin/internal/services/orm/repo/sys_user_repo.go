@@ -1,31 +1,31 @@
 package repo
 
 import (
-    "{{.ModuleName}}/internal/services/orm/models"
-    "{{.ModuleName}}/internal/services/orm/query"
+    "admin/internal/services/orm/models"
+    "admin/internal/services/orm/query"
     "go-common/mapper"
     "gorm.io/gen"
     "orm-crud/gormc"
 )
 
-type {{.ModelName | toLower}}Repo[T, R any] struct {
+type sysUserRepo[T, R any] struct {
     *gormc.Repository[T, R]
 }
 
-var {{.ModelName}}Repo *{{.ModelName | toLower}}Repo[models.{{.ModelName}}, models.{{.ModelName}}]
+var SysUserRepo *sysUserRepo[models.SysUser, models.SysUser]
 
 func init() {
-    repository := gormc.NewRepository(mapper.NewCopierMapper[models.{{.ModelName}}, models.{{.ModelName}}]())
-    {{.ModelName}}Repo = &{{.ModelName | toLower}}Repo[models.{{.ModelName}}, models.{{.ModelName}}]{
+    repository := gormc.NewRepository(mapper.NewCopierMapper[models.SysUser, models.SysUser]())
+    SysUserRepo = &sysUserRepo[models.SysUser, models.SysUser]{
         Repository: repository,
     }
 }
 
-func ({{.ModelName | toLower}}Repo[T, R]) UpdateMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+func (sysUserRepo[T, R]) UpdateMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
     if len(m) == 0 {
         return gen.ResultInfo{}, nil
     }
-    q := query.{{.ModelName}}
+    q := query.SysUser
     result, err := q.Where(conds...).Updates(m)
     if err != nil {
         return result, err
@@ -36,7 +36,7 @@ func ({{.ModelName | toLower}}Repo[T, R]) UpdateMap(m map[string]any, conds ...g
     return result, err
 }
 
-func ({{.ModelName | toLower}}Repo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
+func (sysUserRepo[T, R]) UpdateNoNilMap(m map[string]any, conds ...gen.Condition) (gen.ResultInfo, error) {
     if len(m) == 0 {
         return gen.ResultInfo{}, nil
     }
@@ -49,7 +49,7 @@ func ({{.ModelName | toLower}}Repo[T, R]) UpdateNoNilMap(m map[string]any, conds
     if len(d) == 0 {
         return gen.ResultInfo{}, nil
     }
-    q := query.{{.ModelName}}
+    q := query.SysUser
     result, err := q.Where(conds...).Updates(d)
     if err != nil {
         return result, err

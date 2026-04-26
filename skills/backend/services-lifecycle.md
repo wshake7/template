@@ -5,14 +5,14 @@
 - 目标：确保服务按正确顺序注入 Fiber 服务容器，并在启动/终止阶段行为一致
 
 ## 目录/文件位置
-- 服务装配入口：`backend/admin/services/init.go`
-- 服务包装层：`backend/admin/services/*.go`
+- 服务装配入口：`backend/admin/internal/services/init.go`
+- 服务包装层：`backend/admin/internal/services/*.go`
 - 各服务实现：
-  - `backend/admin/services/orm/`
-  - `backend/admin/services/redisc/`
-  - `backend/admin/services/httpc/`
-  - `backend/admin/services/asynq/`
-  - `backend/admin/services/casbin/`
+  - `backend/admin/internal/services/orm/`
+  - `backend/admin/internal/services/redisc/`
+  - `backend/admin/internal/services/httpc/`
+  - `backend/admin/internal/services/asynq/`
+  - `backend/admin/internal/services/casbin/`
 
 ## 当前编排方式（按现状）
 1. `services.New(conf)` 统一构建服务并 append 到 `conf.Fiber.Services`
@@ -46,8 +46,8 @@
 - `geo.go`：初始化 IP 地理库并设置全局 `ip_util.Client`
 
 ## 修改步骤（推荐）
-1. 新增服务：先在 `services/xxx.go` 实现统一四个方法
-2. 在 `services/init.go` 按依赖顺序注入 `conf.Fiber.Services`
+1. 新增服务：先在 `internal/services/xxx.go` 实现统一四个方法
+2. 在 `internal/services/init.go` 按依赖顺序注入 `conf.Fiber.Services`
 3. 若依赖包级客户端（如 `orm.Client`），确认启动顺序在依赖之前
 4. 增加必要的 `State` 与 `Terminate` 逻辑，避免“能启动不能关闭”
 

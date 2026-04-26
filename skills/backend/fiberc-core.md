@@ -5,11 +5,11 @@
 - 目标：在不破坏启动链路和全局行为的前提下进行扩展
 
 ## 目录/文件位置
-- 主入口：`backend/admin/fiberc/fiber.go`
-- App 生命周期：`backend/admin/fiberc/app.go`
-- 自定义上下文：`backend/admin/fiberc/handler/ctx.go`
-- 中间件：`backend/admin/fiberc/middleware/*.go`
-- 统一响应：`backend/admin/fiberc/res/res.go`
+- 主入口：`backend/admin/internal/fiberc/fiber.go`
+- App 生命周期：`backend/admin/internal/fiberc/app.go`
+- 自定义上下文：`backend/admin/internal/fiberc/handler/ctx.go`
+- 中间件：`backend/admin/internal/fiberc/middleware/*.go`
+- 统一响应：`backend/admin/internal/fiberc/res/res.go`
 
 ## 关键链路（当前实现）
 1. `NewFiber(conf)` 调用 `initialize(conf)` 创建 Fiber App

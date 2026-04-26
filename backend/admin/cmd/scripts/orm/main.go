@@ -1,9 +1,9 @@
 package main
 
 import (
-	"admin/config"
-	"admin/services/orm/models"
-	"admin/services/orm/query"
+	"admin/internal/config"
+	models2 "admin/internal/services/orm/models"
+	"admin/internal/services/orm/query"
 	"fmt"
 	"go-common/utils/passwd"
 	"go-common/viperc"
@@ -40,7 +40,7 @@ func main() {
 	)
 
 	if conf.Orm.IsAutoMigrate {
-		options = append(options, gormCrud.WithAutoMigrate(models.Models...))
+		options = append(options, gormCrud.WithAutoMigrate(models2.Models...))
 	}
 
 	client, err := gormCrud.NewClient(options...)
@@ -48,20 +48,20 @@ func main() {
 		panic(err)
 	}
 
+	codeGenCode(client.DB, models2.Models)
 	query.SetDefault(client.DB)
-	codeGenCode(client.DB, models.Models)
 	genUserAdd()
 }
 
 func genUserAdd() {
 	sysUser := query.SysUser
 	pwd, _ := passwd.Encode("123456")
-	_ = sysUser.Create(&models.SysUser{Username: "admin", Password: pwd})
+	_ = sysUser.Create(&models2.SysUser{Username: "admin", Password: pwd})
 }
 
 func dbGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{
-		OutPath:           "./services/orm/query",
+		OutPath:           "./internal/services/orm/query",
 		OutFile:           "",
 		ModelPkgPath:      "",
 		WithUnitTest:      false,
@@ -83,7 +83,7 @@ func dbGenCode(db *gorm.DB, models []any) {
 
 func codeGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{
-		OutPath:           "./services/orm/query",
+		OutPath:           "./internal/services/orm/query",
 		OutFile:           "",
 		ModelPkgPath:      "",
 		WithUnitTest:      false,
@@ -110,7 +110,7 @@ func generateExtraFiles(models []any) {
 	fmt.Println("current working dir:", wd)
 
 	templateDir := filepath.Join(wd, "cmd/scripts/orm/templates")
-	outDir := filepath.Join(wd, "services/orm/repo")
+	outDir := filepath.Join(wd, "internal/services/orm/repo")
 
 	entries, err := os.ReadDir(templateDir)
 	if err != nil {

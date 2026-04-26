@@ -6,13 +6,13 @@
 
 ## 目录/文件位置
 - 启动入口：`backend/admin/cmd/main.go`
-- 配置定义：`backend/admin/config/`
+- 配置定义：`backend/admin/internal/config/`
 - 配置文件：`backend/admin/etc/config.yaml`
-- Fiber 初始化：`backend/admin/fiberc/`
-- 路由注册：`backend/admin/router/router.go`
-- 路由逻辑：`backend/admin/router/logic/`
-- 服务初始化：`backend/admin/services/init.go`
-- 数据层：`backend/admin/services/orm/`
+- Fiber 初始化：`backend/admin/internal/fiberc/`
+- 路由注册：`backend/admin/internal/router/router.go`
+- 路由逻辑：`backend/admin/internal/router/logic/`
+- 服务初始化：`backend/admin/internal/services/init.go`
+- 数据层：`backend/admin/internal/services/orm/`
 
 ## 核心依赖或组件
 - `github.com/gofiber/fiber/v3`：HTTP 框架
@@ -29,11 +29,11 @@
 4. 启动服务并等待优雅退出
 
 ## 操作步骤
-1. 改接口逻辑：优先改 `router/logic/*.go`
-2. 改路由映射：改 `router/*.go` 和 `router/router.go`
-3. 改中间件：改 `fiberc/middleware/*.go`
-4. 改配置项：补 `config/*.go` 结构体 + `etc/config.yaml` 字段
-5. 改服务依赖：在 `services/init.go` 统一注入
+1. 改接口逻辑：优先改 `internal/router/logic/*.go`
+2. 改路由映射：改 `internal/router/*.go` 和 `internal/router/router.go`
+3. 改中间件：改 `internal/fiberc/middleware/*.go`
+4. 改配置项：补 `internal/config/*.go` 结构体 + `etc/config.yaml` 字段
+5. 改服务依赖：在 `internal/services/init.go` 统一注入
 
 ## 常用命令
 ```bash
@@ -53,10 +53,10 @@ go run ./cmd/scripts/orm
 make swagger
 ```
 
-## Handler 编写风格（以 router/logic/dict.go 为例）
+## Handler 编写风格（以 internal/router/logic/dict.go 为例）
 
 ### 1) 文件职责与组织
-- 一个资源（如 `Dict`）集中在同一个 `router/logic/*.go` 文件内，按业务子段（类型/数据项）分段组织
+- 一个资源（如 `Dict`）集中在同一个 `internal/router/logic/*.go` 文件内，按业务子段（类型/数据项）分段组织
 - `Req*` 请求结构体与 Handler 方法就近定义，便于维护请求约束与业务逻辑的一致性
 - 方法签名保持统一：读/列表操作返回 `(*Data, error)`，写操作仅返回 `error`
 
@@ -117,8 +117,8 @@ type ReqDictEntryBatchCopy struct {
 - 若修改了 Swagger 注释，需在 `backend/admin` 目录执行 `make swagger`
 
 ## 注意事项
-1. 新增路由要挂到 `router/router.go` 或 `auth_router.RegisterRouters()` 下，否则不会生效
-2. 业务逻辑尽量放在 `router/logic`，避免路由文件过重
+1. 新增路由要挂到 `internal/router/router.go` 或 `auth_router.RegisterRouters()` 下，否则不会生效
+2. 业务逻辑尽量放在 `internal/router/logic`，避免路由文件过重
 3. router 层只做路由映射与 middleware 编排（如 `OperationLogMiddleware`）
 4. 配置新增字段要"结构体 + yaml"双向同步
-5. 涉及 DB 变更时，注意 `orm/models`、`orm/repo` 与生成查询代码一致性
+5. 涉及 DB 变更时，注意 `internal/services/orm/models`、`internal/services/orm/repo` 与生成查询代码一致性
