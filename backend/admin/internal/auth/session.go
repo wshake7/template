@@ -15,9 +15,10 @@ const (
 )
 
 type SessionInfo struct {
-	PrivateKey string `json:"privateKey"`
-	Id         uint64 `json:"id"`
-	Username   string `json:"username"`
+	PrivateKey string   `json:"privateKey"`
+	Id         uint64   `json:"id"`
+	Username   string   `json:"username"`
+	Roles      []string `json:"roles"`
 }
 
 type Session struct {

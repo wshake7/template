@@ -323,6 +323,7 @@ function LanguageTypePanel({
     {
       title: '操作',
       valueType: 'option',
+      fixed: 'right',
       width: 240,
       render: (_: unknown, record: LanguageType) => [
         !record.isDefault
@@ -797,6 +798,7 @@ function LanguageEntryPanel({
       title: '操作',
       valueType: 'option',
       width: 180,
+      fixed: 'right',
       render: (_, record: LanguageEntry, _index) => [
         <a
           key="switch"

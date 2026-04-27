@@ -2,10 +2,11 @@ export const HttpCode = {
   UN_KNOW: 0,
   SUCCESS: 1,
   ERROR: 2,
-  RequestExpiredFail: 3,
-  RequestNonceFail: 4,
-  RequestKeyFail: 5,
-  LoginFail: 100,
+  FailRequestExpired: 3,
+  FailRequestNonce: 4,
+  FailRequestKey: 5,
+  FailLogin: 100,
+  FailAuth: 200,
 } as const
 
 export type CodeType = (typeof HttpCode)[keyof typeof HttpCode]
@@ -22,12 +23,12 @@ export const Header = {
 }
 
 const errorHandlers: Partial<Record<number, (res: Res) => Promise<void> | void>> = {
-  [HttpCode.LoginFail]: (res) => {
+  [HttpCode.FailLogin]: (res) => {
     gMessage.error(res.msg)
     AccountApi.logout()
     throw new Error(res.msg)
   },
-  [HttpCode.RequestKeyFail]: async (res) => {
+  [HttpCode.FailRequestKey]: async (res) => {
     gMessage.error(res.msg)
     useDeviceStore.getState().setPublicKey('')
     AccountApi.logout()

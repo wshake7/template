@@ -214,6 +214,7 @@ function DictTypePanel({
       title: '操作',
       valueType: 'option',
       width: 220,
+      fixed: 'right',
       render: (_, record) => [
         <a
           key="edit"

@@ -88,4 +88,5 @@ var (
 	FailLoginLimitExceeded = Response{Code: domains.StatusLoginFail, Msg: domains.ErrLoginLimitExceeded}
 	FailTokenKickout       = Response{Code: domains.StatusLoginFail, Msg: domains.ErrTokenKickout}
 	FailTokenReplaced      = Response{Code: domains.StatusLoginFail, Msg: domains.ErrTokenReplaced}
+	FailAuthUnauthorized   = Response{Code: domains.StatusAuthUnauthorized, Msg: domains.ErrAuthUnauthorized}
 )

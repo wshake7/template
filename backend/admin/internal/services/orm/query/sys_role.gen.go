@@ -37,8 +37,6 @@ func newSysRole(db *gorm.DB, opts ...gen.DOOption) sysRole {
 	_sysRole.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysRole.Name = field.NewString(tableName, "name")
 	_sysRole.Code = field.NewString(tableName, "code")
-	_sysRole.Menus = field.NewField(tableName, "menus")
-	_sysRole.Apis = field.NewField(tableName, "apis")
 	_sysRole.DataScope = field.NewString(tableName, "data_scope")
 	_sysRole.ParentID = field.NewUint64(tableName, "parent_id")
 	_sysRole.Path = field.NewString(tableName, "path")
@@ -84,8 +82,6 @@ type sysRole struct {
 	DeletedAt field.Uint
 	Name      field.String // 角色名称
 	Code      field.String // 角色标识
-	Menus     field.Field  // 分配的菜单列表
-	Apis      field.Field  // 分配的API列表
 	DataScope field.String // 数据权限范围
 	ParentID  field.Uint64 // 父级ID
 	Path      field.String // 节点路径
@@ -119,8 +115,6 @@ func (s *sysRole) updateTableName(table string) *sysRole {
 	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.Name = field.NewString(table, "name")
 	s.Code = field.NewString(table, "code")
-	s.Menus = field.NewField(table, "menus")
-	s.Apis = field.NewField(table, "apis")
 	s.DataScope = field.NewString(table, "data_scope")
 	s.ParentID = field.NewUint64(table, "parent_id")
 	s.Path = field.NewString(table, "path")
@@ -141,7 +135,7 @@ func (s *sysRole) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysRole) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 18)
+	s.fieldMap = make(map[string]field.Expr, 16)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -152,8 +146,6 @@ func (s *sysRole) fillFieldMap() {
 	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["code"] = s.Code
-	s.fieldMap["menus"] = s.Menus
-	s.fieldMap["apis"] = s.Apis
 	s.fieldMap["data_scope"] = s.DataScope
 	s.fieldMap["parent_id"] = s.ParentID
 	s.fieldMap["path"] = s.Path
