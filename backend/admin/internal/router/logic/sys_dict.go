@@ -153,7 +153,6 @@ func (*SysDictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) er
 type ReqDictEntryCreate struct {
 	EntryLabel    string `json:"entryLabel" binding:"required,max=255" binding_msg:"required=显示标签不能为空,max=显示标签最多255位"`
 	EntryValue    string `json:"entryValue" binding:"required,max=255" binding_msg:"required=数据值不能为空,max=数据值最多255位"`
-	NumericValue  int32  `json:"numericValue"`
 	LanguageCode  string `json:"languageCode" binding:"max=32" binding_msg:"max=语言代码最多32位"`
 	SysDictTypeId uint64 `json:"sysDictTypeId" binding:"required" binding_msg:"required=字典类型ID不能为空"`
 	SortOrder     int32  `json:"sortOrder"`
@@ -165,7 +164,6 @@ type ReqDictEntryUpdate struct {
 	ID            *uint64                  `json:"id"`
 	EntryLabel    *string                  `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
 	EntryValue    *string                  `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
-	NumericValue  *int32                   `json:"numericValue"`
 	LanguageCode  *string                  `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
 	SysDictTypeId *uint64                  `json:"sysDictTypeId"`
 	SortOrder     *int32                   `json:"sortOrder"`
@@ -178,7 +176,6 @@ type ReqDictEntryUpdateItem struct {
 	ID            uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
 	EntryLabel    *string `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
 	EntryValue    *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
-	NumericValue  *int32  `json:"numericValue"`
 	LanguageCode  *string `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
 	SysDictTypeId *uint64 `json:"sysDictTypeId"`
 	SortOrder     *int32  `json:"sortOrder"`
@@ -274,7 +271,6 @@ func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) er
 		Remark:        mixin.Remark{Remark: req.Remark},
 		EntryLabel:    req.EntryLabel,
 		EntryValue:    req.EntryValue,
-		NumericValue:  req.NumericValue,
 		LanguageCode:  req.LanguageCode,
 		SysDictTypeId: req.SysDictTypeId,
 	})
@@ -309,7 +305,6 @@ func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) er
 		ID:            *req.ID,
 		EntryLabel:    req.EntryLabel,
 		EntryValue:    req.EntryValue,
-		NumericValue:  req.NumericValue,
 		LanguageCode:  req.LanguageCode,
 		SysDictTypeId: req.SysDictTypeId,
 		SortOrder:     req.SortOrder,
@@ -337,7 +332,6 @@ func updateDictEntry(operationID uint64, req *ReqDictEntryUpdateItem) error {
 	exprs := []field.AssignExpr{sysDictEntry.UpdatedBy.Value(operationID)}
 	query.ExprAppendSelf(&exprs, req.EntryLabel, sysDictEntry.EntryLabel.Value)
 	query.ExprAppendSelf(&exprs, req.EntryValue, sysDictEntry.EntryValue.Value)
-	query.ExprAppendSelf(&exprs, req.NumericValue, sysDictEntry.NumericValue.Value)
 	query.ExprAppendSelf(&exprs, req.LanguageCode, sysDictEntry.LanguageCode.Value)
 	query.ExprAppendSelf(&exprs, req.SysDictTypeId, sysDictEntry.SysDictTypeId.Value)
 	query.ExprAppendSelf(&exprs, req.SortOrder, sysDictEntry.SortOrder.Value)
@@ -406,7 +400,6 @@ func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCo
 		newEntries = append(newEntries, &models.SysDictEntry{
 			EntryLabel:    entry.EntryLabel,
 			EntryValue:    entry.EntryValue,
-			NumericValue:  entry.NumericValue,
 			LanguageCode:  entry.LanguageCode,
 			SysDictTypeId: req.TargetTypeId,
 			SortOrder:     mixin.SortOrder{SortOrder: entry.SortOrder.SortOrder},

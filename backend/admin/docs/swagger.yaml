@@ -28,8 +28,6 @@ definitions:
         type: boolean
       languageCode:
         type: string
-      numericValue:
-        type: integer
       remark:
         type: string
       sortOrder:
@@ -51,8 +49,6 @@ definitions:
         type: integer
       deletedAt:
         type: integer
-      description:
-        type: string
       entries:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysDictEntry'
@@ -61,6 +57,8 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
+      remark:
+        type: string
       sortOrder:
         type: integer
       typeCode:
@@ -360,8 +358,6 @@ definitions:
       languageCode:
         maxLength: 32
         type: string
-      numericValue:
-        type: integer
       remark:
         maxLength: 255
         type: string
@@ -373,15 +369,6 @@ definitions:
       - entryLabel
       - entryValue
       - sysDictTypeId
-    type: object
-  internal_router_logic.ReqDictEntrySwitchStatus:
-    properties:
-      id:
-        type: integer
-      isEnabled:
-        type: boolean
-    required:
-      - id
     type: object
   internal_router_logic.ReqDictEntryUpdate:
     properties:
@@ -398,8 +385,33 @@ definitions:
       languageCode:
         maxLength: 32
         type: string
-      numericValue:
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
         type: integer
+      sysDictTypeId:
+        type: integer
+      updates:
+        items:
+          $ref: '#/definitions/internal_router_logic.ReqDictEntryUpdateItem'
+        type: array
+    type: object
+  internal_router_logic.ReqDictEntryUpdateItem:
+    properties:
+      entryLabel:
+        maxLength: 255
+        type: string
+      entryValue:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      languageCode:
+        maxLength: 32
+        type: string
       remark:
         maxLength: 255
         type: string
@@ -422,11 +434,11 @@ definitions:
     type: object
   internal_router_logic.ReqDictTypeCreate:
     properties:
-      description:
-        maxLength: 255
-        type: string
       isEnabled:
         type: boolean
+      remark:
+        maxLength: 255
+        type: string
       sortOrder:
         type: integer
       typeCode:
@@ -439,24 +451,15 @@ definitions:
       - typeCode
       - typeName
     type: object
-  internal_router_logic.ReqDictTypeSwitchStatus:
-    properties:
-      id:
-        type: integer
-      isEnabled:
-        type: boolean
-    required:
-      - id
-    type: object
   internal_router_logic.ReqDictTypeUpdate:
     properties:
-      description:
-        maxLength: 255
-        type: string
       id:
         type: integer
       isEnabled:
         type: boolean
+      remark:
+        maxLength: 255
+        type: string
       sortOrder:
         type: integer
       typeCode:
@@ -518,6 +521,30 @@ definitions:
       - sysLanguageTypeId
     type: object
   internal_router_logic.ReqLangEntryUpdate:
+    properties:
+      entryCode:
+        maxLength: 128
+        type: string
+      entryValue:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+      sysLanguageTypeId:
+        type: integer
+      updates:
+        items:
+          $ref: '#/definitions/internal_router_logic.ReqLangEntryUpdateItem'
+        type: array
+    type: object
+  internal_router_logic.ReqLangEntryUpdateItem:
     properties:
       entryCode:
         maxLength: 128
@@ -801,7 +828,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 将选中的字典数据项批量复制到指定字典类型下（不支持复制到同一类型）
       parameters:
         - description: 批量复制参数
           in: body
@@ -823,7 +849,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 创建新的字典数据项
       parameters:
         - description: 字典数据项创建参数
           in: body
@@ -845,7 +870,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 根据 ID 列表批量删除字典数据项
       parameters:
         - description: 批量删除参数
           in: body
@@ -867,7 +891,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 分页查询字典数据项信息
       parameters:
         - description: 分页参数
           in: body
@@ -890,33 +913,10 @@ paths:
       summary: 获取字典数据项分页列表
       tags:
         - Dict
-  /api/dict/entry/switch:
-    post:
-      consumes:
-        - application/json
-      description: 根据 ID 修改启用状态
-      parameters:
-        - description: 状态参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictEntrySwitchStatus'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/admin_internal_fiberc_res.Response'
-      summary: 切换字典数据项状态
-      tags:
-        - Dict
   /api/dict/entry/update:
     post:
       consumes:
         - application/json
-      description: 根据 ID 更新字典数据项信息
       parameters:
         - description: 字典数据项更新参数
           in: body
@@ -938,7 +938,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 创建新的字典类型
       parameters:
         - description: 字典类型创建参数
           in: body
@@ -960,7 +959,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 根据 ID 列表批量删除字典类型及其关联的所有字典项
       parameters:
         - description: 批量删除参数
           in: body
@@ -982,7 +980,6 @@ paths:
     post:
       consumes:
         - application/json
-      description: 分页查询字典类型信息
       parameters:
         - description: 分页参数
           in: body
@@ -1005,33 +1002,10 @@ paths:
       summary: 获取字典类型分页列表
       tags:
         - Dict
-  /api/dict/type/switch:
-    post:
-      consumes:
-        - application/json
-      description: 根据 ID 修改启用状态
-      parameters:
-        - description: 状态参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictTypeSwitchStatus'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/admin_internal_fiberc_res.Response'
-      summary: 切换字典类型状态
-      tags:
-        - Dict
   /api/dict/type/update:
     post:
       consumes:
         - application/json
-      description: 根据 ID 更新字典类型信息
       parameters:
         - description: 字典类型更新参数
           in: body

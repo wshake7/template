@@ -13,7 +13,6 @@ export interface DictEntry {
   id: number
   entryLabel: string
   entryValue: string
-  numericValue: number
   languageCode: string
   sysDictTypeId: number
   sysDictType?: {
@@ -44,7 +43,6 @@ export interface ReqDictTypeBatchDelete {
 export interface ReqDictEntryCreate {
   entryLabel: string
   entryValue: string
-  numericValue: number
   languageCode: string
   sysDictTypeId: number
   sortOrder: number

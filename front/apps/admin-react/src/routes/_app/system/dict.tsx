@@ -50,7 +50,6 @@ export type DictTypeFormValues = z.infer<typeof DictTypeSchema>
 const DictEntrySchema = z.object({
   entryLabel: z.string('请输入显示标签').min(1, '请输入显示标签'),
   entryValue: z.string('请输入数据值').min(1, '请输入数据值'),
-  numericValue: z.number().default(0),
   languageCode: z.string().default(''),
   sortOrder: z.number().default(0),
   isEnabled: z.boolean().default(true),
@@ -439,7 +438,6 @@ function DictEntryPanel({
           $or: [
             { entryLabel__icontains: searchText.trim() },
             { entryValue__icontains: searchText.trim() },
-            { numericValue__icontains: searchText.trim() },
           ],
         })
       }
@@ -460,7 +458,6 @@ function DictEntryPanel({
       watchingStates: [selectedType?.id, searchText, refreshKey],
       data: response => response.data?.items?.map(item => ({
         ...item,
-        numericValue: item.numericValue ?? 0,
         sortOrder: item.sortOrder ?? 0,
       })) ?? [],
       total: response => response.data?.total ?? 0,
@@ -484,7 +481,6 @@ function DictEntryPanel({
       const payload = {
         entryLabel: values.entryLabel,
         entryValue: values.entryValue,
-        numericValue: values.numericValue,
         languageCode: values.languageCode,
         sysDictTypeId: typeId,
         sortOrder: values.sortOrder,
@@ -554,11 +550,6 @@ function DictEntryPanel({
       title: '数据值',
       dataIndex: 'entryValue',
       width: 120,
-    },
-    {
-      title: '数值',
-      dataIndex: 'numericValue',
-      width: 90,
     },
     {
       title: '语言',
@@ -712,7 +703,7 @@ function DictEntryPanel({
           </Space>,
           <Input.Search
             key="search"
-            placeholder="搜索显示标签、数据值、数值"
+            placeholder="搜索显示标签、数据值"
             allowClear
             value={searchText}
             onChange={(e) => {
@@ -741,7 +732,6 @@ function DictEntryPanel({
       >
         <ProFormText required name="entryLabel" label="显示标签" rules={rules} placeholder="请输入显示标签" />
         <ProFormText required name="entryValue" label="数据值" rules={rules} placeholder="请输入数据值" />
-        <ProFormDigit name="numericValue" label="数值" fieldProps={{ precision: 0 }} />
         <ProFormText name="languageCode" label="语言代码" placeholder="请输入语言代码" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />
         <ProFormSwitch name="isEnabled" label="启用状态" />

@@ -126,7 +126,6 @@ const docTemplate = `{
         },
         "/api/dict/entry/batch/copy": {
             "post": {
-                "description": "将选中的字典数据项批量复制到指定字典类型下（不支持复制到同一类型）",
                 "consumes": [
                     "application/json"
                 ],
@@ -160,7 +159,6 @@ const docTemplate = `{
         },
         "/api/dict/entry/create": {
             "post": {
-                "description": "创建新的字典数据项",
                 "consumes": [
                     "application/json"
                 ],
@@ -194,7 +192,6 @@ const docTemplate = `{
         },
         "/api/dict/entry/del": {
             "post": {
-                "description": "根据 ID 列表批量删除字典数据项",
                 "consumes": [
                     "application/json"
                 ],
@@ -228,7 +225,6 @@ const docTemplate = `{
         },
         "/api/dict/entry/list": {
             "post": {
-                "description": "分页查询字典数据项信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -272,43 +268,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/dict/entry/switch": {
-            "post": {
-                "description": "根据 ID 修改启用状态",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dict"
-                ],
-                "summary": "切换字典数据项状态",
-                "parameters": [
-                    {
-                        "description": "状态参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictEntrySwitchStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/dict/entry/update": {
             "post": {
-                "description": "根据 ID 更新字典数据项信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -342,7 +303,6 @@ const docTemplate = `{
         },
         "/api/dict/type/create": {
             "post": {
-                "description": "创建新的字典类型",
                 "consumes": [
                     "application/json"
                 ],
@@ -376,7 +336,6 @@ const docTemplate = `{
         },
         "/api/dict/type/del": {
             "post": {
-                "description": "根据 ID 列表批量删除字典类型及其关联的所有字典项",
                 "consumes": [
                     "application/json"
                 ],
@@ -410,7 +369,6 @@ const docTemplate = `{
         },
         "/api/dict/type/list": {
             "post": {
-                "description": "分页查询字典类型信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -454,43 +412,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/dict/type/switch": {
-            "post": {
-                "description": "根据 ID 修改启用状态",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Dict"
-                ],
-                "summary": "切换字典类型状态",
-                "parameters": [
-                    {
-                        "description": "状态参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeSwitchStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/dict/type/update": {
             "post": {
-                "description": "根据 ID 更新字典类型信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -1201,9 +1124,6 @@ const docTemplate = `{
                 "languageCode": {
                     "type": "string"
                 },
-                "numericValue": {
-                    "type": "integer"
-                },
                 "remark": {
                     "type": "string"
                 },
@@ -1236,9 +1156,6 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "integer"
                 },
-                "description": {
-                    "type": "string"
-                },
                 "entries": {
                     "type": "array",
                     "items": {
@@ -1250,6 +1167,9 @@ const docTemplate = `{
                 },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "remark": {
+                    "type": "string"
                 },
                 "sortOrder": {
                     "type": "integer"
@@ -1706,9 +1626,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32
                 },
-                "numericValue": {
-                    "type": "integer"
-                },
                 "remark": {
                     "type": "string",
                     "maxLength": 255
@@ -1721,21 +1638,46 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictEntrySwitchStatus": {
+        "internal_router_logic.ReqDictEntryUpdate": {
             "type": "object",
-            "required": [
-                "id"
-            ],
             "properties": {
+                "entryLabel": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "entryValue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
                 "id": {
                     "type": "integer"
                 },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "languageCode": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysDictTypeId": {
+                    "type": "integer"
+                },
+                "updates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdateItem"
+                    }
                 }
             }
         },
-        "internal_router_logic.ReqDictEntryUpdate": {
+        "internal_router_logic.ReqDictEntryUpdateItem": {
             "type": "object",
             "required": [
                 "id"
@@ -1758,9 +1700,6 @@ const docTemplate = `{
                 "languageCode": {
                     "type": "string",
                     "maxLength": 32
-                },
-                "numericValue": {
-                    "type": "integer"
                 },
                 "remark": {
                     "type": "string",
@@ -1796,12 +1735,12 @@ const docTemplate = `{
                 "typeName"
             ],
             "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 255
-                },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "sortOrder": {
                     "type": "integer"
@@ -1816,35 +1755,21 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictTypeSwitchStatus": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "isEnabled": {
-                    "type": "boolean"
-                }
-            }
-        },
         "internal_router_logic.ReqDictTypeUpdate": {
             "type": "object",
             "required": [
                 "id"
             ],
             "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 255
-                },
                 "id": {
                     "type": "integer"
                 },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "sortOrder": {
                     "type": "integer"
@@ -1931,6 +1856,41 @@ const docTemplate = `{
             }
         },
         "internal_router_logic.ReqLangEntryUpdate": {
+            "type": "object",
+            "properties": {
+                "entryCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "entryValue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "sysLanguageTypeId": {
+                    "type": "integer"
+                },
+                "updates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdateItem"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqLangEntryUpdateItem": {
             "type": "object",
             "required": [
                 "id"

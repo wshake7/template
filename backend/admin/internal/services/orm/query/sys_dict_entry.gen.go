@@ -38,7 +38,6 @@ func newSysDictEntry(db *gorm.DB, opts ...gen.DOOption) sysDictEntry {
 	_sysDictEntry.Remark = field.NewString(tableName, "remark")
 	_sysDictEntry.EntryLabel = field.NewString(tableName, "entry_label")
 	_sysDictEntry.EntryValue = field.NewString(tableName, "entry_value")
-	_sysDictEntry.NumericValue = field.NewInt32(tableName, "numeric_value")
 	_sysDictEntry.LanguageCode = field.NewString(tableName, "language_code")
 	_sysDictEntry.SysDictTypeId = field.NewUint64(tableName, "sys_dict_type_id")
 	_sysDictEntry.SysDictType = sysDictEntryBelongsToSysDictType{
@@ -80,7 +79,6 @@ type sysDictEntry struct {
 	Remark        field.String
 	EntryLabel    field.String // 字典项的显示标签
 	EntryValue    field.String // 字典项的实际值
-	NumericValue  field.Int32  // 数值型值
 	LanguageCode  field.String // 语言代码
 	SysDictTypeId field.Uint64 // 字典类型ID
 	SysDictType   sysDictEntryBelongsToSysDictType
@@ -111,7 +109,6 @@ func (s *sysDictEntry) updateTableName(table string) *sysDictEntry {
 	s.Remark = field.NewString(table, "remark")
 	s.EntryLabel = field.NewString(table, "entry_label")
 	s.EntryValue = field.NewString(table, "entry_value")
-	s.NumericValue = field.NewInt32(table, "numeric_value")
 	s.LanguageCode = field.NewString(table, "language_code")
 	s.SysDictTypeId = field.NewUint64(table, "sys_dict_type_id")
 
@@ -130,7 +127,7 @@ func (s *sysDictEntry) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (s *sysDictEntry) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 15)
+	s.fieldMap = make(map[string]field.Expr, 14)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -142,7 +139,6 @@ func (s *sysDictEntry) fillFieldMap() {
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["entry_label"] = s.EntryLabel
 	s.fieldMap["entry_value"] = s.EntryValue
-	s.fieldMap["numeric_value"] = s.NumericValue
 	s.fieldMap["language_code"] = s.LanguageCode
 	s.fieldMap["sys_dict_type_id"] = s.SysDictTypeId
 
