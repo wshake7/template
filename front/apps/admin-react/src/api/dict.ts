@@ -16,6 +16,10 @@ export interface DictEntry {
   numericValue: number
   languageCode: string
   sysDictTypeId: number
+  sysDictType?: {
+    typeCode: string
+    typeName: string
+  }
   sortOrder: number
   isEnabled: boolean
   remark: string

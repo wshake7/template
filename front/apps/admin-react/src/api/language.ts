@@ -49,7 +49,10 @@ export interface ReqLangEntryCreate {
 }
 
 export interface ReqLangEntryUpdate extends Partial<ReqLangEntryCreate> {
-  id: number
+  id?: number
+  updates?: Array<{
+    id: number
+  } & Partial<ReqLangEntryCreate>>
 }
 
 export interface ReqLangEntryDel {

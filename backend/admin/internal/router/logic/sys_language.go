@@ -199,6 +199,17 @@ type ReqLangEntryCreate struct {
 }
 
 type ReqLangEntryUpdate struct {
+	ID                *uint64               `json:"id"`
+	EntryCode         *string `json:"entryCode" binding:"omitempty,max=128" binding_msg:"max=条目编码最多128位"`
+	EntryValue        *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=语言值最多255位"`
+	SysLanguageTypeId *uint64 `json:"sysLanguageTypeId"`
+	SortOrder         *int32  `json:"sortOrder"`
+	IsEnabled         *bool   `json:"isEnabled"`
+	Remark            *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	Updates           []ReqLangEntryUpdateItem `json:"updates"`
+}
+
+type ReqLangEntryUpdateItem struct {
 	ID                uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
 	EntryCode         *string `json:"entryCode" binding:"omitempty,max=128" binding_msg:"max=条目编码最多128位"`
 	EntryValue        *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=语言值最多255位"`
@@ -285,6 +296,29 @@ func (*SysLanguageHandler) EntryCreate(ctx *handler.Ctx, req *ReqLangEntryCreate
 // @Router /api/sys/language/entry/update [post]
 func (*SysLanguageHandler) EntryUpdate(ctx *handler.Ctx, req *ReqLangEntryUpdate) error {
 	operationID := ctx.SessionInfo.Id
+	if len(req.Updates) > 0 {
+		for _, item := range req.Updates {
+			if err := updateLanguageEntry(operationID, &item); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if req.ID == nil {
+		return res.FailMsg("请求错误")
+	}
+	return updateLanguageEntry(operationID, &ReqLangEntryUpdateItem{
+		ID:                *req.ID,
+		EntryCode:         req.EntryCode,
+		EntryValue:        req.EntryValue,
+		SysLanguageTypeId: req.SysLanguageTypeId,
+		SortOrder:         req.SortOrder,
+		IsEnabled:         req.IsEnabled,
+		Remark:            req.Remark,
+	})
+}
+
+func updateLanguageEntry(operationID uint64, req *ReqLangEntryUpdateItem) error {
 	if req.SysLanguageTypeId != nil {
 		sysLanguageType := query.SysLanguageType
 		_, err := sysLanguageType.

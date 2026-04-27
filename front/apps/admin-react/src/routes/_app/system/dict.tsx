@@ -272,6 +272,11 @@ function DictTypePanel({
         columns={columns}
         dataSource={data}
         loading={loading}
+        headerTitle={(
+          <Space>
+            字典类型
+          </Space>
+        )}
         pagination={{
           showSizeChanger: true,
           current: page,
@@ -288,6 +293,9 @@ function DictTypePanel({
           reload: () => send(),
         }}
         toolBarRender={() => [
+          <Button key="add" type="primary" onClick={openCreate}>
+            新增类型
+          </Button>,
           <Input.Search
             key="search"
             placeholder="搜索类型编码、名称、备注"
@@ -323,9 +331,6 @@ function DictTypePanel({
                 </Popconfirm>
               )
             : null,
-          <Button key="add" type="primary" onClick={openCreate}>
-            新增类型
-          </Button>,
         ]}
         rowSelection={{
           selectedRowKeys: selectedTypeIds,
@@ -525,18 +530,30 @@ function DictEntryPanel({
     {
       title: '序号',
       dataIndex: 'index',
-      width: 60,
+      width: 50,
       render: (_, __, index) => (page - 1) * pageSize + index + 1,
+    },
+    {
+      title: '类型名称',
+      dataIndex: ['sysDictType', 'typeName'],
+      width: 80,
+      render: (_, record) => record.sysDictType?.typeName ?? '-',
+    },
+    {
+      title: '类型编码',
+      dataIndex: ['sysDictType', 'typeCode'],
+      width: 160,
+      render: (_, record) => record.sysDictType?.typeCode ?? '-',
     },
     {
       title: '显示标签',
       dataIndex: 'entryLabel',
-      width: 160,
+      width: 120,
     },
     {
       title: '数据值',
       dataIndex: 'entryValue',
-      width: 160,
+      width: 120,
     },
     {
       title: '数值',
@@ -562,12 +579,14 @@ function DictEntryPanel({
     {
       title: '备注',
       dataIndex: 'remark',
+      width: 140,
       ellipsis: true,
     },
     {
       title: '操作',
       valueType: 'option',
       width: 220,
+      fixed: 'right',
       render: (_, record) => [
         <a
           key="edit"
@@ -765,7 +784,7 @@ function RouteComponent() {
 
   return (
     <Splitter>
-      <Splitter.Panel defaultSize="50%" min="25%" max="75%">
+      <Splitter.Panel defaultSize="40%" min="25%" max="75%">
         <DictTypePanel
           selectedType={selectedType}
           onSelectType={handleSelectType}

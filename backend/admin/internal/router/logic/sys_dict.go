@@ -162,6 +162,19 @@ type ReqDictEntryCreate struct {
 }
 
 type ReqDictEntryUpdate struct {
+	ID            *uint64                  `json:"id"`
+	EntryLabel    *string                  `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
+	EntryValue    *string                  `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
+	NumericValue  *int32                   `json:"numericValue"`
+	LanguageCode  *string                  `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
+	SysDictTypeId *uint64                  `json:"sysDictTypeId"`
+	SortOrder     *int32                   `json:"sortOrder"`
+	IsEnabled     *bool                    `json:"isEnabled"`
+	Remark        *string                  `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	Updates       []ReqDictEntryUpdateItem `json:"updates"`
+}
+
+type ReqDictEntryUpdateItem struct {
 	ID            uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
 	EntryLabel    *string `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
 	EntryValue    *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
@@ -194,6 +207,39 @@ func (*SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm
 	pagination, err := query.SysDictEntry.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
+	}
+	if len(pagination.Items) == 0 {
+		return pagination, nil
+	}
+
+	typeIDSet := make(map[uint64]struct{}, len(pagination.Items))
+	typeIDs := make([]uint64, 0, len(pagination.Items))
+	for _, item := range pagination.Items {
+		if _, exists := typeIDSet[item.SysDictTypeId]; exists {
+			continue
+		}
+		typeIDSet[item.SysDictTypeId] = struct{}{}
+		typeIDs = append(typeIDs, item.SysDictTypeId)
+	}
+	if len(typeIDs) == 0 {
+		return pagination, nil
+	}
+
+	sysDictType := query.SysDictType
+	typeList, err := sysDictType.
+		Select(sysDictType.ID, sysDictType.TypeCode, sysDictType.TypeName).
+		Where(sysDictType.ID.In(typeIDs...)).
+		Find()
+	if err != nil {
+		ctx.L().Error("查询字典类型失败", zap.Error(err), zap.Uint64s("typeIds", typeIDs))
+		return nil, res.FailDefault
+	}
+	typeMap := make(map[uint64]*models.SysDictType, len(typeList))
+	for _, item := range typeList {
+		typeMap[item.ID] = item
+	}
+	for _, item := range pagination.Items {
+		item.SysDictType = typeMap[item.SysDictTypeId]
 	}
 	return pagination, nil
 }
@@ -248,6 +294,31 @@ func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) er
 // @Router /api/dict/entry/update [post]
 func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error {
 	operationID := ctx.SessionInfo.Id
+	if len(req.Updates) > 0 {
+		for _, item := range req.Updates {
+			if err := updateDictEntry(operationID, &item); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if req.ID == nil {
+		return res.FailMsg("请求错误")
+	}
+	return updateDictEntry(operationID, &ReqDictEntryUpdateItem{
+		ID:            *req.ID,
+		EntryLabel:    req.EntryLabel,
+		EntryValue:    req.EntryValue,
+		NumericValue:  req.NumericValue,
+		LanguageCode:  req.LanguageCode,
+		SysDictTypeId: req.SysDictTypeId,
+		SortOrder:     req.SortOrder,
+		IsEnabled:     req.IsEnabled,
+		Remark:        req.Remark,
+	})
+}
+
+func updateDictEntry(operationID uint64, req *ReqDictEntryUpdateItem) error {
 	if req.SysDictTypeId != nil {
 		sysDictType := query.SysDictType
 		_, err := sysDictType.
