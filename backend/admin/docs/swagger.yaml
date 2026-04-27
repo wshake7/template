@@ -189,12 +189,35 @@ definitions:
       username:
         type: string
     type: object
+  admin_internal_services_orm_models.SysResource:
+    properties:
+      code:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: integer
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      metadata:
+        $ref: '#/definitions/datatypes.JSONMap'
+      name:
+        type: string
+      remark:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
   admin_internal_services_orm_models.SysRole:
     properties:
-      apis:
-        items:
-          type: string
-        type: array
       childIDs:
         items:
           type: integer
@@ -210,6 +233,9 @@ definitions:
       createdBy:
         type: integer
       dataScope:
+        description: |-
+          Menus         datatypes.JSONSlice[uint64] `gorm:"column:menus;type:json;comment:分配的菜单列表" json:"menus"`
+          Apis          datatypes.JSONSlice[string] `gorm:"column:apis;type:json;comment:分配的API列表" json:"apis"`
         type: string
       deletedAt:
         type: integer
@@ -217,10 +243,6 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
-      menus:
-        items:
-          type: integer
-        type: array
       name:
         type: string
       parentID:
@@ -235,6 +257,9 @@ definitions:
         type: string
       updatedBy:
         type: integer
+    type: object
+  datatypes.JSONMap:
+    additionalProperties: true
     type: object
   fieldmaskpb.FieldMask:
     properties:
@@ -285,6 +310,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysOperationLog'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-admin_internal_services_orm_models_SysResource:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/admin_internal_services_orm_models.SysResource'
         type: array
       total:
         type: integer
@@ -617,6 +651,61 @@ definitions:
     properties:
       id:
         type: integer
+    required:
+      - id
+    type: object
+  internal_router_logic.ReqResourceBatchDelete:
+    properties:
+      ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+      - ids
+    type: object
+  internal_router_logic.ReqResourceCreate:
+    properties:
+      code:
+        maxLength: 255
+        minLength: 1
+        type: string
+      isEnabled:
+        type: boolean
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+      type:
+        maxLength: 32
+        minLength: 1
+        type: string
+    required:
+      - code
+      - name
+      - type
+    type: object
+  internal_router_logic.ReqResourceUpdate:
+    properties:
+      code:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      name:
+        maxLength: 255
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+      type:
+        maxLength: 32
+        type: string
     required:
       - id
     type: object
@@ -1418,4 +1507,93 @@ paths:
       summary: 更新语言类型
       tags:
         - Language
+  /api/sys/resource/create:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 资源创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 创建资源
+      tags:
+        - Resource
+  /api/sys/resource/del:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 批量删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceBatchDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 批量删除资源
+      tags:
+        - Resource
+  /api/sys/resource/list:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysResource'
+                type: object
+      summary: 获取资源分页列表
+      tags:
+        - Resource
+  /api/sys/resource/update:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 资源更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 更新资源
+      tags:
+        - Resource
 swagger: "2.0"

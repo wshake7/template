@@ -1080,6 +1080,150 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/sys/resource/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "创建资源",
+                "parameters": [
+                    {
+                        "description": "资源创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/del": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "批量删除资源",
+                "parameters": [
+                    {
+                        "description": "批量删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceBatchDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "获取资源分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysResource"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "更新资源",
+                "parameters": [
+                    {
+                        "description": "资源更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1368,15 +1512,50 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_internal_services_orm_models.SysResource": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/datatypes.JSONMap"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
         "admin_internal_services_orm_models.SysRole": {
             "type": "object",
             "properties": {
-                "apis": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "childIDs": {
                     "type": "array",
                     "items": {
@@ -1399,6 +1578,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "dataScope": {
+                    "description": "Menus         datatypes.JSONSlice[uint64] ` + "`" + `gorm:\"column:menus;type:json;comment:分配的菜单列表\" json:\"menus\"` + "`" + `\nApis          datatypes.JSONSlice[string] ` + "`" + `gorm:\"column:apis;type:json;comment:分配的API列表\" json:\"apis\"` + "`" + `",
                     "type": "string"
                 },
                 "deletedAt": {
@@ -1409,12 +1589,6 @@ const docTemplate = `{
                 },
                 "isEnabled": {
                     "type": "boolean"
-                },
-                "menus": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 },
                 "name": {
                     "type": "string"
@@ -1438,6 +1612,10 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "datatypes.JSONMap": {
+            "type": "object",
+            "additionalProperties": true
         },
         "fieldmaskpb.FieldMask": {
             "type": "object",
@@ -1514,6 +1692,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/admin_internal_services_orm_models.SysOperationLog"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-admin_internal_services_orm_models_SysResource": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysResource"
                     }
                 },
                 "total": {
@@ -1999,6 +2191,83 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceCreate": {
+            "type": "object",
+            "required": [
+                "code",
+                "name",
+                "type"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "type": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 1
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "type": {
+                    "type": "string",
+                    "maxLength": 32
                 }
             }
         },

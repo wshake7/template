@@ -36,8 +36,9 @@ func newSysResource(db *gorm.DB, opts ...gen.DOOption) sysResource {
 	_sysResource.Remark = field.NewString(tableName, "remark")
 	_sysResource.Metadata = field.NewField(tableName, "metadata")
 	_sysResource.DeletedAt = field.NewUint(tableName, "deleted_at")
-	_sysResource.ResourceType = field.NewString(tableName, "resource_type")
-	_sysResource.ResourceCode = field.NewString(tableName, "resource_code")
+	_sysResource.Type = field.NewString(tableName, "type")
+	_sysResource.Code = field.NewString(tableName, "code")
+	_sysResource.Name = field.NewString(tableName, "name")
 
 	_sysResource.fillFieldMap()
 
@@ -47,18 +48,19 @@ func newSysResource(db *gorm.DB, opts ...gen.DOOption) sysResource {
 type sysResource struct {
 	sysResourceDo
 
-	ALL          field.Asterisk
-	ID           field.Uint64
-	CreatedAt    field.Time
-	UpdatedAt    field.Time
-	CreatedBy    field.Uint64
-	UpdatedBy    field.Uint64
-	IsEnabled    field.Bool
-	Remark       field.String
-	Metadata     field.Field
-	DeletedAt    field.Uint
-	ResourceType field.String // 资源类型: api / data / menu / component
-	ResourceCode field.String // 资源唯一标识
+	ALL       field.Asterisk
+	ID        field.Uint64
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	CreatedBy field.Uint64
+	UpdatedBy field.Uint64
+	IsEnabled field.Bool
+	Remark    field.String
+	Metadata  field.Field
+	DeletedAt field.Uint
+	Type      field.String // 资源类型: api / data / menu / component
+	Code      field.String // 资源唯一标识
+	Name      field.String // 资源名称
 
 	fieldMap map[string]field.Expr
 }
@@ -84,8 +86,9 @@ func (s *sysResource) updateTableName(table string) *sysResource {
 	s.Remark = field.NewString(table, "remark")
 	s.Metadata = field.NewField(table, "metadata")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
-	s.ResourceType = field.NewString(table, "resource_type")
-	s.ResourceCode = field.NewString(table, "resource_code")
+	s.Type = field.NewString(table, "type")
+	s.Code = field.NewString(table, "code")
+	s.Name = field.NewString(table, "name")
 
 	s.fillFieldMap()
 
@@ -102,7 +105,7 @@ func (s *sysResource) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysResource) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 11)
+	s.fieldMap = make(map[string]field.Expr, 12)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -112,8 +115,9 @@ func (s *sysResource) fillFieldMap() {
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["metadata"] = s.Metadata
 	s.fieldMap["deleted_at"] = s.DeletedAt
-	s.fieldMap["resource_type"] = s.ResourceType
-	s.fieldMap["resource_code"] = s.ResourceCode
+	s.fieldMap["type"] = s.Type
+	s.fieldMap["code"] = s.Code
+	s.fieldMap["name"] = s.Name
 }
 
 func (s sysResource) clone(db *gorm.DB) sysResource {
