@@ -12,9 +12,11 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite-plus'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd(), '')
+
   return {
+    base: env.GITHUB_ACTIONS === 'true' ? '/template/' : '/',
     staged: {
       '*': '',
     },
@@ -48,7 +50,7 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks(id) {
+          manualChunks(id: string) {
             // React 核心
             if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
               return 'vendor-react'
