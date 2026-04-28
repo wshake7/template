@@ -34,22 +34,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 准备node环境
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: lts/*
+          node-version: 'lts/*'
+          cache: true
 
-      #  安装npm依赖
       - name: Install and Build
         run: |
-          curl -fsSL https://vite.plus | bash
-          echo "=== which vp ==="
-          which vp || echo "not in PATH"
-          echo "=== find vp ==="
-          find $HOME -name "vp" -type f 2>/dev/null
-          echo "=== PATH ==="
-          echo $PATH
+          vp install
           vp run admin-react#build
 
       # 验证环境
