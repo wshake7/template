@@ -40,7 +40,7 @@
 2. 在 `internal/services/init.go` 按依赖顺序注入 `conf.Fiber.Services`。
 3. 如果依赖包级客户端，如 `orm.Client` 或 `redisc.Client`，确认依赖已先初始化。
 4. `State` 要能反映健康状态，`Terminate` 要释放资源。
-5. 在 `backend/admin` 执行 `go fix ./...`、`go test ./...`。
+5. 在 `backend/admin` 执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 
 ## 注意事项
 

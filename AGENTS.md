@@ -91,9 +91,9 @@
 
 ### Backend
 
-- 只要修改 `backend/**` 代码，提交结果前必须在对应模块目录执行：`go fix ./...`、`go test ./...`
+- 只要修改 `backend/**` 代码，提交结果前必须在对应模块目录执行：`go fix ./...`、`go vet ./...`、`go test ./...`
 - 若修改 `backend/admin` 中涉及 Swagger 注释的内容，必须在 `backend/admin` 目录执行 `make swagger`
-- 涉及多个 backend 模块时，在每个受影响模块分别执行 `go fix ./...`、`go test ./...`
+- 涉及多个 backend 模块时，在每个受影响模块分别执行 `go fix ./...`、`go vet ./...`、`go test ./...`
 - 如果命令失败，先询问用户是否需要继续修复。
 
 ### Docs / Skills

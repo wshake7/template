@@ -34,7 +34,7 @@
 2. 改错误语义时，只在全局 `ErrorHandler` 统一调整。
 3. 改优雅关闭时，集中在关闭函数和 hooks 中处理。
 4. 新增上下文能力时，优先扩展 `handler.Ctx`。
-5. 修改完成后在 `backend/admin` 执行 `go fix ./...`、`go test ./...`。
+5. 修改完成后在 `backend/admin` 执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 
 ## 注意事项
 

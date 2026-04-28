@@ -33,7 +33,7 @@
 4. 写操作补 `OperationLogMiddleware(middleware.WithModule("<module>"))`。
 5. 涉及数据库时使用 `query.Xxx`、`models.Xxx`、`gormc.PagingResult`。
 6. 涉及 Swagger 注释时执行 `make swagger`。
-7. 最后执行 `go fix ./...`、`go test ./...`。
+7. 最后执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 
 ## Handler 风格
 
@@ -64,6 +64,7 @@ go run ./cmd/main.go -f ./etc/config.yaml
 go run ./cmd/scripts/orm
 make swagger
 go fix ./...
+go vet ./...
 go test ./...
 ```
 

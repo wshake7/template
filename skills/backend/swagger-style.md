@@ -50,7 +50,7 @@
 2. 检查 `@Tags` 是否对应业务模块。
 3. 检查 `@Router` 路径和 method 是否与路由注册一致。
 4. 在 `backend/admin` 执行 `make swagger`。
-5. 再执行 `go fix ./...`、`go test ./...`。
+5. 再执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 
 ## 注意事项
 

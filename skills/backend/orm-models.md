@@ -55,7 +55,7 @@ _, err := sysResource.Where(sysResource.ID.Eq(req.ID)).UpdateSimple(exprs...)
 2. 需要新表或字段时修改 `models/*.go`，并确认已注册到 `models.Models`。
 3. 执行 `go run ./cmd/scripts/orm` 更新 query 生成代码。
 4. 回到 logic 层用 `query.Xxx` 字段表达式组织条件和更新。
-5. 执行 `go fix ./...`、`go test ./...`。
+5. 执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 
 ## 注意事项
 
