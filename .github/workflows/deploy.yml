@@ -41,13 +41,10 @@ jobs:
           node-version: lts/*
 
       #  安装npm依赖
-      - name: Install dependencies
-        run: curl -fsSL https://vite.plus | bash
-
-      # 构建
-      - name: Build
-        run: vp run admin-react#build # ← 补上构建，生成 dist/
-        working-directory: . # ← 如果 package.json 在 ./ 下
+      - name: Install and Build
+        run: |
+          curl -fsSL https://vite.plus | bash
+          vp run admin-react#build
 
       # 验证环境
       - name: Setup Pages
