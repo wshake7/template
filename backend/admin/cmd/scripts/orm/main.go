@@ -67,6 +67,16 @@ func genUserAdd() {
 		LastLoginIP: "",
 		SysRoles:    nil,
 	})
+	_ = sysUser.Create(&models.SysUser{
+		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
+		DeletedAt:   0,
+		Username:    "admin",
+		Nickname:    "",
+		Password:    pwd,
+		LastLoginAt: nil,
+		LastLoginIP: "",
+		SysRoles:    nil,
+	})
 }
 
 func dbGenCode(db *gorm.DB, models []any) {

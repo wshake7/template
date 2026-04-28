@@ -68,7 +68,7 @@ function normalizeParams(params: Record<string, any> | string): Record<string, a
 }
 
 const API = createAlova({
-  baseURL: import.meta.env.MODE === 'dev' ? gEnv.VITE_MOCK ? '' : '' : gEnv.VITE_API_URL,
+  baseURL: gEnv.VITE_MOCK ? '' : '',
   statesHook: reactHook,
   cacheFor: null,
   requestAdapter: adapterFetch(),

@@ -30,12 +30,12 @@ func newSysCasbinModel(db *gorm.DB, opts ...gen.DOOption) sysCasbinModel {
 	_sysCasbinModel.ID = field.NewUint64(tableName, "id")
 	_sysCasbinModel.CreatedAt = field.NewTime(tableName, "created_at")
 	_sysCasbinModel.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_sysCasbinModel.DeletedAt = field.NewTime(tableName, "deleted_at")
 	_sysCasbinModel.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysCasbinModel.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysCasbinModel.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysCasbinModel.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysCasbinModel.Remark = field.NewString(tableName, "remark")
+	_sysCasbinModel.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysCasbinModel.Name = field.NewString(tableName, "name")
 	_sysCasbinModel.Content = field.NewString(tableName, "content")
 
@@ -51,12 +51,12 @@ type sysCasbinModel struct {
 	ID        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
-	DeletedAt field.Time
 	CreatedBy field.Uint64
 	UpdatedBy field.Uint64
 	DeletedBy field.Uint64
 	IsEnabled field.Bool
 	Remark    field.String
+	DeletedAt field.Uint
 	Name      field.String // 模型名称
 	Content   field.String // 模型内容
 
@@ -78,12 +78,12 @@ func (s *sysCasbinModel) updateTableName(table string) *sysCasbinModel {
 	s.ID = field.NewUint64(table, "id")
 	s.CreatedAt = field.NewTime(table, "created_at")
 	s.UpdatedAt = field.NewTime(table, "updated_at")
-	s.DeletedAt = field.NewTime(table, "deleted_at")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
+	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.Name = field.NewString(table, "name")
 	s.Content = field.NewString(table, "content")
 
@@ -106,12 +106,12 @@ func (s *sysCasbinModel) fillFieldMap() {
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
-	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark
+	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["content"] = s.Content
 }

@@ -3,6 +3,7 @@ package logic
 import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
+	datapermission "admin/internal/services/orm/data_permission"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"errors"
@@ -50,11 +51,21 @@ type ReqDictTypeBatchDelete struct {
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysDictType]} "成功"
 // @Router /api/dict/type/list [post]
 func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictType], error) {
+	if err := applyDictTypeDataPermission(ctx, req); err != nil {
+		ctx.L().Error("apply dict type data permission failed", zap.Error(err))
+		return nil, res.FailDefault
+	}
+
 	pagination, err := query.SysDictType.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
 	return pagination, nil
+}
+
+func applyDictTypeDataPermission(ctx *handler.Ctx, req *v1.PagingRequest) error {
+	subjects := datapermission.BuildSessionSubjects(ctx.SessionInfo.Id, ctx.SessionInfo.RoleIDs)
+	return datapermission.ApplyPageFilter(req, "sys_dict_type", subjects)
 }
 
 // @Summary 创建字典类型

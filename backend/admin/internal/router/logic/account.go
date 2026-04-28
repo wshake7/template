@@ -38,7 +38,12 @@ type ResAccountPwdLogin struct {
 func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*ResAccountPwdLogin, error) {
 	logger := ctx.L().With(zap.String("username", req.Username))
 	sysUser := query.SysUser
-	result, err := sysUser.Where(sysUser.Username.Eq(req.Username)).Select(sysUser.ID, sysUser.Password).First()
+	sysRole := query.SysRole
+	result, err := sysUser.
+		Preload(sysUser.SysRoles.Select(sysRole.ID, sysRole.Code).On(sysRole.IsEnabled.Is(true))).
+		Where(sysUser.Username.Eq(req.Username)).
+		Select(sysUser.ID, sysUser.Username, sysUser.Password).
+		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("用户名或密码无效")
@@ -51,6 +56,21 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	if !passwd.Match(req.Pwd, result.Password) {
 		return nil, errors.New("用户名或密码无效")
 	}
+	roles := result.SysRoles
+	roleCodes := make([]string, 0, len(roles))
+	roleIDs := make([]uint64, 0, len(roles))
+	for _, role := range roles {
+		if !role.IsEnabled.IsEnabled {
+			continue
+		}
+		if role.Code != "" {
+			roleCodes = append(roleCodes, role.Code)
+		}
+		if role.ID > 0 {
+			roleIDs = append(roleIDs, role.ID)
+		}
+	}
+
 	token, err := stputil.Login(result.ID)
 	if err != nil {
 		logger.Error("获取token失败", zap.Error(err))
@@ -72,6 +92,9 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	err = session.SaveInfo(&auth.SessionInfo{
 		PrivateKey: privateKey,
 		Id:         result.ID,
+		Username:   result.Username,
+		RoleCodes:  roleCodes,
+		RoleIDs:    roleIDs,
 	})
 	if err != nil {
 		logger.Error("保存SessionInfo错误", zap.Error(err))

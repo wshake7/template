@@ -35,11 +35,13 @@ func newSysDataPermission(db *gorm.DB, opts ...gen.DOOption) sysDataPermission {
 	_sysDataPermission.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysDataPermission.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDataPermission.DeletedAt = field.NewUint(tableName, "deleted_at")
+	_sysDataPermission.SubjectEffect = field.NewString(tableName, "subject_effect")
 	_sysDataPermission.SubjectType = field.NewString(tableName, "subject_type")
 	_sysDataPermission.SubjectID = field.NewUint64(tableName, "subject_id")
 	_sysDataPermission.ResourceTable = field.NewString(tableName, "resource_table")
 	_sysDataPermission.Action = field.NewField(tableName, "action")
 	_sysDataPermission.ScopeType = field.NewString(tableName, "scope_type")
+	_sysDataPermission.ScopeField = field.NewString(tableName, "scope_field")
 	_sysDataPermission.ScopeValues = field.NewField(tableName, "scope_values")
 	_sysDataPermission.Conditions = field.NewField(tableName, "conditions")
 	_sysDataPermission.Priority = field.NewInt(tableName, "priority")
@@ -61,14 +63,16 @@ type sysDataPermission struct {
 	UpdatedBy     field.Uint64
 	IsEnabled     field.Bool
 	DeletedAt     field.Uint
-	SubjectType   field.String // 主体类型(USER/ROLE)
-	SubjectID     field.Uint64 // 主体ID
-	ResourceTable field.String // 资源表名
-	Action        field.Field  // 操作(read/write/delete)
-	ScopeType     field.String // scope类型(all/none/include/exclude/owner/custom)
-	ScopeValues   field.Field  // scope值(ID集合)
-	Conditions    field.Field  // 行级条件
-	Priority      field.Int    // 优先级，多角色冲突时使用
+	SubjectEffect field.String // effect type(allow/deny)
+	SubjectType   field.String // subject type(USER/ROLE/ANY_USER/ANY_ROLE)
+	SubjectID     field.Uint64 // subject ID, 0 for ANY_*
+	ResourceTable field.String // resource table name
+	Action        field.Field  // actions(read/write/delete)
+	ScopeType     field.String // scope type(all/none/include/exclude/owner/custom)
+	ScopeField    field.String // field matched by scope_values
+	ScopeValues   field.Field  // scope values
+	Conditions    field.Field  // row filter conditions
+	Priority      field.Int    // priority for multi-role conflict
 
 	fieldMap map[string]field.Expr
 }
@@ -93,11 +97,13 @@ func (s *sysDataPermission) updateTableName(table string) *sysDataPermission {
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
+	s.SubjectEffect = field.NewString(table, "subject_effect")
 	s.SubjectType = field.NewString(table, "subject_type")
 	s.SubjectID = field.NewUint64(table, "subject_id")
 	s.ResourceTable = field.NewString(table, "resource_table")
 	s.Action = field.NewField(table, "action")
 	s.ScopeType = field.NewString(table, "scope_type")
+	s.ScopeField = field.NewString(table, "scope_field")
 	s.ScopeValues = field.NewField(table, "scope_values")
 	s.Conditions = field.NewField(table, "conditions")
 	s.Priority = field.NewInt(table, "priority")
@@ -117,7 +123,7 @@ func (s *sysDataPermission) GetFieldByName(fieldName string) (field.OrderExpr, b
 }
 
 func (s *sysDataPermission) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 16)
+	s.fieldMap = make(map[string]field.Expr, 18)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -126,11 +132,13 @@ func (s *sysDataPermission) fillFieldMap() {
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["deleted_at"] = s.DeletedAt
+	s.fieldMap["subject_effect"] = s.SubjectEffect
 	s.fieldMap["subject_type"] = s.SubjectType
 	s.fieldMap["subject_id"] = s.SubjectID
 	s.fieldMap["resource_table"] = s.ResourceTable
 	s.fieldMap["action"] = s.Action
 	s.fieldMap["scope_type"] = s.ScopeType
+	s.fieldMap["scope_field"] = s.ScopeField
 	s.fieldMap["scope_values"] = s.ScopeValues
 	s.fieldMap["conditions"] = s.Conditions
 	s.fieldMap["priority"] = s.Priority

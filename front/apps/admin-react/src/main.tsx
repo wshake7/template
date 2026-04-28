@@ -7,7 +7,7 @@ import GlobalMessage from './utils/antd'
 import '~/styles/index.css'
 
 async function prepare() {
-  if (import.meta.env.MODE === 'dev') {
+  if (import.meta.env.VITE_MOCK === 'true') {
     const { worker } = await import('./mocks/browser')
     await waitForHydration()
     return worker.start({ onUnhandledRequest: 'bypass' })

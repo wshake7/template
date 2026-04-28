@@ -1,6 +1,9 @@
 package models
 
-import "orm-crud/gormc/mixin"
+import (
+	"gorm.io/plugin/soft_delete"
+	"orm-crud/gormc/mixin"
+)
 
 func init() {
 	Models = append(Models, &SysCasbinModel{})
@@ -8,13 +11,15 @@ func init() {
 
 type SysCasbinModel struct {
 	mixin.AutoIncrementID
-	mixin.TimeAt
+	mixin.CreatedAt
+	mixin.UpdatedAt
 	mixin.CreatedBy
 	mixin.OperatorID
 	mixin.IsEnabled
 	mixin.Remark
-	Name    string `gorm:"column:name;type:varchar(255);not null;uniqueIndex;comment:模型名称" json:"name"`
-	Content string `gorm:"column:content;type:text;not null;comment:模型内容" json:"content"`
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;softDelete:milli;not null;default:0;index" json:"deletedAt"`
+	Name      string                `gorm:"column:name;type:varchar(255);not null;uniqueIndex;comment:模型名称" json:"name"`
+	Content   string                `gorm:"column:content;type:text;not null;comment:模型内容" json:"content"`
 }
 
 func (SysCasbinModel) TableName() string {

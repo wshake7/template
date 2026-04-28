@@ -30,12 +30,12 @@ func newSysDictEntry(db *gorm.DB, opts ...gen.DOOption) sysDictEntry {
 	_sysDictEntry.ID = field.NewUint64(tableName, "id")
 	_sysDictEntry.CreatedAt = field.NewTime(tableName, "created_at")
 	_sysDictEntry.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_sysDictEntry.DeletedAt = field.NewTime(tableName, "deleted_at")
 	_sysDictEntry.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysDictEntry.UpdatedBy = field.NewUint64(tableName, "updated_by")
 	_sysDictEntry.SortOrder = field.NewInt32(tableName, "sort_order")
 	_sysDictEntry.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictEntry.Remark = field.NewString(tableName, "remark")
+	_sysDictEntry.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysDictEntry.EntryLabel = field.NewString(tableName, "entry_label")
 	_sysDictEntry.EntryValue = field.NewString(tableName, "entry_value")
 	_sysDictEntry.LanguageCode = field.NewString(tableName, "language_code")
@@ -71,12 +71,12 @@ type sysDictEntry struct {
 	ID            field.Uint64
 	CreatedAt     field.Time
 	UpdatedAt     field.Time
-	DeletedAt     field.Time
 	CreatedBy     field.Uint64
 	UpdatedBy     field.Uint64
 	SortOrder     field.Int32
 	IsEnabled     field.Bool
 	Remark        field.String
+	DeletedAt     field.Uint
 	EntryLabel    field.String // 字典项的显示标签
 	EntryValue    field.String // 字典项的实际值
 	LanguageCode  field.String // 语言代码
@@ -101,12 +101,12 @@ func (s *sysDictEntry) updateTableName(table string) *sysDictEntry {
 	s.ID = field.NewUint64(table, "id")
 	s.CreatedAt = field.NewTime(table, "created_at")
 	s.UpdatedAt = field.NewTime(table, "updated_at")
-	s.DeletedAt = field.NewTime(table, "deleted_at")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
 	s.SortOrder = field.NewInt32(table, "sort_order")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
+	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.EntryLabel = field.NewString(table, "entry_label")
 	s.EntryValue = field.NewString(table, "entry_value")
 	s.LanguageCode = field.NewString(table, "language_code")
@@ -131,12 +131,12 @@ func (s *sysDictEntry) fillFieldMap() {
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
-	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
 	s.fieldMap["sort_order"] = s.SortOrder
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark
+	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["entry_label"] = s.EntryLabel
 	s.fieldMap["entry_value"] = s.EntryValue
 	s.fieldMap["language_code"] = s.LanguageCode

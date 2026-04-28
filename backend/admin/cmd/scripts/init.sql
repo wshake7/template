@@ -17,7 +17,7 @@ VALUES
     1,
     NULL,
     NULL,
-    NULL,
+    0,
     0,
     0,
     0,
@@ -61,11 +61,36 @@ VALUES
     0,
     0,
     true,
-    NULL,
+    0,
     '超级管理员',
     'root',
     NULL,
     '[]'
+  );
+
+INSERT INTO
+"public"."sys_user_role"(
+  "id",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "is_enabled",
+  "user_id",
+  "role_id",
+  "deleted_at"
+)
+VALUES
+  (
+    1,
+    NULL,
+    NULL,
+    0,
+    0,
+    true,
+    1,
+    1,
+    0
   );
 
 INSERT INTO
@@ -77,7 +102,6 @@ INSERT INTO
     "updated_by",
     "is_enabled",
     "sort_order",
-    "description",
     "deleted_at",
     "type_code",
     "type_name",
@@ -92,7 +116,6 @@ VALUES
     0,
     true,
     0,
-    '',
     0,
     'system:is_enabled',
     '开关状态',
@@ -120,7 +143,7 @@ VALUES
     1,
     null,
     null,
-    NULL,
+    0,
     0,
     0,
     0,
@@ -153,7 +176,7 @@ VALUES
     2,
     null,
     null,
-    NULL,
+    0,
     0,
     0,
     0,
@@ -175,11 +198,13 @@ INSERT INTO
     "updated_by",
     "is_enabled",
     "deleted_at",
+    "subject_effect",
     "subject_type",
     "subject_id",
     "resource_table",
     "action",
     "scope_type",
+    "scope_field",
     "scope_values",
     "conditions",
     "priority"
@@ -189,17 +214,62 @@ VALUES
     1,
     NULL,
     NULL,
-    '',
+    'root can read all dict types',
     0,
     0,
     true,
-    NULL,
+    0,
+    'allow',
     'ROLE',
     1,
     'sys_dict_type',
     '["read"]',
     'all',
+    'id',
     '[]',
-    '{"type_code": "system:is_enabled"}',
+    '{}',
+    100
+  );
+
+INSERT INTO
+  "public"."sys_data_permission" (
+    "id",
+    "created_at",
+    "updated_at",
+    "remark",
+    "created_by",
+    "updated_by",
+    "is_enabled",
+    "deleted_at",
+    "subject_effect",
+    "subject_type",
+    "subject_id",
+    "resource_table",
+    "action",
+    "scope_type",
+    "scope_field",
+    "scope_values",
+    "conditions",
+    "priority"
+  )
+VALUES
+  (
+    2,
+    NULL,
+    NULL,
+    'all roles can read dict types except status:is_enabled',
+    0,
+    0,
+    true,
+    0,
+    'allow',
+    'ANY_ROLE',
+    0,
+    'sys_dict_type',
+    '["read"]',
+    'custom',
+    'id',
+    '[]',
+    '{"typeCode__not": "status:is_enabled"}',
     0
   );

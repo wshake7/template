@@ -18,7 +18,8 @@ type SessionInfo struct {
 	PrivateKey string   `json:"privateKey"`
 	Id         uint64   `json:"id"`
 	Username   string   `json:"username"`
-	Roles      []string `json:"roles"`
+	RoleCodes  []string `json:"roleCodes"`
+	RoleIDs    []uint64 `json:"roleIDs"`
 }
 
 type Session struct {

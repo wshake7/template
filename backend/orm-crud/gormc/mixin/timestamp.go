@@ -92,7 +92,7 @@ func (m *UpdatedAtTimestamp) BeforeSave(tx *gorm.DB) (err error) {
 
 // DeletedAtTimestamp (deleted_at)
 type DeletedAtTimestamp struct {
-	DeletedAt int64 `gorm:"column:deleted_at;type:bigint;index;default:0" json:"deletedAt"`
+	DeletedAt int64 `gorm:"column:deleted_at;type:bigint;index;not null;default:0" json:"deletedAt"`
 }
 
 func (m *DeletedAtTimestamp) BeforeDelete(tx *gorm.DB) (err error) {

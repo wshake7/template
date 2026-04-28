@@ -12,7 +12,7 @@ func CasbinAPIMiddleware() fiber.Handler {
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
 		info := ctx.SessionInfo
 
-		roles := info.Roles
+		roles := info.RoleCodes
 
 		// 构建所有 subject（逐个尝试，any match = allow）
 		subjects := []string{fmt.Sprintf("user:%d", info.Id)}
