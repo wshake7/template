@@ -1,70 +1,55 @@
-# 状态管理 (Zustand)
+# Admin 状态管理
 
 ## 场景与目标
-- 适用场景：新增/修改全局状态时
-- 目标：统一使用 Zustand，保持 store 定义风格一致
+
+- 适用场景：新增或修改 `front/apps/admin-react/src/stores/**`。
+- 目标：全局状态统一使用 Zustand，组件局部状态留在组件内。
 
 ## 目录/文件位置
-- `src/stores/account.ts` - 账户状态（token、登录信息）
-- `src/stores/device.ts` - 设备信息
-- `src/stores/theme.ts` - 主题状态
-- `src/stores/menuTabs.ts` - 多标签页状态
-- `src/stores/mock.ts` - Mock 开关状态
 
-## 核心依赖
-- `zustand`：轻量状态管理
-- `immer`：不可变数据
-- `persist`：持久化中间件
+- 账户：`front/apps/admin-react/src/stores/account.ts`
+- 设备：`front/apps/admin-react/src/stores/device.ts`
+- 主题：`front/apps/admin-react/src/stores/theme.ts`
+- 多标签页：`front/apps/admin-react/src/stores/menuTabs.ts`
+- Mock 开关：`front/apps/admin-react/src/stores/mock.ts`
 
-## Account Store
+## 当前约定
 
-位置：`src/stores/account.ts`
+- 全局共享、跨页面复用、需要持久化的状态才进 store。
+- 局部表单、弹窗、表格选择等状态优先 `useState` / `useReducer`。
+- 复杂不可变更新可组合 `immer`。
+- 需要持久化时使用 Zustand `persist`。
+
+## 常用模式
 
 ```typescript
 import { useAccountStore } from '~/stores/account'
 
-// 获取状态
-const { token, account } = useAccountStore()
-
-// 登录
+const { token } = useAccountStore()
 useAccountStore.getState().login(token)
-
-// 登出
 useAccountStore.getState().logout()
 ```
 
-## Theme Store
-
-位置：`src/stores/theme.ts`
-
 ```typescript
-import { useThemeStore, useAntTheme } from '~/stores/theme'
+import { useAntTheme, useThemeStore } from '~/stores/theme'
 
-// 获取当前主题类型
-const currentTheme = useThemeStore.getState().themeType
+const current = useThemeStore.getState().themeType
+useThemeStore.getState().setThemeType('default')
 
-// 切换主题
-useThemeStore.getState().setThemeType('default') // 'default' | 'cartoon' | 'shadcn'
-
-// 在组件中获取 antd 可用主题对象
 const { theme, themeType, setThemeType } = useAntTheme()
 ```
 
-## Device Store
+## 新增 store 步骤
 
-位置：`src/stores/device.ts` - 设备相关信息（屏幕尺寸等）
-
-## MenuTabs Store
-
-位置：`src/stores/menuTabs.ts` - 多标签页状态管理
-
-## Mock Store
-
-位置：`src/stores/mock.ts` - Mock 服务开关
+1. 先确认状态是否跨页面共享或需要持久化。
+2. 在 `src/stores/<name>.ts` 定义 state、actions 和 hook。
+3. action 命名使用动词，如 `setThemeType`、`login`、`logout`。
+4. 需要在路由上下文或顶层组件使用时，同步检查 `src/router.ts` 和 `_app.tsx`。
+5. 补充使用处并执行 `vp staged`。
 
 ## 注意事项
 
-1. 状态管理优先使用 Zustand，避免 Redux 过度复杂
-2. 全局状态才放 store，组件局部状态用 `useState`/`useReducer`
-3. 需要使用不可变更新时组合 `immer` 中间件
-4. 需要持久化时组合 `persist` 中间件
+1. 不为单页面弹窗、搜索词、分页状态建立 store。
+2. store 中不直接写 UI 组件逻辑。
+3. 持久化字段要谨慎，避免保存临时或敏感信息。
+4. 账户、设备和主题已有约定，优先复用已有 store。

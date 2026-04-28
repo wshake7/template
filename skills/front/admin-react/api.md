@@ -1,67 +1,88 @@
-# API 请求层
+# Admin API 请求层
 
 ## 场景与目标
-- 适用场景：新增/修改前端 API 请求时
-- 目标：统一使用 Alova 请求库，保持 API 定义风格一致
+
+- 适用场景：新增或修改 `front/apps/admin-react/src/api/*.ts`。
+- 目标：统一 Alova 请求定义、响应类型、分页列表和写操作风格。
 
 ## 目录/文件位置
-- API 实例配置：`src/api/index.ts`
-- 按资源拆分：`src/api/account.ts`、`dict.ts`、`encrypt.ts`、`operationLog.ts`、`role.ts`
 
-## 核心依赖
-- `alova`：类 Axios 的跨平台请求库
-- `API` 实例（`src/api/index.ts`）：预配置了 Token 认证、AES+RSA 加密、响应拦截、NProgress
+- API 实例：`front/apps/admin-react/src/api/index.ts`
+- 资源 API：`front/apps/admin-react/src/api/*.ts`
+- 分页类型：`front/apps/admin-react/src/domains/page.ts`
+- HTTP 类型和响应码：`front/apps/admin-react/src/domains/http.ts`
 
-## API 实例配置
+## 当前约定
 
-位置：`src/api/index.ts`
+- 一个资源一个 API 文件，如 `role.ts`、`resource.ts`、`dict.ts`。
+- 默认导入 API 实例：`import API from './index'`。
+- 列表函数返回 Alova Method，由页面的 `usePagination` 负责 `.send()`。
+- 创建、更新、删除函数内部调用 `.send()`。
+- 分页列表设置 `cacheFor: 0`。
+- 请求和响应类型在资源 API 文件内就近定义。
 
-已配置的能力：
-- Token 认证（从 AccountStore 读取）
-- AES + RSA 混合加密
-- 响应拦截器
-- NProgress 进度条
-
-## 定义新的 API
-
-一个资源一个文件，通过 `DictApi` 对象聚合导出：
+## API 模板
 
 ```typescript
-// src/api/dict.ts
-import type { Res, PagingRequest, PagingResult } from '~/domains/page'
-import API from '~/api'
+import type { PagingRequest, PagingResult } from '~/domains/page'
+import API from './index'
 
-async function typeList(req: PagingRequest) {
-  return await API.Post<Res<PagingResult<DictType>>>('/api/sys/dict/type/list', req, {
-    cacheFor: 0,
-  }).send()
+export interface Resource {
+  id: number
+  code: string
+  name: string
 }
 
-export const DictApi = {
-  typeList, typeCreate, typeUpdate, typeSwitch, typeDel,
+export interface ReqResourceCreate {
+  code: string
+  name: string
+}
+
+export interface ReqResourceUpdate extends Partial<ReqResourceCreate> {
+  id: number
+}
+
+export interface ReqResourceBatchDelete {
+  ids: number[]
+}
+
+function resourceList(req: PagingRequest) {
+  return API.Post<Res<PagingResult<Resource>>>('/api/sys/resource/list', req, {
+    cacheFor: 0,
+  })
+}
+
+async function resourceCreate(req: ReqResourceCreate) {
+  await API.Post<Res>('/api/sys/resource/create', req, { cacheFor: 0 }).send()
+}
+
+export const ResourceApi = {
+  resourceList,
+  resourceCreate,
 }
 ```
 
-## 请求方法规范
+## 命名规则
 
-- 统一使用 `API.Post` 发起请求
-- 分页列表：`cacheFor: 0` 禁用缓存
-- 请求/响应类型就近定义，分页基础结构复用 `src/domains/page.ts`
-- 接口命名语义化：`typeList`、`typeCreate`、`typeUpdate`、`typeSwitch`、`typeDel`
+- API 对象：`<Resource>Api`
+- 列表：`resourceList`
+- 创建：`resourceCreate`
+- 更新：`resourceUpdate`
+- 删除：`resourceDel`
+- 批量操作：`resourceBatchXxx`
+- 请求类型：`Req<Resource><Action>`
+- 响应数据类型：业务名，如 `Resource`
 
-## 现有 API 文件一览
+## 与页面联动
 
-| 文件 | 职责 |
-|------|------|
-| `src/api/account.ts` | 账户登录/登出/信息 |
-| `src/api/dict.ts` | 数据字典 CRUD |
-| `src/api/encrypt.ts` | 加密公钥获取 |
-| `src/api/operationLog.ts` | 操作日志查询 |
-| `src/api/role.ts` | 角色管理 CRUD |
+1. `usePagination` 中传入 `ResourceApi.resourceList(params)`。
+2. 写操作成功后调用页面的 `send()` 刷新列表。
+3. 搜索过滤通过 `PagingRequest.query` 传 JSON 字符串。
+4. 后端新增字段后，同步检查 API 类型、表格列和表单 schema。
 
 ## 注意事项
 
-1. 不直接使用 fetch/axios，统一走 Alova
-2. 响应类型使用 `Res<T>` 泛型，错误由拦截器统一处理
-3. 分页参数复用 `PagingRequest`，避免重复定义分页 DTO
-4. API 文件只做请求定义，不做业务编排
+1. 不在页面里直接使用 `fetch` 或 `axios`。
+2. API 文件只定义请求和类型，不写组件状态。
+3. 加密、token、错误提示等横切逻辑留在 `src/api/index.ts`。
+4. `PagingRequest.query` 语法见 `skills/backend/orm-query.md`。

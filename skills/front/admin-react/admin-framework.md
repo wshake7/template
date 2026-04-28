@@ -1,199 +1,82 @@
-# Admin 开发框架
+# Admin React 开发框架
 
-本项目是基于 React + TanStack Router + Ant Design 的管理后台应用。
+## 场景与目标
+
+- 适用场景：开始任何 `front/apps/admin-react` 页面、路由、布局、菜单、API、store、主题或测试任务。
+- 目标：快速定位结构、技术栈和最小执行路径。
 
 ## 技术栈
 
-- **路由**: @tanstack/react-router (类型安全的路由)
-- **UI 框架**: Ant Design v6 + antd-style
-- **状态管理**: Zustand (支持 immer 和 persist)
-- **数据请求**: Alova (类 Axios 的跨平台请求库)
-- **加密**: AES + RSA 混合加密
+- 路由：`@tanstack/react-router`
+- UI：`antd` v6、`@ant-design/pro-components`、`antd-style`
+- 请求：`alova`
+- 状态：`zustand`、`immer`、`persist`
+- 表单校验：`zod` + `useZodForm`
+- 国际化：`i18next`、`react-i18next`
+- Mock：`msw`
+- 测试：Playwright E2E / React CT
+- 工具链：Vite+、TypeScript、ESLint
 
-## package.json 组件清单
+## 目录/文件位置
 
-### 根目录 package.json（工作区入口）
-
-位置: `package.json`
-
-- 主要脚本:
-  - `vp run admin-react#dev`：启动 admin-react 开发
-  - `vp run admin-react#build`：构建 admin-react
-  - `vp run lint:fix`：修复 lint
-  - `vp run build -r`：递归执行工作区构建
-- 关键开发依赖:
-  - `vite-plus`：统一工具链入口
-  - `eslint` / `@antfu/eslint-config`：代码规范与校验
-
-### Admin package.json（front/apps/admin-react）
-
-位置: `front/apps/admin-react/package.json`
-
-- UI 与样式:
-  - `antd`、`@ant-design/pro-components`、`antd-style`
-  - `@ant-design/icons`、`@emotion/css`
-  - `class-variance-authority`、`clsx`
-  - `lucide-react`、`motion`
-- 路由与调试:
-  - `@tanstack/react-router`
-  - `@tanstack/react-router-devtools`
-  - `@tanstack/react-devtools`（dev）
-  - `@tanstack/router-plugin`（dev）
-- 状态与数据请求:
-  - `zustand`、`immer`
-  - `alova`
-  - `js-cookie`、`nprogress`
-- 国际化与校验:
-  - `i18next`、`react-i18next`
-  - `i18next-browser-languagedetector`
-  - `zod`
-- Mock 与测试:
-  - `msw`
-  - `@playwright/test`
-  - `@playwright/experimental-ct-react`
-  - `@faker-js/faker`
-- 构建与工程化:
-  - `vite`、`@vitejs/plugin-react`
-  - `vite-plugin-pwa`
-  - `unplugin-auto-import`
-  - `typescript`
-
-### 依赖版本策略（catalog）
-
-- `catalog:build`：运行时依赖（生产依赖）
-- `catalog:dev`：开发依赖（构建、测试、类型、工具）
-- 版本统一在工作区 catalog 管理，避免子包各自漂移
-
-## 目录结构
-
-```
-front/apps/admin-react/src/
-├── api/          # API 请求定义
-├── components/   # React 组件
-│   ├── business/ # 业务组件
-│   └── lib/      # 工具组件
-├── config/       # 配置
-│   └── themes/   # 主题配置
-├── domains/      # 领域模型 (类型定义、常量)
-├── lib/          # 库代码 (SEO等)
-├── mocks/        # MSW 模拟服务
-├── routes/       # 路由页面组件
-├── stores/       # Zustand 状态库
-└── utils/        # 工具函数
+```text
+front/apps/admin-react/
+├── locales/                 # i18n 资源
+├── public/                  # 静态资源、MSW worker
+├── tests/                   # E2E 测试
+└── src/
+    ├── api/                 # Alova API
+    ├── components/          # 通用和业务组件
+    ├── config/themes/       # 主题配置
+    ├── domains/             # 领域类型、HTTP 常量
+    ├── mocks/               # MSW handlers
+    ├── routes/              # TanStack 文件路由
+    ├── stores/              # Zustand stores
+    ├── styles/              # 全局样式
+    └── utils/               # 应用工具
 ```
 
-## 路由开发
+## 路由与菜单
 
-### 路由文件位置
-- 路由配置: `src/routeTree.gen.ts` (自动生成)
-- 路由注册: `src/router.ts`
-- 页面组件: `src/routes/` 目录下
+- 路由文件位于 `src/routes/`。
+- `src/routeTree.gen.ts` 是生成文件，不手动编辑。
+- `src/router.ts` 扩展了 `staticData.menu` 类型。
+- 菜单信息写在路由的 `staticData.menu` 中。
 
-### 添加新页面
-1. 在 `src/routes/` 下创建页面组件
-2. 在对应父路由文件中定义子路由
-3. 运行 `vp dev` 自动生成 `routeTree.gen.ts`
-
-### 菜单配置
-使用 `staticData.menu` 配置菜单属性:
 ```typescript
-// 在路由的 staticData 中配置
-staticData: {
-  menu: {
-    path: '/dashboard',
-    name: '仪表盘',
-    menuType: 'menu', // 'menu' | 'catalog' | 'title'
-    roles: ['admin', 'user'],
-  }
-}
+export const Route = createFileRoute('/_app/system/resource')({
+  staticData: {
+    menu: {
+      name: '资源管理',
+      menuType: 'menu',
+    },
+  },
+  staleTime: 1000 * 60 * 2,
+  component: RouteComponent,
+})
 ```
 
-菜单工具函数位于 `src/utils/menu.ts`:
-- `getMenu(route)` - 获取菜单配置
-- `filterValidMenu(routes)` - 过滤有效菜单
-- `groupByParentId(routes)` - 按父ID分组
+## 开发步骤
 
-## 领域模型
-
-位置: `src/domains/`
-
-- `account.ts` - 账户相关类型
-- `encrypt.ts` - 加密相关类型
-- `http.ts` - HTTP 通用类型
-- `page.ts` - 分页请求/响应基础结构
-
-## Mock 服务
-
-位置: `src/mocks/`
-
-使用 MSW (Mock Service Worker) 进行接口模拟:
-- `handlers/index.ts` - 合并所有 handler
-- `browser.ts` - 浏览器环境 mock
-- `node.ts` - Node 环境 mock
-
-## 环境变量
-
-位置: `front/apps/admin-react/.env.*`
-
-- `.env` - 默认环境
-- `.env.dev` - 开发环境
-- `.env.test` - 测试环境
-- `.env.prod` - 生产环境
+1. 用 `rg --files front/apps/admin-react/src/routes` 找目标路由或相近页面。
+2. 页面任务优先读父级路由、相近页面、相关 API 文件和 `src/domains/page.ts`。
+3. 新增路由时只写 `src/routes/**` 文件，不手动改 `routeTree.gen.ts`。
+4. 页面内局部状态使用 React state；跨页面共享状态才进入 `src/stores/`。
+5. 请求统一走 `src/api/index.ts` 导出的 Alova 实例。
+6. 完成 `front/**` 改动后执行 `vp staged`。
 
 ## 常用命令
 
 ```bash
-# 根目录启动 admin-react 开发
 vp run admin-react#dev
-
-# 根目录构建 admin-react
 vp run admin-react#build
-
-# E2E 测试
 vp run admin-react#e2e:test
-vp run admin-react#e2e:test-ui    # UI 模式
-vp run admin-react#e2e:show       # 查看报告
-vp run admin-react#e2e:codegen    # 生成测试代码
+vp staged
 ```
 
-## 相关 Skills
+## 注意事项
 
-- [CRUD 页面开发](crud-page.md) - ProTable + usePagination + ModalForm 模式
-- [API 请求层](api.md) - Alova 请求定义规范
-- [状态管理](stores.md) - Zustand store 定义规范
-- [Ant Design 主题配置](antd-theme.md) - 主题切换与配置
-- [国际化](i18n.md) - i18next 多语言
-- [E2E 测试](playwright-e2e.md) - Playwright 端到端测试
-
-## 开发注意事项
-
-1. 路由变更后由开发流程自动更新 `routeTree.gen.ts`，不要手改该文件
-2. API 请求使用 Alova，不直接使用 fetch/axios
-3. 状态管理优先使用 Zustand，避免 Redux 过于复杂
-4. 组件放在 `components/business/` 或 `components/lib/` 下
-5. 工具函数放在 `utils/` 下，领域逻辑放在 `domains/` 下
-
-## 低 Token 执行清单（Admin）
-
-用于减少前端任务中的上下文消耗，默认按以下顺序执行：
-
-1. 先定位再读取
-   - 先用 `Glob` 找页面/接口文件（如 `routes/**`、`api/**`）
-   - 再用 `Grep` 找符号（组件名、接口路径、store 名）
-   - 最后只 `Read` 命中的关键文件
-2. 新增页面最小读取集
-   - `src/routes/_app.tsx`（布局约束）
-   - 目标父级路由文件（如 `src/routes/_app/account.tsx`）
-   - 目标页面文件（如 `src/routes/_app/account/user.tsx`）
-   - 对应 `src/api/*.ts` 与 `src/domains/*.ts`
-3. 角色/列表页优先复用模式
-   - 表格优先 `ProTable`
-   - 弹窗表单优先 `ModalForm`
-   - 请求优先复用 `API.Get/Post(...).send()` 封装
-4. 避免高消耗文件反复读取
-   - `src/routeTree.gen.ts` 仅在路由异常时查看
-   - `auto-imports.d.ts` 仅在类型提示异常时查看
-5. 命令执行节奏
-   - 开发阶段优先局部验证（类型/页面行为）
-   - 改动收敛后再执行一次：`vp run lint:fix`
-   - 命令失败先汇报错误原因，不重复盲跑
+1. 文案当前以中文为主；新增多语言需求时同步 `locales/zh.json`。
+2. 生成文件只作为校验结果查看，避免手改。
+3. 新增库或 API 用法问题必须按 `AGENTS.md` 使用 Context7 查询当前文档。
+4. CRUD 细节见 `crud-page.md`，请求层见 `api.md`。
