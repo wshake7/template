@@ -44,6 +44,12 @@ jobs:
       - name: Install and Build
         run: |
           curl -fsSL https://vite.plus | bash
+          echo "=== which vp ==="
+          which vp || echo "not in PATH"
+          echo "=== find vp ==="
+          find $HOME -name "vp" -type f 2>/dev/null
+          echo "=== PATH ==="
+          echo $PATH
           vp run admin-react#build
 
       # 验证环境
