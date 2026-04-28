@@ -45,6 +45,29 @@ export default defineConfig(({ mode }) => {
       __VUE_PROD_DEVTOOLS__: true,
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // React 核心
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'vendor-react'
+            }
+            // TanStack 系列
+            if (id.includes('node_modules/@tanstack')) {
+              return 'vendor-tanstack'
+            }
+            if (id.includes('zod')) {
+              return 'vendor-zod'
+            }
+            // 其他 node_modules 统一打成 vendor
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
+          },
+        },
+      },
+    },
     plugins: [
       // DevTools(),
       // Inject(),
