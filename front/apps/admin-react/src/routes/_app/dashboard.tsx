@@ -14,7 +14,7 @@ function RouteComponent() {
   return (
     <>
       <p>---------------</p>
-      <div>Test Action1 Hello "/_app/dashboard"!</div>
+      <div>Test Action12 Hello "/_app/dashboard"!</div>
       <p>---------------</p>
     </>
   )
