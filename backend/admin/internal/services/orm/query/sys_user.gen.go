@@ -33,6 +33,7 @@ func newSysUser(db *gorm.DB, opts ...gen.DOOption) sysUser {
 	_sysUser.Remark = field.NewString(tableName, "remark")
 	_sysUser.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysUser.UpdatedBy = field.NewUint64(tableName, "updated_by")
+	_sysUser.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysUser.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysUser.DeletedAt = field.NewUint(tableName, "deleted_at")
 	_sysUser.Username = field.NewString(tableName, "username")
@@ -71,6 +72,7 @@ type sysUser struct {
 	Remark      field.String
 	CreatedBy   field.Uint64
 	UpdatedBy   field.Uint64
+	DeletedBy   field.Uint64
 	IsEnabled   field.Bool
 	DeletedAt   field.Uint
 	Username    field.String // 用户名
@@ -101,6 +103,7 @@ func (s *sysUser) updateTableName(table string) *sysUser {
 	s.Remark = field.NewString(table, "remark")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
+	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
 	s.Username = field.NewString(table, "username")
@@ -124,13 +127,14 @@ func (s *sysUser) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysUser) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 14)
+	s.fieldMap = make(map[string]field.Expr, 15)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
+	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["deleted_at"] = s.DeletedAt
 	s.fieldMap["username"] = s.Username

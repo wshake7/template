@@ -1,275 +1,241 @@
-INSERT INTO
-  "public"."sys_casbin_model" (
-    "id",
-    "created_at",
-    "updated_at",
-    "deleted_at",
-    "created_by",
-    "updated_by",
-    "deleted_by",
-    "is_enabled",
-    "remark",
-    "name",
-    "content"
-  )
-VALUES
-  (
-    1,
-    NULL,
-    NULL,
-    0,
-    0,
-    0,
-    0,
-    true,
-    '',
-    'pbac',
-    '[request_definition]
-            r = sub, obj, act
+INSERT INTO "public"."sys_casbin_model" ("id",
+                                         "created_at",
+                                         "updated_at",
+                                         "deleted_at",
+                                         "created_by",
+                                         "updated_by",
+                                         "deleted_by",
+                                         "is_enabled",
+                                         "remark",
+                                         "name",
+                                         "content")
+VALUES (1,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        0,
+        true,
+        '',
+        'pbac',
+        '[request_definition]
+                r = sub, obj, act
 
-            [policy_definition]
-            p = sub_rule, obj_rule, act
+                [policy_definition]
+                p = sub_rule, obj_rule, act
 
-            [policy_effect]
-            e = some(where (p.eft == allow))
+                [policy_effect]
+                e = some(where (p.eft == allow))
 
-            [matchers]
-            m = eval(p.sub_rule) && eval(p.obj_rule) && r.act == p.act'
-  );
+                [matchers]
+                m = eval(p.sub_rule) && eval(p.obj_rule) && r.act == p.act');
 
-INSERT INTO
-  "public"."sys_role" (
-    "id",
-    "created_at",
-    "updated_at",
-    "remark",
-    "created_by",
-    "updated_by",
-    "is_enabled",
-    "deleted_at",
-    "name",
-    "code",
-    "parent_id",
-    "child_ids"
-  )
-VALUES
-  (
-    1,
-    NULL,
-    NULL,
-    '',
-    0,
-    0,
-    true,
-    0,
-    '超级管理员',
-    'root',
-    NULL,
-    '[]'
-  );
+INSERT INTO "public"."sys_role" ("id",
+                                 "created_at",
+                                 "updated_at",
+                                 "remark",
+                                 "created_by",
+                                 "updated_by",
+                                 "deleted_by",
+                                 "is_enabled",
+                                 "deleted_at",
+                                 "name",
+                                 "code",
+                                 "parent_id",
+                                 "child_ids")
+VALUES (1,
+        NULL,
+        NULL,
+        '',
+        0,
+        0,
+        0,
+        true,
+        0,
+        '超级管理员',
+        'root',
+        NULL,
+        '[]');
 
-INSERT INTO
-"public"."sys_user_role"(
-  "id",
-  "created_at",
-  "updated_at",
-  "created_by",
-  "updated_by",
-  "is_enabled",
-  "user_id",
-  "role_id",
-  "deleted_at"
-)
-VALUES
-  (
-    1,
-    NULL,
-    NULL,
-    0,
-    0,
-    true,
-    1,
-    1,
-    0
-  );
+INSERT INTO "public"."sys_user_role"("id",
+                                     "created_at",
+                                     "updated_at",
+                                     "created_by",
+                                     "updated_by",
+                                     "deleted_by",
+                                     "user_id",
+                                     "role_id",
+                                     "deleted_at")
+VALUES (1,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0);
 
-INSERT INTO
-  "public"."sys_dict_type" (
-    "id",
-    "created_at",
-    "updated_at",
-    "created_by",
-    "updated_by",
-    "is_enabled",
-    "sort_order",
-    "deleted_at",
-    "type_code",
-    "type_name",
-    "remark"
-  )
-VALUES
-  (
-    1,
-    null,
-    null,
-    0,
-    0,
-    true,
-    0,
-    0,
-    'system:is_enabled',
-    '开关状态',
-    ''
-  );
+INSERT INTO "public"."sys_dict_type" ("id",
+                                      "created_at",
+                                      "updated_at",
+                                      "created_by",
+                                      "updated_by",
+                                      "deleted_by",
+                                      "is_enabled",
+                                      "sort_order",
+                                      "deleted_at",
+                                      "type_code",
+                                      "type_name",
+                                      "remark")
+VALUES (1,
+        null,
+        null,
+        0,
+        0,
+        0,
+        true,
+        0,
+        0,
+        'system:is_enabled',
+        '开关状态',
+        '');
 
-INSERT INTO
-  "public"."sys_dict_entry" (
-    "id",
-    "created_at",
-    "updated_at",
-    "deleted_at",
-    "created_by",
-    "updated_by",
-    "sort_order",
-    "is_enabled",
-    "remark",
-    "entry_label",
-    "entry_value",
-    "language_code",
-    "sys_dict_type_id"
-  )
-VALUES
-  (
-    1,
-    null,
-    null,
-    0,
-    0,
-    0,
-    0,
-    true,
-    '',
-    '启用',
-    '1',
-    '',
-    1
-  );
+INSERT INTO "public"."sys_dict_entry" ("id",
+                                       "created_at",
+                                       "updated_at",
+                                       "deleted_at",
+                                       "created_by",
+                                       "updated_by",
+                                       "deleted_by",
+                                       "sort_order",
+                                       "is_enabled",
+                                       "remark",
+                                       "entry_label",
+                                       "entry_value",
+                                       "language_code",
+                                       "sys_dict_type_id")
+VALUES (1,
+        null,
+        null,
+        0,
+        0,
+        0,
+        0,
+        0,
+        true,
+        '',
+        '启用',
+        '1',
+        '',
+        1);
 
-INSERT INTO
-  "public"."sys_dict_entry" (
-    "id",
-    "created_at",
-    "updated_at",
-    "deleted_at",
-    "created_by",
-    "updated_by",
-    "sort_order",
-    "is_enabled",
-    "remark",
-    "entry_label",
-    "entry_value",
-    "language_code",
-    "sys_dict_type_id"
-  )
-VALUES
-  (
-    2,
-    null,
-    null,
-    0,
-    0,
-    0,
-    0,
-    true,
-    '',
-    '停用',
-    '0',
-    '',
-    1
-  );
+INSERT INTO "public"."sys_dict_entry" ("id",
+                                       "created_at",
+                                       "updated_at",
+                                       "deleted_at",
+                                       "created_by",
+                                       "updated_by",
+                                       "deleted_by",
+                                       "sort_order",
+                                       "is_enabled",
+                                       "remark",
+                                       "entry_label",
+                                       "entry_value",
+                                       "language_code",
+                                       "sys_dict_type_id")
+VALUES (2,
+        null,
+        null,
+        0,
+        0,
+        0,
+        0,
+        0,
+        true,
+        '',
+        '停用',
+        '0',
+        '',
+        1);
 
-INSERT INTO
-  "public"."sys_data_permission" (
-    "id",
-    "created_at",
-    "updated_at",
-    "remark",
-    "created_by",
-    "updated_by",
-    "is_enabled",
-    "deleted_at",
-    "subject_effect",
-    "subject_type",
-    "subject_id",
-    "resource_table",
-    "action",
-    "scope_type",
-    "scope_field",
-    "scope_values",
-    "conditions",
-    "priority"
-  )
-VALUES
-  (
-    1,
-    NULL,
-    NULL,
-    'root can read all dict types',
-    0,
-    0,
-    true,
-    0,
-    'allow',
-    'ROLE',
-    1,
-    'sys_dict_type',
-    '["read"]',
-    'all',
-    'id',
-    '[]',
-    '{}',
-    100
-  );
+INSERT INTO "public"."sys_data_permission" ("id",
+                                            "created_at",
+                                            "updated_at",
+                                            "remark",
+                                            "created_by",
+                                            "updated_by",
+                                            "deleted_by",
+                                            "is_enabled",
+                                            "deleted_at",
+                                            "subject_type",
+                                            "subject_id",
+                                            "resource_table",
+                                            "action",
+                                            "scope_type",
+                                            "scope_field",
+                                            "scope_values",
+                                            "conditions",
+                                            "priority")
+VALUES (1,
+        NULL,
+        NULL,
+        'root can read all dict types',
+        0,
+        0,
+        0,
+        true,
+        0,
+        'ROLE',
+        1,
+        'sys_dict_type',
+        '[
+          "read"
+        ]',
+        'all',
+        'id',
+        '[]',
+        '{}',
+        100);
 
-INSERT INTO
-  "public"."sys_data_permission" (
-    "id",
-    "created_at",
-    "updated_at",
-    "remark",
-    "created_by",
-    "updated_by",
-    "is_enabled",
-    "deleted_at",
-    "subject_effect",
-    "subject_type",
-    "subject_id",
-    "resource_table",
-    "action",
-    "scope_type",
-    "scope_field",
-    "scope_values",
-    "conditions",
-    "priority"
-  )
-VALUES
-  (
-    2,
-    NULL,
-    NULL,
-    'all roles can read dict types except status:is_enabled',
-    0,
-    0,
-    true,
-    0,
-    'allow',
-    'ANY_ROLE',
-    0,
-    'sys_dict_type',
-    '["read"]',
-    'custom',
-    'id',
-    '[]',
-    '{"typeCode__not": "status:is_enabled"}',
-    0
-  );
+INSERT INTO "public"."sys_data_permission" ("id",
+                                            "created_at",
+                                            "updated_at",
+                                            "remark",
+                                            "created_by",
+                                            "updated_by",
+                                            "deleted_by",
+                                            "is_enabled",
+                                            "deleted_at",
+                                            "subject_type",
+                                            "subject_id",
+                                            "resource_table",
+                                            "action",
+                                            "scope_type",
+                                            "scope_field",
+                                            "scope_values",
+                                            "conditions",
+                                            "priority")
+VALUES (2,
+        NULL,
+        NULL,
+        'all roles can read dict types except status:is_enabled',
+        0,
+        0,
+        0,
+        true,
+        0,
+        'ANY_ROLE',
+        0,
+        'sys_dict_type',
+        '[
+          "read"
+        ]',
+        'custom',
+        'id',
+        '[]',
+        '{
+          "typeCode__not": "status:is_enabled"
+        }',
+        0);

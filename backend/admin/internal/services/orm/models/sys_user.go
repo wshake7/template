@@ -15,8 +15,7 @@ type SysUser struct {
 	mixin.CreatedAt
 	mixin.UpdatedAt
 	mixin.Remark
-	mixin.CreatedBy
-	mixin.UpdatedBy
+	mixin.OperatorID
 	mixin.IsEnabled
 	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;softDelete:milli;not null;default:0;uniqueIndex:idx_sys_user_username_deleted_at,priority:2" json:"deletedAt"`
 	Username    string                `gorm:"column:username;type:varchar(64);not null;uniqueIndex:idx_sys_user_username_deleted_at,priority:1;comment:用户名" json:"username"`

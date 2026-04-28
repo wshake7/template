@@ -32,6 +32,7 @@ func newSysLanguageEntry(db *gorm.DB, opts ...gen.DOOption) sysLanguageEntry {
 	_sysLanguageEntry.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_sysLanguageEntry.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysLanguageEntry.UpdatedBy = field.NewUint64(tableName, "updated_by")
+	_sysLanguageEntry.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysLanguageEntry.SortOrder = field.NewInt32(tableName, "sort_order")
 	_sysLanguageEntry.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysLanguageEntry.Remark = field.NewString(tableName, "remark")
@@ -72,6 +73,7 @@ type sysLanguageEntry struct {
 	UpdatedAt         field.Time
 	CreatedBy         field.Uint64
 	UpdatedBy         field.Uint64
+	DeletedBy         field.Uint64
 	SortOrder         field.Int32
 	IsEnabled         field.Bool
 	Remark            field.String
@@ -101,6 +103,7 @@ func (s *sysLanguageEntry) updateTableName(table string) *sysLanguageEntry {
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
+	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.SortOrder = field.NewInt32(table, "sort_order")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
@@ -124,12 +127,13 @@ func (s *sysLanguageEntry) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (s *sysLanguageEntry) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 13)
+	s.fieldMap = make(map[string]field.Expr, 14)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
+	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["sort_order"] = s.SortOrder
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark

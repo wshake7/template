@@ -32,6 +32,7 @@ func newSysDictEntry(db *gorm.DB, opts ...gen.DOOption) sysDictEntry {
 	_sysDictEntry.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_sysDictEntry.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysDictEntry.UpdatedBy = field.NewUint64(tableName, "updated_by")
+	_sysDictEntry.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysDictEntry.SortOrder = field.NewInt32(tableName, "sort_order")
 	_sysDictEntry.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictEntry.Remark = field.NewString(tableName, "remark")
@@ -73,6 +74,7 @@ type sysDictEntry struct {
 	UpdatedAt     field.Time
 	CreatedBy     field.Uint64
 	UpdatedBy     field.Uint64
+	DeletedBy     field.Uint64
 	SortOrder     field.Int32
 	IsEnabled     field.Bool
 	Remark        field.String
@@ -103,6 +105,7 @@ func (s *sysDictEntry) updateTableName(table string) *sysDictEntry {
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
+	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.SortOrder = field.NewInt32(table, "sort_order")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
@@ -127,12 +130,13 @@ func (s *sysDictEntry) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (s *sysDictEntry) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 14)
+	s.fieldMap = make(map[string]field.Expr, 15)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
+	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["sort_order"] = s.SortOrder
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark

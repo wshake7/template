@@ -3,19 +3,22 @@ package datapermission
 import (
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
-	"encoding/json"
 	"errors"
 	"maps"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	paginationFilter "orm-crud/pagination/filter"
 	"slices"
 
+	"github.com/bytedance/sonic"
 	"gorm.io/gen/field"
 )
 
+type FilterAction string
+
 const (
-	effectAllow = "allow"
-	actionRead  = "read"
+	actionRead   = FilterAction("read")
+	actionWrite  = FilterAction("write")
+	actionDelete = FilterAction("delete")
 )
 
 type Subject struct {
@@ -23,12 +26,17 @@ type Subject struct {
 	ID   uint64
 }
 
+type permissionFilter struct {
+	query      map[string]any
+	fullAccess bool
+}
+
 func ApplyPageFilter(req *v1.PagingRequest, resourceTable string, subjects []Subject) error {
 	if req == nil {
 		return errors.New("paging request is nil")
 	}
 
-	permissionExpr, err := CommonFilterExpr(resourceTable, subjects)
+	permissionExpr, err := BuildFilterExpr(resourceTable, actionRead, subjects)
 	if err != nil {
 		return err
 	}
@@ -52,24 +60,22 @@ func ApplyPageFilter(req *v1.PagingRequest, resourceTable string, subjects []Sub
 	return nil
 }
 
-func CommonFilterExpr(resourceTable string, subjects []Subject) (*v1.FilterExpr, error) {
-	filterJSON, err := buildReadFilterJSON(resourceTable, subjects)
+func BuildFilterExpr(resourceTable string, action FilterAction, subjects []Subject) (*v1.FilterExpr, error) {
+	queryMap, err := buildActionFilterMap(resourceTable, action, subjects)
 	if err != nil {
 		return nil, err
 	}
-	if filterJSON == "" {
+	if queryMap == nil {
 		return nil, nil
 	}
-	return filterJSONToExpr(filterJSON)
+	return filterMapToExpr(queryMap)
 }
 
-func BuildSessionSubjects(userID uint64, roleIDs []uint64) []Subject {
+func BuildSubjects(userID uint64, roleIDs []uint64) []Subject {
 	subjects := []Subject{
 		{Type: "USER", ID: userID},
 		{Type: "ANY_USER", ID: 0},
-	}
-	if len(roleIDs) > 0 {
-		subjects = append(subjects, Subject{Type: "ANY_ROLE", ID: 0})
+		{Type: "ANY_ROLE", ID: 0},
 	}
 	for _, roleID := range roleIDs {
 		subjects = append(subjects, Subject{Type: "ROLE", ID: roleID})
@@ -77,38 +83,32 @@ func BuildSessionSubjects(userID uint64, roleIDs []uint64) []Subject {
 	return subjects
 }
 
-func buildReadFilterJSON(resourceTable string, subjects []Subject) (string, error) {
-	permissions, err := findReadCandidatePermissions(resourceTable, subjects)
+func buildActionFilterMap(resourceTable string, action FilterAction, subjects []Subject) (map[string]any, error) {
+	permissions, err := findCandidatePermissions(resourceTable, subjects)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	subjectSet := buildSubjectSet(subjects)
-	allowBranches := make([]any, 0)
+	allowBranches := make([]map[string]any, 0, len(permissions))
 	for _, permission := range permissions {
-		if !permissionAllowsSubject(permission, subjectSet) {
-			continue
-		}
-		if !permissionAllowsAction(permission, actionRead) {
+		if !permissionAllowsAction(permission, action) {
 			continue
 		}
 
-		condition, allScope, ok := buildPermissionFilterMap(permission)
+		filter, ok := buildPermissionFilter(permission)
 		if !ok {
 			continue
 		}
-		if allScope {
-			return "", nil
+		if filter.fullAccess {
+			return nil, nil
 		}
-		allowBranches = append(allowBranches, map[string]any{
-			"$and": []any{condition},
-		})
+		allowBranches = append(allowBranches, filter.query)
 	}
 
-	return joinAllowBranches(allowBranches)
+	return joinAllowBranches(allowBranches), nil
 }
 
-func findReadCandidatePermissions(resourceTable string, subjects []Subject) ([]*models.SysDataPermission, error) {
+func findCandidatePermissions(resourceTable string, subjects []Subject) ([]*models.SysDataPermission, error) {
 	subjectPredicates := buildSubjectPredicates(subjects)
 	if len(subjectPredicates) == 0 {
 		return nil, nil
@@ -119,7 +119,6 @@ func findReadCandidatePermissions(resourceTable string, subjects []Subject) ([]*
 		Where(
 			sysDataPermission.IsEnabled.Is(true),
 			sysDataPermission.ResourceTable.Eq(resourceTable),
-			field.Or(sysDataPermission.SubjectEffect.Eq(""), sysDataPermission.SubjectEffect.Eq(effectAllow)),
 			field.Or(subjectPredicates...),
 		).
 		Find()
@@ -136,62 +135,43 @@ func buildSubjectPredicates(subjects []Subject) []field.Expr {
 	return predicates
 }
 
-func buildSubjectSet(subjects []Subject) map[Subject]struct{} {
-	subjectSet := make(map[Subject]struct{}, len(subjects))
-	for _, subject := range subjects {
-		subjectSet[subject] = struct{}{}
-	}
-	return subjectSet
-}
-
-func permissionAllowsSubject(permission *models.SysDataPermission, subjectSet map[Subject]struct{}) bool {
-	if permission.SubjectEffect != "" && permission.SubjectEffect != effectAllow {
-		return false
-	}
-	_, ok := subjectSet[Subject{
-		Type: permission.SubjectType,
-		ID:   permission.SubjectID,
-	}]
-	return ok
-}
-
-func permissionAllowsAction(permission *models.SysDataPermission, action string) bool {
+func permissionAllowsAction(permission *models.SysDataPermission, action FilterAction) bool {
 	if len(permission.Action) == 0 {
 		return false
 	}
 
-	var actions []string
-	if err := json.Unmarshal(permission.Action, &actions); err != nil {
+	var actions []FilterAction
+	if err := sonic.Unmarshal(permission.Action, &actions); err != nil {
 		return false
 	}
 	return slices.Contains(actions, action)
 }
 
-func buildPermissionFilterMap(permission *models.SysDataPermission) (map[string]any, bool, bool) {
+func buildPermissionFilter(permission *models.SysDataPermission) (permissionFilter, bool) {
 	condition := map[string]any{}
 	maps.Copy(condition, permission.Conditions)
 
 	switch permission.ScopeType {
 	case "all":
-		return condition, len(condition) == 0, true
+		return permissionFilter{query: condition, fullAccess: len(condition) == 0}, true
 	case "custom":
-		return condition, len(condition) == 0, true
+		return permissionFilter{query: condition, fullAccess: len(condition) == 0}, true
 	case "include":
 		values, ok := parseScopeValues(permission)
 		if !ok {
-			return nil, false, false
+			return permissionFilter{}, false
 		}
 		condition[permission.ScopeField+"__in"] = values
-		return condition, false, true
+		return permissionFilter{query: condition}, true
 	case "exclude":
 		values, ok := parseScopeValues(permission)
 		if !ok {
-			return nil, false, false
+			return permissionFilter{}, false
 		}
 		condition[permission.ScopeField+"__not_in"] = values
-		return condition, false, true
+		return permissionFilter{query: condition}, true
 	default:
-		return nil, false, false
+		return permissionFilter{}, false
 	}
 }
 
@@ -201,7 +181,7 @@ func parseScopeValues(permission *models.SysDataPermission) ([]any, bool) {
 	}
 
 	var values []any
-	if err := json.Unmarshal(permission.ScopeValues, &values); err != nil {
+	if err := sonic.Unmarshal(permission.ScopeValues, &values); err != nil {
 		return nil, false
 	}
 	if len(values) == 0 {
@@ -210,28 +190,22 @@ func parseScopeValues(permission *models.SysDataPermission) ([]any, bool) {
 	return values, true
 }
 
-func joinAllowBranches(allowBranches []any) (string, error) {
+func joinAllowBranches(allowBranches []map[string]any) map[string]any {
 	if len(allowBranches) == 0 {
-		return mapToFilterJSON(map[string]any{"id": 0})
+		return map[string]any{"id": 0}
 	}
 	if len(allowBranches) == 1 {
-		if branch, ok := allowBranches[0].(map[string]any); ok {
-			return mapToFilterJSON(branch)
-		}
+		return allowBranches[0]
 	}
-	return mapToFilterJSON(map[string]any{"$or": allowBranches})
+	return map[string]any{"$or": allowBranches}
 }
 
-func mapToFilterJSON(queryMap map[string]any) (string, error) {
-	queryBytes, err := json.Marshal(queryMap)
+func filterMapToExpr(queryMap map[string]any) (*v1.FilterExpr, error) {
+	queryBytes, err := sonic.Marshal(queryMap)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(queryBytes), nil
-}
-
-func filterJSONToExpr(queryString string) (*v1.FilterExpr, error) {
 	return paginationFilter.ConvertFilterByPagingRequest(&v1.PagingRequest{
-		FilteringType: &v1.PagingRequest_Query{Query: queryString},
+		FilteringType: &v1.PagingRequest_Query{Query: string(queryBytes)},
 	})
 }

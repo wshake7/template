@@ -13,9 +13,7 @@ type SysUserRole struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.CreatedBy
-	mixin.UpdatedBy
-	mixin.IsEnabled
+	mixin.OperatorID
 	UserID    uint64                `gorm:"column:user_id;type:bigint;not null;comment:用户ID;index:idx_sys_user_role_user_id;uniqueIndex:idx_sys_user_role_user_id_role_id_delete_at,priority:1;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"userID"`
 	RoleID    uint64                `gorm:"column:role_id;type:bigint;not null;comment:角色ID;index:idx_sys_user_role_role_id;uniqueIndex:idx_sys_user_role_user_id_role_id_delete_at,priority:2;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"roleID"`
 	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;softDelete:milli;not null;default:0;uniqueIndex:idx_sys_user_role_user_id_role_id_delete_at,priority:3" json:"deletedAt"`

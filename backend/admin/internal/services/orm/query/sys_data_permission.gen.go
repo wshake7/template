@@ -33,9 +33,9 @@ func newSysDataPermission(db *gorm.DB, opts ...gen.DOOption) sysDataPermission {
 	_sysDataPermission.Remark = field.NewString(tableName, "remark")
 	_sysDataPermission.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysDataPermission.UpdatedBy = field.NewUint64(tableName, "updated_by")
+	_sysDataPermission.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysDataPermission.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDataPermission.DeletedAt = field.NewUint(tableName, "deleted_at")
-	_sysDataPermission.SubjectEffect = field.NewString(tableName, "subject_effect")
 	_sysDataPermission.SubjectType = field.NewString(tableName, "subject_type")
 	_sysDataPermission.SubjectID = field.NewUint64(tableName, "subject_id")
 	_sysDataPermission.ResourceTable = field.NewString(tableName, "resource_table")
@@ -61,18 +61,18 @@ type sysDataPermission struct {
 	Remark        field.String
 	CreatedBy     field.Uint64
 	UpdatedBy     field.Uint64
+	DeletedBy     field.Uint64
 	IsEnabled     field.Bool
 	DeletedAt     field.Uint
-	SubjectEffect field.String // effect type(allow/deny)
-	SubjectType   field.String // subject type(USER/ROLE/ANY_USER/ANY_ROLE)
-	SubjectID     field.Uint64 // subject ID, 0 for ANY_*
-	ResourceTable field.String // resource table name
-	Action        field.Field  // actions(read/write/delete)
-	ScopeType     field.String // scope type(all/none/include/exclude/owner/custom)
-	ScopeField    field.String // field matched by scope_values
-	ScopeValues   field.Field  // scope values
-	Conditions    field.Field  // row filter conditions
-	Priority      field.Int    // priority for multi-role conflict
+	SubjectType   field.String // 主体类型(USER/ROLE/ANY_USER/ANY_ROLE)
+	SubjectID     field.Uint64 // 主体ID，ANY_*时为0
+	ResourceTable field.String // 资源表名
+	Action        field.Field  // 操作列表(read/write/delete)
+	ScopeType     field.String // 作用域类型(all/none/include/exclude/owner/custom)
+	ScopeField    field.String // 用于匹配scope_values的字段
+	ScopeValues   field.Field  // 作用域值列表
+	Conditions    field.Field  // 行过滤条件
+	Priority      field.Int    // 多角色冲突时的优先级
 
 	fieldMap map[string]field.Expr
 }
@@ -95,9 +95,9 @@ func (s *sysDataPermission) updateTableName(table string) *sysDataPermission {
 	s.Remark = field.NewString(table, "remark")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
+	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
-	s.SubjectEffect = field.NewString(table, "subject_effect")
 	s.SubjectType = field.NewString(table, "subject_type")
 	s.SubjectID = field.NewUint64(table, "subject_id")
 	s.ResourceTable = field.NewString(table, "resource_table")
@@ -130,9 +130,9 @@ func (s *sysDataPermission) fillFieldMap() {
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
+	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["deleted_at"] = s.DeletedAt
-	s.fieldMap["subject_effect"] = s.SubjectEffect
 	s.fieldMap["subject_type"] = s.SubjectType
 	s.fieldMap["subject_id"] = s.SubjectID
 	s.fieldMap["resource_table"] = s.ResourceTable

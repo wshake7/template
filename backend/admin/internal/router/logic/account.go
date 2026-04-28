@@ -60,9 +60,6 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	roleCodes := make([]string, 0, len(roles))
 	roleIDs := make([]uint64, 0, len(roles))
 	for _, role := range roles {
-		if !role.IsEnabled.IsEnabled {
-			continue
-		}
 		if role.Code != "" {
 			roleCodes = append(roleCodes, role.Code)
 		}

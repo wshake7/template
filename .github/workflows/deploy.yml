@@ -1,0 +1,54 @@
+# name: Deploy to GitHub Pages
+# on:
+#   push:
+#     branches: [main, master]
+#     paths: ['site/**'] # 仅当 site/ 目录下有文件变动时才触发，避免无关改动浪费 runner 时间
+#   pull_request:
+#     branches: [main, master]
+#   workflow_dispatch: # 支持在 GitHub Actions 页面手动触发，方便强制重新部署
+
+# permissions:
+#   contents: read # 读取仓库代码
+#   pages: write # 写入 GitHub Pages
+#   id-token: write # 用于 OIDC 身份验证（deploy-pages 需要）
+
+# concurrency: # 并发控制
+#   group: pages # 同一时间只允许一个 pages 组的 workflow 在跑
+#   cancel-in-progress: false # 表示不取消正在进行的部署，新触发的会排队等待，保证部署完整性（若改为 true 则会打断旧部署，可能导致页面处于中间状态）
+
+# jobs:
+#   test:
+#     timeout-minutes: 60
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: github-pages
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Setup Pages
+#         uses: actions/configure-pages@v5
+#       # 准备node环境
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: lts/*
+#       #  安装npm依赖
+#       - name: Install dependencies
+#         run: npm install -g pnpm && pnpm install
+#       #  安装playwright浏览器
+#       - name: Install Playwright Browsers
+#         run: pnpm exec playwright install --with-deps
+#       #  运行playwright测试
+#       - name: Run Playwright tests
+#         run: pnpm exec playwright test
+#       - name: Upload
+#         uses: actions/upload-artifact@v4
+#         if: ${{ !cancelled() }}
+#         with:
+#           name: playwright-report
+#           path: playwright-report/
+#           retention-days: 30
+#       #  打包发布
+#       - name: Deploy
+#         id: deployment
+#         uses: actions/deploy-pages@v4

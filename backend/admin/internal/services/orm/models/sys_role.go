@@ -15,8 +15,7 @@ type SysRole struct {
 	mixin.CreatedAt
 	mixin.UpdatedAt
 	mixin.Remark
-	mixin.CreatedBy
-	mixin.UpdatedBy
+	mixin.OperatorID
 	mixin.IsEnabled
 	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;softDelete:milli;not null;default:0;uniqueIndex:idx_sys_role_code_deleted_at,priority:2" json:"deletedAt"`
 	Name      string                `gorm:"column:name;type:varchar(255);not null;comment:角色名称" json:"name"`

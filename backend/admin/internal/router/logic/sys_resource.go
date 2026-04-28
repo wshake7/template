@@ -64,8 +64,10 @@ func (*SysResourceHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 func (*SysResourceHandler) Create(ctx *handler.Ctx, req *ReqResourceCreate) error {
 	operationID := ctx.SessionInfo.Id
 	err := query.SysResource.Create(&models.SysResource{
-		CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
-		UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		OperatorID: mixin.OperatorID{
+			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		},
 		IsEnabled: mixin.IsEnabled{IsEnabled: req.IsEnabled},
 		Remark:    mixin.Remark{Remark: req.Remark},
 		Type:      req.Type,

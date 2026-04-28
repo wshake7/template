@@ -13,7 +13,6 @@ type SysCasbinModel struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.CreatedBy
 	mixin.OperatorID
 	mixin.IsEnabled
 	mixin.Remark

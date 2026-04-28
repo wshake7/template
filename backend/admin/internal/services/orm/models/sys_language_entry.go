@@ -14,8 +14,7 @@ type SysLanguageEntry struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.CreatedBy
-	mixin.UpdatedBy
+	mixin.OperatorID
 	mixin.SortOrder
 	mixin.IsEnabled
 	mixin.Remark

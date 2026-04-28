@@ -64,7 +64,7 @@ func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 }
 
 func applyDictTypeDataPermission(ctx *handler.Ctx, req *v1.PagingRequest) error {
-	subjects := datapermission.BuildSessionSubjects(ctx.SessionInfo.Id, ctx.SessionInfo.RoleIDs)
+	subjects := datapermission.BuildSubjects(ctx.SessionInfo.Id, ctx.SessionInfo.RoleIDs)
 	return datapermission.ApplyPageFilter(req, "sys_dict_type", subjects)
 }
 
@@ -80,8 +80,10 @@ func (*SysDictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) erro
 	operationID := ctx.SessionInfo.Id
 
 	err := query.SysDictType.Create(&models.SysDictType{
-		CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
-		UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		OperatorID: mixin.OperatorID{
+			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		},
 		IsEnabled: mixin.IsEnabled{IsEnabled: req.IsEnabled},
 		SortOrder: mixin.SortOrder{SortOrder: req.SortOrder},
 		Remark:    mixin.Remark{Remark: req.Remark},
@@ -275,8 +277,10 @@ func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) er
 	}
 
 	err = query.SysDictEntry.Create(&models.SysDictEntry{
-		CreatedBy:     mixin.CreatedBy{CreatedBy: operationID},
-		UpdatedBy:     mixin.UpdatedBy{UpdatedBy: operationID},
+		OperatorID: mixin.OperatorID{
+			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		},
 		SortOrder:     mixin.SortOrder{SortOrder: req.SortOrder},
 		IsEnabled:     mixin.IsEnabled{IsEnabled: req.IsEnabled},
 		Remark:        mixin.Remark{Remark: req.Remark},

@@ -79,8 +79,10 @@ func (*SysLanguageHandler) TypeCreate(ctx *handler.Ctx, req *ReqLangTypeCreate) 
 	operationID := ctx.SessionInfo.Id
 
 	err := sysLanguageType.Create(&models.SysLanguageType{
-		CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
-		UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		OperatorID: mixin.OperatorID{
+			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		},
 		IsEnabled: mixin.IsEnabled{IsEnabled: req.IsEnabled},
 		SortOrder: mixin.SortOrder{SortOrder: req.SortOrder},
 		TypeCode:  req.TypeCode,
@@ -199,13 +201,13 @@ type ReqLangEntryCreate struct {
 }
 
 type ReqLangEntryUpdate struct {
-	ID                *uint64               `json:"id"`
-	EntryCode         *string `json:"entryCode" binding:"omitempty,max=128" binding_msg:"max=条目编码最多128位"`
-	EntryValue        *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=语言值最多255位"`
-	SysLanguageTypeId *uint64 `json:"sysLanguageTypeId"`
-	SortOrder         *int32  `json:"sortOrder"`
-	IsEnabled         *bool   `json:"isEnabled"`
-	Remark            *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	ID                *uint64                  `json:"id"`
+	EntryCode         *string                  `json:"entryCode" binding:"omitempty,max=128" binding_msg:"max=条目编码最多128位"`
+	EntryValue        *string                  `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=语言值最多255位"`
+	SysLanguageTypeId *uint64                  `json:"sysLanguageTypeId"`
+	SortOrder         *int32                   `json:"sortOrder"`
+	IsEnabled         *bool                    `json:"isEnabled"`
+	Remark            *string                  `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 	Updates           []ReqLangEntryUpdateItem `json:"updates"`
 }
 
@@ -268,8 +270,10 @@ func (*SysLanguageHandler) EntryCreate(ctx *handler.Ctx, req *ReqLangEntryCreate
 		return res.FailDefault
 	}
 	err = query.SysLanguageEntry.Create(&models.SysLanguageEntry{
-		CreatedBy:         mixin.CreatedBy{CreatedBy: operationID},
-		UpdatedBy:         mixin.UpdatedBy{UpdatedBy: operationID},
+		OperatorID: mixin.OperatorID{
+			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+		},
 		SortOrder:         mixin.SortOrder{SortOrder: req.SortOrder},
 		IsEnabled:         mixin.IsEnabled{IsEnabled: req.IsEnabled},
 		Remark:            mixin.Remark{Remark: req.Remark},
@@ -428,8 +432,10 @@ func (*SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryB
 			updateEntries = append(updateEntries, existing)
 		} else {
 			createEntries = append(createEntries, &models.SysLanguageEntry{
-				CreatedBy:         mixin.CreatedBy{CreatedBy: operationID},
-				UpdatedBy:         mixin.UpdatedBy{UpdatedBy: operationID},
+				OperatorID: mixin.OperatorID{
+					CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+					UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+				},
 				SortOrder:         mixin.SortOrder{SortOrder: req.SortOrder},
 				IsEnabled:         mixin.IsEnabled{IsEnabled: req.IsEnabled},
 				EntryCode:         req.EntryCode,

@@ -32,6 +32,7 @@ func newSysResource(db *gorm.DB, opts ...gen.DOOption) sysResource {
 	_sysResource.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_sysResource.CreatedBy = field.NewUint64(tableName, "created_by")
 	_sysResource.UpdatedBy = field.NewUint64(tableName, "updated_by")
+	_sysResource.DeletedBy = field.NewUint64(tableName, "deleted_by")
 	_sysResource.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysResource.Remark = field.NewString(tableName, "remark")
 	_sysResource.Metadata = field.NewField(tableName, "metadata")
@@ -54,6 +55,7 @@ type sysResource struct {
 	UpdatedAt field.Time
 	CreatedBy field.Uint64
 	UpdatedBy field.Uint64
+	DeletedBy field.Uint64
 	IsEnabled field.Bool
 	Remark    field.String
 	Metadata  field.Field
@@ -82,6 +84,7 @@ func (s *sysResource) updateTableName(table string) *sysResource {
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 	s.CreatedBy = field.NewUint64(table, "created_by")
 	s.UpdatedBy = field.NewUint64(table, "updated_by")
+	s.DeletedBy = field.NewUint64(table, "deleted_by")
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
 	s.Metadata = field.NewField(table, "metadata")
@@ -105,12 +108,13 @@ func (s *sysResource) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysResource) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 12)
+	s.fieldMap = make(map[string]field.Expr, 13)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["created_by"] = s.CreatedBy
 	s.fieldMap["updated_by"] = s.UpdatedBy
+	s.fieldMap["deleted_by"] = s.DeletedBy
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["metadata"] = s.Metadata

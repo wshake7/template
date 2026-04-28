@@ -15,8 +15,7 @@ type SysResource struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.CreatedBy
-	mixin.UpdatedBy
+	mixin.OperatorID
 	mixin.IsEnabled
 	mixin.Remark
 	mixin.Metadata

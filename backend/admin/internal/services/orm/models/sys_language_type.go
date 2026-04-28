@@ -13,8 +13,7 @@ type SysLanguageType struct {
 	mixin.AutoIncrementID
 	mixin.CreatedAt
 	mixin.UpdatedAt
-	mixin.CreatedBy
-	mixin.UpdatedBy
+	mixin.OperatorID
 	mixin.SortOrder
 	mixin.IsEnabled
 	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;softDelete:milli;not null;default:0;uniqueIndex:idx_sys_language_type_code_deleted_at,priority:2" json:"deletedAt"`
