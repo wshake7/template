@@ -53,7 +53,7 @@ jobs:
       - name: Upload
         uses: actions/upload-pages-artifact@v3
         with:
-          path: front/admin-react/dist       # ← 指向你的构建产物目录
+          path: front/apps/admin-react/dist       # ← 指向你的构建产物目录
 
       - name: Deploy
         id: deployment
