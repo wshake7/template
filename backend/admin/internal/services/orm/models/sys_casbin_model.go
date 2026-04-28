@@ -10,10 +10,10 @@ type SysCasbinModel struct {
 	mixin.AutoIncrementID
 	mixin.TimeAt
 	mixin.CreatedBy
-	mixin.UpdatedBy
+	mixin.OperatorID
 	mixin.IsEnabled
 	mixin.Remark
-	Name    string `gorm:"column:name;type:varchar(255);not null;comment:模型名称" json:"name"`
+	Name    string `gorm:"column:name;type:varchar(255);not null;uniqueIndex;comment:模型名称" json:"name"`
 	Content string `gorm:"column:content;type:text;not null;comment:模型内容" json:"content"`
 }
 

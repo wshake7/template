@@ -20,6 +20,7 @@ declare global {
   const LangApi: typeof import('./api/language').LangApi
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
   const OperationLogApi: typeof import('./api/operationLog').OperationLogApi
+  const ResourceApi: typeof import('./api/resource').ResourceApi
   const RoleApi: typeof import('./api/role').RoleApi
   const Suspense: typeof import('react').Suspense
   const SysOperationLog: typeof import('./api/operationLog').SysOperationLog
@@ -198,4 +199,7 @@ declare global {
   // @ts-ignore
   export type { SysOperationLog, ReqLogDetail } from './api/operationLog'
   import('./api/operationLog')
+  // @ts-ignore
+  export type { Resource, ReqResourceCreate, ReqResourceUpdate, ReqResourceBatchDelete } from './api/resource'
+  import('./api/resource')
 }

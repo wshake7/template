@@ -2,14 +2,17 @@ package main
 
 import (
 	"admin/internal/config"
-	models2 "admin/internal/services/orm/models"
+	"admin/internal/services/orm/models"
+	"admin/internal/services/orm/query"
 	"fmt"
+	"go-common/utils/passwd"
 	"go-common/viperc"
 	"go.uber.org/zap"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 	"moul.io/zapgorm2"
 	gormCrud "orm-crud/gormc"
+	"orm-crud/gormc/mixin"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -38,7 +41,7 @@ func main() {
 	)
 
 	if conf.Orm.IsAutoMigrate {
-		options = append(options, gormCrud.WithAutoMigrate(models2.Models...))
+		options = append(options, gormCrud.WithAutoMigrate(models.Models...))
 	}
 
 	client, err := gormCrud.NewClient(options...)
@@ -46,16 +49,25 @@ func main() {
 		panic(err)
 	}
 
-	codeGenCode(client.DB, models2.Models)
-	//query.SetDefault(client.DB)
-	//genUserAdd()
+	codeGenCode(client.DB, models.Models)
+	query.SetDefault(client.DB)
+	genUserAdd()
 }
 
-//func genUserAdd() {
-//	sysUser := query.SysUser
-//	pwd, _ := passwd.Encode("123456")
-//	_ = sysUser.Create(&models2.SysUser{Username: "admin", Password: pwd})
-//}
+func genUserAdd() {
+	sysUser := query.SysUser
+	pwd, _ := passwd.Encode("123456")
+	_ = sysUser.Create(&models.SysUser{
+		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
+		DeletedAt:   0,
+		Username:    "root",
+		Nickname:    "",
+		Password:    pwd,
+		LastLoginAt: nil,
+		LastLoginIP: "",
+		SysRoles:    nil,
+	})
+}
 
 func dbGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{
