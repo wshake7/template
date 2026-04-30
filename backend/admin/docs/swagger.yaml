@@ -17,7 +17,9 @@ definitions:
       createdBy:
         type: integer
       deletedAt:
-        type: string
+        type: integer
+      deletedBy:
+        type: integer
       entryLabel:
         type: string
       entryValue:
@@ -49,6 +51,8 @@ definitions:
         type: integer
       deletedAt:
         type: integer
+      deletedBy:
+        type: integer
       entries:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysDictEntry'
@@ -78,6 +82,8 @@ definitions:
         type: integer
       deletedAt:
         type: integer
+      deletedBy:
+        type: integer
       entryCode:
         type: string
       entryValue:
@@ -106,6 +112,8 @@ definitions:
       createdBy:
         type: integer
       deletedAt:
+        type: integer
+      deletedBy:
         type: integer
       entries:
         items:
@@ -199,6 +207,8 @@ definitions:
         type: integer
       deletedAt:
         type: integer
+      deletedBy:
+        type: integer
       id:
         type: integer
       isEnabled:
@@ -232,12 +242,9 @@ definitions:
         type: string
       createdBy:
         type: integer
-      dataScope:
-        description: |-
-          Menus         datatypes.JSONSlice[uint64] `gorm:"column:menus;type:json;comment:分配的菜单列表" json:"menus"`
-          Apis          datatypes.JSONSlice[string] `gorm:"column:apis;type:json;comment:分配的API列表" json:"apis"`
-        type: string
       deletedAt:
+        type: integer
+      deletedBy:
         type: integer
       id:
         type: integer
@@ -246,11 +253,12 @@ definitions:
       name:
         type: string
       parentID:
+        description: |-
+          Menus         datatypes.JSONSlice[uint64] `gorm:"column:menus;type:json;comment:分配的菜单列表" json:"menus"`
+          Apis          datatypes.JSONSlice[string] `gorm:"column:apis;type:json;comment:分配的API列表" json:"apis"`
         type: integer
       parentSysRole:
         $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
-      path:
-        type: string
       remark:
         type: string
       updatedAt:
@@ -274,15 +282,6 @@ definitions:
       items:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysDictEntry'
-        type: array
-      total:
-        type: integer
-    type: object
-  gormc.PagingResult-admin_internal_services_orm_models_SysDictType:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/admin_internal_services_orm_models.SysDictType'
         type: array
       total:
         type: integer
@@ -328,6 +327,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-internal_router_logic_RespDictType:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespDictType'
         type: array
       total:
         type: integer
@@ -774,6 +782,41 @@ definitions:
       publicKey:
         type: string
     type: object
+  internal_router_logic.RespDictType:
+    properties:
+      canDelete:
+        type: boolean
+      canWrite:
+        type: boolean
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: integer
+      deletedBy:
+        type: integer
+      entries:
+        items:
+          $ref: '#/definitions/admin_internal_services_orm_models.SysDictEntry'
+        type: array
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      remark:
+        type: string
+      sortOrder:
+        type: integer
+      typeCode:
+        type: string
+      typeName:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
   v1.PagingRequest:
     properties:
       Sorting:
@@ -1086,7 +1129,7 @@ paths:
               - $ref: '#/definitions/admin_internal_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysDictType'
+                    $ref: '#/definitions/gormc.PagingResult-internal_router_logic_RespDictType'
                 type: object
       summary: 获取字典类型分页列表
       tags:

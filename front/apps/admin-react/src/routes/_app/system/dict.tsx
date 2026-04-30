@@ -215,52 +215,69 @@ function DictTypePanel({
       valueType: 'option',
       width: 220,
       fixed: 'right',
-      render: (_, record) => [
-        <a
-          key="edit"
-          onClick={(event) => {
-            event.stopPropagation()
-            openEdit(record)
-          }}
-        >
-          编辑
-        </a>,
-        <a
-          key="switch"
-          onClick={async (event) => {
-            event.stopPropagation()
-            await DictApi.typeUpdate({
-              id: record.id,
-              isEnabled: !record.isEnabled,
-            })
-            gMessage.success('操作成功')
-            await send()
-          }}
-        >
-          {record.isEnabled ? '停用' : '启用'}
-        </a>,
-        <Popconfirm
-          key="del"
-          title="确认删除该字典类型吗？"
-          onConfirm={async (event) => {
-            event?.stopPropagation()
-            await DictApi.typeDel({ ids: [record.id] })
-            gMessage.success('删除成功')
-            if (selectedType?.id === record.id) {
-              onDeleteSelectedType()
-            }
-            await send()
-          }}
-        >
-          <a
+      render: (_, record) => {
+        const canWrite = record.canWrite !== false
+        const canDelete = record.canDelete !== false
+        return [
+          <Button
+            key="edit"
+            type="link"
+            size="small"
+            disabled={!canWrite}
+            style={{ padding: 0 }}
             onClick={(event) => {
               event.stopPropagation()
+              openEdit(record)
             }}
           >
-            删除
-          </a>
-        </Popconfirm>,
-      ],
+            编辑
+          </Button>,
+          <Button
+            key="switch"
+            type="link"
+            size="small"
+            disabled={!canWrite}
+            style={{ padding: 0 }}
+            onClick={async (event) => {
+              event.stopPropagation()
+              await DictApi.typeUpdate({
+                id: record.id,
+                isEnabled: !record.isEnabled,
+              })
+              gMessage.success('操作成功')
+              await send()
+            }}
+          >
+            {record.isEnabled ? '停用' : '启用'}
+          </Button>,
+          <Popconfirm
+            key="del"
+            title="确认删除该字典类型吗？"
+            disabled={!canDelete}
+            onConfirm={async (event) => {
+              event?.stopPropagation()
+              await DictApi.typeDel({ ids: [record.id] })
+              gMessage.success('删除成功')
+              if (selectedType?.id === record.id) {
+                onDeleteSelectedType()
+              }
+              await send()
+            }}
+          >
+            <Button
+              type="link"
+              size="small"
+              disabled={!canDelete}
+              style={{ padding: 0 }}
+              onClick={(event) => {
+                event.stopPropagation()
+              }}
+            >
+              删除
+            </Button>
+          </Popconfirm>,
+        ]
+      },
     },
   ], [openEdit, selectedType?.id, onDeleteSelectedType, send, page, pageSize])
 
@@ -337,6 +354,9 @@ function DictTypePanel({
           onChange: (keys) => {
             setSelectedTypeIds(keys as number[])
           },
+          getCheckboxProps: record => ({
+            disabled: record.canDelete === false,
+          }),
         }}
         rowClassName={(record) => {
           const classes: string[] = []
@@ -354,10 +374,11 @@ function DictTypePanel({
           },
           onDragOver: (e) => {
             e.preventDefault()
-            e.dataTransfer.dropEffect = 'copy'
+            e.dataTransfer.dropEffect = record.canWrite === false ? 'none' : 'copy'
           },
           onDragEnter: (e) => {
             e.preventDefault()
+            if (record.canWrite === false) { return }
             setHoveredDropTypeId(record.id)
           },
           onDragLeave: () => {
@@ -366,6 +387,7 @@ function DictTypePanel({
           onDrop: (e) => {
             e.preventDefault()
             setHoveredDropTypeId(undefined)
+            if (record.canWrite === false) { return }
             const raw = e.dataTransfer.getData('text/plain')
             if (!raw) { return }
             try {
@@ -698,7 +720,7 @@ function DictEntryPanel({
                   </Popconfirm>
                 )
               : null}
-            <Button type="primary" disabled={!selectedType} onClick={openCreate}>
+            <Button type="primary" disabled={!selectedType || selectedType.canWrite === false} onClick={openCreate}>
               新增字典项
             </Button>
           </Space>,

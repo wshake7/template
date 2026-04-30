@@ -6,6 +6,7 @@ package query
 
 import (
 	field2 "gorm.io/gen/field"
+	"gorm.io/gorm"
 	"orm-crud/gormc/field"
 	"orm-crud/gormc/filter"
 	paging "orm-crud/gormc/pagination"
@@ -30,4 +31,18 @@ func ExprAppendSelf[T any](s1 *[]field2.AssignExpr, v *T, fn func(T) field2.Assi
 	if v != nil {
 		*s1 = append(*s1, fn(*v))
 	}
+}
+
+func WithDBScopes(scopes ...func(*gorm.DB) *gorm.DB) *Query {
+	if Q == nil || Q.db == nil || len(scopes) == 0 {
+		return Q
+	}
+
+	db := Q.db
+	for _, scope := range scopes {
+		if scope != nil {
+			db = scope(db)
+		}
+	}
+	return Q.ReplaceDB(db)
 }

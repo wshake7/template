@@ -402,7 +402,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysDictType"
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespDictType"
                                         }
                                     }
                                 }
@@ -1251,7 +1251,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "deletedAt": {
-                    "type": "string"
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
                 },
                 "entryLabel": {
                     "type": "string"
@@ -1300,6 +1303,9 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "integer"
                 },
+                "deletedBy": {
+                    "type": "integer"
+                },
                 "entries": {
                     "type": "array",
                     "items": {
@@ -1344,6 +1350,9 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "integer"
                 },
+                "deletedBy": {
+                    "type": "integer"
+                },
                 "entryCode": {
                     "type": "string"
                 },
@@ -1386,6 +1395,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
                     "type": "integer"
                 },
                 "entries": {
@@ -1527,6 +1539,9 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "integer"
                 },
+                "deletedBy": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1577,11 +1592,10 @@ const docTemplate = `{
                 "createdBy": {
                     "type": "integer"
                 },
-                "dataScope": {
-                    "description": "Menus         datatypes.JSONSlice[uint64] ` + "`" + `gorm:\"column:menus;type:json;comment:分配的菜单列表\" json:\"menus\"` + "`" + `\nApis          datatypes.JSONSlice[string] ` + "`" + `gorm:\"column:apis;type:json;comment:分配的API列表\" json:\"apis\"` + "`" + `",
-                    "type": "string"
-                },
                 "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
                     "type": "integer"
                 },
                 "id": {
@@ -1594,13 +1608,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parentID": {
+                    "description": "Menus         datatypes.JSONSlice[uint64] ` + "`" + `gorm:\"column:menus;type:json;comment:分配的菜单列表\" json:\"menus\"` + "`" + `\nApis          datatypes.JSONSlice[string] ` + "`" + `gorm:\"column:apis;type:json;comment:分配的API列表\" json:\"apis\"` + "`" + `",
                     "type": "integer"
                 },
                 "parentSysRole": {
                     "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
-                },
-                "path": {
-                    "type": "string"
                 },
                 "remark": {
                     "type": "string"
@@ -1636,20 +1648,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/admin_internal_services_orm_models.SysDictEntry"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "gormc.PagingResult-admin_internal_services_orm_models_SysDictType": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin_internal_services_orm_models.SysDictType"
                     }
                 },
                 "total": {
@@ -1720,6 +1718,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-internal_router_logic_RespDictType": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespDictType"
                     }
                 },
                 "total": {
@@ -2362,6 +2374,59 @@ const docTemplate = `{
             "properties": {
                 "publicKey": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_router_logic.RespDictType": {
+            "type": "object",
+            "properties": {
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canWrite": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysDictEntry"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "typeCode": {
+                    "type": "string"
+                },
+                "typeName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
                 }
             }
         },

@@ -7,6 +7,8 @@ export interface DictType {
   isEnabled: boolean
   sortOrder: number
   remark: string
+  canWrite?: boolean
+  canDelete?: boolean
 }
 
 export interface DictEntry {
