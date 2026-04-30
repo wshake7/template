@@ -61,6 +61,8 @@
 - GitHub Actions 工作流位于 `.github/workflows/deploy.yml`。
 - 当前 CI 主要面向前端部署：push 到 `main` / `master` 且 `front/**` 变更时触发，使用 `voidzero-dev/setup-vp@v1` 安装构建，并将 `front/apps/admin-react/dist` 部署到 GitHub Pages。
 - 现有工作流中的测试 job 目前为占位：`echo "no tests, skipping"`。
+- AI 技能优化工作流位于 `.github/workflows/ai-skill-optimizer.yml`：提交影响 `backend/**` 或 `front/**` 时触发，默认通过 DeepSeek 分析 diff，并将可复用经验追加到 `.agents/skills/**/SKILL.md` 的“自动优化记录”。
+- AI 技能优化器脚本位于 `.github/scripts/optimize_skills.py`，采用 `ChatProvider` 抽象；默认 secret 为 `DEEPSEEK_API_KEY`，可用 repository variables 覆盖 `DEEPSEEK_BASE_URL` 和 `DEEPSEEK_MODEL`。
 
 ### 项目约束
 

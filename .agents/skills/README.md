@@ -17,3 +17,10 @@
 - 涉及库、框架、SDK、API、CLI 或云服务用法时，先按仓库根 `AGENTS.md` 要求使用 `ctx7` CLI 获取当前文档。
 - 只修改文档或 `.agents/skills/**` 时，不需要执行前端/后端构建测试；修改代码时按对应技能的验证命令执行。
 - 遇到已有未提交改动时，只处理当前任务相关文件，不回滚用户改动。
+
+## 自动优化
+
+- `.github/workflows/ai-skill-optimizer.yml` 会在提交影响 `backend/**` 或 `front/**` 时触发。
+- workflow 调用 `.github/scripts/optimize_skills.py`，读取对应提交 diff，再把可复用经验追加到匹配的 `SKILL.md` 的“自动优化记录”中。
+- 默认 AI 服务商为 DeepSeek，使用 OpenAI-compatible chat completions 接口；仓库 secret 需要配置 `DEEPSEEK_API_KEY`，可通过 repository variables 覆盖 `DEEPSEEK_BASE_URL` 和 `DEEPSEEK_MODEL`。
+- 后续切换服务商时，在脚本中新增 `ChatProvider` 实现并注册到 `PROVIDERS`，workflow 只需改 `AI_PROVIDER` 与对应密钥变量。
