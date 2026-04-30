@@ -82,3 +82,15 @@ go test ./...
 - 修改 `backend/admin` 后，在该模块执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 - 修改 Swagger 注释后执行 `make swagger` 并检查 `docs/**`。
 - 修改模型或 query 生成模板后，确认生成文件符合预期，避免手改生成产物后被脚本覆盖。
+
+## 自动优化记录
+
+<!-- ai-skill-optimizer:6eab4249bb74:1 -->
+### 数据权限设计与列表响应携带操作标记
+
+- 系统内置资源（如系统状态字典类型）的保护，应通过 sys_data_permission 表配置自定义条件（如 id__not:1），而非业务代码硬编码
+- 角色权限可配置 "all" 动作，覆盖 read/write/delete，减少多条规则
+- 列表接口返回自定义 Resp 结构体（如 RespDictType），携带 canWrite/canDelete 等权限标记，由数据权限引擎计算
+- 分页查询响应 Swagger 注解中 data 类型应指向自定义 Resp，不再直接对外暴露 ORM Model
+- ORM 模板新增 WithDBScopes 函数，便于在查询时注入动态 Scope（如数据权限过滤）
+

@@ -81,3 +81,14 @@ pnpm --filter admin-react e2e:test
 - 页面/路由/API 行为变化优先执行 `vp run admin-react#build`。
 - 交互复杂或布局敏感时，启动开发服务并用浏览器检查桌面和移动视口。
 - 只改纯文档或技能文件时不需要运行前端验证。
+
+## 自动优化记录
+
+<!-- ai-skill-optimizer:6eab4249bb74:2 -->
+### 字典类型页面权限按钮控制
+
+- 新建管理页面时，若列表项需按权限控制操作按钮，API 响应应包含 canWrite/canDelete 等 boolean 字段
+- 在 ProTable 的 columns 中，通过 render 或 valueType 根据行数据的权限标记决定按钮 disabled 或隐藏
+- 前端 API 封装在 src/api/dict.ts 中，保持与后端 Swagger 定义同步
+- 页面路由文件放置于 src/routes/_app/system/dict.tsx，配合 staticData.menu 注册菜单
+
