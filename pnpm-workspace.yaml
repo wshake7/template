@@ -36,13 +36,13 @@ catalogs:
     js-cookie: latest
     lodash: latest
     lucide-react: latest
+    monaco-editor-core: latest
     motion: latest
     nprogress: latest
     preact-render-to-string: latest
     react: latest
     react-dom: latest
     react-i18next: latest
-    shiki: latest
     zod: latest
     zustand: latest
   dev:
@@ -51,6 +51,7 @@ catalogs:
     "@faker-js/faker": latest
     "@playwright/experimental-ct-react": latest
     "@playwright/test": latest
+    "@shikijs/monaco": latest
     "@tailwindcss/typography": latest
     "@tailwindcss/vite": latest
     "@tanstack/devtools-vite": latest
@@ -75,6 +76,7 @@ catalogs:
     eslint-plugin-react-refresh: latest
     msw: latest
     nitro: latest
+    shiki: latest
     tailwind-merge: latest
     tailwindcss: latest
     taze: latest
@@ -86,7 +88,6 @@ catalogs:
     vite-plugin-pwa: latest
     vite-plus: latest
     vitest: npm:@voidzero-dev/vite-plus-test@latest
-
 peerDependencyRules:
   allowAny:
     - vite

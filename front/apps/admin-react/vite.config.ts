@@ -72,6 +72,9 @@ export default defineConfig(({ mode }: { mode: string }) => {
             if (id.includes('node_modules/shiki') || id.includes('node_modules/@shikijs')) {
               return 'vendor-shiki'
             }
+            if (id.includes('node_modules/monaco-editor-core')) {
+              return 'vendor-monaco'
+            }
             // 其他 node_modules 统一打成 vendor
             if (id.includes('node_modules')) {
               return 'vendor'
@@ -102,6 +105,13 @@ export default defineConfig(({ mode }: { mode: string }) => {
       }) as any,
       VitePWA({
         registerType: 'autoUpdate', // 当有新版本时自动更新
+        workbox: {
+          globIgnores: [
+            '**/vendor-monaco-*.js',
+            '**/vendor-monaco-*.css',
+            '**/codicon-*.ttf',
+          ],
+        },
         manifest: {
           name: '我的 React PWA 应用',
           short_name: 'ReactPWA',

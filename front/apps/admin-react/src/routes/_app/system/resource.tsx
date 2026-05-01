@@ -1,5 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type { Resource } from '~/api/resource'
+import type { Resource } from '~/api/sysResource'
 import { ModalForm, ProFormSelect, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
@@ -12,7 +12,7 @@ import {
 } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import z from 'zod'
-import { ResourceApi } from '~/api/resource'
+import { ResourceApi } from '~/api/sysResource'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 

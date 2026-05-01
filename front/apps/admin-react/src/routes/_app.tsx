@@ -24,7 +24,7 @@ import { ConfigProvider, Dropdown } from 'antd'
 
 import useApp from 'antd/es/app/useApp'
 
-import { useRef, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 
 import ChangePwdModal from '~/components/business/account/changePwdModal'
 import { TAB_REFRESH_INTERVAL } from '~/config/tabs'
@@ -37,6 +37,70 @@ export const Route = createFileRoute('/_app')({
 interface CachedTabPane {
   lastHiddenAt?: number
   version: number
+}
+
+interface CachedTabPaneNavigateAction {
+  type: 'NAVIGATE'
+  payload: {
+    previousPath: string
+    pathname: string
+    currentMenuTab: { key: string } | null
+  }
+}
+
+interface CachedTabPaneRemoveAction {
+  type: 'REMOVE'
+  payload: {
+    key: string
+  }
+}
+
+type CachedTabPaneAction = CachedTabPaneNavigateAction | CachedTabPaneRemoveAction
+
+function cachedTabPaneReducer(
+  state: Record<string, CachedTabPane>,
+  action: CachedTabPaneAction,
+): Record<string, CachedTabPane> {
+  if (action.type === 'NAVIGATE') {
+    const { previousPath, pathname, currentMenuTab } = action.payload
+    const now = Date.now()
+    const next = { ...state }
+
+    if (previousPath !== pathname && next[previousPath]) {
+      next[previousPath] = {
+        ...next[previousPath],
+        lastHiddenAt: now,
+      }
+    }
+
+    if (currentMenuTab) {
+      const currentPane = next[currentMenuTab.key]
+      if (!currentPane) {
+        next[currentMenuTab.key] = { version: 0 }
+      }
+      else if (currentPane.lastHiddenAt && now - currentPane.lastHiddenAt > TAB_REFRESH_INTERVAL) {
+        next[currentMenuTab.key] = {
+          version: currentPane.version + 1,
+        }
+      }
+      else {
+        next[currentMenuTab.key] = {
+          ...currentPane,
+          lastHiddenAt: undefined,
+        }
+      }
+    }
+
+    return next
+  }
+
+  if (action.type === 'REMOVE' && action.payload.key) {
+    const next = { ...state }
+    delete next[action.payload.key]
+    return next
+  }
+
+  return state
 }
 
 function AppLayout() {
@@ -63,7 +127,7 @@ function AppLayout() {
   const remove = useMenuTabsStore(state => state.remove)
   const menuItems = buildMenuTree(router)
   const previousPathRef = useRef(pathname)
-  const [cachedTabPanes, setCachedTabPanes] = useState<Record<string, CachedTabPane>>({})
+  const [cachedTabPanes, dispatch] = useReducer(cachedTabPaneReducer, {})
 
   /** ---------------- tab 初始化（路由驱动） ---------------- */
 
@@ -89,38 +153,13 @@ function AppLayout() {
   }, [currentMenuTab, items, add])
 
   useEffect(() => {
-    const previousPath = previousPathRef.current
-    const now = Date.now()
-
-    setCachedTabPanes((panes) => {
-      const next = { ...panes }
-
-      if (previousPath !== pathname && next[previousPath]) {
-        next[previousPath] = {
-          ...next[previousPath],
-          lastHiddenAt: now,
-        }
-      }
-
-      if (currentMenuTab) {
-        const currentPane = next[currentMenuTab.key]
-        if (!currentPane) {
-          next[currentMenuTab.key] = { version: 0 }
-        }
-        else if (currentPane.lastHiddenAt && now - currentPane.lastHiddenAt > TAB_REFRESH_INTERVAL) {
-          next[currentMenuTab.key] = {
-            version: currentPane.version + 1,
-          }
-        }
-        else {
-          next[currentMenuTab.key] = {
-            ...currentPane,
-            lastHiddenAt: undefined,
-          }
-        }
-      }
-
-      return next
+    dispatch({
+      type: 'NAVIGATE',
+      payload: {
+        previousPath: previousPathRef.current,
+        pathname,
+        currentMenuTab,
+      },
     })
 
     previousPathRef.current = pathname
@@ -262,10 +301,9 @@ function AppLayout() {
                 onEdit(e, action) {
                   if (action === 'remove') {
                     if (typeof e === 'string') {
-                      setCachedTabPanes((panes) => {
-                        const next = { ...panes }
-                        delete next[e]
-                        return next
+                      dispatch({
+                        type: 'REMOVE',
+                        payload: { key: e },
                       })
                     }
                     remove(e)

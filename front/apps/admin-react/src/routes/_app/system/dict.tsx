@@ -1,5 +1,6 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type { DictEntry, DictType } from '~/api/dict'
+import type * as Monaco from 'monaco-editor-core'
+import type { DictEntry, DictType } from '~/api/sysDict'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
@@ -15,7 +16,7 @@ import {
 } from 'antd'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import z from 'zod'
-import { DictApi } from '~/api/dict'
+import { DictApi } from '~/api/sysDict'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -171,38 +172,44 @@ function renderDictEntryLabel(labelComponent: string | undefined, entryLabel: st
   )
 }
 
-interface ShikiHighlighter {
-  codeToHtml: (code: string, options: { lang: string, theme: string }) => string
-}
+let monacoSetupPromise: Promise<typeof Monaco> | undefined
 
-let shikiHighlighterPromise: Promise<ShikiHighlighter> | undefined
-
-function getShikiHighlighter() {
-  shikiHighlighterPromise ??= Promise
+function setupMonacoEditor() {
+  monacoSetupPromise ??= Promise
     .all([
+      import('@shikijs/monaco'),
+      import('monaco-editor-core'),
       import('shiki/core'),
       import('shiki/engine/javascript'),
-      import('shiki/langs/tsx.mjs'),
+      import('shiki/langs/html.mjs'),
       import('shiki/themes/github-light.mjs'),
     ])
-    .then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, tsx, githubLight]) => createHighlighterCore({
-      themes: [githubLight.default],
-      langs: [tsx.default],
-      engine: createJavaScriptRegexEngine({ forgiving: true }),
-    }))
-  return shikiHighlighterPromise
+    .then(async ([{ shikiToMonaco }, monaco, { createHighlighterCore }, { createJavaScriptRegexEngine }, html, githubLight]) => {
+      const highlighter = await createHighlighterCore({
+        themes: [githubLight.default],
+        langs: [html.default],
+        engine: createJavaScriptRegexEngine({ forgiving: true }),
+      })
+
+      if (!monaco.languages.getLanguages().some(item => item.id === 'html')) {
+        monaco.languages.register({ id: 'html' })
+      }
+      shikiToMonaco(highlighter, monaco)
+      return monaco
+    })
+  return monacoSetupPromise
 }
 
-function ShikiCodeEditorBlock({
+function MonacoCodeEditorBlock({
   value = '',
   onChange,
 }: {
   value?: string
   onChange?: (value: string) => void
 }) {
-  const [highlightValue, setHighlightValue] = useState(value)
-  const [html, setHtml] = useState('')
-  const highlightRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | undefined>(undefined)
+  const latestValueRef = useRef(value)
   const syncTimerRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
@@ -210,121 +217,80 @@ function ShikiCodeEditorBlock({
       if (syncTimerRef.current !== undefined) {
         window.clearTimeout(syncTimerRef.current)
       }
+      editorRef.current?.dispose()
     }
   }, [])
 
   useEffect(() => {
-    let cancelled = false
-    const timer = window.setTimeout(async () => {
-      try {
-        const highlighter = await getShikiHighlighter()
-        const nextHtml = highlighter.codeToHtml(highlightValue || ' ', {
-          lang: 'tsx',
+    let disposed = false
+    setupMonacoEditor()
+      .then((monaco) => {
+        if (disposed || !containerRef.current || editorRef.current) {
+          return
+        }
+        const editor = monaco.editor.create(containerRef.current, {
+          value,
+          language: 'html',
           theme: 'github-light',
+          automaticLayout: true,
+          fontSize: 13,
+          fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
+          lineHeight: 21,
+          lineNumbers: 'off',
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          folding: false,
+          glyphMargin: false,
+          lineDecorationsWidth: 0,
+          lineNumbersMinChars: 0,
+          overviewRulerLanes: 0,
+          renderLineHighlight: 'none',
+          scrollbar: {
+            alwaysConsumeMouseWheel: false,
+            horizontal: 'hidden',
+            verticalScrollbarSize: 8,
+          },
         })
-        if (!cancelled) {
-          setHtml(nextHtml)
-        }
-      }
-      catch {
-        if (!cancelled) {
-          setHtml('')
-        }
-      }
-    }, 600)
-
-    return () => {
-      cancelled = true
-      window.clearTimeout(timer)
-    }
-  }, [highlightValue])
-
-  return (
-    <div
-      className="dict-shiki-editor"
-      style={{
-        position: 'relative',
-        minHeight: 116,
-        border: '1px solid var(--ant-color-border)',
-        borderRadius: 6,
-        background: 'var(--ant-color-bg-container)',
-        overflow: 'hidden',
-      }}
-    >
-      <style>
-        {`
-          .dict-shiki-editor .shiki {
-            margin: 0;
-            min-height: 114px;
-            padding: 10px 11px;
-            background: transparent !important;
-            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-break: break-word;
-          }
-        `}
-      </style>
-      {/* eslint-disable react-dom/no-dangerously-set-innerhtml */}
-      <div
-        ref={highlightRef}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-        }}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-      {/* eslint-enable react-dom/no-dangerously-set-innerhtml */}
-      <Input.TextArea
-        defaultValue={value}
-        rows={4}
-        spellCheck={false}
-        onBlur={(event) => {
-          const nextValue = event.currentTarget.value
-          if (syncTimerRef.current !== undefined) {
-            window.clearTimeout(syncTimerRef.current)
-            syncTimerRef.current = undefined
-          }
-          onChange?.(nextValue)
-          setHighlightValue(nextValue)
-        }}
-        onChange={(event) => {
-          const nextValue = event.target.value
+        editorRef.current = editor
+        editor.onDidChangeModelContent(() => {
+          const nextValue = editor.getValue()
+          latestValueRef.current = nextValue
           if (syncTimerRef.current !== undefined) {
             window.clearTimeout(syncTimerRef.current)
           }
           syncTimerRef.current = window.setTimeout(() => {
             onChange?.(nextValue)
-            setHighlightValue(nextValue)
             syncTimerRef.current = undefined
           }, 220)
-        }}
-        onScroll={(event) => {
-          if (highlightRef.current) {
-            highlightRef.current.scrollTop = event.currentTarget.scrollTop
-            highlightRef.current.scrollLeft = event.currentTarget.scrollLeft
+        })
+        editor.onDidBlurEditorText(() => {
+          if (syncTimerRef.current !== undefined) {
+            window.clearTimeout(syncTimerRef.current)
+            syncTimerRef.current = undefined
           }
-        }}
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          minHeight: 114,
-          padding: '10px 11px',
-          border: 0,
-          boxShadow: 'none',
-          resize: 'vertical',
-          background: 'transparent',
-          color: 'transparent',
-          caretColor: 'var(--ant-color-text)',
-          fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
-          fontSize: 13,
-          lineHeight: 1.6,
-        }}
-      />
-    </div>
+          onChange?.(latestValueRef.current)
+        })
+      })
+      .catch(() => {
+        // Monaco is an enhancement for the custom template field; the form can still submit the current value.
+      })
+
+    return () => {
+      disposed = true
+    }
+  }, [onChange, value])
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        height: 116,
+        border: '1px solid var(--ant-color-border)',
+        borderRadius: 6,
+        overflow: 'hidden',
+      }}
+    />
   )
 }
 
@@ -1077,6 +1043,7 @@ function DictEntryPanel({
         width={500}
         submitTimeout={2000}
       >
+        <ProFormText required name="entryValue" label="数据值" rules={rules} placeholder="请输入数据值" />
         <ProFormText required name="entryLabel" label="显示标签" rules={rules} placeholder="请输入显示标签" />
         <Form.Item label="标签样式">
           <Select
@@ -1109,7 +1076,7 @@ function DictEntryPanel({
                   </span>
                 )}
               >
-                <ShikiCodeEditorBlock key={`${editing?.id ?? 'create'}:${formOpen}`} />
+                <MonacoCodeEditorBlock key={`${editing?.id ?? 'create'}:${formOpen}`} />
               </Form.Item>
             )
           : (
@@ -1120,7 +1087,6 @@ function DictEntryPanel({
         <Form.Item label="效果预览">
           {renderDictEntryLabel(previewLabelComponent, previewEntryLabel)}
         </Form.Item>
-        <ProFormText required name="entryValue" label="数据值" rules={rules} placeholder="请输入数据值" />
         <ProFormText name="languageCode" label="语言代码" placeholder="请输入语言代码" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />
         <ProFormSwitch name="isEnabled" label="启用状态" />

@@ -13,7 +13,7 @@ export type CodeType = (typeof HttpCode)[keyof typeof HttpCode]
 
 const HttpCodeSet = new Set(Object.values(HttpCode))
 
-export const Header = {
+export const XHeader = {
   XRequestTimestamp: 'X-Request-Timestamp',
   XRequestID: 'X-Request-ID',
   XRequestEncryptedKey: 'X-Request-Encrypted-Key',

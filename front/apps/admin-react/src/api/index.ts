@@ -5,7 +5,7 @@ import adapterFetch from 'alova/fetch'
 import reactHook from 'alova/react'
 import Cookies from 'js-cookie'
 import NProgress from 'nprogress'
-import { Header, HttpCode } from '~/domains/http'
+import { HttpCode, XHeader } from '~/domains/http'
 
 import { gEnv } from '~/env'
 import { router } from '~/router'
@@ -16,9 +16,13 @@ const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthenticati
   visitorMeta: {
     visitor: true,
   },
-  // assignToken(method) {
-  // method.config.headers[XHeader.Token] = Cookies.get(XHeader.Token)
-  // },
+  assignToken(method) {
+    let token = Cookies.get(XHeader.Token)
+    if (token === undefined || token === '') {
+      token = useAccountStore.getState().token
+    }
+    method.config.headers[XHeader.Token] = token
+  },
   async login(response, method) {
     if (response.ok) {
       const encryptedText = await response.clone().text()
@@ -30,7 +34,7 @@ const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthenticati
       if (res.code === HttpCode.SUCCESS && data) {
         useAccountStore.getState().login(data.token)
         useDeviceStore.getState().setPublicKey(data.publicKey)
-        Cookies.set(Header.Token, data.token, {
+        Cookies.set(XHeader.Token, data.token, {
           path: '/',
           sameSite: 'Lax',
         })
@@ -86,9 +90,9 @@ const API = createAlova({
     }
     const timestamp = Date.now()
     const nonce = Math.random().toString(36).substring(2, 18)
-    method.config.headers[Header.XRequestTimestamp] = timestamp
-    method.config.headers[Header.XRequestID] = nonce
-    method.config.headers[Header.XRequestEncryptedKey] = publicKey
+    method.config.headers[XHeader.XRequestTimestamp] = timestamp
+    method.config.headers[XHeader.XRequestID] = nonce
+    method.config.headers[XHeader.XRequestEncryptedKey] = publicKey
     if (method.url !== '/api/encrypt/public/key') {
       const publicCryptoKey = await useDeviceStore.getState().getPublicCryptoKey()
       if (!publicCryptoKey) {
@@ -102,19 +106,19 @@ const API = createAlova({
         nonce,
       }
       const encryptedKey = await rsaEncrypt(keyBase64, publicCryptoKey)
-      method.config.headers[Header.XRequestEncryptedKey] = encryptedKey
+      method.config.headers[XHeader.XRequestEncryptedKey] = encryptedKey
       const queryParams = method.config.params || {}
 
       const sort = uriSort({
-        [Header.XRequestTimestamp]: timestamp,
-        [Header.XRequestID]: nonce,
+        [XHeader.XRequestTimestamp]: timestamp,
+        [XHeader.XRequestID]: nonce,
         ...normalizeParams(queryParams),
       })
       const aesData = await aesEncrypt(key, sort, method.data)
       if (aesData.Ciphertext !== '') {
         method.data = aesData.Ciphertext
       }
-      method.config.headers[Header.XRequestSignature] = aesData.TagIv
+      method.config.headers[XHeader.XRequestSignature] = aesData.TagIv
     }
   }),
   responded: onResponseRefreshToken({
@@ -124,7 +128,7 @@ const API = createAlova({
         throw new Error(`[${response.status}]${response.statusText}`)
       }
       const contentType = response.headers.get('Content-Type') || ''
-      if (response.headers.get(Header.XResponseIsEncrypt) === 'true') {
+      if (response.headers.get(XHeader.XResponseIsEncrypt) === 'true') {
         const encryptedText = await response.clone().text()
         const aesKey = method.meta.aesKey
         const decrypted = await aesDecrypt(encryptedText, aesKey, '')

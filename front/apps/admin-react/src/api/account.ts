@@ -1,6 +1,6 @@
 import type { ReqChangePwd, ReqPwdLogin } from '~/domains/account'
 import Cookies from 'js-cookie'
-import { Header } from '~/domains/http'
+import { XHeader } from '~/domains/http'
 import { router } from '~/router'
 import API from './index'
 
@@ -16,7 +16,7 @@ async function loginPwd(req: ReqPwdLogin) {
 function logout() {
   useAccountStore.getState().logout()
   useDeviceStore.getState().setPublicKey('')
-  Cookies.remove(Header.Token)
+  Cookies.remove(XHeader.Token)
   API.Get<Res>('/api/account/logout', {
     cacheFor: 0,
     meta: {

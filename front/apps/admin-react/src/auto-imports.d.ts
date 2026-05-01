@@ -9,24 +9,20 @@ declare global {
   const AccountApi: typeof import('./api/account').AccountApi
   const Activity: typeof import('react').Activity
   const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
-  const DictApi: typeof import('./api/dict').DictApi
+  const DictApi: typeof import('./api/sysDict').DictApi
   const EncryptApi: typeof import('./api/encrypt').EncryptApi
   const ErrorComponent: typeof import('./components/error').ErrorComponent
   const Fragment: typeof import('react').Fragment
-  const Header: typeof import('./domains/http').Header
   const HttpCode: typeof import('./domains/http').HttpCode
-  const HttpCodeChaeck: typeof import('./domains/http').HttpCodeChaeck
   const HttpCodeCheck: typeof import('./domains/http').HttpCodeCheck
-  const LangApi: typeof import('./api/language').LangApi
+  const LangApi: typeof import('./api/sysLanguage').LangApi
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
-  const OperationLogApi: typeof import('./api/operationLog').OperationLogApi
-  const ResourceApi: typeof import('./api/resource').ResourceApi
-  const RoleApi: typeof import('./api/role').RoleApi
+  const OperationLogApi: typeof import('./api/sysOperationLog').OperationLogApi
+  const ResourceApi: typeof import('./api/sysResource').ResourceApi
+  const RoleApi: typeof import('./api/sysRole').RoleApi
   const Suspense: typeof import('react').Suspense
-  const SysOperationLog: typeof import('./api/operationLog').SysOperationLog
-  const SysOperationLogApi: typeof import('./api/operationLog').SysOperationLogApi
   const TAB_REFRESH_INTERVAL: typeof import('./config/tabs').TAB_REFRESH_INTERVAL
-  const XHeader: typeof import('./domains/http').Header
+  const XHeader: typeof import('./domains/http').XHeader
   const aesDecrypt: typeof import('./utils/encrypt').aesDecrypt
   const aesDecryptCiphertextAndTag: typeof import('./utils/encrypt').aesDecryptCiphertextAndTag
   const aesEncrypt: typeof import('./utils/encrypt').aesEncrypt
@@ -57,7 +53,6 @@ declare global {
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
   const sortByOrder: typeof import('./utils/menu').sortByOrder
   const startTransition: typeof import('react').startTransition
-  const t: typeof import('./config/themes/t').default
   const uriSort: typeof import('./utils/encrypt').uriSort
   const use: typeof import('react').use
   const useAccountStore: typeof import('./stores/account').useAccountStore
@@ -192,15 +187,15 @@ declare global {
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
   // @ts-ignore
-  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/dict'
-  import('./api/dict')
+  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/sysDict'
+  import('./api/sysDict')
   // @ts-ignore
-  export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/language'
-  import('./api/language')
+  export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/sysLanguage'
+  import('./api/sysLanguage')
   // @ts-ignore
-  export type { SysOperationLog, ReqLogDetail } from './api/operationLog'
-  import('./api/operationLog')
+  export type { SysOperationLog, ReqLogDetail } from './api/sysOperationLog'
+  import('./api/sysOperationLog')
   // @ts-ignore
-  export type { Resource, ReqResourceCreate, ReqResourceUpdate, ReqResourceBatchDelete } from './api/resource'
-  import('./api/resource')
+  export type { Resource, ReqResourceCreate, ReqResourceUpdate, ReqResourceBatchDelete } from './api/sysResource'
+  import('./api/sysResource')
 }

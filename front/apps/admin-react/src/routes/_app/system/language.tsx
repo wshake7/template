@@ -1,5 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type { LanguageEntry, LanguageType } from '~/api/language'
+import type { LanguageEntry, LanguageType } from '~/api/sysLanguage'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
@@ -17,7 +17,7 @@ import {
 
 import { useCallback, useMemo, useState } from 'react'
 import z from 'zod'
-import { LangApi } from '~/api/language'
+import { LangApi } from '~/api/sysLanguage'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -398,7 +398,7 @@ function LanguageTypePanel({
             ),
       ],
     },
-  ], [openEdit, selectedType?.id, onDeleteSelectedType, send, page, pageSize])
+  ], [openEdit, selectedType, onDeleteSelectedType, onUpdateSelectedType, send, page, pageSize])
 
   return (
     <>
