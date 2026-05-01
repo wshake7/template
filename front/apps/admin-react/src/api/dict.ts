@@ -13,6 +13,7 @@ export interface DictType {
 
 export interface DictEntry {
   id: number
+  labelComponent: string
   entryLabel: string
   entryValue: string
   languageCode: string
@@ -43,6 +44,7 @@ export interface ReqDictTypeBatchDelete {
 }
 
 export interface ReqDictEntryCreate {
+  labelComponent: string
   entryLabel: string
   entryValue: string
   languageCode: string

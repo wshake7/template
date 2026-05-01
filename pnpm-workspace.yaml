@@ -42,6 +42,7 @@ catalogs:
     react: latest
     react-dom: latest
     react-i18next: latest
+    shiki: latest
     zod: latest
     zustand: latest
   dev:

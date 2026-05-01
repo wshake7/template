@@ -1268,6 +1268,9 @@ const docTemplate = `{
                 "isEnabled": {
                     "type": "boolean"
                 },
+                "labelComponent": {
+                    "type": "string"
+                },
                 "languageCode": {
                     "type": "string"
                 },
@@ -1826,6 +1829,10 @@ const docTemplate = `{
                 "isEnabled": {
                     "type": "boolean"
                 },
+                "labelComponent": {
+                    "type": "string",
+                    "maxLength": 255
+                },
                 "languageCode": {
                     "type": "string",
                     "maxLength": 32
@@ -1858,6 +1865,10 @@ const docTemplate = `{
                 },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "labelComponent": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "languageCode": {
                     "type": "string",
@@ -1900,6 +1911,10 @@ const docTemplate = `{
                 },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "labelComponent": {
+                    "type": "string",
+                    "maxLength": 255
                 },
                 "languageCode": {
                     "type": "string",

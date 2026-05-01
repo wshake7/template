@@ -5,13 +5,15 @@ import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
 import {
   Button,
+  Form,
   Input,
   Popconfirm,
+  Select,
   Space,
   Splitter,
   Tag,
 } from 'antd'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import z from 'zod'
 import { DictApi } from '~/api/dict'
 import { gMessage } from '~/utils/antd'
@@ -35,6 +37,155 @@ function statusTag(isEnabled: boolean) {
   return <Tag color="default">停用</Tag>
 }
 
+const ENTRY_LABEL_PLACEHOLDER = '$' + '{EntryLabel}'
+const LABEL_COMPONENT_CUSTOM = '__custom__'
+const CUSTOM_LABEL_COMPONENT_DEFAULT = `<Tag color="blue">${ENTRY_LABEL_PLACEHOLDER}</Tag>`
+
+const labelComponentPresets = [
+  { label: '纯文本', value: '' },
+  { label: '默认', value: `<Tag>${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+  { label: '成功', value: `<Tag color="success">${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+  { label: '处理中', value: `<Tag color="processing">${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+  { label: '警告', value: `<Tag color="warning">${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+  { label: '错误', value: `<Tag color="error">${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+  { label: '蓝色', value: `<Tag color="blue">${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+  { label: '紫色', value: `<Tag color="purple">${ENTRY_LABEL_PLACEHOLDER}</Tag>` },
+]
+
+const labelComponentPresetValues = new Set(labelComponentPresets.map(item => item.value))
+
+interface ParsedLabelComponent {
+  color?: string
+  bordered?: boolean
+}
+
+function parseLabelComponent(template?: string): ParsedLabelComponent | null {
+  const source = template?.trim()
+  if (!source) {
+    return {}
+  }
+
+  const match = source.match(/^<Tag(?<attrs>[^>]*)>\s*\$\{EntryLabel\}\s*<\/Tag>$/)
+  if (!match?.groups) {
+    return null
+  }
+
+  const attrs = match.groups.attrs ?? ''
+  const parsed: ParsedLabelComponent = {}
+  let consumed = ''
+  const attrRegex = /\s+([a-zA-Z]+)=(?:"([^"]*)"|\{(true|false)\})/g
+  for (let attrMatch = attrRegex.exec(attrs); attrMatch; attrMatch = attrRegex.exec(attrs)) {
+    consumed += attrMatch[0]
+    const [, name, stringValue, boolValue] = attrMatch
+    if (name === 'color' && stringValue && /^[\w#-]+$/.test(stringValue)) {
+      parsed.color = stringValue
+      continue
+    }
+    if (name === 'bordered' && boolValue) {
+      parsed.bordered = boolValue === 'true'
+      continue
+    }
+    return null
+  }
+
+  if (consumed.trim() !== attrs.trim()) {
+    return null
+  }
+  return parsed
+}
+
+function renderDictEntryLabel(labelComponent: string | undefined, entryLabel: string) {
+  const parsed = parseLabelComponent(labelComponent)
+  if (!parsed || !labelComponent?.trim()) {
+    return entryLabel
+  }
+  return (
+    <Tag color={parsed.color} bordered={parsed.bordered}>
+      {entryLabel}
+    </Tag>
+  )
+}
+
+interface ShikiHighlighter {
+  codeToHtml: (code: string, options: { lang: string, theme: string }) => string
+}
+
+let shikiHighlighterPromise: Promise<ShikiHighlighter> | undefined
+
+function getShikiHighlighter() {
+  shikiHighlighterPromise ??= Promise
+    .all([
+      import('shiki/core'),
+      import('shiki/engine/javascript'),
+      import('shiki/langs/tsx.mjs'),
+      import('shiki/themes/github-light.mjs'),
+    ])
+    .then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, tsx, githubLight]) => createHighlighterCore({
+      themes: [githubLight.default],
+      langs: [tsx.default],
+      engine: createJavaScriptRegexEngine({ forgiving: true }),
+    }))
+  return shikiHighlighterPromise
+}
+
+function ShikiCodeEditorBlock({
+  value = '',
+  onChange,
+}: {
+  value?: string
+  onChange?: (value: string) => void
+}) {
+  const [html, setHtml] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    const timer = window.setTimeout(async () => {
+      try {
+        const highlighter = await getShikiHighlighter()
+        const nextHtml = highlighter.codeToHtml(value || ' ', {
+          lang: 'tsx',
+          theme: 'github-light',
+        })
+        if (!cancelled) {
+          setHtml(nextHtml)
+        }
+      }
+      catch {
+        if (!cancelled) {
+          setHtml('')
+        }
+      }
+    }, 180)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [value])
+
+  return (
+    <Space direction="vertical" style={{ width: '100%' }}>
+      <Input.TextArea
+        value={value}
+        rows={4}
+        onChange={event => onChange?.(event.target.value)}
+        style={{ fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace' }}
+      />
+      {/* eslint-disable react-dom/no-dangerously-set-innerhtml */}
+      <div
+        style={{
+          border: '1px solid var(--ant-color-border)',
+          borderRadius: 6,
+          overflow: 'hidden',
+          fontSize: 12,
+        }}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+      {/* eslint-enable react-dom/no-dangerously-set-innerhtml */}
+    </Space>
+  )
+}
+
 const DictTypeSchema = z.object({
   typeCode: z.string('请输入类型编码').min(1, '请输入类型编码'),
   typeName: z.string('请输入类型名称').min(1, '请输入类型名称'),
@@ -48,6 +199,7 @@ const dictTypeDefaults = DictTypeSchema.partial().parse({})
 export type DictTypeFormValues = z.infer<typeof DictTypeSchema>
 
 const DictEntrySchema = z.object({
+  labelComponent: z.string().max(255, '显示标签组件最多255位').default(''),
   entryLabel: z.string('请输入显示标签').min(1, '请输入显示标签'),
   entryValue: z.string('请输入数据值').min(1, '请输入数据值'),
   languageCode: z.string().default(''),
@@ -442,6 +594,7 @@ function DictEntryPanel({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<DictEntry>()
   const [searchText, setSearchText] = useState('')
+  const [labelComponentMode, setLabelComponentMode] = useState<string>('')
   const {
     data,
     total,
@@ -481,6 +634,7 @@ function DictEntryPanel({
       watchingStates: [selectedType?.id, searchText, refreshKey],
       data: response => response.data?.items?.map(item => ({
         ...item,
+        labelComponent: item.labelComponent ?? '',
         sortOrder: item.sortOrder ?? 0,
       })) ?? [],
       total: response => response.data?.total ?? 0,
@@ -502,6 +656,7 @@ function DictEntryPanel({
       }
 
       const payload = {
+        labelComponent: values.labelComponent ?? '',
         entryLabel: values.entryLabel,
         entryValue: values.entryValue,
         languageCode: values.languageCode,
@@ -529,8 +684,31 @@ function DictEntryPanel({
     },
   })
 
+  const watchedEntryLabel = Form.useWatch('entryLabel', form)
+  const watchedLabelComponent = Form.useWatch('labelComponent', form)
+  const previewEntryLabel = typeof watchedEntryLabel === 'string' && watchedEntryLabel.trim()
+    ? watchedEntryLabel
+    : '显示标签'
+  const previewLabelComponent = typeof watchedLabelComponent === 'string' ? watchedLabelComponent : ''
+  const labelComponentOptions = useMemo(() => [
+    ...labelComponentPresets.map(item => ({
+      label: (
+        <Space>
+          <span style={{ display: 'inline-block', minWidth: 56 }}>{item.label}</span>
+          {renderDictEntryLabel(item.value, '示例')}
+        </Space>
+      ),
+      value: item.value,
+    })),
+    {
+      label: '自定义',
+      value: LABEL_COMPONENT_CUSTOM,
+    },
+  ], [])
+
   const openCreate = () => {
     setEditing(undefined)
+    setLabelComponentMode('')
     form.resetFields()
     form.setFieldsValue(dictEntryDefaults as DictEntryFormValues)
     setFormOpen(true)
@@ -538,9 +716,11 @@ function DictEntryPanel({
 
   const openEdit = useCallback((record: DictEntry) => {
     setEditing(record)
+    setLabelComponentMode(labelComponentPresetValues.has(record.labelComponent ?? '') ? record.labelComponent ?? '' : LABEL_COMPONENT_CUSTOM)
     form.setFieldsValue({
       ...dictEntryDefaults,
       ...record,
+      labelComponent: record.labelComponent ?? '',
     } as DictEntryFormValues)
     setFormOpen(true)
   }, [form])
@@ -568,6 +748,7 @@ function DictEntryPanel({
       title: '显示标签',
       dataIndex: 'entryLabel',
       width: 120,
+      render: (_, record) => renderDictEntryLabel(record.labelComponent, record.entryLabel),
     },
     {
       title: '数据值',
@@ -746,6 +927,7 @@ function DictEntryPanel({
           if (!open) {
             setFormOpen(false)
             setEditing(undefined)
+            setLabelComponentMode('')
           }
         }}
         form={form}
@@ -754,6 +936,48 @@ function DictEntryPanel({
         submitTimeout={2000}
       >
         <ProFormText required name="entryLabel" label="显示标签" rules={rules} placeholder="请输入显示标签" />
+        <Form.Item label="标签样式">
+          <Select
+            value={labelComponentMode}
+            options={labelComponentOptions}
+            onChange={(nextMode) => {
+              setLabelComponentMode(nextMode)
+              if (nextMode === LABEL_COMPONENT_CUSTOM) {
+                const current = form.getFieldValue('labelComponent') as string | undefined
+                if (!current || labelComponentPresetValues.has(current)) {
+                  form.setFieldValue('labelComponent', CUSTOM_LABEL_COMPONENT_DEFAULT)
+                }
+                return
+              }
+              form.setFieldValue('labelComponent', nextMode)
+            }}
+          />
+        </Form.Item>
+        {labelComponentMode === LABEL_COMPONENT_CUSTOM
+          ? (
+              <Form.Item
+                name="labelComponent"
+                label="自定义模板"
+                rules={rules}
+                extra={(
+                  <span>
+                    支持
+                    {' '}
+                    <code>{CUSTOM_LABEL_COMPONENT_DEFAULT.replace('>', ' bordered={false}>')}</code>
+                  </span>
+                )}
+              >
+                <ShikiCodeEditorBlock />
+              </Form.Item>
+            )
+          : (
+              <Form.Item name="labelComponent" hidden>
+                <Input />
+              </Form.Item>
+            )}
+        <Form.Item label="效果预览">
+          {renderDictEntryLabel(previewLabelComponent, previewEntryLabel)}
+        </Form.Item>
         <ProFormText required name="entryValue" label="数据值" rules={rules} placeholder="请输入数据值" />
         <ProFormText name="languageCode" label="语言代码" placeholder="请输入语言代码" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />

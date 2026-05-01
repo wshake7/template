@@ -39,6 +39,7 @@
     "react": "catalog:build",
     "react-dom": "catalog:build",
     "react-i18next": "catalog:build",
+    "shiki": "catalog:build",
     "zod": "catalog:build",
     "zustand": "catalog:build"
   },

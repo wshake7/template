@@ -344,36 +344,39 @@ func (*SysDictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) er
 // --- 字典数据项 (DictEntry) ---
 
 type ReqDictEntryCreate struct {
-	EntryLabel    string `json:"entryLabel" binding:"required,max=255" binding_msg:"required=显示标签不能为空,max=显示标签最多255位"`
-	EntryValue    string `json:"entryValue" binding:"required,max=255" binding_msg:"required=数据值不能为空,max=数据值最多255位"`
-	LanguageCode  string `json:"languageCode" binding:"max=32" binding_msg:"max=语言代码最多32位"`
-	SysDictTypeId uint64 `json:"sysDictTypeId" binding:"required" binding_msg:"required=字典类型ID不能为空"`
-	SortOrder     int32  `json:"sortOrder"`
-	IsEnabled     bool   `json:"isEnabled"`
-	Remark        string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	LabelComponent string `json:"labelComponent" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
+	EntryLabel     string `json:"entryLabel" binding:"required,max=255" binding_msg:"required=显示标签不能为空,max=显示标签最多255位"`
+	EntryValue     string `json:"entryValue" binding:"required,max=255" binding_msg:"required=数据值不能为空,max=数据值最多255位"`
+	LanguageCode   string `json:"languageCode" binding:"max=32" binding_msg:"max=语言代码最多32位"`
+	SysDictTypeId  uint64 `json:"sysDictTypeId" binding:"required" binding_msg:"required=字典类型ID不能为空"`
+	SortOrder      int32  `json:"sortOrder"`
+	IsEnabled      bool   `json:"isEnabled"`
+	Remark         string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqDictEntryUpdate struct {
-	ID            *uint64                  `json:"id"`
-	EntryLabel    *string                  `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
-	EntryValue    *string                  `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
-	LanguageCode  *string                  `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
-	SysDictTypeId *uint64                  `json:"sysDictTypeId"`
-	SortOrder     *int32                   `json:"sortOrder"`
-	IsEnabled     *bool                    `json:"isEnabled"`
-	Remark        *string                  `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
-	Updates       []ReqDictEntryUpdateItem `json:"updates"`
+	ID             *uint64                  `json:"id"`
+	LabelComponent *string                  `json:"labelComponent" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
+	EntryLabel     *string                  `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
+	EntryValue     *string                  `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
+	LanguageCode   *string                  `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
+	SysDictTypeId  *uint64                  `json:"sysDictTypeId"`
+	SortOrder      *int32                   `json:"sortOrder"`
+	IsEnabled      *bool                    `json:"isEnabled"`
+	Remark         *string                  `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	Updates        []ReqDictEntryUpdateItem `json:"updates"`
 }
 
 type ReqDictEntryUpdateItem struct {
-	ID            uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	EntryLabel    *string `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
-	EntryValue    *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
-	LanguageCode  *string `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
-	SysDictTypeId *uint64 `json:"sysDictTypeId"`
-	SortOrder     *int32  `json:"sortOrder"`
-	IsEnabled     *bool   `json:"isEnabled"`
-	Remark        *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	ID             uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
+	LabelComponent *string `json:"labelComponent" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
+	EntryLabel     *string `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
+	EntryValue     *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
+	LanguageCode   *string `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
+	SysDictTypeId  *uint64 `json:"sysDictTypeId"`
+	SortOrder      *int32  `json:"sortOrder"`
+	IsEnabled      *bool   `json:"isEnabled"`
+	Remark         *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqDictEntryBatchDelete struct {
@@ -483,13 +486,14 @@ func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) er
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
 			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
 		},
-		SortOrder:     mixin.SortOrder{SortOrder: req.SortOrder},
-		IsEnabled:     mixin.IsEnabled{IsEnabled: req.IsEnabled},
-		Remark:        mixin.Remark{Remark: req.Remark},
-		EntryLabel:    req.EntryLabel,
-		EntryValue:    req.EntryValue,
-		LanguageCode:  req.LanguageCode,
-		SysDictTypeId: req.SysDictTypeId,
+		SortOrder:      mixin.SortOrder{SortOrder: req.SortOrder},
+		IsEnabled:      mixin.IsEnabled{IsEnabled: req.IsEnabled},
+		Remark:         mixin.Remark{Remark: req.Remark},
+		LabelComponent: req.LabelComponent,
+		EntryLabel:     req.EntryLabel,
+		EntryValue:     req.EntryValue,
+		LanguageCode:   req.LanguageCode,
+		SysDictTypeId:  req.SysDictTypeId,
 	})
 	if err != nil {
 		return res.FailDefault
@@ -525,14 +529,15 @@ func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) er
 		return res.FailMsg("请求错误")
 	}
 	return updateDictEntry(operationID, typeWriteQuery, &ReqDictEntryUpdateItem{
-		ID:            *req.ID,
-		EntryLabel:    req.EntryLabel,
-		EntryValue:    req.EntryValue,
-		LanguageCode:  req.LanguageCode,
-		SysDictTypeId: req.SysDictTypeId,
-		SortOrder:     req.SortOrder,
-		IsEnabled:     req.IsEnabled,
-		Remark:        req.Remark,
+		ID:             *req.ID,
+		LabelComponent: req.LabelComponent,
+		EntryLabel:     req.EntryLabel,
+		EntryValue:     req.EntryValue,
+		LanguageCode:   req.LanguageCode,
+		SysDictTypeId:  req.SysDictTypeId,
+		SortOrder:      req.SortOrder,
+		IsEnabled:      req.IsEnabled,
+		Remark:         req.Remark,
 	})
 }
 
@@ -559,6 +564,7 @@ func updateDictEntry(operationID uint64, typeWriteQuery *query.Query, req *ReqDi
 
 	sysDictEntry := query.SysDictEntry
 	exprs := []field.AssignExpr{sysDictEntry.UpdatedBy.Value(operationID)}
+	query.ExprAppendSelf(&exprs, req.LabelComponent, sysDictEntry.LabelComponent.Value)
 	query.ExprAppendSelf(&exprs, req.EntryLabel, sysDictEntry.EntryLabel.Value)
 	query.ExprAppendSelf(&exprs, req.EntryValue, sysDictEntry.EntryValue.Value)
 	query.ExprAppendSelf(&exprs, req.LanguageCode, sysDictEntry.LanguageCode.Value)
@@ -695,13 +701,14 @@ func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCo
 	var newEntries []*models.SysDictEntry
 	for _, entry := range sourceEntries {
 		newEntries = append(newEntries, &models.SysDictEntry{
-			EntryLabel:    entry.EntryLabel,
-			EntryValue:    entry.EntryValue,
-			LanguageCode:  entry.LanguageCode,
-			SysDictTypeId: req.TargetTypeId,
-			SortOrder:     mixin.SortOrder{SortOrder: entry.SortOrder.SortOrder},
-			IsEnabled:     mixin.IsEnabled{IsEnabled: entry.IsEnabled.IsEnabled},
-			Remark:        mixin.Remark{Remark: entry.Remark.Remark},
+			LabelComponent: entry.LabelComponent,
+			EntryLabel:     entry.EntryLabel,
+			EntryValue:     entry.EntryValue,
+			LanguageCode:   entry.LanguageCode,
+			SysDictTypeId:  req.TargetTypeId,
+			SortOrder:      mixin.SortOrder{SortOrder: entry.SortOrder.SortOrder},
+			IsEnabled:      mixin.IsEnabled{IsEnabled: entry.IsEnabled.IsEnabled},
+			Remark:         mixin.Remark{Remark: entry.Remark.Remark},
 		})
 	}
 

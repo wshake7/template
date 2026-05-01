@@ -28,6 +28,8 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
+      labelComponent:
+        type: string
       languageCode:
         type: string
       remark:
@@ -397,6 +399,9 @@ definitions:
         type: string
       isEnabled:
         type: boolean
+      labelComponent:
+        maxLength: 255
+        type: string
       languageCode:
         maxLength: 32
         type: string
@@ -424,6 +429,9 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
+      labelComponent:
+        maxLength: 255
+        type: string
       languageCode:
         maxLength: 32
         type: string
@@ -451,6 +459,9 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
+      labelComponent:
+        maxLength: 255
+        type: string
       languageCode:
         maxLength: 32
         type: string

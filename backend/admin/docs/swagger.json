@@ -1261,6 +1261,9 @@
         "isEnabled": {
           "type": "boolean"
         },
+        "labelComponent": {
+          "type": "string"
+        },
         "languageCode": {
           "type": "string"
         },
@@ -1819,6 +1822,10 @@
         "isEnabled": {
           "type": "boolean"
         },
+        "labelComponent": {
+          "type": "string",
+          "maxLength": 255
+        },
         "languageCode": {
           "type": "string",
           "maxLength": 32
@@ -1851,6 +1858,10 @@
         },
         "isEnabled": {
           "type": "boolean"
+        },
+        "labelComponent": {
+          "type": "string",
+          "maxLength": 255
         },
         "languageCode": {
           "type": "string",
@@ -1893,6 +1904,10 @@
         },
         "isEnabled": {
           "type": "boolean"
+        },
+        "labelComponent": {
+          "type": "string",
+          "maxLength": 255
         },
         "languageCode": {
           "type": "string",

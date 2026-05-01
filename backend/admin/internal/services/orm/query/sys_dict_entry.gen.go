@@ -37,6 +37,7 @@ func newSysDictEntry(db *gorm.DB, opts ...gen.DOOption) sysDictEntry {
 	_sysDictEntry.IsEnabled = field.NewBool(tableName, "is_enabled")
 	_sysDictEntry.Remark = field.NewString(tableName, "remark")
 	_sysDictEntry.DeletedAt = field.NewUint(tableName, "deleted_at")
+	_sysDictEntry.LabelComponent = field.NewString(tableName, "label_component")
 	_sysDictEntry.EntryLabel = field.NewString(tableName, "entry_label")
 	_sysDictEntry.EntryValue = field.NewString(tableName, "entry_value")
 	_sysDictEntry.LanguageCode = field.NewString(tableName, "language_code")
@@ -68,22 +69,23 @@ func newSysDictEntry(db *gorm.DB, opts ...gen.DOOption) sysDictEntry {
 type sysDictEntry struct {
 	sysDictEntryDo
 
-	ALL           field.Asterisk
-	ID            field.Uint64
-	CreatedAt     field.Time
-	UpdatedAt     field.Time
-	CreatedBy     field.Uint64
-	UpdatedBy     field.Uint64
-	DeletedBy     field.Uint64
-	SortOrder     field.Int32
-	IsEnabled     field.Bool
-	Remark        field.String
-	DeletedAt     field.Uint
-	EntryLabel    field.String // 字典项的显示标签
-	EntryValue    field.String // 字典项的实际值
-	LanguageCode  field.String // 语言代码
-	SysDictTypeId field.Uint64 // 字典类型ID
-	SysDictType   sysDictEntryBelongsToSysDictType
+	ALL            field.Asterisk
+	ID             field.Uint64
+	CreatedAt      field.Time
+	UpdatedAt      field.Time
+	CreatedBy      field.Uint64
+	UpdatedBy      field.Uint64
+	DeletedBy      field.Uint64
+	SortOrder      field.Int32
+	IsEnabled      field.Bool
+	Remark         field.String
+	DeletedAt      field.Uint
+	LabelComponent field.String // 字典项的显示标签组件
+	EntryLabel     field.String // 字典项的显示标签
+	EntryValue     field.String // 字典项的实际值
+	LanguageCode   field.String // 语言代码
+	SysDictTypeId  field.Uint64 // 字典类型ID
+	SysDictType    sysDictEntryBelongsToSysDictType
 
 	fieldMap map[string]field.Expr
 }
@@ -110,6 +112,7 @@ func (s *sysDictEntry) updateTableName(table string) *sysDictEntry {
 	s.IsEnabled = field.NewBool(table, "is_enabled")
 	s.Remark = field.NewString(table, "remark")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
+	s.LabelComponent = field.NewString(table, "label_component")
 	s.EntryLabel = field.NewString(table, "entry_label")
 	s.EntryValue = field.NewString(table, "entry_value")
 	s.LanguageCode = field.NewString(table, "language_code")
@@ -130,7 +133,7 @@ func (s *sysDictEntry) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (s *sysDictEntry) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 15)
+	s.fieldMap = make(map[string]field.Expr, 16)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -141,6 +144,7 @@ func (s *sysDictEntry) fillFieldMap() {
 	s.fieldMap["is_enabled"] = s.IsEnabled
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["deleted_at"] = s.DeletedAt
+	s.fieldMap["label_component"] = s.LabelComponent
 	s.fieldMap["entry_label"] = s.EntryLabel
 	s.fieldMap["entry_value"] = s.EntryValue
 	s.fieldMap["language_code"] = s.LanguageCode

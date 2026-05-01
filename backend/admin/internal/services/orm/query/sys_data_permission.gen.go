@@ -67,7 +67,7 @@ type sysDataPermission struct {
 	SubjectType   field.String // 主体类型(USER/ROLE/ANY_USER/ANY_ROLE)
 	SubjectID     field.Uint64 // 主体ID，ANY_*时为0
 	ResourceTable field.String // 资源表名
-	Action        field.Field  // 操作列表(read/write/delete)
+	Action        field.Field  // 操作列表(all/read/write/delete)
 	ScopeType     field.String // 作用域类型(all/none/include/exclude/owner/custom)
 	ScopeField    field.String // 用于匹配scope_values的字段
 	ScopeValues   field.Field  // 作用域值列表

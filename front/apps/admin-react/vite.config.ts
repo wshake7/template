@@ -59,8 +59,18 @@ export default defineConfig(({ mode }: { mode: string }) => {
             if (id.includes('node_modules/@tanstack')) {
               return 'vendor-tanstack'
             }
+            if (
+              id.includes('node_modules/antd')
+              || id.includes('node_modules/@ant-design')
+              || id.includes('node_modules/rc-')
+            ) {
+              return 'vendor-antd'
+            }
             if (id.includes('zod')) {
               return 'vendor-zod'
+            }
+            if (id.includes('node_modules/shiki') || id.includes('node_modules/@shikijs')) {
+              return 'vendor-shiki'
             }
             // 其他 node_modules 统一打成 vendor
             if (id.includes('node_modules')) {
