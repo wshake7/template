@@ -25,6 +25,7 @@ declare global {
   const Suspense: typeof import('react').Suspense
   const SysOperationLog: typeof import('./api/operationLog').SysOperationLog
   const SysOperationLogApi: typeof import('./api/operationLog').SysOperationLogApi
+  const TAB_REFRESH_INTERVAL: typeof import('./config/tabs').TAB_REFRESH_INTERVAL
   const XHeader: typeof import('./domains/http').Header
   const aesDecrypt: typeof import('./utils/encrypt').aesDecrypt
   const aesDecryptCiphertextAndTag: typeof import('./utils/encrypt').aesDecryptCiphertextAndTag

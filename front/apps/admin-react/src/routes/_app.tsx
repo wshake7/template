@@ -1,5 +1,6 @@
 import type { MenuDataItem, ProSettings } from '@ant-design/pro-components'
 import type { FormListFieldData } from 'antd'
+import type { ComponentType } from 'react'
 import type { ChangePwdFormValues } from '~/components/business/account/changePwdModal'
 
 import { LockOutlined, LogoutOutlined } from '@ant-design/icons'
@@ -23,14 +24,20 @@ import { ConfigProvider, Dropdown } from 'antd'
 
 import useApp from 'antd/es/app/useApp'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import ChangePwdModal from '~/components/business/account/changePwdModal'
+import { TAB_REFRESH_INTERVAL } from '~/config/tabs'
 import { buildMenuTree } from '~/utils/menu'
 
 export const Route = createFileRoute('/_app')({
   component: AppLayout,
 })
+
+interface CachedTabPane {
+  lastHiddenAt?: number
+  version: number
+}
 
 function AppLayout() {
   const [config, setConfig] = useState<Partial<ProSettings>>({
@@ -55,6 +62,8 @@ function AppLayout() {
   const add = useMenuTabsStore(state => state.add)
   const remove = useMenuTabsStore(state => state.remove)
   const menuItems = buildMenuTree(router)
+  const previousPathRef = useRef(pathname)
+  const [cachedTabPanes, setCachedTabPanes] = useState<Record<string, CachedTabPane>>({})
 
   /** ---------------- tab 初始化（路由驱动） ---------------- */
 
@@ -78,6 +87,52 @@ function AppLayout() {
       add(currentMenuTab)
     }
   }, [currentMenuTab, items, add])
+
+  useEffect(() => {
+    const previousPath = previousPathRef.current
+    const now = Date.now()
+
+    setCachedTabPanes((panes) => {
+      const next = { ...panes }
+
+      if (previousPath !== pathname && next[previousPath]) {
+        next[previousPath] = {
+          ...next[previousPath],
+          lastHiddenAt: now,
+        }
+      }
+
+      if (currentMenuTab) {
+        const currentPane = next[currentMenuTab.key]
+        if (!currentPane) {
+          next[currentMenuTab.key] = { version: 0 }
+        }
+        else if (currentPane.lastHiddenAt && now - currentPane.lastHiddenAt > TAB_REFRESH_INTERVAL) {
+          next[currentMenuTab.key] = {
+            version: currentPane.version + 1,
+          }
+        }
+        else {
+          next[currentMenuTab.key] = {
+            ...currentPane,
+            lastHiddenAt: undefined,
+          }
+        }
+      }
+
+      return next
+    })
+
+    previousPathRef.current = pathname
+  }, [currentMenuTab, pathname])
+
+  const renderedTabs = useMemo(() => {
+    const tabMap = new Map(items.map(item => [item.key, item]))
+    if (currentMenuTab) {
+      tabMap.set(currentMenuTab.key, currentMenuTab)
+    }
+    return [...tabMap.values()]
+  }, [currentMenuTab, items])
   /** ---------------- handlers ---------------- */
 
   function onMenuClick(item: MenuDataItem & { isUrl: boolean, onClick: () => void }) {
@@ -86,6 +141,18 @@ function AppLayout() {
 
   function onTabClick(key: string) {
     navigate({ to: key })
+  }
+
+  function renderCachedTabPane(path: string) {
+    const routesByPath = router.routesByPath as unknown as Record<string, { options: { component?: ComponentType } }>
+    const route = routesByPath[path]
+    const Component = route?.options.component as ComponentType | undefined
+
+    if (!Component) {
+      return path === pathname ? <Outlet /> : null
+    }
+
+    return <Component />
   }
 
   async function submitChangePwd(values?: ChangePwdFormValues, error?: FormListFieldData) {
@@ -194,6 +261,13 @@ function AppLayout() {
                 },
                 onEdit(e, action) {
                   if (action === 'remove') {
+                    if (typeof e === 'string') {
+                      setCachedTabPanes((panes) => {
+                        const next = { ...panes }
+                        delete next[e]
+                        return next
+                      })
+                    }
                     remove(e)
                   }
                 },
@@ -201,7 +275,21 @@ function AppLayout() {
               }}
             >
               <ProCard style={{ minHeight: 1000 }}>
-                <Outlet />
+                {renderedTabs.length > 0
+                  ? renderedTabs.map((item) => {
+                      const pane = cachedTabPanes[item.key] ?? { version: 0 }
+                      const active = item.key === pathname
+
+                      return (
+                        <div
+                          key={`${item.key}:${pane.version}`}
+                          style={{ display: active ? 'block' : 'none' }}
+                        >
+                          {renderCachedTabPane(item.key)}
+                        </div>
+                      )
+                    })
+                  : <Outlet />}
               </ProCard>
             </PageContainer>
 
