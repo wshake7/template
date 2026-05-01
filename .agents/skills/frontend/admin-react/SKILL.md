@@ -92,3 +92,12 @@ pnpm --filter admin-react e2e:test
 - 前端 API 封装在 src/api/dict.ts 中，保持与后端 Swagger 定义同步
 - 页面路由文件放置于 src/routes/_app/system/dict.tsx，配合 staticData.menu 注册菜单
 
+<!-- ai-skill-optimizer:7f5caa284408:1 -->
+### 多标签页缓存与自动刷新机制
+
+- 在 `src/config/tabs.ts` 中定义 `TAB_REFRESH_INTERVAL` 常量（如 10 分钟），通过自动导入全局使用。
+- 在 `_app.tsx` 中维护 `cachedTabPanes` (记录 `lastHiddenAt` 和 `version`)，切换标签时更新离去时间，返回时若超过间隔则递增 version。
+- 使用 `useRef` 保存上一次路径，避免闭包陷阱。
+- 渲染所有标签页但隐藏非活跃的，通过 `key={path:version}` 触发组件重新挂载实现刷新。
+- 关闭标签时手动删除对应 `cachedTabPanes` 条目，防止内存泄漏。
+
