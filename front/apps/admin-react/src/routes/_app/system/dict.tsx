@@ -1,4 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
+import type { CSSProperties } from 'react'
 import type { DictEntry, DictType } from '~/api/dict'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
@@ -54,24 +55,85 @@ const labelComponentPresets = [
 
 const labelComponentPresetValues = new Set(labelComponentPresets.map(item => item.value))
 
-interface ParsedLabelComponent {
+interface ParsedLabelTemplate {
+  tag: 'Tag' | 'span' | 'div'
+  content: string
   color?: string
   bordered?: boolean
+  style?: CSSProperties
 }
 
-function parseLabelComponent(template?: string): ParsedLabelComponent | null {
+const labelTemplateStyleProps = new Set([
+  'background',
+  'backgroundColor',
+  'border',
+  'borderColor',
+  'borderRadius',
+  'color',
+  'display',
+  'fontSize',
+  'fontWeight',
+  'lineHeight',
+  'padding',
+])
+
+function parseStyleObject(source: string): CSSProperties | null {
+  const style: Record<string, string | number> = {}
+  const entries = source.split(',').map(item => item.trim()).filter(Boolean)
+  for (const entry of entries) {
+    const match = entry.match(/^(\w+)\s*:\s*(?:"([^"]*)"|'([^']*)'|(\d+(?:\.\d+)?))$/)
+    if (!match) {
+      return null
+    }
+    const [, name, doubleQuotedValue, singleQuotedValue, numberValue] = match
+    if (!labelTemplateStyleProps.has(name)) {
+      return null
+    }
+    style[name] = numberValue === undefined ? (doubleQuotedValue ?? singleQuotedValue ?? '') : Number(numberValue)
+  }
+  return style as CSSProperties
+}
+
+function parseLabelComponent(template?: string): ParsedLabelTemplate | null {
   const source = template?.trim()
   if (!source) {
-    return {}
+    return {
+      tag: 'span',
+      content: ENTRY_LABEL_PLACEHOLDER,
+    }
   }
 
-  const match = source.match(/^<Tag(?<attrs>[\s\S]*?)>\s*\$\{EntryLabel\}\s*<\/Tag>$/)
-  if (!match?.groups) {
+  const openEnd = source.indexOf('>')
+  if (openEnd <= 1) {
     return null
   }
+  const openTag = source.slice(1, openEnd).trim()
+  const attrStart = openTag.search(/\s/)
+  const tag = attrStart === -1 ? openTag : openTag.slice(0, attrStart)
+  if (tag !== 'Tag' && tag !== 'span' && tag !== 'div') {
+    return null
+  }
+  const closeTag = `</${tag}>`
+  if (!source.endsWith(closeTag)) {
+    return null
+  }
+  let attrs = attrStart === -1 ? '' : openTag.slice(attrStart)
+  const content = source.slice(openEnd + 1, -closeTag.length)
 
-  const attrs = match.groups.attrs ?? ''
-  const parsed: ParsedLabelComponent = {}
+  const parsed: ParsedLabelTemplate = {
+    tag,
+    content: content.trim(),
+  }
+  const styleMatch = attrs.match(/\s+style=\{\{([\s\S]*?)\}\}/)
+  if (styleMatch) {
+    const style = parseStyleObject(styleMatch[1])
+    if (!style) {
+      return null
+    }
+    parsed.style = style
+    attrs = attrs.replace(styleMatch[0], '')
+  }
+
   let consumed = ''
   const attrRegex = /\s+([a-zA-Z]+)=(?:"([^"]*)"|'([^']*)'|\{(true|false)\})/g
   for (let attrMatch = attrRegex.exec(attrs); attrMatch; attrMatch = attrRegex.exec(attrs)) {
@@ -100,11 +162,22 @@ function renderDictEntryLabel(labelComponent: string | undefined, entryLabel: st
   if (!parsed || !labelComponent?.trim()) {
     return entryLabel
   }
-  return (
-    <Tag color={parsed.color} bordered={parsed.bordered}>
-      {entryLabel}
-    </Tag>
-  )
+  const children = parsed.content.includes(ENTRY_LABEL_PLACEHOLDER)
+    ? parsed.content.replaceAll(ENTRY_LABEL_PLACEHOLDER, entryLabel)
+    : parsed.content
+
+  if (parsed.tag === 'Tag') {
+    return (
+      <Tag color={parsed.color} bordered={parsed.bordered} style={parsed.style}>
+        {children}
+      </Tag>
+    )
+  }
+  const nodeProps = { style: parsed.style }
+  if (parsed.tag === 'div') {
+    return <div {...nodeProps}>{children}</div>
+  }
+  return <span {...nodeProps}>{children}</span>
 }
 
 interface ShikiHighlighter {
@@ -157,7 +230,7 @@ function ShikiCodeEditorBlock({
           setHtml('')
         }
       }
-    }, 180)
+    }, 600)
 
     return () => {
       cancelled = true
