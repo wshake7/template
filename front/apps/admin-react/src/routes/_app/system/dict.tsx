@@ -1,5 +1,4 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type { CSSProperties } from 'react'
 import type { DictEntry, DictType } from '~/api/dict'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
@@ -55,52 +54,18 @@ const labelComponentPresets = [
 
 const labelComponentPresetValues = new Set(labelComponentPresets.map(item => item.value))
 
-interface ParsedLabelTemplate {
-  tag: 'Tag' | 'span' | 'div'
+interface ParsedTagTemplate {
   content: string
   color?: string
   bordered?: boolean
-  style?: CSSProperties
 }
 
-const labelTemplateStyleProps = new Set([
-  'background',
-  'backgroundColor',
-  'border',
-  'borderColor',
-  'borderRadius',
-  'color',
-  'display',
-  'fontSize',
-  'fontWeight',
-  'lineHeight',
-  'padding',
-])
+const blockedHtmlTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'base'])
 
-function parseStyleObject(source: string): CSSProperties | null {
-  const style: Record<string, string | number> = {}
-  const entries = source.split(',').map(item => item.trim()).filter(Boolean)
-  for (const entry of entries) {
-    const match = entry.match(/^(\w+)\s*:\s*(?:"([^"]*)"|'([^']*)'|(\d+(?:\.\d+)?))$/)
-    if (!match) {
-      return null
-    }
-    const [, name, doubleQuotedValue, singleQuotedValue, numberValue] = match
-    if (!labelTemplateStyleProps.has(name)) {
-      return null
-    }
-    style[name] = numberValue === undefined ? (doubleQuotedValue ?? singleQuotedValue ?? '') : Number(numberValue)
-  }
-  return style as CSSProperties
-}
-
-function parseLabelComponent(template?: string): ParsedLabelTemplate | null {
+function parseTagTemplate(template?: string): ParsedTagTemplate | null {
   const source = template?.trim()
   if (!source) {
-    return {
-      tag: 'span',
-      content: ENTRY_LABEL_PLACEHOLDER,
-    }
+    return { content: ENTRY_LABEL_PLACEHOLDER }
   }
 
   const openEnd = source.indexOf('>')
@@ -110,30 +75,19 @@ function parseLabelComponent(template?: string): ParsedLabelTemplate | null {
   const openTag = source.slice(1, openEnd).trim()
   const attrStart = openTag.search(/\s/)
   const tag = attrStart === -1 ? openTag : openTag.slice(0, attrStart)
-  if (tag !== 'Tag' && tag !== 'span' && tag !== 'div') {
+  if (tag !== 'Tag') {
     return null
   }
   const closeTag = `</${tag}>`
   if (!source.endsWith(closeTag)) {
     return null
   }
-  let attrs = attrStart === -1 ? '' : openTag.slice(attrStart)
+  const attrs = attrStart === -1 ? '' : openTag.slice(attrStart)
   const content = source.slice(openEnd + 1, -closeTag.length)
 
-  const parsed: ParsedLabelTemplate = {
-    tag,
+  const parsed: ParsedTagTemplate = {
     content: content.trim(),
   }
-  const styleMatch = attrs.match(/\s+style=\{\{([\s\S]*?)\}\}/)
-  if (styleMatch) {
-    const style = parseStyleObject(styleMatch[1])
-    if (!style) {
-      return null
-    }
-    parsed.style = style
-    attrs = attrs.replace(styleMatch[0], '')
-  }
-
   let consumed = ''
   const attrRegex = /\s+([a-zA-Z]+)=(?:"([^"]*)"|'([^']*)'|\{(true|false)\})/g
   for (let attrMatch = attrRegex.exec(attrs); attrMatch; attrMatch = attrRegex.exec(attrs)) {
@@ -157,27 +111,64 @@ function parseLabelComponent(template?: string): ParsedLabelTemplate | null {
   return parsed
 }
 
+function sanitizeLabelHtml(labelComponent: string, entryLabel: string) {
+  if (typeof document === 'undefined') {
+    return ''
+  }
+  const template = document.createElement('template')
+  template.innerHTML = labelComponent.replaceAll(ENTRY_LABEL_PLACEHOLDER, entryLabel)
+
+  const walk = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT)
+  const blockedNodes: Element[] = []
+  while (walk.nextNode()) {
+    const element = walk.currentNode as Element
+    const tagName = element.tagName.toLowerCase()
+    if (blockedHtmlTags.has(tagName)) {
+      blockedNodes.push(element)
+      continue
+    }
+    for (const attr of Array.from(element.attributes)) {
+      const attrName = attr.name.toLowerCase()
+      const attrValue = attr.value.trim().toLowerCase()
+      if (attrName.startsWith('on')) {
+        element.removeAttribute(attr.name)
+        continue
+      }
+      if ((attrName === 'href' || attrName === 'src') && /^(?:javascript|data):/.test(attrValue)) {
+        element.removeAttribute(attr.name)
+      }
+    }
+  }
+  for (const node of blockedNodes) {
+    node.remove()
+  }
+  return template.innerHTML
+}
+
 function renderDictEntryLabel(labelComponent: string | undefined, entryLabel: string) {
-  const parsed = parseLabelComponent(labelComponent)
-  if (!parsed || !labelComponent?.trim()) {
+  if (!labelComponent?.trim()) {
     return entryLabel
+  }
+  const parsed = parseTagTemplate(labelComponent)
+  if (!parsed) {
+    const html = sanitizeLabelHtml(labelComponent, entryLabel)
+    if (!html) {
+      return entryLabel
+    }
+    return (
+      // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+      <span dangerouslySetInnerHTML={{ __html: html }} />
+    )
   }
   const children = parsed.content.includes(ENTRY_LABEL_PLACEHOLDER)
     ? parsed.content.replaceAll(ENTRY_LABEL_PLACEHOLDER, entryLabel)
     : parsed.content
 
-  if (parsed.tag === 'Tag') {
-    return (
-      <Tag color={parsed.color} bordered={parsed.bordered} style={parsed.style}>
-        {children}
-      </Tag>
-    )
-  }
-  const nodeProps = { style: parsed.style }
-  if (parsed.tag === 'div') {
-    return <div {...nodeProps}>{children}</div>
-  }
-  return <span {...nodeProps}>{children}</span>
+  return (
+    <Tag color={parsed.color} bordered={parsed.bordered}>
+      {children}
+    </Tag>
+  )
 }
 
 interface ShikiHighlighter {
@@ -209,15 +200,26 @@ function ShikiCodeEditorBlock({
   value?: string
   onChange?: (value: string) => void
 }) {
+  const [inputValue, setInputValue] = useState(value)
+  const [highlightValue, setHighlightValue] = useState(value)
   const [html, setHtml] = useState('')
   const highlightRef = useRef<HTMLDivElement>(null)
+  const syncTimerRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current !== undefined) {
+        window.clearTimeout(syncTimerRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
     const timer = window.setTimeout(async () => {
       try {
         const highlighter = await getShikiHighlighter()
-        const nextHtml = highlighter.codeToHtml(value || ' ', {
+        const nextHtml = highlighter.codeToHtml(highlightValue || ' ', {
           lang: 'tsx',
           theme: 'github-light',
         })
@@ -236,7 +238,7 @@ function ShikiCodeEditorBlock({
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [value])
+  }, [highlightValue])
 
   return (
     <div
@@ -278,10 +280,29 @@ function ShikiCodeEditorBlock({
       />
       {/* eslint-enable react-dom/no-dangerously-set-innerhtml */}
       <Input.TextArea
-        value={value}
+        value={inputValue}
         rows={4}
         spellCheck={false}
-        onChange={event => onChange?.(event.target.value)}
+        onBlur={() => {
+          if (syncTimerRef.current !== undefined) {
+            window.clearTimeout(syncTimerRef.current)
+            syncTimerRef.current = undefined
+          }
+          onChange?.(inputValue)
+          setHighlightValue(inputValue)
+        }}
+        onChange={(event) => {
+          const nextValue = event.target.value
+          setInputValue(nextValue)
+          if (syncTimerRef.current !== undefined) {
+            window.clearTimeout(syncTimerRef.current)
+          }
+          syncTimerRef.current = window.setTimeout(() => {
+            onChange?.(nextValue)
+            setHighlightValue(nextValue)
+            syncTimerRef.current = undefined
+          }, 220)
+        }}
         onScroll={(event) => {
           if (highlightRef.current) {
             highlightRef.current.scrollTop = event.currentTarget.scrollTop
@@ -1089,7 +1110,7 @@ function DictEntryPanel({
                   </span>
                 )}
               >
-                <ShikiCodeEditorBlock />
+                <ShikiCodeEditorBlock key={`${editing?.id ?? 'create'}:${formOpen}`} />
               </Form.Item>
             )
           : (
