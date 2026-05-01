@@ -101,3 +101,10 @@ pnpm --filter admin-react e2e:test
 - 渲染所有标签页但隐藏非活跃的，通过 `key={path:version}` 触发组件重新挂载实现刷新。
 - 关闭标签时手动删除对应 `cachedTabPanes` 条目，防止内存泄漏。
 
+<!-- ai-skill-optimizer:eec725a70c9c:3 -->
+### 前后端字典字段同步
+
+- 后端新增字段（如 labelComponent）时，需在 `src/api/dict.ts` 中更新请求/响应类型
+- 页面表单（`dict.tsx`）应添加对应输入控件，保持字段名与 API 一致
+- 若字段需要权限控制，考虑在列表响应中添加权限标记
+

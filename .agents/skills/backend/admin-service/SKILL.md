@@ -94,3 +94,17 @@ go test ./...
 - 分页查询响应 Swagger 注解中 data 类型应指向自定义 Resp，不再直接对外暴露 ORM Model
 - ORM 模板新增 WithDBScopes 函数，便于在查询时注入动态 Scope（如数据权限过滤）
 
+<!-- ai-skill-optimizer:eec725a70c9c:1 -->
+### 模型字段新增需执行脚本
+
+- 修改 models 添加字段后，需运行 `go run ./cmd/scripts/orm` 更新 query 生成代码
+- 若请求结构体或模型字段变更，运行 `make swagger` 同步文档
+- 确保请求结构体包含新字段，Swagger 注解正确
+
+<!-- ai-skill-optimizer:eec725a70c9c:2 -->
+### 数据权限 action 支持 all
+
+- sys_data_permission 的 action 字段除了 read/write/delete，还可设置为 all
+- 当角色需要所有操作权限时，可直接配置 action 为 all，减少规则数量
+- 生成代码注释已包含 all 选项，配置时注意大小写
+
