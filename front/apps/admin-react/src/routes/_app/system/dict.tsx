@@ -200,7 +200,6 @@ function ShikiCodeEditorBlock({
   value?: string
   onChange?: (value: string) => void
 }) {
-  const [inputValue, setInputValue] = useState(value)
   const [highlightValue, setHighlightValue] = useState(value)
   const [html, setHtml] = useState('')
   const highlightRef = useRef<HTMLDivElement>(null)
@@ -280,20 +279,20 @@ function ShikiCodeEditorBlock({
       />
       {/* eslint-enable react-dom/no-dangerously-set-innerhtml */}
       <Input.TextArea
-        value={inputValue}
+        defaultValue={value}
         rows={4}
         spellCheck={false}
-        onBlur={() => {
+        onBlur={(event) => {
+          const nextValue = event.currentTarget.value
           if (syncTimerRef.current !== undefined) {
             window.clearTimeout(syncTimerRef.current)
             syncTimerRef.current = undefined
           }
-          onChange?.(inputValue)
-          setHighlightValue(inputValue)
+          onChange?.(nextValue)
+          setHighlightValue(nextValue)
         }}
         onChange={(event) => {
           const nextValue = event.target.value
-          setInputValue(nextValue)
           if (syncTimerRef.current !== undefined) {
             window.clearTimeout(syncTimerRef.current)
           }
