@@ -13,7 +13,7 @@ import {
   Splitter,
   Tag,
 } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import z from 'zod'
 import { DictApi } from '~/api/dict'
 import { gMessage } from '~/utils/antd'
@@ -65,7 +65,7 @@ function parseLabelComponent(template?: string): ParsedLabelComponent | null {
     return {}
   }
 
-  const match = source.match(/^<Tag(?<attrs>[^>]*)>\s*\$\{EntryLabel\}\s*<\/Tag>$/)
+  const match = source.match(/^<Tag(?<attrs>[\s\S]*?)>\s*\$\{EntryLabel\}\s*<\/Tag>$/)
   if (!match?.groups) {
     return null
   }
@@ -73,10 +73,11 @@ function parseLabelComponent(template?: string): ParsedLabelComponent | null {
   const attrs = match.groups.attrs ?? ''
   const parsed: ParsedLabelComponent = {}
   let consumed = ''
-  const attrRegex = /\s+([a-zA-Z]+)=(?:"([^"]*)"|\{(true|false)\})/g
+  const attrRegex = /\s+([a-zA-Z]+)=(?:"([^"]*)"|'([^']*)'|\{(true|false)\})/g
   for (let attrMatch = attrRegex.exec(attrs); attrMatch; attrMatch = attrRegex.exec(attrs)) {
     consumed += attrMatch[0]
-    const [, name, stringValue, boolValue] = attrMatch
+    const [, name, doubleQuotedValue, singleQuotedValue, boolValue] = attrMatch
+    const stringValue = doubleQuotedValue ?? singleQuotedValue
     if (name === 'color' && stringValue && /^[\w#-]+$/.test(stringValue)) {
       parsed.color = stringValue
       continue
@@ -136,6 +137,7 @@ function ShikiCodeEditorBlock({
   onChange?: (value: string) => void
 }) {
   const [html, setHtml] = useState('')
+  const highlightRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -164,25 +166,72 @@ function ShikiCodeEditorBlock({
   }, [value])
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }}>
-      <Input.TextArea
-        value={value}
-        rows={4}
-        onChange={event => onChange?.(event.target.value)}
-        style={{ fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace' }}
-      />
+    <div
+      className="dict-shiki-editor"
+      style={{
+        position: 'relative',
+        minHeight: 116,
+        border: '1px solid var(--ant-color-border)',
+        borderRadius: 6,
+        background: 'var(--ant-color-bg-container)',
+        overflow: 'hidden',
+      }}
+    >
+      <style>
+        {`
+          .dict-shiki-editor .shiki {
+            margin: 0;
+            min-height: 114px;
+            padding: 10px 11px;
+            background: transparent !important;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+          }
+        `}
+      </style>
       {/* eslint-disable react-dom/no-dangerously-set-innerhtml */}
       <div
+        ref={highlightRef}
         style={{
-          border: '1px solid var(--ant-color-border)',
-          borderRadius: 6,
+          position: 'absolute',
+          inset: 0,
           overflow: 'hidden',
-          fontSize: 12,
+          pointerEvents: 'none',
         }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
       {/* eslint-enable react-dom/no-dangerously-set-innerhtml */}
-    </Space>
+      <Input.TextArea
+        value={value}
+        rows={4}
+        spellCheck={false}
+        onChange={event => onChange?.(event.target.value)}
+        onScroll={(event) => {
+          if (highlightRef.current) {
+            highlightRef.current.scrollTop = event.currentTarget.scrollTop
+            highlightRef.current.scrollLeft = event.currentTarget.scrollLeft
+          }
+        }}
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          minHeight: 114,
+          padding: '10px 11px',
+          border: 0,
+          boxShadow: 'none',
+          resize: 'vertical',
+          background: 'transparent',
+          color: 'transparent',
+          caretColor: 'var(--ant-color-text)',
+          fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
+          fontSize: 13,
+          lineHeight: 1.6,
+        }}
+      />
+    </div>
   )
 }
 
