@@ -11,6 +11,8 @@ declare global {
   const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
   const DictApi: typeof import('./api/sysDict').DictApi
   const DictCode: typeof import('./domains/dict').DictCode
+  const DictEntryPanel: typeof import('./components/business/system/dictPanels').DictEntryPanel
+  const DictTypePanel: typeof import('./components/business/system/dictPanels').DictTypePanel
   const ENTRY_LABEL_PLACEHOLDER: typeof import('./components/dictEntryLabel').ENTRY_LABEL_PLACEHOLDER
   const EncryptApi: typeof import('./api/encrypt').EncryptApi
   const ErrorComponent: typeof import('./components/error').ErrorComponent
@@ -18,6 +20,8 @@ declare global {
   const HttpCode: typeof import('./domains/http').HttpCode
   const HttpCodeCheck: typeof import('./domains/http').HttpCodeCheck
   const LangApi: typeof import('./api/sysLanguage').LangApi
+  const LanguageEntryPanel: typeof import('./components/business/system/languagePanels').LanguageEntryPanel
+  const LanguageTypePanel: typeof import('./components/business/system/languagePanels').LanguageTypePanel
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
   const OperationLogApi: typeof import('./api/sysOperationLog').OperationLogApi
   const ResourceApi: typeof import('./api/sysResource').ResourceApi
@@ -53,6 +57,7 @@ declare global {
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
   const renderDictEntryLabel: typeof import('./components/dictEntryLabel').renderDictEntryLabel
+  const resourceManagement: typeof import('./components/business/system/resourceManagement').default
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
   const sortByOrder: typeof import('./utils/menu').sortByOrder
   const startTransition: typeof import('react').startTransition
@@ -189,6 +194,12 @@ declare global {
   // @ts-ignore
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
+  // @ts-ignore
+  export type { DictTypeFormValues, DictEntryFormValues } from './components/business/system/dictPanels'
+  import('./components/business/system/dictPanels')
+  // @ts-ignore
+  export type { LangTypeFormValues } from './components/business/system/languagePanels'
+  import('./components/business/system/languagePanels')
   // @ts-ignore
   export type { DictType, DictEntry, DictMatchedEntry, ReqDictEntryMatch, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/sysDict'
   import('./api/sysDict')

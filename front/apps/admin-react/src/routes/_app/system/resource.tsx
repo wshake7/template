@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_app/system/resource')({
     },
   },
   staleTime: 1000 * 60 * 2,
-  component: RouteComponent,
+  component: ResourceManagement,
 })
 
 const resourceTypeOptions = [
@@ -50,7 +50,7 @@ const resourceDefaults = ResourceSchema.partial().parse({})
 
 export type ResourceFormValues = z.infer<typeof ResourceSchema>
 
-function RouteComponent() {
+function ResourceManagement() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Resource>()
   const [selectedIds, setSelectedIds] = useState<number[]>([])

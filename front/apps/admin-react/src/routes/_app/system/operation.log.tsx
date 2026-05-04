@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_app/system/operation/log')({
     },
   },
   staleTime: 1000 * 60 * 2,
-  component: RouteComponent,
+  component: OperationLogManagement,
 })
 
 function successTag(success: boolean) {
@@ -46,7 +46,7 @@ function costTimeDisplay(costTime: number) {
   return `${(costTime / 1000).toFixed(2)}s`
 }
 
-function RouteComponent() {
+function OperationLogManagement() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailData, setDetailData] = useState<SysOperationLog | null>(null)
 
