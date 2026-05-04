@@ -20,6 +20,7 @@ type SessionInfo struct {
 	Username   string   `json:"username"`
 	RoleCodes  []string `json:"roleCodes"`
 	RoleIDs    []uint64 `json:"roleIDs"`
+	Language   string   `json:"language"`
 }
 
 type Session struct {

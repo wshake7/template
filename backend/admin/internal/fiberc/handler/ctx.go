@@ -136,7 +136,9 @@ type Ctx struct {
 	Config       *config.Config
 	TraceId      string
 	PrivateKey   string
+	Language     string
 	SessionInfo  *auth.SessionInfo
+	SessionRaw   *auth.Session
 	logger       *zap.Logger
 	LogResFields []zap.Field
 	ErrCode      *int

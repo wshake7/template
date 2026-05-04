@@ -12,7 +12,8 @@ func (r *Router) RegisterRouters(group fiber.Router) {
 	group = group.Group("/api")
 	defaultGroup := group.Use(
 		middleware.TimestampMiddleware(),
-		//middleware.NonceMiddleware()
+		//middleware.NonceMiddleware(),
+		middleware.LanguageMiddleware(),
 	)
 	registerAccountRouters(defaultGroup.Group("/account"))
 	registerEncryptRouters(defaultGroup.Group("/encrypt"))

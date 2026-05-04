@@ -23,6 +23,7 @@ func AuthMiddleware() fiber.Handler {
 			ctx.L().Error("get session error", zap.Error(err))
 			return auth.CheckLoginErr(err)
 		}
+		ctx.SessionRaw = session
 		info, err := session.GetInfo()
 		if err != nil || info.PrivateKey == "" {
 			ctx.L().Error("get session info error", zap.Error(err), zap.String("key", info.PrivateKey))
