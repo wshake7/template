@@ -21,6 +21,7 @@
 ## 自动优化
 
 - `.github/workflows/ai-skill-optimizer.yml` 会在提交影响 `backend/**` 或 `front/**` 时触发。
-- workflow 调用 `.github/scripts/optimize_skills.py`，读取对应提交 diff，再把可复用经验追加到匹配的 `SKILL.md` 的“自动优化记录”中。
+- workflow 调用 `.github/scripts/optimize_skills.py`，读取对应提交 diff 和现有技能内容，让 AI 动态重写匹配的完整 `SKILL.md`。
+- 每次重写前会把旧版技能归档到同目录的 `archive/`，当前 `SKILL.md` 只保留整理后的可执行指南，不保留流水账式“自动优化记录”。
 - 默认 AI 服务商为 DeepSeek，使用 OpenAI-compatible chat completions 接口；仓库 secret 需要配置 `DEEPSEEK_API_KEY`，可通过 repository variables 覆盖 `DEEPSEEK_BASE_URL` 和 `DEEPSEEK_MODEL`。
 - 后续切换服务商时，在脚本中新增 `ChatProvider` 实现并注册到 `PROVIDERS`，workflow 只需改 `AI_PROVIDER` 与对应密钥变量。

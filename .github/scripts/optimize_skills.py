@@ -25,7 +25,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills"
 MAX_DIFF_CHARS = int(os.getenv("AI_SKILL_MAX_DIFF_CHARS", "60000"))
-OPTIMIZER_SECTION = "## 自动优化记录"
+ARCHIVE_DIR_NAME = "archive"
 
 
 @dataclass(frozen=True)
@@ -86,27 +86,47 @@ class DeepSeekProvider(ChatProvider):
                 {"role": "user", "content": user_prompt},
             ],
             "temperature": 0.2,
+            "response_format": {"type": "json_object"},
             "stream": False,
         }
         if os.getenv("DEEPSEEK_THINKING", "").lower() in {"1", "true", "yes"}:
             payload["reasoning_effort"] = os.getenv("DEEPSEEK_REASONING_EFFORT", "high")
             payload["extra_body"] = {"thinking": {"type": "enabled"}}
 
-        request = urllib.request.Request(
-            f"{self.base_url}/chat/completions",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            },
-            method="POST",
-        )
+        def make_request() -> urllib.request.Request:
+            return urllib.request.Request(
+                f"{self.base_url}/chat/completions",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+
         try:
-            with urllib.request.urlopen(request, timeout=90) as response:
+            with urllib.request.urlopen(make_request(), timeout=90) as response:
                 data = json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
-            raise SkillOptimizerError(f"DeepSeek API request failed: HTTP {exc.code}: {body}") from exc
+            if exc.code == 400 and "response_format" in payload:
+                print(
+                    "::warning::DeepSeek API rejected response_format; retrying without strict JSON mode.",
+                    file=sys.stderr,
+                )
+                payload.pop("response_format", None)
+                try:
+                    with urllib.request.urlopen(make_request(), timeout=90) as response:
+                        data = json.loads(response.read().decode("utf-8"))
+                except urllib.error.HTTPError as retry_exc:
+                    retry_body = retry_exc.read().decode("utf-8", errors="replace")
+                    raise SkillOptimizerError(
+                        f"DeepSeek API request failed: HTTP {retry_exc.code}: {retry_body}"
+                    ) from retry_exc
+                except urllib.error.URLError as retry_exc:
+                    raise SkillOptimizerError(f"DeepSeek API request failed: {retry_exc}") from retry_exc
+            else:
+                raise SkillOptimizerError(f"DeepSeek API request failed: HTTP {exc.code}: {body}") from exc
         except urllib.error.URLError as exc:
             raise SkillOptimizerError(f"DeepSeek API request failed: {exc}") from exc
 
@@ -190,110 +210,210 @@ def build_prompts(files: list[str], diff: str, skill_ids: list[str]) -> tuple[st
     system_prompt = textwrap.dedent(
         """
         你是 template 仓库的技能维护助手。你的任务是根据 backend/front 的代码变更，
-        提炼可长期复用的项目技能改进，而不是复述一次性提交内容。
+        整体重写对应项目技能，让 SKILL.md 始终是一份结构清晰、可直接复用的当前工作指南，
+        而不是在文件尾部追加一次性提交记录。
 
         只返回严格 JSON，不要 Markdown 包裹，不要额外解释。JSON 结构：
         {
-          "updates": [
+          "skill_rewrites": [
             {
               "skill_id": "allowed skill id",
-              "title": "不超过 24 个中文字符的标题",
-              "content": "- 第一条\\n- 第二条"
+              "content": "# Skill: ...\\n\\n完整的新版 SKILL.md Markdown 内容"
             }
           ],
-          "summary": "一句话说明本次是否学到了可沉淀内容"
+          "summary": "一句话说明本次如何优化了技能"
         }
 
         规则：
         - 只使用用户提供的 diff 和现有技能内容，不要编造未出现的事实。
-        - 只记录以后做类似任务会有帮助的流程、约定、命令、路径或风险。
+        - 将有长期价值的流程、约定、命令、路径或风险融入现有章节。
+        - 不要创建“自动优化记录”“更新日志”“本次提交”之类的流水账章节。
         - 不要记录具体 commit SHA、作者、时间、临时 bug、一次性需求。
-        - content 使用 1 到 5 条 Markdown bullet，中文为主，必要时保留路径和命令。
-        - 如果没有可沉淀内容，返回 {"updates": [], "summary": "..."}。
+        - content 必须是完整 SKILL.md，不是补丁、片段或 diff。
+        - 保留原技能中仍然正确的核心路径、命令和验证方式。
+        - 输出内容以中文为主，必要时保留路径、命令、类型名和代码标识。
+        - 不要输出 HTML 注释标记。
+        - 如果某个技能没有可沉淀内容，不要返回该 skill_id；如果所有技能都无需调整，返回 {"skill_rewrites": [], "summary": "..."}。
         """
     ).strip()
     user_prompt = textwrap.dedent(
         f"""
-        可更新的技能：
+        可重写的技能：
         {json.dumps(allowed, ensure_ascii=False, indent=2)}
 
         变更文件：
         {json.dumps(files, ensure_ascii=False, indent=2)}
 
-        现有技能摘录：
+        现有技能内容：
         {read_skill_context(skill_ids)}
 
-        Git diff：
+        Git diff:
         {diff}
         """
     ).strip()
     return system_prompt, user_prompt
 
 
+def iter_json_object_candidates(content: str) -> list[str]:
+    candidates: list[str] = []
+    seen: set[str] = set()
+
+    def add(value: str) -> None:
+        value = value.strip()
+        if value and value not in seen:
+            candidates.append(value)
+            seen.add(value)
+
+    add(content)
+    for match in re.finditer(r"```(?:json)?\s*(.*?)```", content, re.DOTALL | re.IGNORECASE):
+        add(match.group(1))
+
+    start: int | None = None
+    depth = 0
+    in_string = False
+    escaped = False
+    for index, char in enumerate(content):
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "{":
+            if depth == 0:
+                start = index
+            depth += 1
+        elif char == "}" and depth:
+            depth -= 1
+            if depth == 0 and start is not None:
+                add(content[start : index + 1])
+                start = None
+
+    return candidates
+
+
+def strip_trailing_json_commas(content: str) -> str:
+    result: list[str] = []
+    in_string = False
+    escaped = False
+    index = 0
+    while index < len(content):
+        char = content[index]
+        if in_string:
+            result.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+        if char == '"':
+            in_string = True
+            result.append(char)
+            index += 1
+            continue
+        if char == ",":
+            lookahead = index + 1
+            while lookahead < len(content) and content[lookahead].isspace():
+                lookahead += 1
+            if lookahead < len(content) and content[lookahead] in "}]":
+                index += 1
+                continue
+        result.append(char)
+        index += 1
+    return "".join(result)
+
+
+def load_json_object(candidate: str) -> dict[str, Any] | None:
+    for value in (candidate, strip_trailing_json_commas(candidate)):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
+    return None
+
+
 def parse_json_response(content: str) -> dict[str, Any]:
-    try:
-        return json.loads(content)
-    except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", content, re.DOTALL)
-        if not match:
-            raise SkillOptimizerError(f"AI response was not JSON: {content}")
-        return json.loads(match.group(0))
+    parsed_objects: list[dict[str, Any]] = []
+    for candidate in iter_json_object_candidates(content):
+        parsed = load_json_object(candidate)
+        if parsed is not None:
+            parsed_objects.append(parsed)
+
+    for parsed in parsed_objects:
+        if "skill_rewrites" in parsed:
+            return parsed
+    for parsed in parsed_objects:
+        if "updates" in parsed:
+            return parsed
+    if parsed_objects:
+        return parsed_objects[0]
+
+    preview = content.strip().replace("\n", " ")[:1000]
+    raise SkillOptimizerError(f"AI response did not contain a valid JSON object. Preview: {preview}")
 
 
-def sanitize_title(value: Any) -> str:
-    title = str(value or "代码变更经验").strip()
-    return re.sub(r"[\r\n#]+", " ", title)[:40]
-
-
-def sanitize_content(value: Any) -> str:
+def sanitize_skill_content(value: Any) -> str:
     content = str(value or "").strip()
     content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL).strip()
-    lines = [line.rstrip() for line in content.splitlines() if line.strip()]
-    if not lines:
+    content = re.sub(r"```(?:markdown|md)?\s*(.*?)```", r"\1", content, flags=re.DOTALL | re.IGNORECASE).strip()
+    if not content:
         return ""
-    normalized: list[str] = []
-    for line in lines[:8]:
-        normalized.append(line if line.lstrip().startswith("- ") else f"- {line.lstrip('- ').strip()}")
-    return "\n".join(normalized)
+    if not content.lstrip().startswith("# Skill:"):
+        raise SkillOptimizerError("AI rewrite content must be a complete SKILL.md starting with '# Skill:'.")
+    if "自动优化记录" in content or "ai-skill-optimizer:" in content:
+        raise SkillOptimizerError("AI rewrite content must not include optimizer history sections or markers.")
+    return content.rstrip() + "\n"
 
 
-def append_update(skill_path: Path, marker: str, title: str, content: str) -> bool:
-    text = skill_path.read_text(encoding="utf-8")
-    if marker in text:
+def archive_skill(skill_path: Path, head: str) -> Path:
+    archive_dir = skill_path.parent / ARCHIVE_DIR_NAME
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    archive_path = archive_dir / f"SKILL.{head[:12]}.md"
+    if archive_path.exists():
+        return archive_path
+    archive_path.write_text(skill_path.read_text(encoding="utf-8"), encoding="utf-8")
+    return archive_path
+
+
+def rewrite_skill(skill_path: Path, content: str, head: str, dry_run: bool) -> bool:
+    current = skill_path.read_text(encoding="utf-8") if skill_path.exists() else ""
+    if current.rstrip() == content.rstrip():
         return False
-    entry = f"\n\n<!-- {marker} -->\n### {title}\n\n{content}\n"
-    if OPTIMIZER_SECTION in text:
-        text = text.rstrip() + entry
-    else:
-        text = text.rstrip() + f"\n\n{OPTIMIZER_SECTION}" + entry
-    skill_path.write_text(text + "\n", encoding="utf-8")
+    if dry_run:
+        print(f"\n--- {skill_path.relative_to(REPO_ROOT)}\n{content}")
+        return True
+    archive_path = archive_skill(skill_path, head)
+    skill_path.write_text(content, encoding="utf-8")
+    print(f"Archived previous skill: {archive_path.relative_to(REPO_ROOT)}")
     return True
 
 
 def apply_updates(payload: dict[str, Any], allowed_ids: set[str], head: str, dry_run: bool) -> int:
-    updates = payload.get("updates", [])
+    updates = payload.get("skill_rewrites", payload.get("updates", []))
     if not isinstance(updates, list):
-        raise SkillOptimizerError("AI response field 'updates' must be a list.")
+        raise SkillOptimizerError("AI response field 'skill_rewrites' must be a list.")
 
     applied = 0
-    for index, update in enumerate(updates, start=1):
+    for update in updates:
         if not isinstance(update, dict):
             continue
         skill_id = str(update.get("skill_id", "")).strip()
         if skill_id not in allowed_ids:
             print(f"Skipping update with unsupported skill_id: {skill_id}", file=sys.stderr)
             continue
-        content = sanitize_content(update.get("content"))
+        content = sanitize_skill_content(update.get("content"))
         if not content:
             continue
-        title = sanitize_title(update.get("title"))
-        marker = f"ai-skill-optimizer:{head[:12]}:{index}"
-        skill_path = SKILL_TARGETS[skill_id].path
-        if dry_run:
-            print(f"\n--- {skill_path.relative_to(REPO_ROOT)} :: {title}\n{content}")
-            applied += 1
-            continue
-        if append_update(skill_path, marker, title, content):
+        if rewrite_skill(SKILL_TARGETS[skill_id].path, content, head, dry_run):
             applied += 1
     return applied
 
@@ -332,11 +452,16 @@ def main() -> int:
         print(f"::warning::{exc}")
         return 0
 
-    payload = parse_json_response(content)
+    try:
+        payload = parse_json_response(content)
+    except SkillOptimizerError as exc:
+        print(f"::warning::{exc}")
+        return 0
+
     applied = apply_updates(payload, set(skill_ids), head, args.dry_run)
     summary = str(payload.get("summary", "")).strip()
     print(f"AI skill optimizer summary: {summary or 'no summary'}")
-    print(f"Applied skill updates: {applied}")
+    print(f"Applied skill rewrites: {applied}")
     return 0
 
 

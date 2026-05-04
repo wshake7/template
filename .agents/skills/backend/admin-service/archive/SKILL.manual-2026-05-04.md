@@ -44,27 +44,18 @@ backend/admin/
 
 1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`。
 2. 如果需要通用字段，优先复用 `orm-crud/gormc/mixin`。
-3. 修改 model 字段后，运行 ORM 生成脚本，更新 `internal/services/orm/query/**`：
+3. 运行 ORM 生成脚本，更新 `internal/services/orm/query/**`：
 
 ```bash
 cd backend/admin
 go run ./cmd/scripts/orm
 ```
 
-4. 确认请求结构体、响应结构体和 model 字段同步；若列表响应需要携带权限标记，优先定义自定义 `Resp` 结构体，而不是直接对外暴露 ORM Model。
-5. 在 `internal/router/logic/<resource>.go` 编写 List/Create/Update/Switch/Delete 等方法。
-6. 如果查询需要动态过滤，优先通过 query 扩展模板提供的 `WithDBScopes` 注入 GORM scope，例如数据权限过滤。
-7. 在 `internal/router/auth_router/<resource>.go` 注册鉴权路由。
-8. 在 `auth_router.RegisterRouters` 聚合注册新资源。
-9. 如果有 Swagger 注释，运行 `make swagger`；分页查询响应的 `data` 类型应指向实际返回的自定义 `Resp`。
-10. 前端同步新增 `src/api/<resource>.ts` 和页面时，切换到 frontend 技能。
-
-## 数据权限约定
-
-- 系统内置资源的保护优先通过 `sys_data_permission` 表配置自定义条件，例如 `id__not:1`，避免在业务代码中硬编码特殊 ID。
-- `sys_data_permission.action` 支持 `read`、`write`、`delete` 和 `all`；角色需要完整操作权限时可配置 `all`，减少重复规则。
-- 列表接口如果需要控制行级操作按钮，响应结构体应携带 `canWrite`、`canDelete` 等权限标记，由数据权限引擎计算后返回。
-- Swagger 注解应描述真实响应结构；使用自定义 `Resp` 时，分页响应中的 `data` 类型不要继续标注为 ORM Model。
+4. 在 `internal/router/logic/<resource>.go` 编写 List/Create/Update/Switch/Delete 等方法。
+5. 在 `internal/router/auth_router/<resource>.go` 注册鉴权路由。
+6. 在 `auth_router.RegisterRouters` 聚合注册新资源。
+7. 如果有 Swagger 注释，运行 `make swagger`。
+8. 前端同步新增 `src/api/<resource>.ts` 和页面时，切换到 frontend 技能。
 
 ## 配置与服务
 
@@ -90,5 +81,30 @@ go test ./...
 
 - 修改 `backend/admin` 后，在该模块执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 - 修改 Swagger 注释后执行 `make swagger` 并检查 `docs/**`。
-- 修改模型、请求结构体、响应结构体或 query 生成模板后，确认生成文件与 Swagger 文档符合预期，避免手改生成产物后被脚本覆盖。
+- 修改模型或 query 生成模板后，确认生成文件符合预期，避免手改生成产物后被脚本覆盖。
+
+## 自动优化记录
+
+<!-- ai-skill-optimizer:6eab4249bb74:1 -->
+### 数据权限设计与列表响应携带操作标记
+
+- 系统内置资源（如系统状态字典类型）的保护，应通过 sys_data_permission 表配置自定义条件（如 id__not:1），而非业务代码硬编码
+- 角色权限可配置 "all" 动作，覆盖 read/write/delete，减少多条规则
+- 列表接口返回自定义 Resp 结构体（如 RespDictType），携带 canWrite/canDelete 等权限标记，由数据权限引擎计算
+- 分页查询响应 Swagger 注解中 data 类型应指向自定义 Resp，不再直接对外暴露 ORM Model
+- ORM 模板新增 WithDBScopes 函数，便于在查询时注入动态 Scope（如数据权限过滤）
+
+<!-- ai-skill-optimizer:eec725a70c9c:1 -->
+### 模型字段新增需执行脚本
+
+- 修改 models 添加字段后，需运行 `go run ./cmd/scripts/orm` 更新 query 生成代码
+- 若请求结构体或模型字段变更，运行 `make swagger` 同步文档
+- 确保请求结构体包含新字段，Swagger 注解正确
+
+<!-- ai-skill-optimizer:eec725a70c9c:2 -->
+### 数据权限 action 支持 all
+
+- sys_data_permission 的 action 字段除了 read/write/delete，还可设置为 all
+- 当角色需要所有操作权限时，可直接配置 action 为 all，减少规则数量
+- 生成代码注释已包含 all 选项，配置时注意大小写
 

@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Editor directories and files
 .vscode/*
 !.vscode/launch.json
@@ -27,5 +31,6 @@ dist-ssr
 # AI agent worktrees
 .claude/worktrees/
 .output/
+tmp*/
 .vite-inspect
 .tanstack

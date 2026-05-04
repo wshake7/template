@@ -33,7 +33,6 @@ front/apps/admin-react/
 - 业务 API 按资源拆在 `src/api/*.ts`，领域常量与响应码在 `src/domains/*.ts`。
 - 状态使用 Zustand，账号状态持久化在 `src/stores/account.ts`。
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
-- 页签缓存配置在 `src/config/tabs.ts`，应用壳在 `_app.tsx` 中维护页签显示、隐藏和刷新行为。
 
 ## 常见任务流程
 
@@ -43,8 +42,7 @@ front/apps/admin-react/
 2. 写入 `staticData.menu`，至少包含 `name` 和 `menuType: 'menu'`；目录型节点使用 `menuType: 'catalog'`。
 3. 页面组件优先沿用现有 Ant Design Pro Components 模式，例如 `ProTable`、`ModalForm`、`ProFormText`。
 4. 如需后端数据，在 `src/api/<resource>.ts` 增加 API 方法和类型，在页面里通过 Alova hooks 调用。
-5. 如果列表项需要行级权限控制，API 响应类型应包含 `canWrite`、`canDelete` 等 boolean 字段，并在 `ProTable` 操作列中据此控制按钮禁用或隐藏。
-6. 如需 Mock，在 `src/mocks/handlers/**` 增加处理器，并在聚合文件中导出。
+5. 如需 Mock，在 `src/mocks/handlers/**` 增加处理器，并在聚合文件中导出。
 
 ### 修改 API 或鉴权
 
@@ -52,14 +50,6 @@ front/apps/admin-react/
 2. 保持 Header 名称与后端 `admin/internal/domains/headers.go` 对齐。
 3. 登录成功路径会写入 token、publicKey、Cookie，并更新 router context。
 4. 状态码处理集中在 `HttpCodeCheck`；新增业务码时同步更新前后端常量。
-5. 后端新增请求或响应字段时，同步更新对应 `src/api/<resource>.ts` 类型和页面表单控件，保持字段名与 Swagger 定义一致。
-
-### 修改页签缓存
-
-1. 页签刷新间隔统一放在 `src/config/tabs.ts` 的 `TAB_REFRESH_INTERVAL`。
-2. `_app.tsx` 中的页签缓存条目需要记录路径、隐藏时间和刷新版本，返回已隐藏页签时按间隔决定是否递增版本。
-3. 渲染所有缓存页签但隐藏非活跃页签；通过 `key={path:version}` 触发过期页签重新挂载。
-4. 关闭页签时同步删除缓存条目，避免长期保留不再使用的页面状态。
 
 ### 修改主题和布局
 
@@ -91,4 +81,30 @@ pnpm --filter admin-react e2e:test
 - 页面/路由/API 行为变化优先执行 `vp run admin-react#build`。
 - 交互复杂或布局敏感时，启动开发服务并用浏览器检查桌面和移动视口。
 - 只改纯文档或技能文件时不需要运行前端验证。
+
+## 自动优化记录
+
+<!-- ai-skill-optimizer:6eab4249bb74:2 -->
+### 字典类型页面权限按钮控制
+
+- 新建管理页面时，若列表项需按权限控制操作按钮，API 响应应包含 canWrite/canDelete 等 boolean 字段
+- 在 ProTable 的 columns 中，通过 render 或 valueType 根据行数据的权限标记决定按钮 disabled 或隐藏
+- 前端 API 封装在 src/api/dict.ts 中，保持与后端 Swagger 定义同步
+- 页面路由文件放置于 src/routes/_app/system/dict.tsx，配合 staticData.menu 注册菜单
+
+<!-- ai-skill-optimizer:7f5caa284408:1 -->
+### 多标签页缓存与自动刷新机制
+
+- 在 `src/config/tabs.ts` 中定义 `TAB_REFRESH_INTERVAL` 常量（如 10 分钟），通过自动导入全局使用。
+- 在 `_app.tsx` 中维护 `cachedTabPanes` (记录 `lastHiddenAt` 和 `version`)，切换标签时更新离去时间，返回时若超过间隔则递增 version。
+- 使用 `useRef` 保存上一次路径，避免闭包陷阱。
+- 渲染所有标签页但隐藏非活跃的，通过 `key={path:version}` 触发组件重新挂载实现刷新。
+- 关闭标签时手动删除对应 `cachedTabPanes` 条目，防止内存泄漏。
+
+<!-- ai-skill-optimizer:eec725a70c9c:3 -->
+### 前后端字典字段同步
+
+- 后端新增字段（如 labelComponent）时，需在 `src/api/dict.ts` 中更新请求/响应类型
+- 页面表单（`dict.tsx`）应添加对应输入控件，保持字段名与 API 一致
+- 若字段需要权限控制，考虑在列表响应中添加权限标记
 
