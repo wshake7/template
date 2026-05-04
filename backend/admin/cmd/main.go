@@ -24,6 +24,7 @@ var configFile = flag.String("f", "./etc/config.yaml", "the config file")
 // @description | 4 | 请求重放 | Nonce 校验失败 |
 // @description | 5 | 请求错误 | 客户端请求错误 |
 // @description | 100 | - | 登录/权限相关失败 |
+// @description | 200 | - | 授权相关失败|
 // @BasePath /
 func main() {
 	flag.Parse()

@@ -9,8 +9,8 @@ bob:
 script-imports:
 	go run ./cmd/script/gen_imports
 
-script-repo:
-	go run ./cmd/script/repo
+script-orm:
+	go run ./cmd/script/orm
 
 run:
 	go run ./cmd

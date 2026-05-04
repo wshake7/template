@@ -41,6 +41,7 @@ func newSysUser(db *gorm.DB, opts ...gen.DOOption) sysUser {
 	_sysUser.Password = field.NewString(tableName, "password")
 	_sysUser.LastLoginAt = field.NewTime(tableName, "last_login_at")
 	_sysUser.LastLoginIP = field.NewString(tableName, "last_login_ip")
+	_sysUser.LanguageCode = field.NewString(tableName, "language_code")
 	_sysUser.SysRoles = sysUserManyToManySysRoles{
 		db: db.Session(&gorm.Session{}),
 
@@ -65,22 +66,23 @@ func newSysUser(db *gorm.DB, opts ...gen.DOOption) sysUser {
 type sysUser struct {
 	sysUserDo
 
-	ALL         field.Asterisk
-	ID          field.Uint64
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	Remark      field.String
-	CreatedBy   field.Uint64
-	UpdatedBy   field.Uint64
-	DeletedBy   field.Uint64
-	IsEnabled   field.Bool
-	DeletedAt   field.Uint
-	Username    field.String // 用户名
-	Nickname    field.String // 昵称
-	Password    field.String // 密码
-	LastLoginAt field.Time   // 最后一次登录的时间
-	LastLoginIP field.String // 最后一次登录的IP
-	SysRoles    sysUserManyToManySysRoles
+	ALL          field.Asterisk
+	ID           field.Uint64
+	CreatedAt    field.Time
+	UpdatedAt    field.Time
+	Remark       field.String
+	CreatedBy    field.Uint64
+	UpdatedBy    field.Uint64
+	DeletedBy    field.Uint64
+	IsEnabled    field.Bool
+	DeletedAt    field.Uint
+	Username     field.String // 用户名
+	Nickname     field.String // 昵称
+	Password     field.String // 密码
+	LastLoginAt  field.Time   // 最后一次登录的时间
+	LastLoginIP  field.String // 最后一次登录的IP
+	LanguageCode field.String // 语言代码
+	SysRoles     sysUserManyToManySysRoles
 
 	fieldMap map[string]field.Expr
 }
@@ -111,6 +113,7 @@ func (s *sysUser) updateTableName(table string) *sysUser {
 	s.Password = field.NewString(table, "password")
 	s.LastLoginAt = field.NewTime(table, "last_login_at")
 	s.LastLoginIP = field.NewString(table, "last_login_ip")
+	s.LanguageCode = field.NewString(table, "language_code")
 
 	s.fillFieldMap()
 
@@ -127,7 +130,7 @@ func (s *sysUser) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysUser) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 15)
+	s.fieldMap = make(map[string]field.Expr, 16)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -142,6 +145,7 @@ func (s *sysUser) fillFieldMap() {
 	s.fieldMap["password"] = s.Password
 	s.fieldMap["last_login_at"] = s.LastLoginAt
 	s.fieldMap["last_login_ip"] = s.LastLoginIP
+	s.fieldMap["language_code"] = s.LanguageCode
 
 }
 
