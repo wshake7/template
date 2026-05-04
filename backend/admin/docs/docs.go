@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqAccountChangePwd"
+                            "$ref": "#/definitions/logic.ReqAccountChangePwd"
                         }
                     }
                 ],
@@ -69,7 +69,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqAccountPwdLogin"
+                            "$ref": "#/definitions/logic.ReqAccountPwdLogin"
                         }
                     }
                 ],
@@ -85,7 +85,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_router_logic.ResAccountPwdLogin"
+                                            "$ref": "#/definitions/logic.ResAccountPwdLogin"
                                         }
                                     }
                                 }
@@ -143,7 +143,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchCopy"
+                            "$ref": "#/definitions/logic.ReqDictEntryBatchCopy"
                         }
                     }
                 ],
@@ -176,7 +176,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryCreate"
+                            "$ref": "#/definitions/logic.ReqDictEntryCreate"
                         }
                     }
                 ],
@@ -209,7 +209,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchDelete"
+                            "$ref": "#/definitions/logic.ReqDictEntryBatchDelete"
                         }
                     }
                 ],
@@ -287,7 +287,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdate"
+                            "$ref": "#/definitions/logic.ReqDictEntryUpdate"
                         }
                     }
                 ],
@@ -320,7 +320,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeCreate"
+                            "$ref": "#/definitions/logic.ReqDictTypeCreate"
                         }
                     }
                 ],
@@ -353,7 +353,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeBatchDelete"
+                            "$ref": "#/definitions/logic.ReqDictTypeBatchDelete"
                         }
                     }
                 ],
@@ -402,7 +402,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespDictType"
+                                            "$ref": "#/definitions/gormc.PagingResult-logic_RespDictType"
                                         }
                                     }
                                 }
@@ -431,7 +431,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeUpdate"
+                            "$ref": "#/definitions/logic.ReqDictTypeUpdate"
                         }
                     }
                 ],
@@ -467,7 +467,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_router_logic.ResPublicKey"
+                                            "$ref": "#/definitions/logic.ResPublicKey"
                                         }
                                     }
                                 }
@@ -497,7 +497,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLogDetail"
+                            "$ref": "#/definitions/logic.ReqLogDetail"
                         }
                     }
                 ],
@@ -589,7 +589,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleCreate"
+                            "$ref": "#/definitions/logic.ReqRoleCreate"
                         }
                     }
                 ],
@@ -623,7 +623,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleDelete"
+                            "$ref": "#/definitions/logic.ReqRoleDelete"
                         }
                     }
                 ],
@@ -703,7 +703,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleSwitchStatus"
+                            "$ref": "#/definitions/logic.ReqRoleSwitchStatus"
                         }
                     }
                 ],
@@ -737,7 +737,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleUpdate"
+                            "$ref": "#/definitions/logic.ReqRoleUpdate"
                         }
                     }
                 ],
@@ -746,6 +746,54 @@ const docTemplate = `{
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/dict/entry/match": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dict"
+                ],
+                "summary": "通过字典编码获取启用字典项",
+                "parameters": [
+                    {
+                        "description": "字典类型编码",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/logic.ReqDictEntryListByCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/logic.RespDictEntryByCode"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -771,7 +819,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchCreate"
+                            "$ref": "#/definitions/logic.ReqLangEntryBatchCreate"
                         }
                     }
                 ],
@@ -805,7 +853,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryCreate"
+                            "$ref": "#/definitions/logic.ReqLangEntryCreate"
                         }
                     }
                 ],
@@ -839,7 +887,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchDelete"
+                            "$ref": "#/definitions/logic.ReqLangEntryBatchDelete"
                         }
                     }
                 ],
@@ -919,7 +967,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdate"
+                            "$ref": "#/definitions/logic.ReqLangEntryUpdate"
                         }
                     }
                 ],
@@ -953,7 +1001,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeCreate"
+                            "$ref": "#/definitions/logic.ReqLangTypeCreate"
                         }
                     }
                 ],
@@ -987,7 +1035,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeBatchDelete"
+                            "$ref": "#/definitions/logic.ReqLangTypeBatchDelete"
                         }
                     }
                 ],
@@ -1067,7 +1115,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeUpdate"
+                            "$ref": "#/definitions/logic.ReqLangTypeUpdate"
                         }
                     }
                 ],
@@ -1100,7 +1148,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqResourceCreate"
+                            "$ref": "#/definitions/logic.ReqResourceCreate"
                         }
                     }
                 ],
@@ -1133,7 +1181,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqResourceBatchDelete"
+                            "$ref": "#/definitions/logic.ReqResourceBatchDelete"
                         }
                     }
                 ],
@@ -1211,7 +1259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqResourceUpdate"
+                            "$ref": "#/definitions/logic.ReqResourceUpdate"
                         }
                     }
                 ],
@@ -1728,13 +1776,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-internal_router_logic_RespDictType": {
+        "gormc.PagingResult-logic_RespDictType": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/internal_router_logic.RespDictType"
+                        "$ref": "#/definitions/logic.RespDictType"
                     }
                 },
                 "total": {
@@ -1742,7 +1790,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqAccountChangePwd": {
+        "logic.ReqAccountChangePwd": {
             "type": "object",
             "required": [
                 "newPwd",
@@ -1759,7 +1807,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqAccountPwdLogin": {
+        "logic.ReqAccountPwdLogin": {
             "type": "object",
             "required": [
                 "pwd",
@@ -1776,7 +1824,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictEntryBatchCopy": {
+        "logic.ReqDictEntryBatchCopy": {
             "type": "object",
             "required": [
                 "entryIds",
@@ -1795,7 +1843,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictEntryBatchDelete": {
+        "logic.ReqDictEntryBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -1810,7 +1858,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictEntryCreate": {
+        "logic.ReqDictEntryCreate": {
             "type": "object",
             "required": [
                 "entryLabel",
@@ -1849,7 +1897,19 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictEntryUpdate": {
+        "logic.ReqDictEntryListByCode": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 128
+                }
+            }
+        },
+        "logic.ReqDictEntryUpdate": {
             "type": "object",
             "properties": {
                 "entryLabel": {
@@ -1887,12 +1947,12 @@ const docTemplate = `{
                 "updates": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdateItem"
+                        "$ref": "#/definitions/logic.ReqDictEntryUpdateItem"
                     }
                 }
             }
         },
-        "internal_router_logic.ReqDictEntryUpdateItem": {
+        "logic.ReqDictEntryUpdateItem": {
             "type": "object",
             "required": [
                 "id"
@@ -1932,7 +1992,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictTypeBatchDelete": {
+        "logic.ReqDictTypeBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -1947,7 +2007,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictTypeCreate": {
+        "logic.ReqDictTypeCreate": {
             "type": "object",
             "required": [
                 "typeCode",
@@ -1974,7 +2034,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqDictTypeUpdate": {
+        "logic.ReqDictTypeUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -2003,7 +2063,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangEntryBatchCreate": {
+        "logic.ReqLangEntryBatchCreate": {
             "type": "object",
             "required": [
                 "entryCode",
@@ -2028,7 +2088,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangEntryBatchDelete": {
+        "logic.ReqLangEntryBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2043,7 +2103,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangEntryCreate": {
+        "logic.ReqLangEntryCreate": {
             "type": "object",
             "required": [
                 "entryCode",
@@ -2074,7 +2134,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangEntryUpdate": {
+        "logic.ReqLangEntryUpdate": {
             "type": "object",
             "properties": {
                 "entryCode": {
@@ -2104,12 +2164,12 @@ const docTemplate = `{
                 "updates": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdateItem"
+                        "$ref": "#/definitions/logic.ReqLangEntryUpdateItem"
                     }
                 }
             }
         },
-        "internal_router_logic.ReqLangEntryUpdateItem": {
+        "logic.ReqLangEntryUpdateItem": {
             "type": "object",
             "required": [
                 "id"
@@ -2141,7 +2201,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangTypeBatchDelete": {
+        "logic.ReqLangTypeBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2156,7 +2216,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangTypeCreate": {
+        "logic.ReqLangTypeCreate": {
             "type": "object",
             "required": [
                 "typeCode",
@@ -2182,7 +2242,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLangTypeUpdate": {
+        "logic.ReqLangTypeUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -2210,7 +2270,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqLogDetail": {
+        "logic.ReqLogDetail": {
             "type": "object",
             "required": [
                 "id"
@@ -2221,7 +2281,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqResourceBatchDelete": {
+        "logic.ReqResourceBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2236,7 +2296,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqResourceCreate": {
+        "logic.ReqResourceCreate": {
             "type": "object",
             "required": [
                 "code",
@@ -2268,7 +2328,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqResourceUpdate": {
+        "logic.ReqResourceUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -2298,7 +2358,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqRoleCreate": {
+        "logic.ReqRoleCreate": {
             "type": "object",
             "required": [
                 "code",
@@ -2321,7 +2381,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqRoleDelete": {
+        "logic.ReqRoleDelete": {
             "type": "object",
             "required": [
                 "id"
@@ -2332,7 +2392,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqRoleSwitchStatus": {
+        "logic.ReqRoleSwitchStatus": {
             "type": "object",
             "required": [
                 "id"
@@ -2346,7 +2406,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ReqRoleUpdate": {
+        "logic.ReqRoleUpdate": {
             "type": "object",
             "required": [
                 "code",
@@ -2373,7 +2433,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ResAccountPwdLogin": {
+        "logic.ResAccountPwdLogin": {
             "type": "object",
             "properties": {
                 "publicKey": {
@@ -2384,7 +2444,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.ResPublicKey": {
+        "logic.ResPublicKey": {
             "type": "object",
             "properties": {
                 "publicKey": {
@@ -2392,7 +2452,24 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_router_logic.RespDictType": {
+        "logic.RespDictEntryByCode": {
+            "type": "object",
+            "properties": {
+                "entryLabel": {
+                    "type": "string"
+                },
+                "entryValue": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "labelComponent": {
+                    "type": "string"
+                }
+            }
+        },
+        "logic.RespDictType": {
             "type": "object",
             "properties": {
                 "canDelete": {
@@ -2535,7 +2612,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Admin API",
-	Description:      "Admin 后端服务 API 文档。\n所有接口均返回 HTTP 200，通过响应体中的 code 区分业务状态：\n| Code | Msg | 说明 |\n| :--- | :--- | :--- |\n| 1 | success | 成功 |\n| 2 | 服务繁忙 | 通用失败 |\n| 3 | 请求超时 | 请求过期 |\n| 4 | 请求重放 | Nonce 校验失败 |\n| 5 | 请求错误 | 客户端请求错误 |\n| 100 | - | 登录/权限相关失败 |",
+	Description:      "Admin 后端服务 API 文档。\n所有接口均返回 HTTP 200，通过响应体中的 code 区分业务状态：\n| Code | Msg | 说明 |\n| :--- | :--- | :--- |\n| 1 | success | 成功 |\n| 2 | 服务繁忙 | 通用失败 |\n| 3 | 请求超时 | 请求过期 |\n| 4 | 请求重放 | Nonce 校验失败 |\n| 5 | 请求错误 | 客户端请求错误 |\n| 100 | - | 登录/权限相关失败 |\n| 200 | - | 授权相关失败|",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

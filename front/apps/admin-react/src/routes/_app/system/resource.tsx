@@ -13,6 +13,7 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 import z from 'zod'
 import { ResourceApi } from '~/api/sysResource'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -27,19 +28,15 @@ export const Route = createFileRoute('/_app/system/resource')({
   component: RouteComponent,
 })
 
-function statusTag(isEnabled: boolean) {
-  if (isEnabled) {
-    return <Tag color="success">启用</Tag>
-  }
-  return <Tag color="default">停用</Tag>
-}
-
 const resourceTypeOptions = [
   { label: 'api', value: 'api' },
   { label: 'data', value: 'data' },
   { label: 'menu', value: 'menu' },
   { label: 'component', value: 'component' },
 ]
+
+const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
+const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 const ResourceSchema = z.object({
   type: z.string('请选择资源类型').min(1, '请选择资源类型'),
@@ -58,6 +55,7 @@ function RouteComponent() {
   const [editing, setEditing] = useState<Resource>()
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [searchText, setSearchText] = useState('')
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
   const {
     data,
     total,
@@ -186,7 +184,7 @@ function RouteComponent() {
       title: '状态',
       dataIndex: 'isEnabled',
       width: 90,
-      render: (_, record) => statusTag(record.isEnabled),
+      render: (_, record) => enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '备注',
@@ -220,7 +218,7 @@ function RouteComponent() {
             await send()
           }}
         >
-          {record.isEnabled ? '停用' : '启用'}
+          {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
         </a>,
         <Popconfirm
           key="del"
@@ -242,7 +240,7 @@ function RouteComponent() {
         </Popconfirm>,
       ],
     },
-  ], [openEdit, send, page, pageSize])
+  ], [enabledStatus, openEdit, send, page, pageSize])
 
   return (
     <>

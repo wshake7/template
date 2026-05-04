@@ -20,6 +20,7 @@ func registerSysDictRouters(router fiber.Router) {
 
 	dictEntry := router.Group("/entry")
 	dictEntry.Post("/list", handler.CtxHandlerFunc(sysDictHandler.EntryList))
+	dictEntry.Post("/match", handler.CtxHandlerFunc(sysDictHandler.EntryMatch))
 	dictEntry.Post("/create", logMiddleware, handler.CtxHandlerNilFunc(sysDictHandler.EntryCreate))
 	dictEntry.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(sysDictHandler.EntryUpdate))
 	dictEntry.Post("/del", logMiddleware, handler.CtxHandlerNilFunc(sysDictHandler.EntryDel))

@@ -17,6 +17,8 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import z from 'zod'
 import { DictApi } from '~/api/sysDict'
+import { ENTRY_LABEL_PLACEHOLDER, renderDictEntryLabel } from '~/components/dictEntryLabel'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -31,14 +33,6 @@ export const Route = createFileRoute('/_app/system/dict')({
   component: RouteComponent,
 })
 
-function statusTag(isEnabled: boolean) {
-  if (isEnabled) {
-    return <Tag color="success">启用</Tag>
-  }
-  return <Tag color="default">停用</Tag>
-}
-
-const ENTRY_LABEL_PLACEHOLDER = '$' + '{EntryLabel}'
 const LABEL_COMPONENT_CUSTOM = '__custom__'
 const CUSTOM_LABEL_COMPONENT_DEFAULT = `<Tag color="blue">${ENTRY_LABEL_PLACEHOLDER}</Tag>`
 
@@ -54,123 +48,8 @@ const labelComponentPresets = [
 ]
 
 const labelComponentPresetValues = new Set(labelComponentPresets.map(item => item.value))
-
-interface ParsedTagTemplate {
-  content: string
-  color?: string
-  bordered?: boolean
-}
-
-const blockedHtmlTags = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'base'])
-
-function parseTagTemplate(template?: string): ParsedTagTemplate | null {
-  const source = template?.trim()
-  if (!source) {
-    return { content: ENTRY_LABEL_PLACEHOLDER }
-  }
-
-  const openEnd = source.indexOf('>')
-  if (openEnd <= 1) {
-    return null
-  }
-  const openTag = source.slice(1, openEnd).trim()
-  const attrStart = openTag.search(/\s/)
-  const tag = attrStart === -1 ? openTag : openTag.slice(0, attrStart)
-  if (tag !== 'Tag') {
-    return null
-  }
-  const closeTag = `</${tag}>`
-  if (!source.endsWith(closeTag)) {
-    return null
-  }
-  const attrs = attrStart === -1 ? '' : openTag.slice(attrStart)
-  const content = source.slice(openEnd + 1, -closeTag.length)
-
-  const parsed: ParsedTagTemplate = {
-    content: content.trim(),
-  }
-  let consumed = ''
-  const attrRegex = /\s+([a-zA-Z]+)=(?:"([^"]*)"|'([^']*)'|\{(true|false)\})/g
-  for (let attrMatch = attrRegex.exec(attrs); attrMatch; attrMatch = attrRegex.exec(attrs)) {
-    consumed += attrMatch[0]
-    const [, name, doubleQuotedValue, singleQuotedValue, boolValue] = attrMatch
-    const stringValue = doubleQuotedValue ?? singleQuotedValue
-    if (name === 'color' && stringValue && /^[\w#-]+$/.test(stringValue)) {
-      parsed.color = stringValue
-      continue
-    }
-    if (name === 'bordered' && boolValue) {
-      parsed.bordered = boolValue === 'true'
-      continue
-    }
-    return null
-  }
-
-  if (consumed.trim() !== attrs.trim()) {
-    return null
-  }
-  return parsed
-}
-
-function sanitizeLabelHtml(labelComponent: string, entryLabel: string) {
-  if (typeof document === 'undefined') {
-    return ''
-  }
-  const template = document.createElement('template')
-  template.innerHTML = labelComponent.replaceAll(ENTRY_LABEL_PLACEHOLDER, entryLabel)
-
-  const walk = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT)
-  const blockedNodes: Element[] = []
-  while (walk.nextNode()) {
-    const element = walk.currentNode as Element
-    const tagName = element.tagName.toLowerCase()
-    if (blockedHtmlTags.has(tagName)) {
-      blockedNodes.push(element)
-      continue
-    }
-    for (const attr of Array.from(element.attributes)) {
-      const attrName = attr.name.toLowerCase()
-      const attrValue = attr.value.trim().toLowerCase()
-      if (attrName.startsWith('on')) {
-        element.removeAttribute(attr.name)
-        continue
-      }
-      if ((attrName === 'href' || attrName === 'src') && /^(?:javascript|data):/.test(attrValue)) {
-        element.removeAttribute(attr.name)
-      }
-    }
-  }
-  for (const node of blockedNodes) {
-    node.remove()
-  }
-  return template.innerHTML
-}
-
-function renderDictEntryLabel(labelComponent: string | undefined, entryLabel: string) {
-  if (!labelComponent?.trim()) {
-    return entryLabel
-  }
-  const parsed = parseTagTemplate(labelComponent)
-  if (!parsed) {
-    const html = sanitizeLabelHtml(labelComponent, entryLabel)
-    if (!html) {
-      return entryLabel
-    }
-    return (
-      // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
-      <span dangerouslySetInnerHTML={{ __html: html }} />
-    )
-  }
-  const children = parsed.content.includes(ENTRY_LABEL_PLACEHOLDER)
-    ? parsed.content.replaceAll(ENTRY_LABEL_PLACEHOLDER, entryLabel)
-    : parsed.content
-
-  return (
-    <Tag color={parsed.color} bordered={parsed.bordered}>
-      {children}
-    </Tag>
-  )
-}
+const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
+const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 let monacoSetupPromise: Promise<typeof Monaco> | undefined
 
@@ -338,6 +217,7 @@ function DictTypePanel({
   const [hoveredDropTypeId, setHoveredDropTypeId] = useState<number | undefined>()
   const [selectedTypeIds, setSelectedTypeIds] = useState<number[]>([])
   const [searchText, setSearchText] = useState('')
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
   const {
     data,
     total,
@@ -458,7 +338,7 @@ function DictTypePanel({
       title: '状态',
       dataIndex: 'isEnabled',
       width: 90,
-      render: (_, record) => statusTag(record.isEnabled),
+      render: (_, record) => enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '排序',
@@ -508,7 +388,7 @@ function DictTypePanel({
               await send()
             }}
           >
-            {record.isEnabled ? '停用' : '启用'}
+            {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
           </Button>,
           <Popconfirm
             key="del"
@@ -539,7 +419,7 @@ function DictTypePanel({
         ]
       },
     },
-  ], [openEdit, selectedType?.id, onDeleteSelectedType, send, page, pageSize])
+  ], [enabledStatus, openEdit, selectedType?.id, onDeleteSelectedType, send, page, pageSize])
 
   return (
     <>
@@ -703,6 +583,7 @@ function DictEntryPanel({
   const [editing, setEditing] = useState<DictEntry>()
   const [searchText, setSearchText] = useState('')
   const [labelComponentMode, setLabelComponentMode] = useState<string>('')
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
   const {
     data,
     total,
@@ -872,7 +753,7 @@ function DictEntryPanel({
       title: '状态',
       dataIndex: 'isEnabled',
       width: 90,
-      render: (_, record) => statusTag(record.isEnabled),
+      render: (_, record) => enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '排序',
@@ -910,7 +791,7 @@ function DictEntryPanel({
             await send()
           }}
         >
-          {record.isEnabled ? '停用' : '启用'}
+          {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
         </a>,
         <Popconfirm
           key="del"
@@ -925,7 +806,7 @@ function DictEntryPanel({
         </Popconfirm>,
       ],
     },
-  ], [openEdit, send, page, pageSize])
+  ], [enabledStatus, openEdit, send, page, pageSize])
 
   return (
     <>

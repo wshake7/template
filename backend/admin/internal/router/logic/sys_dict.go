@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
@@ -386,6 +387,134 @@ type ReqDictEntryBatchDelete struct {
 type ReqDictEntryBatchCopy struct {
 	EntryIds     []uint64 `json:"entryIds" binding:"required,min=1" binding_msg:"required=请选择字典项,min=至少选择一项"`
 	TargetTypeId uint64   `json:"targetTypeId" binding:"required" binding_msg:"required=目标字典类型不能为空"`
+}
+
+type ReqDictEntryListByCode struct {
+	Code string `json:"code" binding:"required,max=128" binding_msg:"required=字典类型编码不能为空,max=字典类型编码最多128位"`
+}
+
+type RespDictEntryByCode struct {
+	ID             uint64 `json:"id"`
+	LabelComponent string `json:"labelComponent"`
+	EntryLabel     string `json:"entryLabel"`
+	EntryValue     string `json:"entryValue"`
+}
+
+// @Summary 通过字典编码获取启用字典项
+// @Remark 根据字典类型编码查询启用字典项；若字典项配置了语言条目编码，则按当前请求语言替换显示标签
+// @Tags Dict
+// @Accept json
+// @Produce json
+// @Param req body ReqDictEntryListByCode true "字典类型编码"
+// @Success 200 {object} res.Response{data=[]RespDictEntryByCode} "成功"
+// @Router /api/sys/dict/entry/match [post]
+func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryListByCode) (*[]*RespDictEntryByCode, error) {
+	permissionQuery, err := datapermission.BuildReadPermissionQuery(ctx, models.SysDictType{}.TableName())
+	if err != nil {
+		ctx.L().Error("apply dict type read permission failed", zap.Error(err), zap.String("code", req.Code))
+		return nil, res.FailDefault
+	}
+
+	sysDictType := permissionQuery.SysDictType
+	dictType, err := sysDictType.
+		Select(sysDictType.ID).
+		Where(sysDictType.TypeCode.Eq(req.Code), sysDictType.IsEnabled.Is(true)).
+		First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			items := []*RespDictEntryByCode{}
+			return &items, nil
+		}
+		ctx.L().Error("query dict type by code failed", zap.Error(err), zap.String("code", req.Code))
+		return nil, res.FailDefault
+	}
+
+	sysDictEntry := query.SysDictEntry
+	entries, err := sysDictEntry.
+		Where(sysDictEntry.SysDictTypeId.Eq(dictType.ID), sysDictEntry.IsEnabled.Is(true)).
+		Order(sysDictEntry.SortOrder.Asc(), sysDictEntry.ID.Asc()).
+		Find()
+	if err != nil {
+		ctx.L().Error("query dict entries by code failed", zap.Error(err), zap.String("code", req.Code), zap.Uint64("typeId", dictType.ID))
+		return nil, res.FailDefault
+	}
+	if len(entries) == 0 {
+		items := []*RespDictEntryByCode{}
+		return &items, nil
+	}
+
+	translationMap, err := queryDictEntryTranslationMap(ctx, entries)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]*RespDictEntryByCode, 0, len(entries))
+	for _, entry := range entries {
+		entryLabel := entry.EntryLabel
+		if translation, ok := translationMap[strings.TrimSpace(entry.LanguageCode)]; ok {
+			entryLabel = translation
+		}
+		items = append(items, &RespDictEntryByCode{
+			ID:             entry.ID,
+			LabelComponent: entry.LabelComponent,
+			EntryLabel:     entryLabel,
+			EntryValue:     entry.EntryValue,
+		})
+	}
+	return &items, nil
+}
+
+func queryDictEntryTranslationMap(ctx *handler.Ctx, entries []*models.SysDictEntry) (map[string]string, error) {
+	languageCodes := make([]string, 0, len(entries))
+	languageCodeSet := make(map[string]struct{}, len(entries))
+	for _, entry := range entries {
+		languageCode := strings.TrimSpace(entry.LanguageCode)
+		if languageCode == "" {
+			continue
+		}
+		if _, exists := languageCodeSet[languageCode]; exists {
+			continue
+		}
+		languageCodeSet[languageCode] = struct{}{}
+		languageCodes = append(languageCodes, languageCode)
+	}
+	language := strings.TrimSpace(ctx.Language)
+	if len(languageCodes) == 0 || language == "" {
+		return map[string]string{}, nil
+	}
+
+	sysLanguageType := query.SysLanguageType
+	languageType, err := sysLanguageType.
+		Select(sysLanguageType.ID).
+		Where(sysLanguageType.TypeCode.Eq(language), sysLanguageType.IsEnabled.Is(true)).
+		First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return map[string]string{}, nil
+		}
+		ctx.L().Error("query language type failed", zap.Error(err), zap.String("language", language))
+		return nil, res.FailDefault
+	}
+
+	sysLanguageEntry := query.SysLanguageEntry
+	languageEntries, err := sysLanguageEntry.
+		Select(sysLanguageEntry.EntryCode, sysLanguageEntry.EntryValue).
+		Where(
+			sysLanguageEntry.SysLanguageTypeId.Eq(languageType.ID),
+			sysLanguageEntry.EntryCode.In(languageCodes...),
+			sysLanguageEntry.IsEnabled.Is(true),
+		).
+		Find()
+	if err != nil {
+		ctx.L().Error("query language entries failed", zap.Error(err), zap.String("language", language), zap.Strings("entryCodes", languageCodes))
+		return nil, res.FailDefault
+	}
+
+	translationMap := make(map[string]string, len(languageEntries))
+	for _, entry := range languageEntries {
+		translationMap[entry.EntryCode] = entry.EntryValue
+	}
+	return translationMap, nil
 }
 
 // @Summary 获取字典数据项分页列表

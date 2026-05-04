@@ -10,6 +10,8 @@ declare global {
   const Activity: typeof import('react').Activity
   const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
   const DictApi: typeof import('./api/sysDict').DictApi
+  const DictCode: typeof import('./domains/dict').DictCode
+  const ENTRY_LABEL_PLACEHOLDER: typeof import('./components/dictEntryLabel').ENTRY_LABEL_PLACEHOLDER
   const EncryptApi: typeof import('./api/encrypt').EncryptApi
   const ErrorComponent: typeof import('./components/error').ErrorComponent
   const Fragment: typeof import('react').Fragment
@@ -50,6 +52,7 @@ declare global {
   const groupByParentId: typeof import('./utils/menu').groupByParentId
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
+  const renderDictEntryLabel: typeof import('./components/dictEntryLabel').renderDictEntryLabel
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
   const sortByOrder: typeof import('./utils/menu').sortByOrder
   const startTransition: typeof import('react').startTransition
@@ -187,7 +190,7 @@ declare global {
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
   // @ts-ignore
-  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/sysDict'
+  export type { DictType, DictEntry, DictMatchedEntry, ReqDictEntryMatch, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/sysDict'
   import('./api/sysDict')
   // @ts-ignore
   export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/sysLanguage'

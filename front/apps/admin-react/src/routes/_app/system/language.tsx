@@ -18,6 +18,7 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 import z from 'zod'
 import { LangApi } from '~/api/sysLanguage'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -32,14 +33,9 @@ export const Route = createFileRoute('/_app/system/language')({
   component: RouteComponent,
 })
 
-function statusTag(isEnabled: boolean) {
-  if (isEnabled) {
-    return <Tag color="success">启用</Tag>
-  }
-  return <Tag color="default">停用</Tag>
-}
-
 type EntryEditorMode = 'create' | 'edit'
+const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
+const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 function EntryEditorDrawer({
   mode,
@@ -188,6 +184,7 @@ function LanguageTypePanel({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<LanguageType>()
   const [searchText, setSearchText] = useState('')
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
   const {
     data,
     total,
@@ -313,7 +310,7 @@ function LanguageTypePanel({
       title: '状态',
       dataIndex: 'isEnabled',
       width: 80,
-      render: (_, record) => statusTag(record.isEnabled),
+      render: (_, record) => enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '排序',
@@ -359,7 +356,7 @@ function LanguageTypePanel({
                   await send()
                 }}
               >
-                {record.isEnabled ? '停用' : '启用'}
+                {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
               </a>
             ),
         <a
@@ -398,7 +395,7 @@ function LanguageTypePanel({
             ),
       ],
     },
-  ], [openEdit, selectedType, onDeleteSelectedType, onUpdateSelectedType, send, page, pageSize])
+  ], [enabledStatus, openEdit, selectedType, onDeleteSelectedType, onUpdateSelectedType, send, page, pageSize])
 
   return (
     <>
@@ -499,6 +496,7 @@ function LanguageEntryPanel({
   const [editDrawerForm] = Form.useForm()
   const [batchCreateOpen, setBatchCreateOpen] = useState(false)
   const [batchCreateForm] = Form.useForm()
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
 
   const {
     data,
@@ -745,9 +743,9 @@ function LanguageEntryPanel({
     if (updates.length > 0) {
       await LangApi.entryUpdate({ updates })
     }
-    gMessage.success(targetEnabled ? '启用成功' : '停用成功')
+    gMessage.success(`${enabledStatus.getLabel(enabledStatusValue(targetEnabled), fallbackEnabledStatusLabel(targetEnabled))}成功`)
     await send()
-  }, [send])
+  }, [enabledStatus, send])
 
   const columns = useMemo<ProColumns<LanguageEntry>[]>(() => [
     {
@@ -786,7 +784,7 @@ function LanguageEntryPanel({
       width: 75,
       valueType: 'switch',
       editable: false,
-      render: (_: unknown, record: LanguageEntry) => statusTag(record.isEnabled),
+      render: (_: unknown, record: LanguageEntry) => enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '备注',
@@ -807,7 +805,7 @@ function LanguageEntryPanel({
             await handleToggleEntryEnabled(record)
           }}
         >
-          {record.isEnabled ? '停用' : '启用'}
+          {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
         </a>,
         <a
           key="modalEdit"
@@ -831,7 +829,7 @@ function LanguageEntryPanel({
         </Popconfirm>,
       ],
     },
-  ], [page, pageSize, send, openEditDrawer, handleToggleEntryEnabled])
+  ], [enabledStatus, page, pageSize, send, openEditDrawer, handleToggleEntryEnabled])
 
   return (
     <>

@@ -333,16 +333,16 @@ definitions:
       total:
         type: integer
     type: object
-  gormc.PagingResult-internal_router_logic_RespDictType:
+  gormc.PagingResult-logic_RespDictType:
     properties:
       items:
         items:
-          $ref: '#/definitions/internal_router_logic.RespDictType'
+          $ref: '#/definitions/logic.RespDictType'
         type: array
       total:
         type: integer
     type: object
-  internal_router_logic.ReqAccountChangePwd:
+  logic.ReqAccountChangePwd:
     properties:
       newPwd:
         minLength: 6
@@ -354,7 +354,7 @@ definitions:
       - newPwd
       - oldPwd
     type: object
-  internal_router_logic.ReqAccountPwdLogin:
+  logic.ReqAccountPwdLogin:
     properties:
       pwd:
         minLength: 6
@@ -366,7 +366,7 @@ definitions:
       - pwd
       - username
     type: object
-  internal_router_logic.ReqDictEntryBatchCopy:
+  logic.ReqDictEntryBatchCopy:
     properties:
       entryIds:
         items:
@@ -379,7 +379,7 @@ definitions:
       - entryIds
       - targetTypeId
     type: object
-  internal_router_logic.ReqDictEntryBatchDelete:
+  logic.ReqDictEntryBatchDelete:
     properties:
       ids:
         items:
@@ -389,7 +389,7 @@ definitions:
     required:
       - ids
     type: object
-  internal_router_logic.ReqDictEntryCreate:
+  logic.ReqDictEntryCreate:
     properties:
       entryLabel:
         maxLength: 255
@@ -417,7 +417,15 @@ definitions:
       - entryValue
       - sysDictTypeId
     type: object
-  internal_router_logic.ReqDictEntryUpdate:
+  logic.ReqDictEntryListByCode:
+    properties:
+      code:
+        maxLength: 128
+        type: string
+    required:
+      - code
+    type: object
+  logic.ReqDictEntryUpdate:
     properties:
       entryLabel:
         maxLength: 255
@@ -444,10 +452,10 @@ definitions:
         type: integer
       updates:
         items:
-          $ref: '#/definitions/internal_router_logic.ReqDictEntryUpdateItem'
+          $ref: '#/definitions/logic.ReqDictEntryUpdateItem'
         type: array
     type: object
-  internal_router_logic.ReqDictEntryUpdateItem:
+  logic.ReqDictEntryUpdateItem:
     properties:
       entryLabel:
         maxLength: 255
@@ -475,7 +483,7 @@ definitions:
     required:
       - id
     type: object
-  internal_router_logic.ReqDictTypeBatchDelete:
+  logic.ReqDictTypeBatchDelete:
     properties:
       ids:
         items:
@@ -485,7 +493,7 @@ definitions:
     required:
       - ids
     type: object
-  internal_router_logic.ReqDictTypeCreate:
+  logic.ReqDictTypeCreate:
     properties:
       isEnabled:
         type: boolean
@@ -504,7 +512,7 @@ definitions:
       - typeCode
       - typeName
     type: object
-  internal_router_logic.ReqDictTypeUpdate:
+  logic.ReqDictTypeUpdate:
     properties:
       id:
         type: integer
@@ -524,7 +532,7 @@ definitions:
     required:
       - id
     type: object
-  internal_router_logic.ReqLangEntryBatchCreate:
+  logic.ReqLangEntryBatchCreate:
     properties:
       entryCode:
         maxLength: 128
@@ -541,7 +549,7 @@ definitions:
       - entryCode
       - values
     type: object
-  internal_router_logic.ReqLangEntryBatchDelete:
+  logic.ReqLangEntryBatchDelete:
     properties:
       ids:
         items:
@@ -551,7 +559,7 @@ definitions:
     required:
       - ids
     type: object
-  internal_router_logic.ReqLangEntryCreate:
+  logic.ReqLangEntryCreate:
     properties:
       entryCode:
         maxLength: 128
@@ -573,7 +581,7 @@ definitions:
       - entryValue
       - sysLanguageTypeId
     type: object
-  internal_router_logic.ReqLangEntryUpdate:
+  logic.ReqLangEntryUpdate:
     properties:
       entryCode:
         maxLength: 128
@@ -594,10 +602,10 @@ definitions:
         type: integer
       updates:
         items:
-          $ref: '#/definitions/internal_router_logic.ReqLangEntryUpdateItem'
+          $ref: '#/definitions/logic.ReqLangEntryUpdateItem'
         type: array
     type: object
-  internal_router_logic.ReqLangEntryUpdateItem:
+  logic.ReqLangEntryUpdateItem:
     properties:
       entryCode:
         maxLength: 128
@@ -619,7 +627,7 @@ definitions:
     required:
       - id
     type: object
-  internal_router_logic.ReqLangTypeBatchDelete:
+  logic.ReqLangTypeBatchDelete:
     properties:
       ids:
         items:
@@ -629,7 +637,7 @@ definitions:
     required:
       - ids
     type: object
-  internal_router_logic.ReqLangTypeCreate:
+  logic.ReqLangTypeCreate:
     properties:
       isDefault:
         type: boolean
@@ -647,7 +655,7 @@ definitions:
       - typeCode
       - typeName
     type: object
-  internal_router_logic.ReqLangTypeUpdate:
+  logic.ReqLangTypeUpdate:
     properties:
       id:
         type: integer
@@ -666,14 +674,14 @@ definitions:
     required:
       - id
     type: object
-  internal_router_logic.ReqLogDetail:
+  logic.ReqLogDetail:
     properties:
       id:
         type: integer
     required:
       - id
     type: object
-  internal_router_logic.ReqResourceBatchDelete:
+  logic.ReqResourceBatchDelete:
     properties:
       ids:
         items:
@@ -683,7 +691,7 @@ definitions:
     required:
       - ids
     type: object
-  internal_router_logic.ReqResourceCreate:
+  logic.ReqResourceCreate:
     properties:
       code:
         maxLength: 255
@@ -707,7 +715,7 @@ definitions:
       - name
       - type
     type: object
-  internal_router_logic.ReqResourceUpdate:
+  logic.ReqResourceUpdate:
     properties:
       code:
         maxLength: 255
@@ -728,7 +736,7 @@ definitions:
     required:
       - id
     type: object
-  internal_router_logic.ReqRoleCreate:
+  logic.ReqRoleCreate:
     properties:
       code:
         maxLength: 64
@@ -745,14 +753,14 @@ definitions:
       - code
       - name
     type: object
-  internal_router_logic.ReqRoleDelete:
+  logic.ReqRoleDelete:
     properties:
       id:
         type: integer
     required:
       - id
     type: object
-  internal_router_logic.ReqRoleSwitchStatus:
+  logic.ReqRoleSwitchStatus:
     properties:
       id:
         type: integer
@@ -761,7 +769,7 @@ definitions:
     required:
       - id
     type: object
-  internal_router_logic.ReqRoleUpdate:
+  logic.ReqRoleUpdate:
     properties:
       code:
         maxLength: 64
@@ -781,19 +789,30 @@ definitions:
       - id
       - name
     type: object
-  internal_router_logic.ResAccountPwdLogin:
+  logic.ResAccountPwdLogin:
     properties:
       publicKey:
         type: string
       token:
         type: string
     type: object
-  internal_router_logic.ResPublicKey:
+  logic.ResPublicKey:
     properties:
       publicKey:
         type: string
     type: object
-  internal_router_logic.RespDictType:
+  logic.RespDictEntryByCode:
+    properties:
+      entryLabel:
+        type: string
+      entryValue:
+        type: string
+      id:
+        type: integer
+      labelComponent:
+        type: string
+    type: object
+  logic.RespDictType:
     properties:
       canDelete:
         type: boolean
@@ -896,6 +915,7 @@ info:
     | 4 | 请求重放 | Nonce 校验失败 |
     | 5 | 请求错误 | 客户端请求错误 |
     | 100 | - | 登录/权限相关失败 |
+    | 200 | - | 授权相关失败|
   title: Admin API
   version: "1.0"
 paths:
@@ -910,7 +930,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqAccountChangePwd'
+            $ref: '#/definitions/logic.ReqAccountChangePwd'
       produces:
         - application/json
       responses:
@@ -932,7 +952,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqAccountPwdLogin'
+            $ref: '#/definitions/logic.ReqAccountPwdLogin'
       produces:
         - application/json
       responses:
@@ -943,7 +963,7 @@ paths:
               - $ref: '#/definitions/admin_internal_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/internal_router_logic.ResAccountPwdLogin'
+                    $ref: '#/definitions/logic.ResAccountPwdLogin'
                 type: object
       summary: 用户密码登录
       tags:
@@ -977,7 +997,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictEntryBatchCopy'
+            $ref: '#/definitions/logic.ReqDictEntryBatchCopy'
       produces:
         - application/json
       responses:
@@ -998,7 +1018,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictEntryCreate'
+            $ref: '#/definitions/logic.ReqDictEntryCreate'
       produces:
         - application/json
       responses:
@@ -1019,7 +1039,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictEntryBatchDelete'
+            $ref: '#/definitions/logic.ReqDictEntryBatchDelete'
       produces:
         - application/json
       responses:
@@ -1066,7 +1086,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictEntryUpdate'
+            $ref: '#/definitions/logic.ReqDictEntryUpdate'
       produces:
         - application/json
       responses:
@@ -1087,7 +1107,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictTypeCreate'
+            $ref: '#/definitions/logic.ReqDictTypeCreate'
       produces:
         - application/json
       responses:
@@ -1108,7 +1128,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictTypeBatchDelete'
+            $ref: '#/definitions/logic.ReqDictTypeBatchDelete'
       produces:
         - application/json
       responses:
@@ -1140,7 +1160,7 @@ paths:
               - $ref: '#/definitions/admin_internal_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/gormc.PagingResult-internal_router_logic_RespDictType'
+                    $ref: '#/definitions/gormc.PagingResult-logic_RespDictType'
                 type: object
       summary: 获取字典类型分页列表
       tags:
@@ -1155,7 +1175,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqDictTypeUpdate'
+            $ref: '#/definitions/logic.ReqDictTypeUpdate'
       produces:
         - application/json
       responses:
@@ -1179,7 +1199,7 @@ paths:
               - $ref: '#/definitions/admin_internal_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/internal_router_logic.ResPublicKey'
+                    $ref: '#/definitions/logic.ResPublicKey'
                 type: object
       summary: 获取加密公钥
       tags:
@@ -1195,7 +1215,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLogDetail'
+            $ref: '#/definitions/logic.ReqLogDetail'
       produces:
         - application/json
       responses:
@@ -1249,7 +1269,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleCreate'
+            $ref: '#/definitions/logic.ReqRoleCreate'
       produces:
         - application/json
       responses:
@@ -1271,7 +1291,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleDelete'
+            $ref: '#/definitions/logic.ReqRoleDelete'
       produces:
         - application/json
       responses:
@@ -1320,7 +1340,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleSwitchStatus'
+            $ref: '#/definitions/logic.ReqRoleSwitchStatus'
       produces:
         - application/json
       responses:
@@ -1342,7 +1362,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleUpdate'
+            $ref: '#/definitions/logic.ReqRoleUpdate'
       produces:
         - application/json
       responses:
@@ -1353,6 +1373,34 @@ paths:
       summary: 更新角色
       tags:
         - Role
+  /api/sys/dict/entry/match:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 字典类型编码
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/logic.ReqDictEntryListByCode'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    items:
+                      $ref: '#/definitions/logic.RespDictEntryByCode'
+                    type: array
+                type: object
+      summary: 通过字典编码获取启用字典项
+      tags:
+        - Dict
   /api/sys/language/entry/batch/create:
     post:
       consumes:
@@ -1364,7 +1412,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangEntryBatchCreate'
+            $ref: '#/definitions/logic.ReqLangEntryBatchCreate'
       produces:
         - application/json
       responses:
@@ -1386,7 +1434,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangEntryCreate'
+            $ref: '#/definitions/logic.ReqLangEntryCreate'
       produces:
         - application/json
       responses:
@@ -1408,7 +1456,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangEntryBatchDelete'
+            $ref: '#/definitions/logic.ReqLangEntryBatchDelete'
       produces:
         - application/json
       responses:
@@ -1457,7 +1505,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangEntryUpdate'
+            $ref: '#/definitions/logic.ReqLangEntryUpdate'
       produces:
         - application/json
       responses:
@@ -1479,7 +1527,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangTypeCreate'
+            $ref: '#/definitions/logic.ReqLangTypeCreate'
       produces:
         - application/json
       responses:
@@ -1501,7 +1549,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangTypeBatchDelete'
+            $ref: '#/definitions/logic.ReqLangTypeBatchDelete'
       produces:
         - application/json
       responses:
@@ -1550,7 +1598,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqLangTypeUpdate'
+            $ref: '#/definitions/logic.ReqLangTypeUpdate'
       produces:
         - application/json
       responses:
@@ -1571,7 +1619,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqResourceCreate'
+            $ref: '#/definitions/logic.ReqResourceCreate'
       produces:
         - application/json
       responses:
@@ -1592,7 +1640,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqResourceBatchDelete'
+            $ref: '#/definitions/logic.ReqResourceBatchDelete'
       produces:
         - application/json
       responses:
@@ -1639,7 +1687,7 @@ paths:
           name: req
           required: true
           schema:
-            $ref: '#/definitions/internal_router_logic.ReqResourceUpdate'
+            $ref: '#/definitions/logic.ReqResourceUpdate'
       produces:
         - application/json
       responses:

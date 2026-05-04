@@ -27,6 +27,17 @@ export interface DictEntry {
   remark: string
 }
 
+export interface DictMatchedEntry {
+  id: number
+  labelComponent: string
+  entryLabel: string
+  entryValue: string
+}
+
+export interface ReqDictEntryMatch {
+  code: string
+}
+
 export interface ReqDictTypeCreate {
   typeCode: string
   typeName: string
@@ -97,6 +108,12 @@ function entryList(req: PagingRequest) {
   })
 }
 
+function entryMatch(req: ReqDictEntryMatch) {
+  return API.Post<Res<DictMatchedEntry[]>>('/api/sys/dict/entry/match', req, {
+    cacheFor: 0,
+  })
+}
+
 async function entryCreate(req: ReqDictEntryCreate) {
   await API.Post<Res>('/api/sys/dict/entry/create', req, {
     cacheFor: 0,
@@ -127,6 +144,7 @@ export const DictApi = {
   typeUpdate,
   typeDel,
   entryList,
+  entryMatch,
   entryCreate,
   entryUpdate,
   entryDel,

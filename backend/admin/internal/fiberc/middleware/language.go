@@ -6,12 +6,13 @@ import (
 	"admin/internal/fiberc/handler"
 	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
+	"strings"
 )
 
 func LanguageMiddleware() fiber.Handler {
 	defaultLanguage := config.Conf.DefaultLanguage
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
-		language := fiber.GetReqHeader[string](ctx, domains2.HeaderXLanguage)
+		language := strings.TrimSpace(fiber.GetReqHeader[string](ctx, domains2.HeaderXLanguage))
 		if language == "" {
 			language = defaultLanguage
 		}
