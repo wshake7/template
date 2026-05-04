@@ -6,7 +6,7 @@
 
 ## 核心路径
 
-text
+```text
 backend/admin/
 ├── cmd/main.go                         # 服务入口
 ├── cmd/scripts/init.sql                # 初始化 SQL
@@ -20,7 +20,7 @@ backend/admin/
 ├── internal/services/orm/models/       # GORM models
 ├── internal/services/orm/query/        # GORM Gen 生成代码与扩展
 └── docs/                               # swag 生成的 Swagger 文件
-
+```
 
 ## 启动链路
 
@@ -30,23 +30,6 @@ backend/admin/
 4. `fiberc.NewFiber(conf)` 创建 Fiber app。
 5. `router.Router{}.RegisterRouters(group)` 注册 `/api/**` 路由。
 6. `app.Start()` 启动服务，端口来自配置。
-
-## API 响应码约定
-
-- 所有接口返回 HTTP 200，业务结果通过 `code` 字段区分。
-- 常见 code 及含义：
-
-| Code | 说明 |
-|------|------|
-| 1    | 成功 |
-| 2    | 服务繁忙 / 通用失败 |
-| 3    | 请求超时 |
-| 4    | 请求重放（Nonce 校验失败）|
-| 5    | 请求错误（客户端错误）|
-| 100  | 登录 / 权限相关失败 |
-| 200  | 授权相关失败 |
-
-- 使用 `internal/fiberc/res` 包中的标准错误构造函数，保证响应格式一致。
 
 ## 路由与 Handler 模式
 
@@ -63,10 +46,10 @@ backend/admin/
 2. 如果需要通用字段，优先复用 `orm-crud/gormc/mixin`。
 3. 修改 model 字段后，运行 ORM 生成脚本，更新 `internal/services/orm/query/**`：
 
-bash
+```bash
 cd backend/admin
-make script-orm
-
+go run ./cmd/scripts/orm
+```
 
 4. 确认请求结构体、响应结构体和 model 字段同步；若列表响应需要携带权限标记，优先定义自定义 `Resp` 结构体，而不是直接对外暴露 ORM Model。
 5. 在 `internal/router/logic/<resource>.go` 编写 List/Create/Update/Switch/Delete 等方法。
@@ -93,18 +76,19 @@ make script-orm
 
 ## 命令
 
-bash
+```bash
 cd backend/admin
-go run .
-make script-orm   # 生成 ORM query 代码
+go run ./cmd
+go run ./cmd/scripts/orm
 make swagger
 go fix ./...
 go vet ./...
 go test ./...
-
+```
 
 ## 验证
 
 - 修改 `backend/admin` 后，在该模块执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 - 修改 Swagger 注释后执行 `make swagger` 并检查 `docs/**`。
-- 修改模型、请求结构体、响应结构体或 query 生成模板后，先运行 `make script-orm` 重新生成，再确认生成文件与 Swagger 文档符合预期，避免手改生成产物后被脚本覆盖。
+- 修改模型、请求结构体、响应结构体或 query 生成模板后，确认生成文件与 Swagger 文档符合预期，避免手改生成产物后被脚本覆盖。
+
