@@ -314,7 +314,7 @@ function OperationLogManagement() {
           setDetailOpen(false)
         }}
         footer={null}
-        width={920}
+        width={1080}
         style={{ top: 48 }}
         styles={{
           body: {
@@ -329,6 +329,12 @@ function OperationLogManagement() {
               {`
                 .operation-log-detail .ant-descriptions-view {
                   overflow: hidden;
+                }
+                .operation-log-detail .ant-descriptions-item-label {
+                  width: 96px;
+                  min-width: 96px;
+                  max-width: 96px;
+                  white-space: nowrap;
                 }
                 .operation-log-detail .ant-descriptions-item-content {
                   min-width: 0;
