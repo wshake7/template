@@ -7,8 +7,12 @@ import {
   Modal,
   Tag,
 } from 'antd'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import API from '~/api/index'
+
+let jsonHighlighterPromise: Promise<{
+  codeToHtml: (code: string, options: { lang: string, theme: string }) => string
+}> | undefined
 
 export const Route = createFileRoute('/_app/system/operation/log')({
   staticData: {
@@ -44,6 +48,122 @@ function costTimeDisplay(costTime: number) {
     return `${costTime}ms`
   }
   return `${(costTime / 1000).toFixed(2)}s`
+}
+
+function formatJsonContent(value?: string) {
+  const content = value?.trim()
+  if (!content) {
+    return ''
+  }
+
+  try {
+    return JSON.stringify(JSON.parse(content), null, 2)
+  }
+  catch {
+    return content
+  }
+}
+
+function getJsonHighlighter() {
+  jsonHighlighterPromise ??= Promise
+    .all([
+      import('shiki/core'),
+      import('shiki/engine/javascript'),
+      import('shiki/langs/json.mjs'),
+      import('shiki/themes/github-light.mjs'),
+    ])
+    .then(async ([{ createHighlighterCore }, { createJavaScriptRegexEngine }, json, githubLight]) => {
+      const highlighter = await createHighlighterCore({
+        themes: [githubLight.default],
+        langs: [json.default],
+        engine: createJavaScriptRegexEngine({ forgiving: true }),
+      })
+      return {
+        codeToHtml: (code: string, options: { lang: string, theme: string }) => highlighter.codeToHtml(code, options),
+      }
+    })
+
+  return jsonHighlighterPromise
+}
+
+function JsonCodeBlock({ value }: { value?: string }) {
+  const formattedValue = useMemo(() => formatJsonContent(value), [value])
+  const [highlightedHtml, setHighlightedHtml] = useState('')
+
+  useEffect(() => {
+    if (!formattedValue) {
+      setHighlightedHtml('')
+      return
+    }
+
+    let disposed = false
+    getJsonHighlighter()
+      .then(highlighter => highlighter.codeToHtml(formattedValue, {
+        lang: 'json',
+        theme: 'github-light',
+      }))
+      .then((html) => {
+        if (!disposed) {
+          setHighlightedHtml(html)
+        }
+      })
+      .catch(() => {
+        if (!disposed) {
+          setHighlightedHtml('')
+        }
+      })
+
+    return () => {
+      disposed = true
+    }
+  }, [formattedValue])
+
+  if (!formattedValue) {
+    return '-'
+  }
+
+  return (
+    <div
+      style={{
+        maxHeight: 240,
+        maxWidth: '100%',
+        overflow: 'auto',
+        border: '1px solid var(--ant-color-border-secondary)',
+        borderRadius: 6,
+        background: 'var(--ant-color-bg-layout)',
+      }}
+    >
+      {highlightedHtml
+        ? (
+            <div
+              className="operation-log-json-code"
+              dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+            />
+          )
+        : (
+            <pre
+              style={{
+                margin: 0,
+                padding: 12,
+                whiteSpace: 'pre-wrap',
+                overflowWrap: 'anywhere',
+                fontSize: 12,
+                lineHeight: 1.6,
+              }}
+            >
+              {formattedValue}
+            </pre>
+          )}
+    </div>
+  )
+}
+
+function DetailText({ children }: { children?: string }) {
+  return (
+    <span style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+      {children || '-'}
+    </span>
+  )
 }
 
 function OperationLogManagement() {
@@ -194,53 +314,85 @@ function OperationLogManagement() {
           setDetailOpen(false)
         }}
         footer={null}
-        width={800}
+        width={920}
+        style={{ top: 48 }}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 160px)',
+            overflowY: 'auto',
+          },
+        }}
       >
         {detailData && (
-          <Descriptions column={2} bordered size="small">
-            <Descriptions.Item label="ID">{detailData.id}</Descriptions.Item>
-            <Descriptions.Item label="请求ID">{detailData.requestID}</Descriptions.Item>
-            <Descriptions.Item label="模块">{detailData.module}</Descriptions.Item>
-            <Descriptions.Item label="方法">{detailData.method}</Descriptions.Item>
-            <Descriptions.Item label="请求路径" span={2}>{detailData.path}</Descriptions.Item>
-            <Descriptions.Item label="请求URI" span={2}>{detailData.requestURI}</Descriptions.Item>
-            <Descriptions.Item label="操作者">{detailData.username}</Descriptions.Item>
-            <Descriptions.Item label="客户端IP">{detailData.clientIP}</Descriptions.Item>
-            <Descriptions.Item label="状态码">{detailData.statusCode}</Descriptions.Item>
-            <Descriptions.Item label="结果">{successTag(detailData.success)}</Descriptions.Item>
-            <Descriptions.Item label="耗时">{costTimeDisplay(detailData.costTime)}</Descriptions.Item>
-            <Descriptions.Item label="操作时间">{detailData.createdAt}</Descriptions.Item>
-            <Descriptions.Item label="失败原因" span={2}>{detailData.reason || '-'}</Descriptions.Item>
-            <Descriptions.Item label="地理位置" span={2}>{detailData.location || '-'}</Descriptions.Item>
-            <Descriptions.Item label="来源" span={2}>{detailData.referer || '-'}</Descriptions.Item>
-            <Descriptions.Item label="浏览器" span={2}>
-              {detailData.browserName}
-              {' '}
-              {detailData.browserVersion}
-            </Descriptions.Item>
-            <Descriptions.Item label="操作系统" span={2}>
-              {detailData.osName}
-              {' '}
-              {detailData.osVersion}
-            </Descriptions.Item>
-            <Descriptions.Item label="客户端" span={2}>
-              {detailData.clientName}
-              {' '}
-              (
-              {detailData.clientID}
-              )
-            </Descriptions.Item>
-            <Descriptions.Item label="User-Agent" span={2}>{detailData.userAgent || '-'}</Descriptions.Item>
-            <Descriptions.Item label="请求体" span={2}>
-              <pre style={{ maxHeight: 200, overflow: 'auto', margin: 0, fontSize: 12 }}>{detailData.requestBody || '-'}</pre>
-            </Descriptions.Item>
-            <Descriptions.Item label="请求头" span={2}>
-              <pre style={{ maxHeight: 200, overflow: 'auto', margin: 0, fontSize: 12 }}>{detailData.requestHeader || '-'}</pre>
-            </Descriptions.Item>
-            <Descriptions.Item label="响应信息" span={2}>
-              <pre style={{ maxHeight: 200, overflow: 'auto', margin: 0, fontSize: 12 }}>{detailData.response || '-'}</pre>
-            </Descriptions.Item>
-          </Descriptions>
+          <div>
+            <style>
+              {`
+                .operation-log-detail .ant-descriptions-view {
+                  overflow: hidden;
+                }
+                .operation-log-detail .ant-descriptions-item-content {
+                  min-width: 0;
+                  max-width: 0;
+                }
+                .operation-log-json-code pre {
+                  margin: 0 !important;
+                  padding: 12px !important;
+                  white-space: pre-wrap !important;
+                  overflow-wrap: anywhere !important;
+                  background: transparent !important;
+                  font-size: 12px !important;
+                  line-height: 1.6 !important;
+                }
+                .operation-log-json-code code {
+                  white-space: pre-wrap !important;
+                }
+              `}
+            </style>
+            <Descriptions className="operation-log-detail" column={2} bordered size="small">
+              <Descriptions.Item label="ID">{detailData.id}</Descriptions.Item>
+              <Descriptions.Item label="请求ID"><DetailText>{detailData.requestID}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="模块">{detailData.module}</Descriptions.Item>
+              <Descriptions.Item label="方法">{detailData.method}</Descriptions.Item>
+              <Descriptions.Item label="请求路径" span={2}><DetailText>{detailData.path}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="请求URI" span={2}><DetailText>{detailData.requestURI}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="操作者">{detailData.username}</Descriptions.Item>
+              <Descriptions.Item label="客户端IP">{detailData.clientIP}</Descriptions.Item>
+              <Descriptions.Item label="状态码">{detailData.statusCode}</Descriptions.Item>
+              <Descriptions.Item label="结果">{successTag(detailData.success)}</Descriptions.Item>
+              <Descriptions.Item label="耗时">{costTimeDisplay(detailData.costTime)}</Descriptions.Item>
+              <Descriptions.Item label="操作时间">{detailData.createdAt}</Descriptions.Item>
+              <Descriptions.Item label="失败原因" span={2}><DetailText>{detailData.reason}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="地理位置" span={2}><DetailText>{detailData.location}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="来源" span={2}><DetailText>{detailData.referer}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="浏览器" span={2}>
+                {detailData.browserName}
+                {' '}
+                {detailData.browserVersion}
+              </Descriptions.Item>
+              <Descriptions.Item label="操作系统" span={2}>
+                {detailData.osName}
+                {' '}
+                {detailData.osVersion}
+              </Descriptions.Item>
+              <Descriptions.Item label="客户端" span={2}>
+                {detailData.clientName}
+                {' '}
+                (
+                {detailData.clientID}
+                )
+              </Descriptions.Item>
+              <Descriptions.Item label="User-Agent" span={2}><DetailText>{detailData.userAgent}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="请求体" span={2}>
+                <JsonCodeBlock value={detailData.requestBody} />
+              </Descriptions.Item>
+              <Descriptions.Item label="请求头" span={2}>
+                <JsonCodeBlock value={detailData.requestHeader} />
+              </Descriptions.Item>
+              <Descriptions.Item label="响应信息" span={2}>
+                <JsonCodeBlock value={detailData.response} />
+              </Descriptions.Item>
+            </Descriptions>
+          </div>
         )}
       </Modal>
     </>
