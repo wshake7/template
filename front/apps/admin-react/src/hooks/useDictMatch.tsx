@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { DictMatchedEntriesByCode, DictMatchedEntry } from '~/api/business/sysDict'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DictApi } from '~/api/business/sysDict'
 import { renderDictEntryLabel } from '~/components/dictEntryLabel'
 
@@ -45,6 +46,7 @@ export function useDictMatches(codes: string[]) {
 }
 
 export function useDictMatch(code: string) {
+  const { i18n, t } = useTranslation()
   const codes = useMemo(() => [code], [code])
   const entriesByCode = useDictMatches(codes)
   const entries = useMemo<DictMatchedEntry[]>(() => entriesByCode[code] ?? [], [code, entriesByCode])
@@ -57,17 +59,22 @@ export function useDictMatch(code: string) {
     return entryByValue.get(String(value))
   }, [entryByValue])
 
+  const resolveEntryLabel = useCallback((entryLabel: string) => {
+    return i18n.exists(entryLabel) ? t(entryLabel) : entryLabel
+  }, [i18n, t])
+
   const getLabel = useCallback((value: string | number | boolean, fallback = '') => {
-    return getEntry(value)?.entryLabel ?? fallback
-  }, [getEntry])
+    const entry = getEntry(value)
+    return entry ? resolveEntryLabel(entry.entryLabel) : fallback
+  }, [getEntry, resolveEntryLabel])
 
   const renderLabel = useCallback((value: string | number | boolean, fallback: ReactNode = '未知状态') => {
     const entry = getEntry(value)
     if (!entry) {
       return fallback
     }
-    return renderDictEntryLabel(entry.labelComponent, entry.entryLabel)
-  }, [getEntry])
+    return renderDictEntryLabel(entry.labelComponent, resolveEntryLabel(entry.entryLabel))
+  }, [getEntry, resolveEntryLabel])
 
   return useMemo(() => ({
     entries,
