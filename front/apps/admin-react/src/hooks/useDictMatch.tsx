@@ -1,37 +1,53 @@
 import type { ReactNode } from 'react'
-import type { DictMatchedEntry } from '~/api/business/sysDict'
+import type { DictMatchedEntriesByCode, DictMatchedEntry } from '~/api/business/sysDict'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DictApi } from '~/api/business/sysDict'
 import { renderDictEntryLabel } from '~/components/dictEntryLabel'
 
-export function useDictMatch(code: string) {
-  const [entries, setEntries] = useState<DictMatchedEntry[]>([])
+function normalizeDictCodes(codes: string[]) {
+  return Array.from(new Set(codes.map(code => code.trim()).filter(Boolean)))
+}
+
+export function useDictMatches(codes: string[]) {
+  const codesKey = useMemo(() => normalizeDictCodes(codes).join('\u0000'), [codes])
+  const [entriesByCode, setEntriesByCode] = useState<DictMatchedEntriesByCode>({})
 
   useEffect(() => {
-    if (!code) {
-      setEntries([])
-      return
+    let ignore = false
+    const requestCodes = codesKey ? codesKey.split('\u0000') : []
+
+    if (requestCodes.length === 0) {
+      setEntriesByCode({})
+      return () => {
+        ignore = true
+      }
     }
 
-    let ignore = false
-
-    DictApi.entryMatch({ code })
+    DictApi.entryMatch({ codes: requestCodes })
       .send()
       .then((res) => {
         if (!ignore) {
-          setEntries(res.data ?? [])
+          setEntriesByCode(res.data ?? {})
         }
       })
       .catch(() => {
         if (!ignore) {
-          setEntries([])
+          setEntriesByCode({})
         }
       })
 
     return () => {
       ignore = true
     }
-  }, [code])
+  }, [codesKey])
+
+  return entriesByCode
+}
+
+export function useDictMatch(code: string) {
+  const codes = useMemo(() => [code], [code])
+  const entriesByCode = useDictMatches(codes)
+  const entries = useMemo<DictMatchedEntry[]>(() => entriesByCode[code] ?? [], [code, entriesByCode])
 
   const entryByValue = useMemo(() => {
     return new Map(entries.map(item => [item.entryValue, item]))

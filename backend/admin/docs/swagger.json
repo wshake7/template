@@ -28,7 +28,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqAccountChangePwd"
+              "$ref": "#/definitions/internal_router_logic.ReqAccountChangePwd"
             }
           }
         ],
@@ -62,7 +62,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqAccountPwdLogin"
+              "$ref": "#/definitions/internal_router_logic.ReqAccountPwdLogin"
             }
           }
         ],
@@ -78,7 +78,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "$ref": "#/definitions/logic.ResAccountPwdLogin"
+                      "$ref": "#/definitions/internal_router_logic.ResAccountPwdLogin"
                     }
                   }
                 }
@@ -136,7 +136,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictEntryBatchCopy"
+              "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchCopy"
             }
           }
         ],
@@ -169,7 +169,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictEntryCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqDictEntryCreate"
             }
           }
         ],
@@ -202,7 +202,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictEntryBatchDelete"
+              "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchDelete"
             }
           }
         ],
@@ -280,7 +280,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictEntryUpdate"
+              "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdate"
             }
           }
         ],
@@ -313,7 +313,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictTypeCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqDictTypeCreate"
             }
           }
         ],
@@ -346,7 +346,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictTypeBatchDelete"
+              "$ref": "#/definitions/internal_router_logic.ReqDictTypeBatchDelete"
             }
           }
         ],
@@ -395,7 +395,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "$ref": "#/definitions/gormc.PagingResult-logic_RespDictType"
+                      "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespDictType"
                     }
                   }
                 }
@@ -424,7 +424,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictTypeUpdate"
+              "$ref": "#/definitions/internal_router_logic.ReqDictTypeUpdate"
             }
           }
         ],
@@ -460,99 +460,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "$ref": "#/definitions/logic.ResPublicKey"
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
-    },
-    "/api/sys/api/log/detail": {
-      "post": {
-        "description": "根据 ID 获取API日志详情",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Log"
-        ],
-        "summary": "获取API日志详情",
-        "parameters": [
-          {
-            "description": "日志ID",
-            "name": "req",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/logic.ReqLogDetail"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "成功",
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
-    },
-    "/api/sys/api/log/list": {
-      "post": {
-        "description": "分页查询API日志信息",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Log"
-        ],
-        "summary": "获取API日志分页列表",
-        "parameters": [
-          {
-            "description": "分页参数",
-            "name": "req",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1.PagingRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "成功",
-            "schema": {
-              "allOf": [
-                {
-                  "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysApiLog"
+                      "$ref": "#/definitions/internal_router_logic.ResPublicKey"
                     }
                   }
                 }
@@ -582,7 +490,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqRoleCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqRoleCreate"
             }
           }
         ],
@@ -616,7 +524,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqRoleDelete"
+              "$ref": "#/definitions/internal_router_logic.ReqRoleDelete"
             }
           }
         ],
@@ -696,7 +604,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqRoleSwitchStatus"
+              "$ref": "#/definitions/internal_router_logic.ReqRoleSwitchStatus"
             }
           }
         ],
@@ -730,7 +638,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqRoleUpdate"
+              "$ref": "#/definitions/internal_router_logic.ReqRoleUpdate"
             }
           }
         ],
@@ -739,6 +647,98 @@
             "description": "成功",
             "schema": {
               "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/sys/api/log/detail": {
+      "post": {
+        "description": "根据 ID 获取API日志详情",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Log"
+        ],
+        "summary": "获取API日志详情",
+        "parameters": [
+          {
+            "description": "日志ID",
+            "name": "req",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_router_logic.ReqLogDetail"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/sys/api/log/list": {
+      "post": {
+        "description": "分页查询API日志信息",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Log"
+        ],
+        "summary": "获取API日志分页列表",
+        "parameters": [
+          {
+            "description": "分页参数",
+            "name": "req",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1.PagingRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysApiLog"
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -755,7 +755,7 @@
         "tags": [
           "Dict"
         ],
-        "summary": "通过字典编码获取启用字典项",
+        "summary": "通过字典编码批量获取启用字典项",
         "parameters": [
           {
             "description": "字典类型编码",
@@ -763,7 +763,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqDictEntryListByCode"
+              "$ref": "#/definitions/internal_router_logic.ReqDictEntryMatch"
             }
           }
         ],
@@ -779,10 +779,7 @@
                   "type": "object",
                   "properties": {
                     "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/definitions/logic.RespDictEntryByCode"
-                      }
+                      "$ref": "#/definitions/internal_router_logic.RespDictEntryMatch"
                     }
                   }
                 }
@@ -812,7 +809,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangEntryBatchCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchCreate"
             }
           }
         ],
@@ -846,7 +843,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangEntryCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqLangEntryCreate"
             }
           }
         ],
@@ -880,7 +877,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangEntryBatchDelete"
+              "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchDelete"
             }
           }
         ],
@@ -960,7 +957,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangEntryUpdate"
+              "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdate"
             }
           }
         ],
@@ -994,7 +991,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangTypeCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqLangTypeCreate"
             }
           }
         ],
@@ -1028,7 +1025,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangTypeBatchDelete"
+              "$ref": "#/definitions/internal_router_logic.ReqLangTypeBatchDelete"
             }
           }
         ],
@@ -1108,7 +1105,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqLangTypeUpdate"
+              "$ref": "#/definitions/internal_router_logic.ReqLangTypeUpdate"
             }
           }
         ],
@@ -1141,7 +1138,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqResourceCreate"
+              "$ref": "#/definitions/internal_router_logic.ReqResourceCreate"
             }
           }
         ],
@@ -1174,7 +1171,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqResourceBatchDelete"
+              "$ref": "#/definitions/internal_router_logic.ReqResourceBatchDelete"
             }
           }
         ],
@@ -1252,7 +1249,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logic.ReqResourceUpdate"
+              "$ref": "#/definitions/internal_router_logic.ReqResourceUpdate"
             }
           }
         ],
@@ -1279,6 +1276,98 @@
         "msg": {
           "type": "string",
           "example": "success"
+        }
+      }
+    },
+    "admin_internal_services_orm_models.SysApiLog": {
+      "type": "object",
+      "properties": {
+        "afterChange": {
+          "type": "string"
+        },
+        "beforeChange": {
+          "type": "string"
+        },
+        "browserName": {
+          "type": "string"
+        },
+        "browserVersion": {
+          "type": "string"
+        },
+        "clientID": {
+          "type": "string"
+        },
+        "clientIP": {
+          "type": "string"
+        },
+        "clientName": {
+          "type": "string"
+        },
+        "costTime": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "formatChange": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "location": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "module": {
+          "type": "string"
+        },
+        "oSName": {
+          "type": "string"
+        },
+        "oSVersion": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "referer": {
+          "type": "string"
+        },
+        "requestBody": {
+          "type": "string"
+        },
+        "requestHeader": {
+          "type": "string"
+        },
+        "requestID": {
+          "type": "string"
+        },
+        "requestURI": {
+          "type": "string"
+        },
+        "response": {
+          "type": "string"
+        },
+        "statusCode": {
+          "type": "integer"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "sysUser": {
+          "$ref": "#/definitions/admin_internal_services_orm_models.SysUser"
+        },
+        "sysUserID": {
+          "type": "integer"
+        },
+        "userAgent": {
+          "type": "string"
         }
       }
     },
@@ -1476,95 +1565,6 @@
         }
       }
     },
-    "admin_internal_services_orm_models.SysApiLog": {
-      "type": "object",
-      "properties": {
-        "afterChange": {
-          "type": "string"
-        },
-        "beforeChange": {
-          "type": "string"
-        },
-        "browserName": {
-          "type": "string"
-        },
-        "browserVersion": {
-          "type": "string"
-        },
-        "clientID": {
-          "type": "string"
-        },
-        "clientIP": {
-          "type": "string"
-        },
-        "clientName": {
-          "type": "string"
-        },
-        "costTime": {
-          "type": "integer"
-        },
-        "createdAt": {
-          "type": "string"
-        },
-        "formatChange": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer"
-        },
-        "location": {
-          "type": "string"
-        },
-        "method": {
-          "type": "string"
-        },
-        "module": {
-          "type": "string"
-        },
-        "oSName": {
-          "type": "string"
-        },
-        "oSVersion": {
-          "type": "string"
-        },
-        "path": {
-          "type": "string"
-        },
-        "reason": {
-          "type": "string"
-        },
-        "referer": {
-          "type": "string"
-        },
-        "requestBody": {
-          "type": "string"
-        },
-        "requestHeader": {
-          "type": "string"
-        },
-        "requestID": {
-          "type": "string"
-        },
-        "requestURI": {
-          "type": "string"
-        },
-        "response": {
-          "type": "string"
-        },
-        "statusCode": {
-          "type": "integer"
-        },
-        "success": {
-          "type": "boolean"
-        },
-        "userAgent": {
-          "type": "string"
-        },
-        "sysUserID": {
-          "type": "integer"
-        }
-      }
-    },
     "admin_internal_services_orm_models.SysResource": {
       "type": "object",
       "properties": {
@@ -1666,6 +1666,62 @@
         }
       }
     },
+    "admin_internal_services_orm_models.SysUser": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "createdBy": {
+          "type": "integer"
+        },
+        "deletedAt": {
+          "type": "integer"
+        },
+        "deletedBy": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "isEnabled": {
+          "type": "boolean"
+        },
+        "languageCode": {
+          "type": "string"
+        },
+        "lastLoginAt": {
+          "type": "string"
+        },
+        "lastLoginIP": {
+          "type": "string"
+        },
+        "nickname": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "remark": {
+          "type": "string"
+        },
+        "sysRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
+          }
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "updatedBy": {
+          "type": "integer"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
     "datatypes.JSONMap": {
       "type": "object",
       "additionalProperties": true
@@ -1679,6 +1735,20 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "gormc.PagingResult-admin_internal_services_orm_models_SysApiLog": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
+          }
+        },
+        "total": {
+          "type": "integer"
         }
       }
     },
@@ -1724,20 +1794,6 @@
         }
       }
     },
-    "gormc.PagingResult-admin_internal_services_orm_models_SysApiLog": {
-      "type": "object",
-      "properties": {
-        "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
-          }
-        },
-        "total": {
-          "type": "integer"
-        }
-      }
-    },
     "gormc.PagingResult-admin_internal_services_orm_models_SysResource": {
       "type": "object",
       "properties": {
@@ -1766,13 +1822,13 @@
         }
       }
     },
-    "gormc.PagingResult-logic_RespDictType": {
+    "gormc.PagingResult-internal_router_logic_RespDictType": {
       "type": "object",
       "properties": {
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/logic.RespDictType"
+            "$ref": "#/definitions/internal_router_logic.RespDictType"
           }
         },
         "total": {
@@ -1780,7 +1836,7 @@
         }
       }
     },
-    "logic.ReqAccountChangePwd": {
+    "internal_router_logic.ReqAccountChangePwd": {
       "type": "object",
       "required": [
         "newPwd",
@@ -1797,7 +1853,7 @@
         }
       }
     },
-    "logic.ReqAccountPwdLogin": {
+    "internal_router_logic.ReqAccountPwdLogin": {
       "type": "object",
       "required": [
         "pwd",
@@ -1814,7 +1870,7 @@
         }
       }
     },
-    "logic.ReqDictEntryBatchCopy": {
+    "internal_router_logic.ReqDictEntryBatchCopy": {
       "type": "object",
       "required": [
         "entryIds",
@@ -1833,7 +1889,7 @@
         }
       }
     },
-    "logic.ReqDictEntryBatchDelete": {
+    "internal_router_logic.ReqDictEntryBatchDelete": {
       "type": "object",
       "required": [
         "ids"
@@ -1848,7 +1904,7 @@
         }
       }
     },
-    "logic.ReqDictEntryCreate": {
+    "internal_router_logic.ReqDictEntryCreate": {
       "type": "object",
       "required": [
         "entryLabel",
@@ -1887,19 +1943,22 @@
         }
       }
     },
-    "logic.ReqDictEntryListByCode": {
+    "internal_router_logic.ReqDictEntryMatch": {
       "type": "object",
       "required": [
-        "code"
+        "codes"
       ],
       "properties": {
-        "code": {
-          "type": "string",
-          "maxLength": 128
+        "codes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
-    "logic.ReqDictEntryUpdate": {
+    "internal_router_logic.ReqDictEntryUpdate": {
       "type": "object",
       "properties": {
         "entryLabel": {
@@ -1937,12 +1996,12 @@
         "updates": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/logic.ReqDictEntryUpdateItem"
+            "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdateItem"
           }
         }
       }
     },
-    "logic.ReqDictEntryUpdateItem": {
+    "internal_router_logic.ReqDictEntryUpdateItem": {
       "type": "object",
       "required": [
         "id"
@@ -1982,7 +2041,7 @@
         }
       }
     },
-    "logic.ReqDictTypeBatchDelete": {
+    "internal_router_logic.ReqDictTypeBatchDelete": {
       "type": "object",
       "required": [
         "ids"
@@ -1997,7 +2056,7 @@
         }
       }
     },
-    "logic.ReqDictTypeCreate": {
+    "internal_router_logic.ReqDictTypeCreate": {
       "type": "object",
       "required": [
         "typeCode",
@@ -2024,7 +2083,7 @@
         }
       }
     },
-    "logic.ReqDictTypeUpdate": {
+    "internal_router_logic.ReqDictTypeUpdate": {
       "type": "object",
       "required": [
         "id"
@@ -2053,7 +2112,7 @@
         }
       }
     },
-    "logic.ReqLangEntryBatchCreate": {
+    "internal_router_logic.ReqLangEntryBatchCreate": {
       "type": "object",
       "required": [
         "entryCode",
@@ -2078,7 +2137,7 @@
         }
       }
     },
-    "logic.ReqLangEntryBatchDelete": {
+    "internal_router_logic.ReqLangEntryBatchDelete": {
       "type": "object",
       "required": [
         "ids"
@@ -2093,7 +2152,7 @@
         }
       }
     },
-    "logic.ReqLangEntryCreate": {
+    "internal_router_logic.ReqLangEntryCreate": {
       "type": "object",
       "required": [
         "entryCode",
@@ -2124,7 +2183,7 @@
         }
       }
     },
-    "logic.ReqLangEntryUpdate": {
+    "internal_router_logic.ReqLangEntryUpdate": {
       "type": "object",
       "properties": {
         "entryCode": {
@@ -2154,12 +2213,12 @@
         "updates": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/logic.ReqLangEntryUpdateItem"
+            "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdateItem"
           }
         }
       }
     },
-    "logic.ReqLangEntryUpdateItem": {
+    "internal_router_logic.ReqLangEntryUpdateItem": {
       "type": "object",
       "required": [
         "id"
@@ -2191,7 +2250,7 @@
         }
       }
     },
-    "logic.ReqLangTypeBatchDelete": {
+    "internal_router_logic.ReqLangTypeBatchDelete": {
       "type": "object",
       "required": [
         "ids"
@@ -2206,7 +2265,7 @@
         }
       }
     },
-    "logic.ReqLangTypeCreate": {
+    "internal_router_logic.ReqLangTypeCreate": {
       "type": "object",
       "required": [
         "typeCode",
@@ -2232,7 +2291,7 @@
         }
       }
     },
-    "logic.ReqLangTypeUpdate": {
+    "internal_router_logic.ReqLangTypeUpdate": {
       "type": "object",
       "required": [
         "id"
@@ -2260,7 +2319,7 @@
         }
       }
     },
-    "logic.ReqLogDetail": {
+    "internal_router_logic.ReqLogDetail": {
       "type": "object",
       "required": [
         "id"
@@ -2271,7 +2330,7 @@
         }
       }
     },
-    "logic.ReqResourceBatchDelete": {
+    "internal_router_logic.ReqResourceBatchDelete": {
       "type": "object",
       "required": [
         "ids"
@@ -2286,7 +2345,7 @@
         }
       }
     },
-    "logic.ReqResourceCreate": {
+    "internal_router_logic.ReqResourceCreate": {
       "type": "object",
       "required": [
         "code",
@@ -2318,7 +2377,7 @@
         }
       }
     },
-    "logic.ReqResourceUpdate": {
+    "internal_router_logic.ReqResourceUpdate": {
       "type": "object",
       "required": [
         "id"
@@ -2348,7 +2407,7 @@
         }
       }
     },
-    "logic.ReqRoleCreate": {
+    "internal_router_logic.ReqRoleCreate": {
       "type": "object",
       "required": [
         "code",
@@ -2371,7 +2430,7 @@
         }
       }
     },
-    "logic.ReqRoleDelete": {
+    "internal_router_logic.ReqRoleDelete": {
       "type": "object",
       "required": [
         "id"
@@ -2382,7 +2441,7 @@
         }
       }
     },
-    "logic.ReqRoleSwitchStatus": {
+    "internal_router_logic.ReqRoleSwitchStatus": {
       "type": "object",
       "required": [
         "id"
@@ -2396,7 +2455,7 @@
         }
       }
     },
-    "logic.ReqRoleUpdate": {
+    "internal_router_logic.ReqRoleUpdate": {
       "type": "object",
       "required": [
         "code",
@@ -2423,7 +2482,7 @@
         }
       }
     },
-    "logic.ResAccountPwdLogin": {
+    "internal_router_logic.ResAccountPwdLogin": {
       "type": "object",
       "properties": {
         "publicKey": {
@@ -2434,7 +2493,7 @@
         }
       }
     },
-    "logic.ResPublicKey": {
+    "internal_router_logic.ResPublicKey": {
       "type": "object",
       "properties": {
         "publicKey": {
@@ -2442,7 +2501,7 @@
         }
       }
     },
-    "logic.RespDictEntryByCode": {
+    "internal_router_logic.RespDictEntryByCode": {
       "type": "object",
       "properties": {
         "entryLabel": {
@@ -2459,7 +2518,16 @@
         }
       }
     },
-    "logic.RespDictType": {
+    "internal_router_logic.RespDictEntryMatch": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/internal_router_logic.RespDictEntryByCode"
+        }
+      }
+    },
+    "internal_router_logic.RespDictType": {
       "type": "object",
       "properties": {
         "canDelete": {

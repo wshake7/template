@@ -34,8 +34,10 @@ export interface DictMatchedEntry {
   entryValue: string
 }
 
+export type DictMatchedEntriesByCode = Record<string, DictMatchedEntry[]>
+
 export interface ReqDictEntryMatch {
-  code: string
+  codes: string[]
 }
 
 export interface ReqDictTypeCreate {
@@ -109,7 +111,7 @@ function entryList(req: PagingRequest) {
 }
 
 function entryMatch(req: ReqDictEntryMatch) {
-  return API.Post<Res<DictMatchedEntry[]>>('/api/sys/dict/entry/match', req, {
+  return API.Post<Res<DictMatchedEntriesByCode>>('/api/sys/dict/entry/match', req, {
     cacheFor: 0,
   })
 }

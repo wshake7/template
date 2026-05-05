@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqAccountChangePwd"
+                            "$ref": "#/definitions/internal_router_logic.ReqAccountChangePwd"
                         }
                     }
                 ],
@@ -69,7 +69,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqAccountPwdLogin"
+                            "$ref": "#/definitions/internal_router_logic.ReqAccountPwdLogin"
                         }
                     }
                 ],
@@ -85,7 +85,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/logic.ResAccountPwdLogin"
+                                            "$ref": "#/definitions/internal_router_logic.ResAccountPwdLogin"
                                         }
                                     }
                                 }
@@ -143,7 +143,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictEntryBatchCopy"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchCopy"
                         }
                     }
                 ],
@@ -176,7 +176,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictEntryCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryCreate"
                         }
                     }
                 ],
@@ -209,7 +209,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictEntryBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryBatchDelete"
                         }
                     }
                 ],
@@ -287,7 +287,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictEntryUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdate"
                         }
                     }
                 ],
@@ -320,7 +320,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictTypeCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeCreate"
                         }
                     }
                 ],
@@ -353,7 +353,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictTypeBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeBatchDelete"
                         }
                     }
                 ],
@@ -402,7 +402,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-logic_RespDictType"
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespDictType"
                                         }
                                     }
                                 }
@@ -431,7 +431,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictTypeUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictTypeUpdate"
                         }
                     }
                 ],
@@ -467,99 +467,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/logic.ResPublicKey"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/sys/api/log/detail": {
-            "post": {
-                "description": "根据 ID 获取API日志详情",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Log"
-                ],
-                "summary": "获取API日志详情",
-                "parameters": [
-                    {
-                        "description": "日志ID",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/logic.ReqLogDetail"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/sys/api/log/list": {
-            "post": {
-                "description": "分页查询API日志信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Log"
-                ],
-                "summary": "获取API日志分页列表",
-                "parameters": [
-                    {
-                        "description": "分页参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.PagingRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysApiLog"
+                                            "$ref": "#/definitions/internal_router_logic.ResPublicKey"
                                         }
                                     }
                                 }
@@ -589,7 +497,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqRoleCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleCreate"
                         }
                     }
                 ],
@@ -623,7 +531,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqRoleDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleDelete"
                         }
                     }
                 ],
@@ -703,7 +611,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqRoleSwitchStatus"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleSwitchStatus"
                         }
                     }
                 ],
@@ -737,7 +645,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqRoleUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqRoleUpdate"
                         }
                     }
                 ],
@@ -746,6 +654,98 @@ const docTemplate = `{
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/api/log/detail": {
+            "post": {
+                "description": "根据 ID 获取API日志详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "获取API日志详情",
+                "parameters": [
+                    {
+                        "description": "日志ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLogDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/api/log/list": {
+            "post": {
+                "description": "分页查询API日志信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "获取API日志分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysApiLog"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -762,7 +762,7 @@ const docTemplate = `{
                 "tags": [
                     "Dict"
                 ],
-                "summary": "通过字典编码获取启用字典项",
+                "summary": "通过字典编码批量获取启用字典项",
                 "parameters": [
                     {
                         "description": "字典类型编码",
@@ -770,7 +770,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqDictEntryListByCode"
+                            "$ref": "#/definitions/internal_router_logic.ReqDictEntryMatch"
                         }
                     }
                 ],
@@ -786,10 +786,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/logic.RespDictEntryByCode"
-                                            }
+                                            "$ref": "#/definitions/internal_router_logic.RespDictEntryMatch"
                                         }
                                     }
                                 }
@@ -819,7 +816,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangEntryBatchCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchCreate"
                         }
                     }
                 ],
@@ -853,7 +850,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangEntryCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryCreate"
                         }
                     }
                 ],
@@ -887,7 +884,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangEntryBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryBatchDelete"
                         }
                     }
                 ],
@@ -967,7 +964,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangEntryUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdate"
                         }
                     }
                 ],
@@ -1001,7 +998,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangTypeCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeCreate"
                         }
                     }
                 ],
@@ -1035,7 +1032,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangTypeBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeBatchDelete"
                         }
                     }
                 ],
@@ -1115,7 +1112,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqLangTypeUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqLangTypeUpdate"
                         }
                     }
                 ],
@@ -1148,7 +1145,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqResourceCreate"
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceCreate"
                         }
                     }
                 ],
@@ -1181,7 +1178,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqResourceBatchDelete"
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceBatchDelete"
                         }
                     }
                 ],
@@ -1259,7 +1256,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/logic.ReqResourceUpdate"
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceUpdate"
                         }
                     }
                 ],
@@ -1286,6 +1283,98 @@ const docTemplate = `{
                 "msg": {
                     "type": "string",
                     "example": "success"
+                }
+            }
+        },
+        "admin_internal_services_orm_models.SysApiLog": {
+            "type": "object",
+            "properties": {
+                "afterChange": {
+                    "type": "string"
+                },
+                "beforeChange": {
+                    "type": "string"
+                },
+                "browserName": {
+                    "type": "string"
+                },
+                "browserVersion": {
+                    "type": "string"
+                },
+                "clientID": {
+                    "type": "string"
+                },
+                "clientIP": {
+                    "type": "string"
+                },
+                "clientName": {
+                    "type": "string"
+                },
+                "costTime": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "formatChange": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "module": {
+                    "type": "string"
+                },
+                "oSName": {
+                    "type": "string"
+                },
+                "oSVersion": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "referer": {
+                    "type": "string"
+                },
+                "requestBody": {
+                    "type": "string"
+                },
+                "requestHeader": {
+                    "type": "string"
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "requestURI": {
+                    "type": "string"
+                },
+                "response": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "sysUser": {
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysUser"
+                },
+                "sysUserID": {
+                    "type": "integer"
+                },
+                "userAgent": {
+                    "type": "string"
                 }
             }
         },
@@ -1483,95 +1572,6 @@ const docTemplate = `{
                 }
             }
         },
-        "admin_internal_services_orm_models.SysApiLog": {
-            "type": "object",
-            "properties": {
-                "afterChange": {
-                    "type": "string"
-                },
-                "beforeChange": {
-                    "type": "string"
-                },
-                "browserName": {
-                    "type": "string"
-                },
-                "browserVersion": {
-                    "type": "string"
-                },
-                "clientID": {
-                    "type": "string"
-                },
-                "clientIP": {
-                    "type": "string"
-                },
-                "clientName": {
-                    "type": "string"
-                },
-                "costTime": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "formatChange": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "method": {
-                    "type": "string"
-                },
-                "module": {
-                    "type": "string"
-                },
-                "oSName": {
-                    "type": "string"
-                },
-                "oSVersion": {
-                    "type": "string"
-                },
-                "path": {
-                    "type": "string"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "referer": {
-                    "type": "string"
-                },
-                "requestBody": {
-                    "type": "string"
-                },
-                "requestHeader": {
-                    "type": "string"
-                },
-                "requestID": {
-                    "type": "string"
-                },
-                "requestURI": {
-                    "type": "string"
-                },
-                "response": {
-                    "type": "string"
-                },
-                "statusCode": {
-                    "type": "integer"
-                },
-                "success": {
-                    "type": "boolean"
-                },
-                "userAgent": {
-                    "type": "string"
-                },
-                "sysUserID": {
-                    "type": "integer"
-                }
-            }
-        },
         "admin_internal_services_orm_models.SysResource": {
             "type": "object",
             "properties": {
@@ -1673,6 +1673,62 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_internal_services_orm_models.SysUser": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "languageCode": {
+                    "type": "string"
+                },
+                "lastLoginAt": {
+                    "type": "string"
+                },
+                "lastLoginIP": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sysRoles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "datatypes.JSONMap": {
             "type": "object",
             "additionalProperties": true
@@ -1686,6 +1742,20 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "gormc.PagingResult-admin_internal_services_orm_models_SysApiLog": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -1731,20 +1801,6 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_internal_services_orm_models_SysApiLog": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "gormc.PagingResult-admin_internal_services_orm_models_SysResource": {
             "type": "object",
             "properties": {
@@ -1773,13 +1829,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-logic_RespDictType": {
+        "gormc.PagingResult-internal_router_logic_RespDictType": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/logic.RespDictType"
+                        "$ref": "#/definitions/internal_router_logic.RespDictType"
                     }
                 },
                 "total": {
@@ -1787,7 +1843,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqAccountChangePwd": {
+        "internal_router_logic.ReqAccountChangePwd": {
             "type": "object",
             "required": [
                 "newPwd",
@@ -1804,7 +1860,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqAccountPwdLogin": {
+        "internal_router_logic.ReqAccountPwdLogin": {
             "type": "object",
             "required": [
                 "pwd",
@@ -1821,7 +1877,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictEntryBatchCopy": {
+        "internal_router_logic.ReqDictEntryBatchCopy": {
             "type": "object",
             "required": [
                 "entryIds",
@@ -1840,7 +1896,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictEntryBatchDelete": {
+        "internal_router_logic.ReqDictEntryBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -1855,7 +1911,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictEntryCreate": {
+        "internal_router_logic.ReqDictEntryCreate": {
             "type": "object",
             "required": [
                 "entryLabel",
@@ -1894,19 +1950,22 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictEntryListByCode": {
+        "internal_router_logic.ReqDictEntryMatch": {
             "type": "object",
             "required": [
-                "code"
+                "codes"
             ],
             "properties": {
-                "code": {
-                    "type": "string",
-                    "maxLength": 128
+                "codes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
-        "logic.ReqDictEntryUpdate": {
+        "internal_router_logic.ReqDictEntryUpdate": {
             "type": "object",
             "properties": {
                 "entryLabel": {
@@ -1944,12 +2003,12 @@ const docTemplate = `{
                 "updates": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/logic.ReqDictEntryUpdateItem"
+                        "$ref": "#/definitions/internal_router_logic.ReqDictEntryUpdateItem"
                     }
                 }
             }
         },
-        "logic.ReqDictEntryUpdateItem": {
+        "internal_router_logic.ReqDictEntryUpdateItem": {
             "type": "object",
             "required": [
                 "id"
@@ -1989,7 +2048,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictTypeBatchDelete": {
+        "internal_router_logic.ReqDictTypeBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2004,7 +2063,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictTypeCreate": {
+        "internal_router_logic.ReqDictTypeCreate": {
             "type": "object",
             "required": [
                 "typeCode",
@@ -2031,7 +2090,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqDictTypeUpdate": {
+        "internal_router_logic.ReqDictTypeUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -2060,7 +2119,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangEntryBatchCreate": {
+        "internal_router_logic.ReqLangEntryBatchCreate": {
             "type": "object",
             "required": [
                 "entryCode",
@@ -2085,7 +2144,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangEntryBatchDelete": {
+        "internal_router_logic.ReqLangEntryBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2100,7 +2159,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangEntryCreate": {
+        "internal_router_logic.ReqLangEntryCreate": {
             "type": "object",
             "required": [
                 "entryCode",
@@ -2131,7 +2190,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangEntryUpdate": {
+        "internal_router_logic.ReqLangEntryUpdate": {
             "type": "object",
             "properties": {
                 "entryCode": {
@@ -2161,12 +2220,12 @@ const docTemplate = `{
                 "updates": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/logic.ReqLangEntryUpdateItem"
+                        "$ref": "#/definitions/internal_router_logic.ReqLangEntryUpdateItem"
                     }
                 }
             }
         },
-        "logic.ReqLangEntryUpdateItem": {
+        "internal_router_logic.ReqLangEntryUpdateItem": {
             "type": "object",
             "required": [
                 "id"
@@ -2198,7 +2257,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangTypeBatchDelete": {
+        "internal_router_logic.ReqLangTypeBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2213,7 +2272,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangTypeCreate": {
+        "internal_router_logic.ReqLangTypeCreate": {
             "type": "object",
             "required": [
                 "typeCode",
@@ -2239,7 +2298,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLangTypeUpdate": {
+        "internal_router_logic.ReqLangTypeUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -2267,7 +2326,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqLogDetail": {
+        "internal_router_logic.ReqLogDetail": {
             "type": "object",
             "required": [
                 "id"
@@ -2278,7 +2337,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqResourceBatchDelete": {
+        "internal_router_logic.ReqResourceBatchDelete": {
             "type": "object",
             "required": [
                 "ids"
@@ -2293,7 +2352,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqResourceCreate": {
+        "internal_router_logic.ReqResourceCreate": {
             "type": "object",
             "required": [
                 "code",
@@ -2325,7 +2384,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqResourceUpdate": {
+        "internal_router_logic.ReqResourceUpdate": {
             "type": "object",
             "required": [
                 "id"
@@ -2355,7 +2414,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqRoleCreate": {
+        "internal_router_logic.ReqRoleCreate": {
             "type": "object",
             "required": [
                 "code",
@@ -2378,7 +2437,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqRoleDelete": {
+        "internal_router_logic.ReqRoleDelete": {
             "type": "object",
             "required": [
                 "id"
@@ -2389,7 +2448,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqRoleSwitchStatus": {
+        "internal_router_logic.ReqRoleSwitchStatus": {
             "type": "object",
             "required": [
                 "id"
@@ -2403,7 +2462,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ReqRoleUpdate": {
+        "internal_router_logic.ReqRoleUpdate": {
             "type": "object",
             "required": [
                 "code",
@@ -2430,7 +2489,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ResAccountPwdLogin": {
+        "internal_router_logic.ResAccountPwdLogin": {
             "type": "object",
             "properties": {
                 "publicKey": {
@@ -2441,7 +2500,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.ResPublicKey": {
+        "internal_router_logic.ResPublicKey": {
             "type": "object",
             "properties": {
                 "publicKey": {
@@ -2449,7 +2508,7 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.RespDictEntryByCode": {
+        "internal_router_logic.RespDictEntryByCode": {
             "type": "object",
             "properties": {
                 "entryLabel": {
@@ -2466,7 +2525,16 @@ const docTemplate = `{
                 }
             }
         },
-        "logic.RespDictType": {
+        "internal_router_logic.RespDictEntryMatch": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/internal_router_logic.RespDictEntryByCode"
+                }
+            }
+        },
+        "internal_router_logic.RespDictType": {
             "type": "object",
             "properties": {
                 "canDelete": {

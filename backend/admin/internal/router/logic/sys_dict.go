@@ -389,8 +389,8 @@ type ReqDictEntryBatchCopy struct {
 	TargetTypeId uint64   `json:"targetTypeId" binding:"required" binding_msg:"required=目标字典类型不能为空"`
 }
 
-type ReqDictEntryListByCode struct {
-	Code string `json:"code" binding:"required,max=128" binding_msg:"required=字典类型编码不能为空,max=字典类型编码最多128位"`
+type ReqDictEntryMatch struct {
+	Codes []string `json:"codes" binding:"omitempty,min=1,dive,required,max=128" binding_msg:"min=至少选择一个字典编码,required=字典类型编码不能为空,max=字典类型编码最多128位"`
 }
 
 type RespDictEntryByCode struct {
@@ -400,46 +400,63 @@ type RespDictEntryByCode struct {
 	EntryValue     string `json:"entryValue"`
 }
 
-// @Summary 通过字典编码获取启用字典项
-// @Remark 根据字典类型编码查询启用字典项；若字典项配置了语言条目编码，则按当前请求语言替换显示标签
+type RespDictEntryMatch map[string][]*RespDictEntryByCode
+
+// @Summary 通过字典编码批量获取启用字典项
+// @Remark 根据字典类型编码批量查询启用字典项；若字典项配置了语言条目编码，则按当前请求语言替换显示标签
 // @Tags Dict
 // @Accept json
 // @Produce json
-// @Param req body ReqDictEntryListByCode true "字典类型编码"
-// @Success 200 {object} res.Response{data=[]RespDictEntryByCode} "成功"
+// @Param req body ReqDictEntryMatch true "字典类型编码"
+// @Success 200 {object} res.Response{data=RespDictEntryMatch} "成功"
 // @Router /api/sys/dict/entry/match [post]
-func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryListByCode) (*[]*RespDictEntryByCode, error) {
+func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryMatch) (*RespDictEntryMatch, error) {
+	codes := normalizeDictEntryMatchCodes(req)
+	if len(codes) == 0 {
+		return nil, res.FailMsg("字典类型编码不能为空")
+	}
+
 	permissionQuery, err := datapermission.BuildReadPermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
-		ctx.L().Error("apply dict type read permission failed", zap.Error(err), zap.String("code", req.Code))
+		ctx.L().Error("apply dict type read permission failed", zap.Error(err), zap.Strings("codes", codes))
 		return nil, res.FailDefault
 	}
 
+	items := make(RespDictEntryMatch, len(codes))
+	for _, code := range codes {
+		items[code] = []*RespDictEntryByCode{}
+	}
+
 	sysDictType := permissionQuery.SysDictType
-	dictType, err := sysDictType.
-		Select(sysDictType.ID).
-		Where(sysDictType.TypeCode.Eq(req.Code), sysDictType.IsEnabled.Is(true)).
-		First()
+	dictTypes, err := sysDictType.
+		Select(sysDictType.ID, sysDictType.TypeCode).
+		Where(sysDictType.TypeCode.In(codes...), sysDictType.IsEnabled.Is(true)).
+		Find()
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			items := []*RespDictEntryByCode{}
-			return &items, nil
-		}
-		ctx.L().Error("query dict type by code failed", zap.Error(err), zap.String("code", req.Code))
+		ctx.L().Error("query dict types by code failed", zap.Error(err), zap.Strings("codes", codes))
 		return nil, res.FailDefault
+	}
+	if len(dictTypes) == 0 {
+		return &items, nil
+	}
+
+	typeIDs := make([]uint64, 0, len(dictTypes))
+	codeByTypeID := make(map[uint64]string, len(dictTypes))
+	for _, dictType := range dictTypes {
+		typeIDs = append(typeIDs, dictType.ID)
+		codeByTypeID[dictType.ID] = dictType.TypeCode
 	}
 
 	sysDictEntry := query.SysDictEntry
 	entries, err := sysDictEntry.
-		Where(sysDictEntry.SysDictTypeId.Eq(dictType.ID), sysDictEntry.IsEnabled.Is(true)).
+		Where(sysDictEntry.SysDictTypeId.In(typeIDs...), sysDictEntry.IsEnabled.Is(true)).
 		Order(sysDictEntry.SortOrder.Asc(), sysDictEntry.ID.Asc()).
 		Find()
 	if err != nil {
-		ctx.L().Error("query dict entries by code failed", zap.Error(err), zap.String("code", req.Code), zap.Uint64("typeId", dictType.ID))
+		ctx.L().Error("query dict entries by codes failed", zap.Error(err), zap.Strings("codes", codes), zap.Uint64s("typeIds", typeIDs))
 		return nil, res.FailDefault
 	}
 	if len(entries) == 0 {
-		items := []*RespDictEntryByCode{}
 		return &items, nil
 	}
 
@@ -448,13 +465,16 @@ func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryListByCode)
 		return nil, err
 	}
 
-	items := make([]*RespDictEntryByCode, 0, len(entries))
 	for _, entry := range entries {
+		code, ok := codeByTypeID[entry.SysDictTypeId]
+		if !ok {
+			continue
+		}
 		entryLabel := entry.EntryLabel
 		if translation, ok := translationMap[strings.TrimSpace(entry.LanguageCode)]; ok {
 			entryLabel = translation
 		}
-		items = append(items, &RespDictEntryByCode{
+		items[code] = append(items[code], &RespDictEntryByCode{
 			ID:             entry.ID,
 			LabelComponent: entry.LabelComponent,
 			EntryLabel:     entryLabel,
@@ -462,6 +482,27 @@ func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryListByCode)
 		})
 	}
 	return &items, nil
+}
+
+func normalizeDictEntryMatchCodes(req *ReqDictEntryMatch) []string {
+	codeSet := make(map[string]struct{}, len(req.Codes))
+	codes := make([]string, 0, len(req.Codes))
+	appendCode := func(code string) {
+		code = strings.TrimSpace(code)
+		if code == "" {
+			return
+		}
+		if _, exists := codeSet[code]; exists {
+			return
+		}
+		codeSet[code] = struct{}{}
+		codes = append(codes, code)
+	}
+
+	for _, code := range req.Codes {
+		appendCode(code)
+	}
+	return codes
 }
 
 func queryDictEntryTranslationMap(ctx *handler.Ctx, entries []*models.SysDictEntry) (map[string]string, error) {
