@@ -1,5 +1,12 @@
 # Skill: Backend Admin Service
 
+## Generated Code Rule
+
+- Do not edit generated files such as `internal/services/orm/query/*.gen.go` directly.
+- If generated query behavior must change, update the source template in `cmd/scripts/orm/templates/` or the source model in `internal/services/orm/models/` first, then regenerate with `make script-orm` from `backend/admin`.
+- Do not put table-specific business behavior into shared templates; keep shared templates generic and place per-model query behavior in non-generated logic, reusable scopes, or model definitions.
+- Review the regenerated diff after `make script-orm`; keep manual business logic in non-generated files.
+
 ## 何时使用
 
 当任务涉及 `backend/admin` 的服务启动、配置、路由、业务逻辑、中间件、认证权限、Swagger、GORM Gen 生成代码或后台 API 时使用。

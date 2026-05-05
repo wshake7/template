@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import type { DictMatchedEntry } from '~/api/sysDict'
+import type { DictMatchedEntry } from '~/api/business/sysDict'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { DictApi } from '~/api/sysDict'
+import { DictApi } from '~/api/business/sysDict'
 import { renderDictEntryLabel } from '~/components/dictEntryLabel'
 
 export function useDictMatch(code: string) {

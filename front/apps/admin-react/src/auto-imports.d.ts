@@ -6,10 +6,11 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const AccountApi: typeof import('./api/account').AccountApi
+  const AccountApi: typeof import('./api/business/account').AccountApi
   const Activity: typeof import('react').Activity
+  const ApiLogApi: typeof import('./api/business/sysApiLog').ApiLogApi
   const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
-  const DictApi: typeof import('./api/sysDict').DictApi
+  const DictApi: typeof import('./api/business/sysDict').DictApi
   const DictCode: typeof import('./domains/dict').DictCode
   const DictEntryPanel: typeof import('./components/business/system/dictPanels').DictEntryPanel
   const DictTypePanel: typeof import('./components/business/system/dictPanels').DictTypePanel
@@ -19,13 +20,12 @@ declare global {
   const Fragment: typeof import('react').Fragment
   const HttpCode: typeof import('./domains/http').HttpCode
   const HttpCodeCheck: typeof import('./domains/http').HttpCodeCheck
-  const LangApi: typeof import('./api/sysLanguage').LangApi
+  const LangApi: typeof import('./api/business/sysLanguage').LangApi
   const LanguageEntryPanel: typeof import('./components/business/system/languagePanels').LanguageEntryPanel
   const LanguageTypePanel: typeof import('./components/business/system/languagePanels').LanguageTypePanel
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
-  const OperationLogApi: typeof import('./api/sysOperationLog').OperationLogApi
-  const ResourceApi: typeof import('./api/sysResource').ResourceApi
-  const RoleApi: typeof import('./api/sysRole').RoleApi
+  const ResourceApi: typeof import('./api/business/sysResource').ResourceApi
+  const RoleApi: typeof import('./api/business/sysRole').RoleApi
   const Suspense: typeof import('react').Suspense
   const TAB_REFRESH_INTERVAL: typeof import('./config/tabs').TAB_REFRESH_INTERVAL
   const XHeader: typeof import('./domains/http').XHeader
@@ -201,15 +201,15 @@ declare global {
   export type { LangTypeFormValues } from './components/business/system/languagePanels'
   import('./components/business/system/languagePanels')
   // @ts-ignore
-  export type { DictType, DictEntry, DictMatchedEntry, ReqDictEntryMatch, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/sysDict'
-  import('./api/sysDict')
+  export type { SysApiLog, ReqLogDetail } from './api/business/sysApiLog'
+  import('./api/business/sysApiLog')
   // @ts-ignore
-  export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/sysLanguage'
-  import('./api/sysLanguage')
+  export type { DictType, DictEntry, DictMatchedEntry, ReqDictEntryMatch, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/business/sysDict'
+  import('./api/business/sysDict')
   // @ts-ignore
-  export type { SysOperationLog, ReqLogDetail } from './api/sysOperationLog'
-  import('./api/sysOperationLog')
+  export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/business/sysLanguage'
+  import('./api/business/sysLanguage')
   // @ts-ignore
-  export type { Resource, ReqResourceCreate, ReqResourceUpdate, ReqResourceBatchDelete } from './api/sysResource'
-  import('./api/sysResource')
+  export type { Resource, ReqResourceCreate, ReqResourceUpdate, ReqResourceBatchDelete } from './api/business/sysResource'
+  import('./api/business/sysResource')
 }

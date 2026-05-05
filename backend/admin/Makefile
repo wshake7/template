@@ -10,7 +10,7 @@ script-imports:
 	go run ./cmd/script/gen_imports
 
 script-orm:
-	go run ./cmd/script/orm
+	go run ./cmd/scripts/orm
 
 run:
 	go run ./cmd

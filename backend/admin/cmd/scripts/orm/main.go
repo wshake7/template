@@ -3,16 +3,13 @@ package main
 import (
 	"admin/internal/config"
 	"admin/internal/services/orm/models"
-	"admin/internal/services/orm/query"
 	"fmt"
-	"go-common/utils/passwd"
 	"go-common/viperc"
 	"go.uber.org/zap"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 	"moul.io/zapgorm2"
 	gormCrud "orm-crud/gormc"
-	"orm-crud/gormc/mixin"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -50,34 +47,35 @@ func main() {
 	}
 
 	codeGenCode(client.DB, models.Models)
-	query.SetDefault(client.DB)
-	genUserAdd()
+	//query.SetDefault(client.DB)
+	//genUserAdd()
 }
 
-func genUserAdd() {
-	sysUser := query.SysUser
-	pwd, _ := passwd.Encode("123456")
-	_ = sysUser.Create(&models.SysUser{
-		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
-		DeletedAt:   0,
-		Username:    "root",
-		Nickname:    "",
-		Password:    pwd,
-		LastLoginAt: nil,
-		LastLoginIP: "",
-		SysRoles:    nil,
-	})
-	_ = sysUser.Create(&models.SysUser{
-		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
-		DeletedAt:   0,
-		Username:    "admin",
-		Nickname:    "",
-		Password:    pwd,
-		LastLoginAt: nil,
-		LastLoginIP: "",
-		SysRoles:    nil,
-	})
-}
+//
+//func genUserAdd() {
+//	sysUser := query.SysUser
+//	pwd, _ := passwd.Encode("123456")
+//	_ = sysUser.Create(&models.SysUser{
+//		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
+//		DeletedAt:   0,
+//		Username:    "root",
+//		Nickname:    "",
+//		Password:    pwd,
+//		LastLoginAt: nil,
+//		LastLoginIP: "",
+//		SysRoles:    nil,
+//	})
+//	_ = sysUser.Create(&models.SysUser{
+//		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
+//		DeletedAt:   0,
+//		Username:    "admin",
+//		Nickname:    "",
+//		Password:    pwd,
+//		LastLoginAt: nil,
+//		LastLoginIP: "",
+//		SysRoles:    nil,
+//	})
+//}
 
 func dbGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{

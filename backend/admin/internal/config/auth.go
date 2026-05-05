@@ -54,7 +54,7 @@ type AuthConfig struct {
 	// JwtSecretKey JWT secret key (only effective when TokenStyle=JWT) | JWT密钥（只有TokenStyle=JWT时，此配置才生效）
 	JwtSecretKey string `mapstructure:"JwtSecretKey"`
 
-	// IsLog Enable operation logging | 是否输出操作日志
+	// IsLog Enable API logging | 是否输出API日志
 	IsLog bool `mapstructure:"IsLog" default:"false"`
 
 	// IsPrintBanner Print startup banner (default: true) | 是否打印启动 Banner（默认：true）

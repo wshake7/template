@@ -477,9 +477,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/log/detail": {
+        "/api/sys/api/log/detail": {
             "post": {
-                "description": "根据 ID 获取操作日志详情",
+                "description": "根据 ID 获取API日志详情",
                 "consumes": [
                     "application/json"
                 ],
@@ -489,7 +489,7 @@ const docTemplate = `{
                 "tags": [
                     "Log"
                 ],
-                "summary": "获取操作日志详情",
+                "summary": "获取API日志详情",
                 "parameters": [
                     {
                         "description": "日志ID",
@@ -513,7 +513,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/admin_internal_services_orm_models.SysOperationLog"
+                                            "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
                                         }
                                     }
                                 }
@@ -523,9 +523,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/log/list": {
+        "/api/sys/api/log/list": {
             "post": {
-                "description": "分页查询操作日志信息",
+                "description": "分页查询API日志信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -535,7 +535,7 @@ const docTemplate = `{
                 "tags": [
                     "Log"
                 ],
-                "summary": "获取操作日志分页列表",
+                "summary": "获取API日志分页列表",
                 "parameters": [
                     {
                         "description": "分页参数",
@@ -559,7 +559,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysOperationLog"
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysApiLog"
                                         }
                                     }
                                 }
@@ -1483,7 +1483,7 @@ const docTemplate = `{
                 }
             }
         },
-        "admin_internal_services_orm_models.SysOperationLog": {
+        "admin_internal_services_orm_models.SysApiLog": {
             "type": "object",
             "properties": {
                 "afterChange": {
@@ -1567,11 +1567,8 @@ const docTemplate = `{
                 "userAgent": {
                     "type": "string"
                 },
-                "userID": {
+                "sysUserID": {
                     "type": "integer"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -1734,13 +1731,13 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_internal_services_orm_models_SysOperationLog": {
+        "gormc.PagingResult-admin_internal_services_orm_models_SysApiLog": {
             "type": "object",
             "properties": {
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/admin_internal_services_orm_models.SysOperationLog"
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysApiLog"
                     }
                 },
                 "total": {

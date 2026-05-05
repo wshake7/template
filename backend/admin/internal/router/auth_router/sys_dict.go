@@ -13,7 +13,7 @@ func registerSysDictRouters(router fiber.Router) {
 
 	dictType := router.Group("/type")
 	dictType.Post("/list", handler.CtxHandlerFunc(sysDictHandler.TypeList))
-	logMiddleware := middleware.OperationLogMiddleware(middleware.WithModule("dict"))
+	logMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("dict"))
 	dictType.Post("/create", logMiddleware, handler.CtxHandlerNilFunc(sysDictHandler.TypeCreate))
 	dictType.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(sysDictHandler.TypeUpdate))
 	dictType.Post("/del", logMiddleware, handler.CtxHandlerNilFunc(sysDictHandler.TypeDel))

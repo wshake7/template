@@ -13,7 +13,7 @@ func registerSysLanguageRouters(router fiber.Router) {
 
 	langType := router.Group("/type")
 	langType.Post("/list", handler.CtxHandlerFunc(sysLanguageHandler.TypeList))
-	logMiddleware := middleware.OperationLogMiddleware(middleware.WithModule("language"))
+	logMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("language"))
 	langType.Post("/create", logMiddleware, handler.CtxHandlerNilFunc(sysLanguageHandler.TypeCreate))
 	langType.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(sysLanguageHandler.TypeUpdate))
 	langType.Post("/del", logMiddleware, handler.CtxHandlerNilFunc(sysLanguageHandler.TypeDel))

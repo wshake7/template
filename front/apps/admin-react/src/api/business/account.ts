@@ -2,7 +2,7 @@ import type { ReqChangePwd, ReqPwdLogin } from '~/domains/account'
 import Cookies from 'js-cookie'
 import { XHeader } from '~/domains/http'
 import { router } from '~/router'
-import API from './index'
+import API from '../index'
 
 async function loginPwd(req: ReqPwdLogin) {
   await API.Post<Res>('/api/account/login/pwd', req, {

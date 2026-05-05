@@ -1,4 +1,4 @@
-import API from './index'
+import API from '../index'
 
 async function list() {
   await API.Get<Res>('/api/role/page', {

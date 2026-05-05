@@ -1,4 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
+import type { SysApiLog } from '~/api/business/sysApiLog'
 import { ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
@@ -8,21 +9,20 @@ import {
   Tag,
 } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import API from '~/api/index'
 
 let jsonHighlighterPromise: Promise<{
   codeToHtml: (code: string, options: { lang: string, theme: string }) => string
 }> | undefined
 
-export const Route = createFileRoute('/_app/system/operation/log')({
+export const Route = createFileRoute('/_app/system/api/log')({
   staticData: {
     menu: {
-      name: '操作日志',
+      name: 'API日志',
       menuType: 'menu',
     },
   },
   staleTime: 1000 * 60 * 2,
-  component: OperationLogManagement,
+  component: ApiLogManagement,
 })
 
 function successTag(success: boolean) {
@@ -136,7 +136,7 @@ function JsonCodeBlock({ value }: { value?: string }) {
       {highlightedHtml
         ? (
             <div
-              className="operation-log-json-code"
+              className="api-log-json-code"
               dangerouslySetInnerHTML={{ __html: highlightedHtml }}
             />
           )
@@ -166,9 +166,13 @@ function DetailText({ children }: { children?: string }) {
   )
 }
 
-function OperationLogManagement() {
+function operatorName(record?: SysApiLog | null) {
+  return record?.sysUser?.username || (record?.sysUserID ? String(record.sysUserID) : '-')
+}
+
+function ApiLogManagement() {
   const [detailOpen, setDetailOpen] = useState(false)
-  const [detailData, setDetailData] = useState<SysOperationLog | null>(null)
+  const [detailData, setDetailData] = useState<SysApiLog | null>(null)
 
   const {
     data,
@@ -180,12 +184,10 @@ function OperationLogManagement() {
     send,
   } = usePagination(
     (nextPage, nextPageSize) =>
-      API.Post<Res<PagingResult<SysOperationLog>>>('/api/sys/operation/log/list', {
+      ApiLogApi.list({
         page: nextPage,
         pageSize: nextPageSize,
         orderBy: 'id desc',
-      }, {
-        cacheFor: 0,
       }),
     {
       initialData: {
@@ -199,9 +201,9 @@ function OperationLogManagement() {
     },
   )
 
-  const openDetail = useCallback(async (record: SysOperationLog) => {
+  const openDetail = useCallback(async (record: SysApiLog) => {
     try {
-      const res = await OperationLogApi.detail({ id: record.id })
+      const res = await ApiLogApi.detail({ id: record.id })
       if (res.data) {
         setDetailData(res.data)
         setDetailOpen(true)
@@ -212,11 +214,12 @@ function OperationLogManagement() {
     }
   }, [])
 
-  const columns: ProColumns<SysOperationLog>[] = [
+  const columns: ProColumns<SysApiLog>[] = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      width: 70,
+      title: '序号',
+      dataIndex: 'index',
+      width: 60,
+      render: (_, __, index) => (page - 1) * pageSize + index + 1,
     },
     {
       title: '模块',
@@ -236,8 +239,9 @@ function OperationLogManagement() {
     },
     {
       title: '操作者',
-      dataIndex: 'username',
+      dataIndex: ['sysUser', 'username'],
       width: 120,
+      render: (_, record) => operatorName(record),
     },
     {
       title: '客户端IP',
@@ -264,7 +268,7 @@ function OperationLogManagement() {
     {
       title: '操作时间',
       dataIndex: 'createdAt',
-      width: 180,
+      width: 240,
     },
     {
       title: '操作',
@@ -285,7 +289,7 @@ function OperationLogManagement() {
 
   return (
     <>
-      <ProTable<SysOperationLog>
+      <ProTable<SysApiLog>
         rowKey="id"
         search={false}
         columns={columns}
@@ -308,7 +312,7 @@ function OperationLogManagement() {
         }}
       />
       <Modal
-        title="操作日志详情"
+        title="API日志详情"
         open={detailOpen}
         onCancel={() => {
           setDetailOpen(false)
@@ -327,20 +331,20 @@ function OperationLogManagement() {
           <div>
             <style>
               {`
-                .operation-log-detail .ant-descriptions-view {
+                .api-log-detail .ant-descriptions-view {
                   overflow: hidden;
                 }
-                .operation-log-detail .ant-descriptions-item-label {
+                .api-log-detail .ant-descriptions-item-label {
                   width: 96px;
                   min-width: 96px;
                   max-width: 96px;
                   white-space: nowrap;
                 }
-                .operation-log-detail .ant-descriptions-item-content {
+                .api-log-detail .ant-descriptions-item-content {
                   min-width: 0;
                   max-width: 0;
                 }
-                .operation-log-json-code pre {
+                .api-log-json-code pre {
                   margin: 0 !important;
                   padding: 12px !important;
                   white-space: pre-wrap !important;
@@ -349,19 +353,19 @@ function OperationLogManagement() {
                   font-size: 12px !important;
                   line-height: 1.6 !important;
                 }
-                .operation-log-json-code code {
+                .api-log-json-code code {
                   white-space: pre-wrap !important;
                 }
               `}
             </style>
-            <Descriptions className="operation-log-detail" column={2} bordered size="small">
+            <Descriptions className="api-log-detail" column={2} bordered size="small">
               <Descriptions.Item label="ID">{detailData.id}</Descriptions.Item>
               <Descriptions.Item label="请求ID"><DetailText>{detailData.requestID}</DetailText></Descriptions.Item>
               <Descriptions.Item label="模块">{detailData.module}</Descriptions.Item>
               <Descriptions.Item label="方法">{detailData.method}</Descriptions.Item>
               <Descriptions.Item label="请求路径" span={2}><DetailText>{detailData.path}</DetailText></Descriptions.Item>
               <Descriptions.Item label="请求URI" span={2}><DetailText>{detailData.requestURI}</DetailText></Descriptions.Item>
-              <Descriptions.Item label="操作者">{detailData.username}</Descriptions.Item>
+              <Descriptions.Item label="操作者">{operatorName(detailData)}</Descriptions.Item>
               <Descriptions.Item label="客户端IP">{detailData.clientIP}</Descriptions.Item>
               <Descriptions.Item label="状态码">{detailData.statusCode}</Descriptions.Item>
               <Descriptions.Item label="结果">{successTag(detailData.success)}</Descriptions.Item>

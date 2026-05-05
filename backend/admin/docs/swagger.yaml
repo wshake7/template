@@ -138,7 +138,7 @@ definitions:
       updatedBy:
         type: integer
     type: object
-  admin_internal_services_orm_models.SysOperationLog:
+  admin_internal_services_orm_models.SysApiLog:
     properties:
       afterChange:
         type: string
@@ -194,10 +194,8 @@ definitions:
         type: boolean
       userAgent:
         type: string
-      userID:
+      sysUserID:
         type: integer
-      username:
-        type: string
     type: object
   admin_internal_services_orm_models.SysResource:
     properties:
@@ -306,11 +304,11 @@ definitions:
       total:
         type: integer
     type: object
-  gormc.PagingResult-admin_internal_services_orm_models_SysOperationLog:
+  gormc.PagingResult-admin_internal_services_orm_models_SysApiLog:
     properties:
       items:
         items:
-          $ref: '#/definitions/admin_internal_services_orm_models.SysOperationLog'
+          $ref: '#/definitions/admin_internal_services_orm_models.SysApiLog'
         type: array
       total:
         type: integer
@@ -1204,11 +1202,11 @@ paths:
       summary: 获取加密公钥
       tags:
         - Encrypt
-  /api/log/detail:
+  /api/sys/api/log/detail:
     post:
       consumes:
         - application/json
-      description: 根据 ID 获取操作日志详情
+      description: 根据 ID 获取API日志详情
       parameters:
         - description: 日志ID
           in: body
@@ -1226,16 +1224,16 @@ paths:
               - $ref: '#/definitions/admin_internal_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/admin_internal_services_orm_models.SysOperationLog'
+                    $ref: '#/definitions/admin_internal_services_orm_models.SysApiLog'
                 type: object
-      summary: 获取操作日志详情
+      summary: 获取API日志详情
       tags:
         - Log
-  /api/log/list:
+  /api/sys/api/log/list:
     post:
       consumes:
         - application/json
-      description: 分页查询操作日志信息
+      description: 分页查询API日志信息
       parameters:
         - description: 分页参数
           in: body
@@ -1253,9 +1251,9 @@ paths:
               - $ref: '#/definitions/admin_internal_fiberc_res.Response'
               - properties:
                   data:
-                    $ref: '#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysOperationLog'
+                    $ref: '#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysApiLog'
                 type: object
-      summary: 获取操作日志分页列表
+      summary: 获取API日志分页列表
       tags:
         - Log
   /api/role/create:

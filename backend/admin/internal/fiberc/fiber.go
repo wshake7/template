@@ -75,11 +75,11 @@ func NewFiber(conf *config.Config) *App {
 	}
 	logCfg := fiberzap.Config{
 		Logger: logger,
-		Fields: []string{"ip", "latency", "status", "method", "url", "resBody", "body", "queryParams"},
-		FieldsFunc: func(c fiber.Ctx) []zap.Field {
-			ctx := handler.Trans(c)
-			return ctx.LogResFields
-		},
+		//Fields: []string{"ip", "latency", "status", "method", "url", "resBody", "body", "queryParams"},
+		//FieldsFunc: func(c fiber.Ctx) []zap.Field {
+		//	ctx := handler.Trans(c)
+		//	return ctx.LogResFields
+		//},
 	}
 	app.Use(fiberzap.New(logCfg))
 	app.done = gracefulShutdown(app)

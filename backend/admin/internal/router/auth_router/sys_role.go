@@ -10,7 +10,7 @@ import (
 func registerSysRoleRouters(router fiber.Router) {
 	sysRoleHandler := logic.SysRoleHandler{}
 	router.Get("/list", handler.CtxHandlerFunc(sysRoleHandler.List))
-	logMiddleware := middleware.OperationLogMiddleware(middleware.WithModule("role"))
+	logMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("role"))
 	router.Post("/create", logMiddleware, handler.CtxHandlerNilFunc(sysRoleHandler.Create))
 	router.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(sysRoleHandler.Update))
 	router.Post("/switch", logMiddleware, handler.CtxHandlerNilFunc(sysRoleHandler.Switch))

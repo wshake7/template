@@ -1,6 +1,6 @@
 import type { ProColumns } from '@ant-design/pro-components'
 import type * as Monaco from 'monaco-editor-core'
-import type { DictEntry, DictType } from '~/api/sysDict'
+import type { DictEntry, DictType } from '~/api/business/sysDict'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { usePagination } from 'alova/client'
 import {
@@ -14,7 +14,7 @@ import {
 } from 'antd'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import z from 'zod'
-import { DictApi } from '~/api/sysDict'
+import { DictApi } from '~/api/business/sysDict'
 import { ENTRY_LABEL_PLACEHOLDER, renderDictEntryLabel } from '~/components/dictEntryLabel'
 import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'

@@ -126,29 +126,56 @@ func ChangeQueryParamsFn[T any, R any](fn func(ctx *handler.Ctx, t *T) (*R, erro
 	}
 }
 
-type OperationConfig struct {
+type ApiLogConfig struct {
 	BeforeChangeQuery ChangeQueryHandler
 	AfterChangeQuery  ChangeQueryHandler
 	Module            string
 }
 
-type Option func(*OperationConfig)
+type Option func(*ApiLogConfig)
 
 func WithChangeQuery(fn ChangeQueryHandler) Option {
-	return func(config *OperationConfig) {
+	return func(config *ApiLogConfig) {
 		config.BeforeChangeQuery = fn
 		config.AfterChangeQuery = fn
 	}
 }
 
 func WithModule(module string) Option {
-	return func(config *OperationConfig) {
+	return func(config *ApiLogConfig) {
 		config.Module = module
 	}
 }
 
-func OperationLogMiddleware(options ...Option) fiber.Handler {
-	conf := &OperationConfig{}
+func isForeignKeyViolation(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "foreign key") || strings.Contains(msg, "violates foreign key constraint")
+}
+
+func createSysApiLog(logger *zap.Logger, m *models.SysApiLog) {
+	err := query.SysApiLog.Create(m)
+	if err == nil {
+		return
+	}
+	if m.SysUserID != nil && isForeignKeyViolation(err) {
+		invalidSysUserID := *m.SysUserID
+		m.SysUserID = nil
+		retryErr := query.SysApiLog.Create(m)
+		if retryErr == nil {
+			logger.Warn("SysApiLog.Create retry without sys_user_id", zap.Uint64("sysUserID", invalidSysUserID), zap.Error(err))
+			return
+		}
+		logger.Error("SysApiLog.Create retry without sys_user_id fail", zap.Uint64("sysUserID", invalidSysUserID), zap.Error(retryErr), zap.NamedError("firstError", err))
+		return
+	}
+	logger.Error("SysApiLog.Create fail", zap.Error(err))
+}
+
+func ApiLogMiddleware(options ...Option) fiber.Handler {
+	conf := &ApiLogConfig{}
 	for _, option := range options {
 		option(conf)
 	}
@@ -202,7 +229,10 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 			requestURI := ctx.Request().URI().String()
 			userAgent := ctx.UserAgent()
 			userId := ctx.SessionInfo.Id
-			username := ctx.SessionInfo.Username
+			var sysUserID *uint64
+			if userId > 0 {
+				sysUserID = &userId
+			}
 			errMsg := ctx.ErrMsg
 			errCode := ctx.ErrCode
 			costTime := time.Since(now).Milliseconds()
@@ -215,7 +245,7 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 				if err != nil {
 					logger.Error("Query Ip fail", zap.Error(err))
 				}
-				m := &models.SysOperationLog{
+				m := &models.SysApiLog{
 					RequestID:      requestID,
 					Method:         method,
 					Module:         conf.Module,
@@ -229,8 +259,7 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 					RequestHeader:  headers,
 					Response:       responseBody,
 					CostTime:       costTime,
-					UserID:         userId,
-					Username:       username,
+					SysUserID:      sysUserID,
 					ClientIP:       ip,
 					StatusCode:     statusCode,
 					Reason:         errMsg,
@@ -244,10 +273,7 @@ func OperationLogMiddleware(options ...Option) fiber.Handler {
 					OSName:         "",
 					OSVersion:      "",
 				}
-				err = query.SysOperationLog.Create(m)
-				if err != nil {
-					logger.Error("SysOperationLog.Create fail", zap.Error(err))
-				}
+				createSysApiLog(logger, m)
 			})
 
 			if nextRecoverErr != nil {

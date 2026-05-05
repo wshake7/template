@@ -14,11 +14,11 @@ import (
 	paginationFilter "orm-crud/pagination/filter"
 )
 
-func (sysOperationLog) count(whereSelectors []func(*gorm.DB) *gorm.DB) (int64, error) {
+func (sysApiLog) count(whereSelectors []func(*gorm.DB) *gorm.DB) (int64, error) {
 	if Q.db == nil {
 		return 0, errors.New("db is nil")
 	}
-	countDB := Q.db.Model(new(models.SysOperationLog))
+	countDB := Q.db.Model(new(models.SysApiLog))
 	for _, s := range whereSelectors {
 		if s != nil {
 			countDB = s(countDB)
@@ -33,7 +33,7 @@ func (sysOperationLog) count(whereSelectors []func(*gorm.DB) *gorm.DB) (int64, e
 }
 
 // PageWithPaging 使用 PagingRequest 查询列表
-func (s sysOperationLog) PageWithPaging(req *paginationV1.PagingRequest) (*gormc.PagingResult[models.SysOperationLog], error) {
+func (s sysApiLog) PageWithPaging(req *paginationV1.PagingRequest) (*gormc.PagingResult[models.SysApiLog], error) {
 	if req == nil {
 		return nil, errors.New("paging request is nil")
 	}
@@ -89,7 +89,7 @@ func (s sysOperationLog) PageWithPaging(req *paginationV1.PagingRequest) (*gormc
 		}
 	}
 
-	listDB := Q.db.Model(new(models.SysOperationLog))
+	listDB := Q.db.Model(new(models.SysApiLog))
 	for _, w := range whereSelectors {
 		if w != nil {
 			listDB = w(listDB)
@@ -105,7 +105,7 @@ func (s sysOperationLog) PageWithPaging(req *paginationV1.PagingRequest) (*gormc
 		listDB = pagingSelector(listDB)
 	}
 
-	var entities []*models.SysOperationLog
+	var entities []*models.SysApiLog
 	if err = listDB.Find(&entities).Error; err != nil {
 		return nil, err
 	}
@@ -115,14 +115,14 @@ func (s sysOperationLog) PageWithPaging(req *paginationV1.PagingRequest) (*gormc
 		return nil, err
 	}
 
-	return &gormc.PagingResult[models.SysOperationLog]{
+	return &gormc.PagingResult[models.SysApiLog]{
 		Items: entities,
 		Total: uint64(total),
 	}, nil
 }
 
 // PageWithPagination 使用 PaginationRequest 查询列表
-func (s sysOperationLog) PageWithPagination(req *paginationV1.PaginationRequest) (*gormc.PagingResult[models.SysOperationLog], error) {
+func (s sysApiLog) PageWithPagination(req *paginationV1.PaginationRequest) (*gormc.PagingResult[models.SysApiLog], error) {
 	if req == nil {
 		return nil, errors.New("pagination request is nil")
 	}
@@ -177,7 +177,7 @@ func (s sysOperationLog) PageWithPagination(req *paginationV1.PaginationRequest)
 		pagingSelector = tokenPaginator.BuildDB(req.GetTokenBased().GetToken(), int(req.GetTokenBased().GetPageSize()))
 	}
 
-	listDB := Q.db.Model(new(models.SysOperationLog))
+	listDB := Q.db.Model(new(models.SysApiLog))
 	for _, s := range whereSelectors {
 		if s != nil {
 			listDB = s(listDB)
@@ -193,7 +193,7 @@ func (s sysOperationLog) PageWithPagination(req *paginationV1.PaginationRequest)
 		listDB = pagingSelector(listDB)
 	}
 
-	var entities []*models.SysOperationLog
+	var entities []*models.SysApiLog
 	if err = listDB.Find(&entities).Error; err != nil {
 		zap.S().Errorf("query list failed: %s", err.Error())
 		return nil, errors.New("query list failed")
@@ -205,7 +205,7 @@ func (s sysOperationLog) PageWithPagination(req *paginationV1.PaginationRequest)
 		return nil, err
 	}
 
-	return &gormc.PagingResult[models.SysOperationLog]{
+	return &gormc.PagingResult[models.SysApiLog]{
 		Items: entities,
 		Total: uint64(total),
 	}, nil

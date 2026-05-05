@@ -19,7 +19,7 @@ import { Route as AppSystemResourceRouteImport } from './routes/_app/system/reso
 import { Route as AppSystemLanguageRouteImport } from './routes/_app/system/language'
 import { Route as AppSystemDictRouteImport } from './routes/_app/system/dict'
 import { Route as AppAccountRoleRouteImport } from './routes/_app/account/role'
-import { Route as AppSystemOperationLogRouteImport } from './routes/_app/system/operation.log'
+import { Route as AppSystemApiLogRouteImport } from './routes/_app/system/api.log'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -70,9 +70,9 @@ const AppAccountRoleRoute = AppAccountRoleRouteImport.update({
   path: '/role',
   getParentRoute: () => AppAccountRoute,
 } as any)
-const AppSystemOperationLogRoute = AppSystemOperationLogRouteImport.update({
-  id: '/operation/log',
-  path: '/operation/log',
+const AppSystemApiLogRoute = AppSystemApiLogRouteImport.update({
+  id: '/api/log',
+  path: '/api/log',
   getParentRoute: () => AppSystemRoute,
 } as any)
 
@@ -86,7 +86,7 @@ export interface FileRoutesByFullPath {
   '/system/dict': typeof AppSystemDictRoute
   '/system/language': typeof AppSystemLanguageRoute
   '/system/resource': typeof AppSystemResourceRoute
-  '/system/operation/log': typeof AppSystemOperationLogRoute
+  '/system/api/log': typeof AppSystemApiLogRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginLoginRoute
@@ -98,7 +98,7 @@ export interface FileRoutesByTo {
   '/system/dict': typeof AppSystemDictRoute
   '/system/language': typeof AppSystemLanguageRoute
   '/system/resource': typeof AppSystemResourceRoute
-  '/system/operation/log': typeof AppSystemOperationLogRoute
+  '/system/api/log': typeof AppSystemApiLogRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,7 +112,7 @@ export interface FileRoutesById {
   '/_app/system/dict': typeof AppSystemDictRoute
   '/_app/system/language': typeof AppSystemLanguageRoute
   '/_app/system/resource': typeof AppSystemResourceRoute
-  '/_app/system/operation/log': typeof AppSystemOperationLogRoute
+  '/_app/system/api/log': typeof AppSystemApiLogRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -126,7 +126,7 @@ export interface FileRouteTypes {
     | '/system/dict'
     | '/system/language'
     | '/system/resource'
-    | '/system/operation/log'
+    | '/system/api/log'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -138,7 +138,7 @@ export interface FileRouteTypes {
     | '/system/dict'
     | '/system/language'
     | '/system/resource'
-    | '/system/operation/log'
+    | '/system/api/log'
   id:
     | '__root__'
     | '/_app'
@@ -151,7 +151,7 @@ export interface FileRouteTypes {
     | '/_app/system/dict'
     | '/_app/system/language'
     | '/_app/system/resource'
-    | '/_app/system/operation/log'
+    | '/_app/system/api/log'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -231,11 +231,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountRoleRouteImport
       parentRoute: typeof AppAccountRoute
     }
-    '/_app/system/operation/log': {
-      id: '/_app/system/operation/log'
-      path: '/operation/log'
-      fullPath: '/system/operation/log'
-      preLoaderRoute: typeof AppSystemOperationLogRouteImport
+    '/_app/system/api/log': {
+      id: '/_app/system/api/log'
+      path: '/api/log'
+      fullPath: '/system/api/log'
+      preLoaderRoute: typeof AppSystemApiLogRouteImport
       parentRoute: typeof AppSystemRoute
     }
   }
@@ -257,14 +257,14 @@ interface AppSystemRouteChildren {
   AppSystemDictRoute: typeof AppSystemDictRoute
   AppSystemLanguageRoute: typeof AppSystemLanguageRoute
   AppSystemResourceRoute: typeof AppSystemResourceRoute
-  AppSystemOperationLogRoute: typeof AppSystemOperationLogRoute
+  AppSystemApiLogRoute: typeof AppSystemApiLogRoute
 }
 
 const AppSystemRouteChildren: AppSystemRouteChildren = {
   AppSystemDictRoute: AppSystemDictRoute,
   AppSystemLanguageRoute: AppSystemLanguageRoute,
   AppSystemResourceRoute: AppSystemResourceRoute,
-  AppSystemOperationLogRoute: AppSystemOperationLogRoute,
+  AppSystemApiLogRoute: AppSystemApiLogRoute,
 }
 
 const AppSystemRouteWithChildren = AppSystemRoute._addFileChildren(

@@ -1,5 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type { LanguageEntry, LanguageType } from '~/api/sysLanguage'
+import type { LanguageEntry, LanguageType } from '~/api/business/sysLanguage'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { usePagination } from 'alova/client'
 import {
@@ -15,7 +15,7 @@ import {
 
 import { useCallback, useMemo, useState } from 'react'
 import z from 'zod'
-import { LangApi } from '~/api/sysLanguage'
+import { LangApi } from '~/api/business/sysLanguage'
 import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
@@ -413,6 +413,9 @@ export function LanguageTypePanel({
           reload: () => send(),
         }}
         toolBarRender={() => [
+          <Button key="add" type="primary" onClick={openCreate}>
+            新增语言
+          </Button>,
           <Input.Search
             key="search"
             placeholder="搜索语言编码、名称"
@@ -426,9 +429,6 @@ export function LanguageTypePanel({
             }}
             style={{ width: 260 }}
           />,
-          <Button key="add" type="primary" onClick={openCreate}>
-            新增语言
-          </Button>,
         ]}
         rowClassName={(record) => {
           if (record.id === selectedType?.id) {

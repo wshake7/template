@@ -1,6 +1,6 @@
-import API from './index'
+import API from '../index'
 
-export interface SysOperationLog {
+export interface SysApiLog {
   id: number
   requestID: string
   method: string
@@ -15,8 +15,12 @@ export interface SysOperationLog {
   requestHeader: string
   response: string
   costTime: number
-  userID: number
-  username: string
+  sysUserID?: number | null
+  sysUser?: {
+    id: number
+    username: string
+    nickname: string
+  } | null
   clientIP: string
   statusCode: number
   reason: string
@@ -36,19 +40,19 @@ export interface ReqLogDetail {
   id: number
 }
 
-async function list(req: PagingRequest) {
-  return await API.Post<Res<PagingResult<SysOperationLog>>>('/api/sys/operation/log/list', req, {
+function list(req: PagingRequest) {
+  return API.Post<Res<PagingResult<SysApiLog>>>('/api/sys/api/log/list', req, {
     cacheFor: 0,
-  }).send()
+  })
 }
 
 async function detail(req: ReqLogDetail) {
-  return await API.Post<Res<SysOperationLog>>('/api/sys/operation/log/detail', req, {
+  return await API.Post<Res<SysApiLog>>('/api/sys/api/log/detail', req, {
     cacheFor: 0,
   }).send()
 }
 
-export const OperationLogApi = {
+export const ApiLogApi = {
   list,
   detail,
 }
