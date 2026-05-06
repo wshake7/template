@@ -2,6 +2,7 @@ package datapermission
 
 import (
 	"admin/internal/fiberc/handler"
+	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	gormcFilter "orm-crud/gormc/filter"
@@ -51,7 +52,7 @@ func BuildDeletePermissionQuery(ctx *handler.Ctx, resourceTable string) (*query.
 
 // BuildReadPermissionScopes builds GORM scopes from read permissions.
 func BuildReadPermissionScopes(resourceTable string, subjects []Subject) ([]func(*gorm.DB) *gorm.DB, error) {
-	return buildPermissionScopesForAction(resourceTable, actionRead, subjects)
+	return buildPermissionScopesForAction(resourceTable, models.DataPermissionActionRead, subjects)
 }
 
 // BuildPermissionScopesFromExpr builds GORM scopes from a precomputed
@@ -65,12 +66,12 @@ func BuildPermissionScopesFromExpr(permissionExpr *v1.FilterExpr) ([]func(*gorm.
 
 // BuildWritePermissionScopes builds GORM scopes from write permissions.
 func BuildWritePermissionScopes(resourceTable string, subjects []Subject) ([]func(*gorm.DB) *gorm.DB, error) {
-	return buildPermissionScopesForAction(resourceTable, actionWrite, subjects)
+	return buildPermissionScopesForAction(resourceTable, models.DataPermissionActionWrite, subjects)
 }
 
 // BuildDeletePermissionScopes builds GORM scopes from delete permissions.
 func BuildDeletePermissionScopes(resourceTable string, subjects []Subject) ([]func(*gorm.DB) *gorm.DB, error) {
-	return buildPermissionScopesForAction(resourceTable, actionDelete, subjects)
+	return buildPermissionScopesForAction(resourceTable, models.DataPermissionActionDelete, subjects)
 }
 
 func buildPermissionScopesForAction(resourceTable string, action permissionAction, subjects []Subject) ([]func(*gorm.DB) *gorm.DB, error) {

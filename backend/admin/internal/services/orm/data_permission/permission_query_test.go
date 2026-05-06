@@ -12,7 +12,7 @@ func TestPermissionIncludesActionAll(t *testing.T) {
 		Action: datatypes.JSON(`["all"]`),
 	}
 
-	for _, action := range []permissionAction{actionRead, actionWrite, actionDelete} {
+	for _, action := range []permissionAction{models.DataPermissionActionRead, models.DataPermissionActionWrite, models.DataPermissionActionDelete} {
 		if !permissionIncludesAction(permission, action) {
 			t.Fatalf("expected all action to include %s", action)
 		}
@@ -24,10 +24,10 @@ func TestPermissionIncludesActionSpecific(t *testing.T) {
 		Action: datatypes.JSON(`["read"]`),
 	}
 
-	if !permissionIncludesAction(permission, actionRead) {
+	if !permissionIncludesAction(permission, models.DataPermissionActionRead) {
 		t.Fatal("expected read action to include read")
 	}
-	if permissionIncludesAction(permission, actionWrite) {
+	if permissionIncludesAction(permission, models.DataPermissionActionWrite) {
 		t.Fatal("did not expect read action to include write")
 	}
 }

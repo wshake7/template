@@ -65,15 +65,15 @@ func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 	permissionExprs, err := datapermission.BuildPermissionFilterExprsForCtx(
 		ctx,
 		models.SysDictType{}.TableName(),
-		datapermission.ActionRead,
-		datapermission.ActionWrite,
-		datapermission.ActionDelete,
+		models.DataPermissionActionRead,
+		models.DataPermissionActionWrite,
+		models.DataPermissionActionDelete,
 	)
 	if err != nil {
 		ctx.L().Error("build dict type permission expressions failed", zap.Error(err))
 		return nil, res.FailDefault
 	}
-	if err := datapermission.ApplyPagePermissionExpr(req, permissionExprs[datapermission.ActionRead]); err != nil {
+	if err := datapermission.ApplyPagePermissionExpr(req, permissionExprs[models.DataPermissionActionRead]); err != nil {
 		ctx.L().Error("apply dict type read permission failed", zap.Error(err))
 		return nil, res.FailDefault
 	}
@@ -89,14 +89,14 @@ func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 		ids = append(ids, item.ID)
 	}
 
-	writeIDSet, err := queryAllowedDictTypeIDSetByExpr(ids, permissionExprs[datapermission.ActionWrite])
+	writeIDSet, err := queryAllowedDictTypeIDSetByExpr(ids, permissionExprs[models.DataPermissionActionWrite])
 	if err != nil {
 		ctx.L().Error("apply dict type write permission failed", zap.Error(err), zap.Uint64s("ids", ids))
 		return nil, res.FailDefault
 	}
 	deleteIDSet := writeIDSet
-	if !reflect.DeepEqual(permissionExprs[datapermission.ActionWrite], permissionExprs[datapermission.ActionDelete]) {
-		deleteIDSet, err = queryAllowedDictTypeIDSetByExpr(ids, permissionExprs[datapermission.ActionDelete])
+	if !reflect.DeepEqual(permissionExprs[models.DataPermissionActionWrite], permissionExprs[models.DataPermissionActionDelete]) {
+		deleteIDSet, err = queryAllowedDictTypeIDSetByExpr(ids, permissionExprs[models.DataPermissionActionDelete])
 		if err != nil {
 			ctx.L().Error("apply dict type delete permission failed", zap.Error(err), zap.Uint64s("ids", ids))
 			return nil, res.FailDefault

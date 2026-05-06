@@ -16,19 +16,6 @@ import (
 
 type permissionAction string
 
-const (
-	actionAll    = permissionAction("all")
-	actionRead   = permissionAction("read")
-	actionWrite  = permissionAction("write")
-	actionDelete = permissionAction("delete")
-)
-
-const (
-	ActionRead   = string(actionRead)
-	ActionWrite  = string(actionWrite)
-	ActionDelete = string(actionDelete)
-)
-
 type permissionRowFilter struct {
 	query      map[string]any
 	fullAccess bool
@@ -138,7 +125,7 @@ func permissionIncludesAction(permission *models.SysDataPermission, action permi
 	if err := sonic.Unmarshal(permission.Action, &actions); err != nil {
 		return false
 	}
-	return slices.Contains(actions, actionAll) || slices.Contains(actions, action)
+	return slices.Contains(actions, models.DataPermissionActionAll) || slices.Contains(actions, action)
 }
 
 // buildRowFilterFromPermission converts one permission row into a filter branch.

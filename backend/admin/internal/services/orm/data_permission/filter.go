@@ -1,6 +1,7 @@
 package datapermission
 
 import (
+	"admin/internal/services/orm/models"
 	"errors"
 
 	"admin/internal/fiberc/handler"
@@ -15,7 +16,7 @@ func ApplyReadPagePermission(req *v1.PagingRequest, resourceTable string, subjec
 		return errors.New("paging request is nil")
 	}
 
-	permissionExpr, err := buildPermissionFilterExpr(resourceTable, actionRead, subjects)
+	permissionExpr, err := buildPermissionFilterExpr(resourceTable, models.DataPermissionActionRead, subjects)
 	if err != nil {
 		return err
 	}

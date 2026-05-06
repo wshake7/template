@@ -109,7 +109,7 @@ func (m *SysDataPermission) NormalizeAndValidate() error {
 		m.Conditions = datatypes.JSONMap{}
 	}
 	if len(m.ScopeValues) == 0 {
-		m.ScopeValues = datatypes.JSON([]byte("[]"))
+		m.ScopeValues = []byte("[]")
 	}
 	if err := m.normalizeAction(); err != nil {
 		return err
@@ -128,7 +128,7 @@ func (m *SysDataPermission) NormalizeAndValidate() error {
 
 func (m *SysDataPermission) normalizeAction() error {
 	if len(m.Action) == 0 {
-		m.Action = datatypes.JSON([]byte(`["read"]`))
+		m.Action = []byte(`["read"]`)
 	}
 	var rawActions []string
 	if err := sonic.Unmarshal(m.Action, &rawActions); err != nil {
@@ -167,7 +167,7 @@ func (m *SysDataPermission) normalizeAction() error {
 	if err != nil {
 		return err
 	}
-	m.Action = datatypes.JSON(actionBytes)
+	m.Action = actionBytes
 	m.ActionKey = strings.Join(canonical, ",")
 	return nil
 }
