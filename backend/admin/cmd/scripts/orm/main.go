@@ -47,35 +47,7 @@ func main() {
 	}
 
 	codeGenCode(client.DB, models.Models)
-	//query.SetDefault(client.DB)
-	//genUserAdd()
 }
-
-//
-//func genUserAdd() {
-//	sysUser := query.SysUser
-//	pwd, _ := passwd.Encode("123456")
-//	_ = sysUser.Create(&models.SysUser{
-//		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
-//		DeletedAt:   0,
-//		Username:    "root",
-//		Nickname:    "",
-//		Password:    pwd,
-//		LastLoginAt: nil,
-//		LastLoginIP: "",
-//		SysRoles:    nil,
-//	})
-//	_ = sysUser.Create(&models.SysUser{
-//		IsEnabled:   mixin.IsEnabled{IsEnabled: true},
-//		DeletedAt:   0,
-//		Username:    "admin",
-//		Nickname:    "",
-//		Password:    pwd,
-//		LastLoginAt: nil,
-//		LastLoginIP: "",
-//		SysRoles:    nil,
-//	})
-//}
 
 func dbGenCode(db *gorm.DB, models []any) {
 	cfg := gen.Config{

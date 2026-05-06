@@ -17,11 +17,11 @@ import (
 type SysResourceHandler struct{}
 
 type ReqResourceCreate struct {
-	Type      string `json:"type" binding:"required,min=1,max=32" binding_msg:"required=资源类型不能为空,min=资源类型不能为空,max=资源类型最多32位"`
-	Code      string `json:"code" binding:"required,min=1,max=255" binding_msg:"required=资源编码不能为空,min=资源编码不能为空,max=资源编码最多255位"`
-	Name      string `json:"name" binding:"required,min=1,max=255" binding_msg:"required=资源名称不能为空,min=资源名称不能为空,max=资源名称最多255位"`
-	IsEnabled bool   `json:"isEnabled"`
-	Remark    string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	ResourceType string `json:"resourceType" binding:"required,min=1,max=32" binding_msg:"required=资源类型不能为空,min=资源类型不能为空,max=资源类型最多32位"`
+	Code         string `json:"code" binding:"required,min=1,max=255" binding_msg:"required=资源编码不能为空,min=资源编码不能为空,max=资源编码最多255位"`
+	Name         string `json:"name" binding:"required,min=1,max=255" binding_msg:"required=资源名称不能为空,min=资源名称不能为空,max=资源名称最多255位"`
+	IsEnabled    bool   `json:"isEnabled"`
+	Remark       string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqResourceUpdate struct {
@@ -68,11 +68,11 @@ func (*SysResourceHandler) Create(ctx *handler.Ctx, req *ReqResourceCreate) erro
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
 			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
 		},
-		IsEnabled: mixin.IsEnabled{IsEnabled: req.IsEnabled},
-		Remark:    mixin.Remark{Remark: req.Remark},
-		Type:      req.Type,
-		Code:      req.Code,
-		Name:      req.Name,
+		IsEnabled:    mixin.IsEnabled{IsEnabled: req.IsEnabled},
+		Remark:       mixin.Remark{Remark: req.Remark},
+		ResourceType: req.ResourceType,
+		Code:         req.Code,
+		Name:         req.Name,
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -96,7 +96,7 @@ func (*SysResourceHandler) Update(ctx *handler.Ctx, req *ReqResourceUpdate) erro
 	operationID := ctx.SessionInfo.Id
 
 	exprs := []field.AssignExpr{sysResource.UpdatedBy.Value(operationID)}
-	query.ExprAppendSelf(&exprs, req.Type, sysResource.Type.Value)
+	query.ExprAppendSelf(&exprs, req.Type, sysResource.ResourceType.Value)
 	query.ExprAppendSelf(&exprs, req.Code, sysResource.Code.Value)
 	query.ExprAppendSelf(&exprs, req.Name, sysResource.Name.Value)
 	query.ExprAppendSelf(&exprs, req.IsEnabled, sysResource.IsEnabled.Value)

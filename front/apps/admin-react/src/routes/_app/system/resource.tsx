@@ -39,7 +39,7 @@ const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
 const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 const ResourceSchema = z.object({
-  type: z.string('请选择资源类型').min(1, '请选择资源类型'),
+  resourceType: z.string('请选择资源类型').min(1, '请选择资源类型'),
   code: z.string('请输入资源编码').min(1, '请输入资源编码'),
   name: z.string('请输入资源名称').min(1, '请输入资源名称'),
   isEnabled: z.boolean().default(true),
@@ -105,7 +105,7 @@ function ResourceManagement() {
       }
 
       const payload = {
-        type: values.type,
+        resourceType: values.resourceType,
         code: values.code,
         name: values.name,
         isEnabled: values.isEnabled,
@@ -140,7 +140,7 @@ function ResourceManagement() {
   const openEdit = useCallback((record: Resource) => {
     setEditing(record)
     form.setFieldsValue({
-      type: record.type,
+      resourceType: record.resourceType,
       code: record.code,
       name: record.name,
       isEnabled: record.isEnabled,
@@ -158,7 +158,7 @@ function ResourceManagement() {
     },
     {
       title: '资源类型',
-      dataIndex: 'type',
+      dataIndex: 'resourceType',
       width: 120,
       render: (_, record) => {
         const colorMap: Record<string, string> = {
@@ -167,7 +167,7 @@ function ResourceManagement() {
           menu: 'orange',
           component: 'purple',
         }
-        return <Tag color={colorMap[record.type] || 'default'}>{record.type}</Tag>
+        return <Tag color={colorMap[record.resourceType] || 'default'}>{record.resourceType}</Tag>
       },
     },
     {

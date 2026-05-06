@@ -20,7 +20,7 @@ type SysLanguageType struct {
 	TypeCode  string                `gorm:"column:type_code;type:varchar(128);not null;uniqueIndex:idx_sys_language_type_code_deleted_at,priority:1;comment:标准语言代码" json:"typeCode"`
 	TypeName  string                `gorm:"column:type_name;type:varchar(255);not null;comment:语言名称" json:"typeName"`
 	IsDefault bool                  `gorm:"column:is_default;default:0;comment:是否为默认语言" json:"isDefault"`
-	Entries   []SysLanguageEntry    `gorm:"foreignKey:SysLanguageTypeId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"entries"`
+	Entries   []SysLanguageEntry    `gorm:"foreignKey:SysLanguageTypeId;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"entries"`
 }
 
 // TableName 指定表名

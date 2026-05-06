@@ -37,7 +37,7 @@ func newSysResource(db *gorm.DB, opts ...gen.DOOption) sysResource {
 	_sysResource.Remark = field.NewString(tableName, "remark")
 	_sysResource.Metadata = field.NewField(tableName, "metadata")
 	_sysResource.DeletedAt = field.NewUint(tableName, "deleted_at")
-	_sysResource.Type = field.NewString(tableName, "type")
+	_sysResource.ResourceType = field.NewString(tableName, "resource_type")
 	_sysResource.Code = field.NewString(tableName, "code")
 	_sysResource.Name = field.NewString(tableName, "name")
 
@@ -49,20 +49,20 @@ func newSysResource(db *gorm.DB, opts ...gen.DOOption) sysResource {
 type sysResource struct {
 	sysResourceDo
 
-	ALL       field.Asterisk
-	ID        field.Uint64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	CreatedBy field.Uint64
-	UpdatedBy field.Uint64
-	DeletedBy field.Uint64
-	IsEnabled field.Bool
-	Remark    field.String
-	Metadata  field.Field
-	DeletedAt field.Uint
-	Type      field.String // 资源类型: api / data / menu / component
-	Code      field.String // 资源唯一标识
-	Name      field.String // 资源名称
+	ALL          field.Asterisk
+	ID           field.Uint64
+	CreatedAt    field.Time
+	UpdatedAt    field.Time
+	CreatedBy    field.Uint64
+	UpdatedBy    field.Uint64
+	DeletedBy    field.Uint64
+	IsEnabled    field.Bool
+	Remark       field.String
+	Metadata     field.Field
+	DeletedAt    field.Uint
+	ResourceType field.String // 资源类型: api / data / menu
+	Code         field.String // 资源唯一标识
+	Name         field.String // 资源名称
 
 	fieldMap map[string]field.Expr
 }
@@ -89,7 +89,7 @@ func (s *sysResource) updateTableName(table string) *sysResource {
 	s.Remark = field.NewString(table, "remark")
 	s.Metadata = field.NewField(table, "metadata")
 	s.DeletedAt = field.NewUint(table, "deleted_at")
-	s.Type = field.NewString(table, "type")
+	s.ResourceType = field.NewString(table, "resource_type")
 	s.Code = field.NewString(table, "code")
 	s.Name = field.NewString(table, "name")
 
@@ -119,7 +119,7 @@ func (s *sysResource) fillFieldMap() {
 	s.fieldMap["remark"] = s.Remark
 	s.fieldMap["metadata"] = s.Metadata
 	s.fieldMap["deleted_at"] = s.DeletedAt
-	s.fieldMap["type"] = s.Type
+	s.fieldMap["resource_type"] = s.ResourceType
 	s.fieldMap["code"] = s.Code
 	s.fieldMap["name"] = s.Name
 }

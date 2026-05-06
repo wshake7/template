@@ -2,7 +2,7 @@ import API from '../index'
 
 export interface Resource {
   id: number
-  type: string
+  resourceType: string
   code: string
   name: string
   isEnabled: boolean
@@ -10,7 +10,7 @@ export interface Resource {
 }
 
 export interface ReqResourceCreate {
-  type: string
+  resourceType: string
   code: string
   name: string
   isEnabled: boolean
