@@ -1,5 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import type * as Monaco from 'monaco-editor-core'
+import type * as Monaco from 'modern-monaco/editor-core'
 import type { DictEntry, DictType } from '~/api/business/sysDict'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
 import { usePagination } from 'alova/client'
@@ -42,25 +42,12 @@ let monacoSetupPromise: Promise<typeof Monaco> | undefined
 
 function setupMonacoEditor() {
   monacoSetupPromise ??= Promise
-    .all([
-      import('@shikijs/monaco'),
-      import('monaco-editor-core'),
-      import('shiki/core'),
-      import('shiki/engine/javascript'),
-      import('shiki/langs/html.mjs'),
-      import('shiki/themes/github-light.mjs'),
-    ])
-    .then(async ([{ shikiToMonaco }, monaco, { createHighlighterCore }, { createJavaScriptRegexEngine }, html, githubLight]) => {
-      const highlighter = await createHighlighterCore({
-        themes: [githubLight.default],
-        langs: [html.default],
-        engine: createJavaScriptRegexEngine({ forgiving: true }),
+    .all([import('modern-monaco')])
+    .then(async ([{ init }]) => {
+      const monaco = await init({
+        defaultTheme: 'github-light',
+        langs: ['html'],
       })
-
-      if (!monaco.languages.getLanguages().some(item => item.id === 'html')) {
-        monaco.languages.register({ id: 'html' })
-      }
-      shikiToMonaco(highlighter, monaco)
       return monaco
     })
   return monacoSetupPromise

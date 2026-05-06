@@ -36,7 +36,6 @@ catalogs:
     js-cookie: latest
     lodash: latest
     lucide-react: latest
-    monaco-editor-core: latest
     motion: latest
     nprogress: latest
     preact-render-to-string: latest
@@ -51,7 +50,6 @@ catalogs:
     "@faker-js/faker": latest
     "@playwright/experimental-ct-react": latest
     "@playwright/test": latest
-    "@shikijs/monaco": latest
     "@tailwindcss/typography": latest
     "@tailwindcss/vite": latest
     "@tanstack/devtools-vite": latest
@@ -74,6 +72,7 @@ catalogs:
     eslint-plugin-format: latest
     eslint-plugin-react-hooks: latest
     eslint-plugin-react-refresh: latest
+    modern-monaco: latest
     msw: latest
     nitro: latest
     shiki: latest

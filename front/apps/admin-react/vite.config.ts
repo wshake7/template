@@ -51,33 +51,92 @@ export default defineConfig(({ mode }: { mode: string }) => {
       rollupOptions: {
         output: {
           manualChunks(id: string) {
-            // React 核心
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            // ── React 核心 ──────────────────────────────────────────
+            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
               return 'vendor-react'
             }
-            // TanStack 系列
-            if (id.includes('node_modules/@tanstack')) {
-              return 'vendor-tanstack'
+            if (id.includes('node_modules/scheduler/') || id.includes('node_modules/use-sync-external-store/')) {
+              return 'vendor-react'
             }
+
+            // ── Monaco（体积最大，单独隔离）────────────────────────
             if (
-              id.includes('node_modules/antd')
-              || id.includes('node_modules/@ant-design')
-              || id.includes('node_modules/rc-')
+              id.includes('node_modules/modern-monaco')
             ) {
-              return 'vendor-antd'
-            }
-            if (id.includes('zod')) {
-              return 'vendor-zod'
-            }
-            if (id.includes('node_modules/shiki') || id.includes('node_modules/@shikijs')) {
-              return 'vendor-shiki'
-            }
-            if (id.includes('node_modules/monaco-editor-core')) {
               return 'vendor-monaco'
             }
-            // 其他 node_modules 统一打成 vendor
+
+            // ── Shiki 拆分：核心 / 语言包 / 主题 ──────────────────
+            if (id.includes('node_modules/@shikijs/langs') || id.includes('/shiki/langs/')) {
+              return 'vendor-shiki-langs'
+            }
+            if (id.includes('node_modules/@shikijs/themes') || id.includes('/shiki/themes/')) {
+              return 'vendor-shiki-themes'
+            }
+            if (id.includes('node_modules/shiki') || id.includes('node_modules/@shikijs')) {
+              return 'vendor-shiki-core'
+            }
+
+            // ── TanStack 细分 ───────────────────────────────────────
+            if (id.includes('node_modules/@tanstack/react-query')) {
+              return 'vendor-tanstack-query'
+            }
+            if (
+              id.includes('node_modules/@tanstack/react-router')
+              || id.includes('node_modules/@tanstack/router')
+            ) {
+              return 'vendor-tanstack-router'
+            }
+            if (id.includes('node_modules/@tanstack')) {
+              return 'vendor-tanstack-misc'
+            }
+
+            // ── Ant Design：icons 单独分包 ──────────────────────────
+            if (id.includes('node_modules/@ant-design/icons')) {
+              return 'vendor-antd-icons'
+            }
+            if (id.includes('node_modules/antd')) {
+              return 'vendor-antd'
+            }
+            if (id.includes('node_modules/@ant-design/')) {
+              return 'vendor-antd-design'
+            }
+            if (id.includes('node_modules/rc-')) {
+              return 'vendor-rc' // rc-* 是 antd 底层依赖
+            }
+
+            // ── Zod ─────────────────────────────────────────────────
+            if (id.includes('node_modules/zod')) {
+              return 'vendor-zod'
+            }
+
+            // ── 常见工具库 ──────────────────────────────────────────
+            if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
+              return 'vendor-i18n'
+            }
+            if (id.includes('node_modules/lodash') || id.includes('node_modules/lodash-es')) {
+              return 'vendor-lodash'
+            }
+            if (id.includes('node_modules/dayjs')) {
+              return 'vendor-dayjs'
+            }
+            if (id.includes('node_modules/immer')) {
+              return 'vendor-immer'
+            }
+            if (id.includes('node_modules/ahooks') || id.includes('node_modules/@ahooksjs')) {
+              return 'vendor-ahooks'
+            }
+
+            // ── 其余 node_modules：按包名首字母分桶，避免单桶过大 ──
             if (id.includes('node_modules')) {
-              return 'vendor'
+              const match = id.match(/node_modules\/(@[^/]+\/[^/]+|[^/]+)/)
+              if (match) {
+                const first = match[1].replace('@', '')[0].toLowerCase()
+                if (first <= 'h') { return 'vendor-a-h' }
+                if (first <= 'p') { return 'vendor-i-p' }
+                return 'vendor-q-z'
+              }
+              return 'vendor-misc'
             }
           },
         },
