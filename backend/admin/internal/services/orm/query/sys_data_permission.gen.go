@@ -40,6 +40,7 @@ func newSysDataPermission(db *gorm.DB, opts ...gen.DOOption) sysDataPermission {
 	_sysDataPermission.SubjectID = field.NewUint64(tableName, "subject_id")
 	_sysDataPermission.ResourceTable = field.NewString(tableName, "resource_table")
 	_sysDataPermission.Action = field.NewField(tableName, "action")
+	_sysDataPermission.ActionKey = field.NewString(tableName, "action_key")
 	_sysDataPermission.ScopeType = field.NewString(tableName, "scope_type")
 	_sysDataPermission.ScopeField = field.NewString(tableName, "scope_field")
 	_sysDataPermission.ScopeValues = field.NewField(tableName, "scope_values")
@@ -68,7 +69,8 @@ type sysDataPermission struct {
 	SubjectID     field.Uint64 // 主体ID，ANY_*时为0
 	ResourceTable field.String // 资源表名
 	Action        field.Field  // 操作列表(all/read/write/delete)
-	ScopeType     field.String // 作用域类型(all/none/include/exclude/owner/custom)
+	ActionKey     field.String // 规范化操作列表
+	ScopeType     field.String // 作用域类型(all/none/include/exclude/custom)
 	ScopeField    field.String // 用于匹配scope_values的字段
 	ScopeValues   field.Field  // 作用域值列表
 	Conditions    field.Field  // 行过滤条件
@@ -102,6 +104,7 @@ func (s *sysDataPermission) updateTableName(table string) *sysDataPermission {
 	s.SubjectID = field.NewUint64(table, "subject_id")
 	s.ResourceTable = field.NewString(table, "resource_table")
 	s.Action = field.NewField(table, "action")
+	s.ActionKey = field.NewString(table, "action_key")
 	s.ScopeType = field.NewString(table, "scope_type")
 	s.ScopeField = field.NewString(table, "scope_field")
 	s.ScopeValues = field.NewField(table, "scope_values")
@@ -123,7 +126,7 @@ func (s *sysDataPermission) GetFieldByName(fieldName string) (field.OrderExpr, b
 }
 
 func (s *sysDataPermission) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 18)
+	s.fieldMap = make(map[string]field.Expr, 19)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -137,6 +140,7 @@ func (s *sysDataPermission) fillFieldMap() {
 	s.fieldMap["subject_id"] = s.SubjectID
 	s.fieldMap["resource_table"] = s.ResourceTable
 	s.fieldMap["action"] = s.Action
+	s.fieldMap["action_key"] = s.ActionKey
 	s.fieldMap["scope_type"] = s.ScopeType
 	s.fieldMap["scope_field"] = s.ScopeField
 	s.fieldMap["scope_values"] = s.ScopeValues

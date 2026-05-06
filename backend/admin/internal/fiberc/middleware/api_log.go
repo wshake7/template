@@ -9,6 +9,7 @@ import (
 	"go-common/utils/function"
 	"go-common/utils/ip_util"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -16,6 +17,71 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
 )
+
+const maxApiLogFieldLength = 64 * 1024
+
+var (
+	apiLogSensitiveTextPattern = regexp.MustCompile(`(?i)("?(authorization|cookie|set-cookie|token|access_token|refresh_token|password|pwd|secret)"?\s*[:=]\s*)("[^"]*"|[^,\s&}]+)`)
+	apiLogSensitiveKeys        = map[string]struct{}{
+		"authorization": {},
+		"cookie":        {},
+		"set-cookie":    {},
+		"token":         {},
+		"access_token":  {},
+		"refresh_token": {},
+		"password":      {},
+		"pwd":           {},
+		"secret":        {},
+	}
+)
+
+func sanitizeApiLogPayload(raw string) string {
+	if raw == "" {
+		return ""
+	}
+
+	var payload any
+	if err := sonic.UnmarshalString(raw, &payload); err == nil {
+		redactApiLogJSONValue(payload)
+		if sanitized, err := sonic.MarshalString(payload); err == nil {
+			return truncateApiLogField(sanitized)
+		}
+	}
+
+	return truncateApiLogField(apiLogSensitiveTextPattern.ReplaceAllString(raw, `${1}"***"`))
+}
+
+func redactApiLogJSONValue(value any) {
+	switch typedValue := value.(type) {
+	case map[string]any:
+		for key, item := range typedValue {
+			if isApiLogSensitiveKey(key) {
+				typedValue[key] = "***"
+				continue
+			}
+			redactApiLogJSONValue(item)
+		}
+	case []any:
+		for _, item := range typedValue {
+			redactApiLogJSONValue(item)
+		}
+	}
+}
+
+func isApiLogSensitiveKey(key string) bool {
+	key = strings.ToLower(strings.TrimSpace(key))
+	if _, ok := apiLogSensitiveKeys[key]; ok {
+		return true
+	}
+	return strings.Contains(key, "token") || strings.Contains(key, "password")
+}
+
+func truncateApiLogField(value string) string {
+	if len(value) <= maxApiLogFieldLength {
+		return value
+	}
+	return value[:maxApiLogFieldLength] + "...[truncated]"
+}
 
 func DiffChange(before, after any) string {
 	if after == nil {
@@ -221,10 +287,11 @@ func ApiLogMiddleware(options ...Option) fiber.Handler {
 			method := ctx.Method()
 			path := ctx.Path()
 			requestID := ctx.RequestID()
-			requestBody := string(ctx.Request().Body())
-			responseBody := string(ctx.Response().Body())
+			requestBody := sanitizeApiLogPayload(string(ctx.Request().Body()))
+			responseBody := sanitizeApiLogPayload(string(ctx.Response().Body()))
 			statusCode := ctx.Response().StatusCode()
 			headers, _ := sonic.MarshalString(ctx.GetReqHeaders())
+			headers = sanitizeApiLogPayload(headers)
 			referer := ctx.Referer()
 			requestURI := ctx.Request().URI().String()
 			userAgent := ctx.UserAgent()

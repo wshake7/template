@@ -37,7 +37,7 @@ func main() {
 		gormCrud.WithEnableMetrics(true),
 	)
 
-	if conf.Orm.IsAutoMigrate {
+	if conf.Orm.IsAutoMigrate && os.Getenv("ORM_SCRIPT_AUTO_MIGRATE") == "true" {
 		options = append(options, gormCrud.WithAutoMigrate(models.Models...))
 	}
 
