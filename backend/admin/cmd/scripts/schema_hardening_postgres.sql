@@ -50,7 +50,6 @@ DROP INDEX IF EXISTS "public"."idx_sys_data_permission_subject_resource_action_d
 DROP INDEX IF EXISTS "public"."idx_sys_dict_type_type_code_deleted_at";
 DROP INDEX IF EXISTS "public"."idx_sys_language_type_code_deleted_at";
 DROP INDEX IF EXISTS "public"."idx_sys_language_entry_code_language_type_id_deleted_at";
-DROP INDEX IF EXISTS "public"."idx_sys_resource_code_deleted_at";
 DROP INDEX IF EXISTS "public"."idx_sys_role_code_deleted_at";
 DROP INDEX IF EXISTS "public"."idx_sys_user_role_user_id_role_id_delete_at";
 
@@ -84,10 +83,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_sys_language_type_default_active"
 
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_sys_language_entry_code_type_active"
     ON "public"."sys_language_entry" ("entry_code", "sys_language_type_id")
-    WHERE "deleted_at" = 0;
-
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_sys_resource_code_active"
-    ON "public"."sys_resource" ("code")
     WHERE "deleted_at" = 0;
 
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_sys_role_code_active"

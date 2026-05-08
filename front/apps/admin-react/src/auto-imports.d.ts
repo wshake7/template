@@ -24,7 +24,6 @@ declare global {
   const LanguageEntryPanel: typeof import('./components/business/system/languagePanels').LanguageEntryPanel
   const LanguageTypePanel: typeof import('./components/business/system/languagePanels').LanguageTypePanel
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
-  const ResourceApi: typeof import('./api/business/sysResource').ResourceApi
   const RoleApi: typeof import('./api/business/sysRole').RoleApi
   const Suspense: typeof import('react').Suspense
   const TAB_REFRESH_INTERVAL: typeof import('./config/tabs').TAB_REFRESH_INTERVAL
@@ -57,7 +56,6 @@ declare global {
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
   const renderDictEntryLabel: typeof import('./components/dictEntryLabel').renderDictEntryLabel
-  const resourceManagement: typeof import('./components/business/system/resourceManagement').default
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
   const sortByOrder: typeof import('./utils/menu').sortByOrder
   const startTransition: typeof import('react').startTransition
@@ -209,7 +207,4 @@ declare global {
   // @ts-ignore
   export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/business/sysLanguage'
   import('./api/business/sysLanguage')
-  // @ts-ignore
-  export type { Resource, ReqResourceCreate, ReqResourceUpdate, ReqResourceBatchDelete } from './api/business/sysResource'
-  import('./api/business/sysResource')
 }
