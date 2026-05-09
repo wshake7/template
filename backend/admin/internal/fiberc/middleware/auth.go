@@ -12,9 +12,8 @@ import (
 )
 
 func AuthMiddleware() fiber.Handler {
-	key := config.Conf.Auth.TokenName
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
-		token := ctx.Cookies(key)
+		token := fiber.GetReqHeader[string](ctx, config.Conf.Auth.TokenName)
 		if token == "" {
 			return res.FailNotLogin
 		}

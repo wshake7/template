@@ -8,6 +8,7 @@ export {}
 declare global {
   const AccountApi: typeof import('./api/business/account').AccountApi
   const Activity: typeof import('react').Activity
+  const AntIcon: typeof import('./utils/antIcons').AntIcon
   const ApiLogApi: typeof import('./api/business/sysApiLog').ApiLogApi
   const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
   const DictApi: typeof import('./api/business/sysDict').DictApi
@@ -24,6 +25,7 @@ declare global {
   const LanguageEntryPanel: typeof import('./components/business/system/languagePanels').LanguageEntryPanel
   const LanguageTypePanel: typeof import('./components/business/system/languagePanels').LanguageTypePanel
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
+  const ResourceMenuApi: typeof import('./api/business/sysResourceMenu').ResourceMenuApi
   const RoleApi: typeof import('./api/business/sysRole').RoleApi
   const Suspense: typeof import('react').Suspense
   const TAB_REFRESH_INTERVAL: typeof import('./config/tabs').TAB_REFRESH_INTERVAL
@@ -31,6 +33,9 @@ declare global {
   const aesDecrypt: typeof import('./utils/encrypt').aesDecrypt
   const aesDecryptCiphertextAndTag: typeof import('./utils/encrypt').aesDecryptCiphertextAndTag
   const aesEncrypt: typeof import('./utils/encrypt').aesEncrypt
+  const antIconNames: typeof import('./utils/antIcons').antIconNames
+  const antIconNamesByStyle: typeof import('./utils/antIcons').antIconNamesByStyle
+  const antIconPicker: typeof import('./components/common/antIconPicker').default
   const antd: typeof import('./utils/antd').default
   const api: typeof import('./api/index').default
   const arrayBufferToBase64: typeof import('./utils/encrypt').arrayBufferToBase64
@@ -49,12 +54,14 @@ declare global {
   const forwardRef: typeof import('react').forwardRef
   const gMessage: typeof import('./utils/antd').gMessage
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey
+  const getAntIconStyle: typeof import('./utils/antIcons').getAntIconStyle
   const getMenu: typeof import('./utils/menu').getMenu
   const getOrder: typeof import('./utils/menu').getOrder
   const globalZodValidator: typeof import('./utils/zod').globalZodValidator
   const groupByParentId: typeof import('./utils/menu').groupByParentId
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
+  const renderAntIcon: typeof import('./utils/antIcons').renderAntIcon
   const renderDictEntryLabel: typeof import('./components/dictEntryLabel').renderDictEntryLabel
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
   const sortByOrder: typeof import('./utils/menu').sortByOrder
@@ -135,6 +142,7 @@ declare global {
   const useRef: typeof import('react').useRef
   const useRequest: typeof import('ahooks').useRequest
   const useResetState: typeof import('ahooks').useResetState
+  const useResourceMenuStore: typeof import('./stores/resourceMenu').useResourceMenuStore
   const useResponsive: typeof import('ahooks').useResponsive
   const useSafeState: typeof import('ahooks').useSafeState
   const useScroll: typeof import('ahooks').useScroll
@@ -190,6 +198,9 @@ declare global {
   export type { PagingRequest, PagingResult } from './domains/page'
   import('./domains/page')
   // @ts-ignore
+  export type { AntIconStyle } from './utils/antIcons'
+  import('./utils/antIcons')
+  // @ts-ignore
   export type { ChangePwdFormValues } from './components/business/account/changePwdModal'
   import('./components/business/account/changePwdModal')
   // @ts-ignore
@@ -207,4 +218,7 @@ declare global {
   // @ts-ignore
   export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/business/sysLanguage'
   import('./api/business/sysLanguage')
+  // @ts-ignore
+  export type { ResourceMenuType, ResourceMenuMetadata, ResourceMenu, ResourceMenuNode, ReqResourceMenuCreate, ReqResourceMenuUpdate, ReqResourceMenuBatchDelete } from './api/business/sysResourceMenu'
+  import('./api/business/sysResourceMenu')
 }

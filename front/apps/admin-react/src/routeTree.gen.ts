@@ -18,6 +18,7 @@ import { Route as loginLoginRouteImport } from './routes/(login)/login'
 import { Route as AppSystemLanguageRouteImport } from './routes/_app/system/language'
 import { Route as AppSystemDictRouteImport } from './routes/_app/system/dict'
 import { Route as AppAccountRoleRouteImport } from './routes/_app/account/role'
+import { Route as AppSystemResourceMenuRouteImport } from './routes/_app/system/resource.menu'
 import { Route as AppSystemApiLogRouteImport } from './routes/_app/system/api.log'
 
 const AppRoute = AppRouteImport.update({
@@ -64,6 +65,11 @@ const AppAccountRoleRoute = AppAccountRoleRouteImport.update({
   path: '/role',
   getParentRoute: () => AppAccountRoute,
 } as any)
+const AppSystemResourceMenuRoute = AppSystemResourceMenuRouteImport.update({
+  id: '/resource/menu',
+  path: '/resource/menu',
+  getParentRoute: () => AppSystemRoute,
+} as any)
 const AppSystemApiLogRoute = AppSystemApiLogRouteImport.update({
   id: '/api/log',
   path: '/api/log',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/system/dict': typeof AppSystemDictRoute
   '/system/language': typeof AppSystemLanguageRoute
   '/system/api/log': typeof AppSystemApiLogRoute
+  '/system/resource/menu': typeof AppSystemResourceMenuRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginLoginRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/system/dict': typeof AppSystemDictRoute
   '/system/language': typeof AppSystemLanguageRoute
   '/system/api/log': typeof AppSystemApiLogRoute
+  '/system/resource/menu': typeof AppSystemResourceMenuRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_app/system/dict': typeof AppSystemDictRoute
   '/_app/system/language': typeof AppSystemLanguageRoute
   '/_app/system/api/log': typeof AppSystemApiLogRoute
+  '/_app/system/resource/menu': typeof AppSystemResourceMenuRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/system/dict'
     | '/system/language'
     | '/system/api/log'
+    | '/system/resource/menu'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/system/dict'
     | '/system/language'
     | '/system/api/log'
+    | '/system/resource/menu'
   id:
     | '__root__'
     | '/_app'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_app/system/dict'
     | '/_app/system/language'
     | '/_app/system/api/log'
+    | '/_app/system/resource/menu'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountRoleRouteImport
       parentRoute: typeof AppAccountRoute
     }
+    '/_app/system/resource/menu': {
+      id: '/_app/system/resource/menu'
+      path: '/resource/menu'
+      fullPath: '/system/resource/menu'
+      preLoaderRoute: typeof AppSystemResourceMenuRouteImport
+      parentRoute: typeof AppSystemRoute
+    }
     '/_app/system/api/log': {
       id: '/_app/system/api/log'
       path: '/api/log'
@@ -238,12 +257,14 @@ interface AppSystemRouteChildren {
   AppSystemDictRoute: typeof AppSystemDictRoute
   AppSystemLanguageRoute: typeof AppSystemLanguageRoute
   AppSystemApiLogRoute: typeof AppSystemApiLogRoute
+  AppSystemResourceMenuRoute: typeof AppSystemResourceMenuRoute
 }
 
 const AppSystemRouteChildren: AppSystemRouteChildren = {
   AppSystemDictRoute: AppSystemDictRoute,
   AppSystemLanguageRoute: AppSystemLanguageRoute,
   AppSystemApiLogRoute: AppSystemApiLogRoute,
+  AppSystemResourceMenuRoute: AppSystemResourceMenuRoute,
 }
 
 const AppSystemRouteWithChildren = AppSystemRoute._addFileChildren(

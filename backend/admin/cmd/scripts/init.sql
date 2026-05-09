@@ -46,3 +46,15 @@ INSERT INTO "public"."sys_user_role"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "user_id", "role_id", "deleted_at")
 VALUES
 (1, NULL, NULL, 0, 0, 0, 1, 1, 0);
+
+INSERT INTO "public"."sys_resource_menu"
+("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path")
+VALUES
+(1, NULL, NULL, 0, 0, 0, '', 0, '{"order":0}', TRUE, 0, 'MENU', '/dashboard', '', '', '控制台', '', NULL, '/1/'),
+(2, NULL, NULL, 0, 0, 0, '', 10, '{"order":10}', TRUE, 0, 'CATALOG', '/system', '', '', '系统管理', '', NULL, '/2/'),
+(3, NULL, NULL, 0, 0, 0, '', 10, '{"order":10}', TRUE, 0, 'MENU', '/system/language', '', '', '语言管理', '', 2, '/2/3/'),
+(4, NULL, NULL, 0, 0, 0, '', 20, '{"order":20}', TRUE, 0, 'MENU', '/system/dict', '', '', '数据字典', '', 2, '/2/4/'),
+(5, NULL, NULL, 0, 0, 0, '', 30, '{"order":30}', TRUE, 0, 'MENU', '/system/api/log', '', '', 'API日志', '', 2, '/2/5/'),
+(6, NULL, NULL, 0, 0, 0, '', 40, '{"order":40}', TRUE, 0, 'MENU', '/system/resource/menu', '', '', '菜单资源', '', 2, '/2/6/'),
+(7, NULL, NULL, 0, 0, 0, '', 20, '{"order":20}', TRUE, 0, 'CATALOG', '/account', '', '', '账号管理', '', NULL, '/7/'),
+(8, NULL, NULL, 0, 0, 0, '', 10, '{"order":10}', TRUE, 0, 'MENU', '/account/role', '', '', '角色管理', '', 7, '/7/8/');

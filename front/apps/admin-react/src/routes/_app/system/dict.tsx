@@ -1,11 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Splitter } from 'antd'
+import { renderAntIcon } from '~/utils/antIcons'
 
 export const Route = createFileRoute('/_app/system/dict')({
   staticData: {
     menu: {
       name: '数据字典',
       menuType: 'menu',
+      icon: renderAntIcon('BookOutlined'),
     },
   },
   staleTime: 1000 * 60 * 2,

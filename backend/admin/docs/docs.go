@@ -1125,6 +1125,184 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/sys/resource/menu/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu"
+                ],
+                "summary": "创建菜单资源",
+                "parameters": [
+                    {
+                        "description": "菜单资源创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceMenuCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/menu/del": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu"
+                ],
+                "summary": "删除菜单资源",
+                "parameters": [
+                    {
+                        "description": "批量删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceMenuBatchDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/menu/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu"
+                ],
+                "summary": "获取菜单资源列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespSysResourceMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/menu/tree": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu"
+                ],
+                "summary": "获取当前用户动态菜单树",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/internal_router_logic.RespResourceMenuNode"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/menu/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu"
+                ],
+                "summary": "更新菜单资源",
+                "parameters": [
+                    {
+                        "description": "菜单资源更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceMenuUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1537,6 +1715,10 @@ const docTemplate = `{
                 }
             }
         },
+        "datatypes.JSONMap": {
+            "type": "object",
+            "additionalProperties": true
+        },
         "fieldmaskpb.FieldMask": {
             "type": "object",
             "properties": {
@@ -1626,6 +1808,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_router_logic.RespDictType"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-internal_router_logic_RespSysResourceMenu": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespSysResourceMenu"
                     }
                 },
                 "total": {
@@ -2127,6 +2323,118 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_router_logic.ReqResourceMenuBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceMenuCreate": {
+            "type": "object",
+            "required": [
+                "menuType"
+            ],
+            "properties": {
+                "alias": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "component": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "menuType": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/datatypes.JSONMap"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "redirect": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceMenuUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "alias": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "component": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "menuType": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/datatypes.JSONMap"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "redirect": {
+                    "type": "string",
+                    "maxLength": 1024
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_router_logic.ReqRoleCreate": {
             "type": "object",
             "required": [
@@ -2290,6 +2598,131 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "typeName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.RespResourceMenuNode": {
+            "type": "object",
+            "properties": {
+                "authorities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespResourceMenuNode"
+                    }
+                },
+                "component": {
+                    "type": "string"
+                },
+                "hidden": {
+                    "type": "boolean"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isUrl": {
+                    "type": "boolean"
+                },
+                "menuType": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "redirect": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_router_logic.RespSysResourceMenu": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canWrite": {
+                    "type": "boolean"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespSysResourceMenu"
+                    }
+                },
+                "component": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "menuType": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/datatypes.JSONMap"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "description": "简单树结构字段（保留父级关系与路径）",
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "redirect": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "treePath": {
                     "type": "string"
                 },
                 "updatedAt": {

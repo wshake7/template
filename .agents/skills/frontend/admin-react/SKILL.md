@@ -66,6 +66,7 @@ front/apps/admin-react/
 1. 主题入口在 `src/config/themes/*`，布局入口在 `_app.tsx`。
 2. 优先用 Ant Design token、`antd-style` 和现有 CSS 变量，不新增孤立样式体系。
 3. 管理后台界面应保持高信息密度、克制、可扫描；避免营销页式的大 hero 和装饰性布局。
+4. 侧边栏菜单如需缓存后端动态菜单树，使用 zustand `persist` store 保存原始菜单节点；页面组件只通过 store 读写，不直接访问 `localStorage`。
 
 ## 命令
 
@@ -91,4 +92,143 @@ pnpm --filter admin-react e2e:test
 - 页面/路由/API 行为变化优先执行 `vp run admin-react#build`。
 - 交互复杂或布局敏感时，启动开发服务并用浏览器检查桌面和移动视口。
 - 只改纯文档或技能文件时不需要运行前端验证。
+
+## 列表分页与表单约定
+
+### Alova 分页
+
+管理后台列表页优先使用 `alova/client` 的 `usePagination`，不要把分页请求写在 `ProTable.request` 里。
+
+标准写法：
+
+```tsx
+const {
+  data,
+  total,
+  page,
+  pageSize,
+  loading,
+  update,
+  send,
+} = usePagination(
+  (nextPage, nextPageSize) =>
+    XxxApi.list({
+      page: nextPage,
+      pageSize: nextPageSize,
+      orderBy: 'id desc',
+      query,
+    }),
+  {
+    initialData: {
+      total: 0,
+      items: [],
+    },
+    initialPage: 1,
+    initialPageSize: DEFAULT_PAGE_SIZE,
+    total: response => response.data?.total ?? 0,
+    data: response => response.data?.items ?? [],
+    watchingStates: [searchText, enabledFilter],
+    debounce: [500, 0],
+  },
+)
+```
+
+`ProTable` 对接方式：
+
+```tsx
+<ProTable<Xxx>
+  rowKey="id"
+  search={false}
+  columns={columns}
+  dataSource={data}
+  loading={loading}
+  pagination={{
+    showSizeChanger: true,
+    current: page,
+    pageSize,
+    total,
+    onChange: (nextPage, nextPageSize) => {
+      update({ page: nextPage, pageSize: nextPageSize })
+    },
+  }}
+  options={{
+    reload: () => send(),
+  }}
+/>
+```
+
+注意：
+
+- 列表搜索、状态筛选等外部状态放入 `watchingStates`；文本搜索通常配 `debounce: [500]`。
+- 刷新当前页用 `send()`；保存、删除后通常 `await send()`。
+- 如果表格分页数据之外还需要完整选项树，例如父级菜单选择，单独发 `noPaging: true` 请求加载完整数据，不要复用当前分页页数据。
+- 表格序号使用 `(page - 1) * pageSize + index + 1`。
+
+### Zod 与 useZodForm
+
+后台表单优先使用 `zod` schema + `src/utils/zod.ts` 的 `useZodForm`，不要在每个字段上散落重复的 Ant Design required 规则。
+
+标准写法：
+
+```tsx
+const XxxFormSchema = z.object({
+  name: z.string().trim().min(1, '请输入名称'),
+  sortOrder: z.number().min(0, '排序不能小于 0'),
+  isEnabled: z.boolean(),
+  remark: z.string().optional(),
+})
+
+type XxxFormValues = z.infer<typeof XxxFormSchema>
+
+const xxxFormDefaults = XxxFormSchema.parse({
+  ...XxxFormSchema.partial().parse({}),
+  name: '',
+  sortOrder: 0,
+  isEnabled: true,
+  remark: '',
+})
+
+function toXxxFormValues(record: Xxx): XxxFormValues {
+  return XxxFormSchema.parse({
+    ...xxxFormDefaults,
+    ...XxxFormSchema.partial().parse(record),
+  })
+}
+
+const { form, rules, onFinish } = useZodForm<XxxFormValues>({
+  schema: XxxFormSchema,
+  async onSubmit(values) {
+    if (!values) {
+      gMessage.error('请填写完整信息')
+      return
+    }
+    await XxxApi.save(values)
+    gMessage.success('保存成功')
+    form.resetFields()
+    await send()
+  },
+})
+```
+
+`Form` 对接方式：
+
+```tsx
+<Form<XxxFormValues> form={form} onFinish={onFinish}>
+  <ProFormText name="name" label="名称" rules={rules} />
+  <ProFormDigit name="sortOrder" label="排序" rules={rules} />
+  <Form.Item name="isEnabled" label="状态" valuePropName="checked" rules={rules}>
+    <Switch />
+  </Form.Item>
+</Form>
+```
+
+注意：
+
+- 每个参与校验的字段复用同一个 `rules`，字段级错误由 `useZodForm` 按 zod issue path 回填。
+- 不要为表单值手写一份重复的 `interface`；使用 `type XxxFormValues = z.infer<typeof XxxFormSchema>`。
+- 默认值和编辑回显转换优先通过 `XxxFormSchema.partial().parse(...)` 过滤/规范化外部数据，再与默认值合并，最终用 `XxxFormSchema.parse(...)` 得到完整表单值。
+- 如果默认表单值需要空字符串，基础 `XxxFormSchema` 不要直接写 `.min(1)` 这类会让默认值 parse 失败的规则；把必填、按类型必填等提交校验放到单独的 `XxxSubmitSchema = XxxFormSchema.superRefine(...)` 中，再传给 `useZodForm`。
+- 条件字段使用 `superRefine` 做类型相关校验，例如只有菜单类型才要求 `component`。
+- 抽屉或弹窗保存按钮用 `form.submit()` 触发表单提交，不要绕过 `onFinish` 手动 `validateFields()`。
+- 条件渲染字段需要跨类型切换保留回显时，不要在整个 `Form` 上设置 `preserve={false}`；提交 payload 时按类型过滤无效字段。
 

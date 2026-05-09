@@ -271,6 +271,9 @@ definitions:
       username:
         type: string
     type: object
+  datatypes.JSONMap:
+    additionalProperties: true
+    type: object
   fieldmaskpb.FieldMask:
     properties:
       paths:
@@ -329,6 +332,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/internal_router_logic.RespDictType'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-internal_router_logic_RespSysResourceMenu:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespSysResourceMenu'
         type: array
       total:
         type: integer
@@ -674,6 +686,84 @@ definitions:
     required:
       - id
     type: object
+  internal_router_logic.ReqResourceMenuBatchDelete:
+    properties:
+      ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+      - ids
+    type: object
+  internal_router_logic.ReqResourceMenuCreate:
+    properties:
+      alias:
+        maxLength: 255
+        type: string
+      component:
+        maxLength: 255
+        type: string
+      isEnabled:
+        type: boolean
+      menuType:
+        type: string
+      metadata:
+        $ref: '#/definitions/datatypes.JSONMap'
+      name:
+        maxLength: 255
+        type: string
+      parentID:
+        type: integer
+      path:
+        maxLength: 1024
+        type: string
+      redirect:
+        maxLength: 1024
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+    required:
+      - menuType
+    type: object
+  internal_router_logic.ReqResourceMenuUpdate:
+    properties:
+      alias:
+        maxLength: 255
+        type: string
+      component:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      menuType:
+        type: string
+      metadata:
+        $ref: '#/definitions/datatypes.JSONMap'
+      name:
+        maxLength: 255
+        type: string
+      parentID:
+        type: integer
+      path:
+        maxLength: 1024
+        type: string
+      redirect:
+        maxLength: 1024
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+    required:
+      - id
+    type: object
   internal_router_logic.ReqRoleCreate:
     properties:
       code:
@@ -785,6 +875,89 @@ definitions:
       typeCode:
         type: string
       typeName:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
+  internal_router_logic.RespResourceMenuNode:
+    properties:
+      authorities:
+        items:
+          type: string
+        type: array
+      children:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespResourceMenuNode'
+        type: array
+      component:
+        type: string
+      hidden:
+        type: boolean
+      icon:
+        type: string
+      id:
+        type: integer
+      isUrl:
+        type: boolean
+      menuType:
+        type: string
+      name:
+        type: string
+      order:
+        type: integer
+      parentID:
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+    type: object
+  internal_router_logic.RespSysResourceMenu:
+    properties:
+      alias:
+        type: string
+      canDelete:
+        type: boolean
+      canWrite:
+        type: boolean
+      children:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespSysResourceMenu'
+        type: array
+      component:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: integer
+      deletedBy:
+        type: integer
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      menuType:
+        type: string
+      metadata:
+        $ref: '#/definitions/datatypes.JSONMap'
+      name:
+        type: string
+      parentID:
+        description: 简单树结构字段（保留父级关系与路径）
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+      remark:
+        type: string
+      sortOrder:
+        type: integer
+      treePath:
         type: string
       updatedAt:
         type: string
@@ -1551,4 +1724,112 @@ paths:
       summary: 更新语言类型
       tags:
         - Language
+  /api/sys/resource/menu/create:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 菜单资源创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceMenuCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 创建菜单资源
+      tags:
+        - ResourceMenu
+  /api/sys/resource/menu/del:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 批量删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceMenuBatchDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 删除菜单资源
+      tags:
+        - ResourceMenu
+  /api/sys/resource/menu/list:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-internal_router_logic_RespSysResourceMenu'
+                type: object
+      summary: 获取菜单资源列表
+      tags:
+        - ResourceMenu
+  /api/sys/resource/menu/tree:
+    get:
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    items:
+                      $ref: '#/definitions/internal_router_logic.RespResourceMenuNode'
+                    type: array
+                type: object
+      summary: 获取当前用户动态菜单树
+      tags:
+        - ResourceMenu
+  /api/sys/resource/menu/update:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 菜单资源更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceMenuUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 更新菜单资源
+      tags:
+        - ResourceMenu
 swagger: "2.0"

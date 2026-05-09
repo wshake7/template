@@ -9,6 +9,7 @@ import {
   Tag,
 } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { renderAntIcon } from '~/utils/antIcons'
 
 let jsonHighlighterPromise: Promise<{
   codeToHtml: (code: string, options: { lang: string, theme: string }) => string
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/_app/system/api/log')({
     menu: {
       name: 'API日志',
       menuType: 'menu',
+      icon: renderAntIcon('FileSearchOutlined'),
     },
   },
   staleTime: 1000 * 60 * 2,
@@ -70,9 +72,10 @@ function getJsonHighlighter() {
       import('shiki/core'),
       import('shiki/engine/javascript'),
       import('shiki/langs/json.mjs'),
-      import('shiki/themes/github-light.mjs'),
+      import('shiki/themes'),
     ])
-    .then(async ([{ createHighlighterCore }, { createJavaScriptRegexEngine }, json, githubLight]) => {
+    .then(async ([{ createHighlighterCore }, { createJavaScriptRegexEngine }, json, themes]) => {
+      const githubLight = await themes.bundledThemes['github-light']()
       const highlighter = await createHighlighterCore({
         themes: [githubLight.default],
         langs: [json.default],

@@ -1,9 +1,11 @@
 import type { MenuDataItem, ProSettings } from '@ant-design/pro-components'
 import type { FormListFieldData } from 'antd'
 import type { ComponentType } from 'react'
-import type { ChangePwdFormValues } from '~/components/business/account/changePwdModal'
+import type { ResourceMenuNode } from '~/api/business/sysResourceMenu'
 
+import type { ChangePwdFormValues } from '~/components/business/account/changePwdModal'
 import { LockOutlined, LogoutOutlined } from '@ant-design/icons'
+
 import {
   PageContainer,
   ProCard,
@@ -24,10 +26,12 @@ import { ConfigProvider, Dropdown } from 'antd'
 
 import useApp from 'antd/es/app/useApp'
 
-import { useEffect, useReducer, useRef, useState } from 'react'
-
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import ChangePwdModal from '~/components/business/account/changePwdModal'
 import { TAB_REFRESH_INTERVAL } from '~/config/tabs'
+import { useResourceMenuStore } from '~/stores/resourceMenu'
+import { renderAntIcon } from '~/utils/antIcons'
 import { buildMenuTree } from '~/utils/menu'
 
 export const Route = createFileRoute('/_app')({
@@ -56,6 +60,47 @@ interface CachedTabPaneRemoveAction {
 }
 
 type CachedTabPaneAction = CachedTabPaneNavigateAction | CachedTabPaneRemoveAction
+
+function toDynamicMenuItems(nodes: ResourceMenuNode[], router: ReturnType<typeof useRouter>): MenuDataItem[] {
+  const routesByPath = router.routesByPath as unknown as Record<string, unknown>
+
+  return nodes
+    .filter(node => !node.hidden)
+    .map((node) => {
+      const children = toDynamicMenuItems(node.children ?? [], router)
+      const isUrl = node.isUrl || /^https?:\/\//.test(node.path)
+      const routeExists = isUrl || Boolean(routesByPath[node.path])
+      if (!routeExists && children.length === 0) {
+        return null
+      }
+
+      return {
+        path: node.path,
+        name: node.name,
+        icon: renderAntIcon(node.icon),
+        isUrl,
+        routes: children.length > 0 ? children : undefined,
+      } as MenuDataItem
+    })
+    .filter(Boolean) as MenuDataItem[]
+}
+
+function flattenMenuItems(items: MenuDataItem[]) {
+  const map = new Map<string, MenuDataItem>()
+  const walk = (nodes: MenuDataItem[]) => {
+    for (const node of nodes) {
+      if (node.path) {
+        map.set(node.path, node)
+      }
+      const routes = (node as any).routes as MenuDataItem[] | undefined
+      if (routes?.length) {
+        walk(routes)
+      }
+    }
+  }
+  walk(items)
+  return map
+}
 
 function cachedTabPaneReducer(
   state: Record<string, CachedTabPane>,
@@ -125,9 +170,45 @@ function AppLayout() {
   const items = useMenuTabsStore(state => state.items)
   const add = useMenuTabsStore(state => state.add)
   const remove = useMenuTabsStore(state => state.remove)
-  const menuItems = buildMenuTree(router)
+  const dynamicMenuTree = useResourceMenuStore(state => state.dynamicMenuTree)
+  const setDynamicMenuTree = useResourceMenuStore(state => state.setDynamicMenuTree)
+  const staticMenuItems = useMemo(() => buildMenuTree(router), [router])
+  const cachedDynamicMenuItems = useMemo(
+    () => dynamicMenuTree.length > 0 ? toDynamicMenuItems(dynamicMenuTree, router) : undefined,
+    [dynamicMenuTree, router],
+  )
+  const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuDataItem[]>()
+  const menuItems = dynamicMenuItems?.length
+    ? dynamicMenuItems
+    : cachedDynamicMenuItems?.length
+      ? cachedDynamicMenuItems
+      : staticMenuItems
+  const menuItemMap = useMemo(() => flattenMenuItems(menuItems), [menuItems])
   const previousPathRef = useRef(pathname)
   const [cachedTabPanes, dispatch] = useReducer(cachedTabPaneReducer, {})
+
+  useEffect(() => {
+    let disposed = false
+    ResourceMenuApi.menuTree()
+      .send()
+      .then((res) => {
+        if (disposed) {
+          return
+        }
+        const nodes = res.data ?? []
+        setDynamicMenuTree(nodes)
+        const nextItems = toDynamicMenuItems(nodes, router)
+        setDynamicMenuItems(nextItems.length > 0 ? nextItems : undefined)
+      })
+      .catch(() => {
+        if (!disposed) {
+          setDynamicMenuItems(undefined)
+        }
+      })
+    return () => {
+      disposed = true
+    }
+  }, [router, setDynamicMenuTree])
 
   /** ---------------- tab 初始化（路由驱动） ---------------- */
 
@@ -135,6 +216,15 @@ function AppLayout() {
     const allRoutes = Object.values(router.routesByPath)
     const currentRoute = allRoutes.find(r => r.fullPath === pathname)
     const menu = currentRoute?.options.staticData?.menu
+    const dynamicMenu = menuItemMap.get(pathname)
+
+    if (dynamicMenu) {
+      return {
+        key: pathname,
+        label: dynamicMenu.name,
+        icon: dynamicMenu.icon,
+      }
+    }
 
     if (!menu || menu.menuType === 'catalog') { return null }
 
@@ -143,7 +233,7 @@ function AppLayout() {
       label: menu.name,
       icon: menu.icon,
     }
-  }, [pathname, router.routesByPath])
+  }, [menuItemMap, pathname, router.routesByPath])
 
   useEffect(() => {
     if (!currentMenuTab) { return }
@@ -175,6 +265,16 @@ function AppLayout() {
   /** ---------------- handlers ---------------- */
 
   function onMenuClick(item: MenuDataItem & { isUrl: boolean, onClick: () => void }) {
+    if (!item.path) {
+      return
+    }
+    if (item.isUrl || /^https?:\/\//.test(item.path)) {
+      window.open(item.path, '_blank', 'noopener,noreferrer')
+      return
+    }
+    if (!(router.routesByPath as unknown as Record<string, unknown>)[item.path]) {
+      return
+    }
     navigate({ to: item.path })
   }
 
