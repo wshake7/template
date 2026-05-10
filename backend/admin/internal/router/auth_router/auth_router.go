@@ -13,4 +13,5 @@ func RegisterRouters(router fiber.Router) {
 	registerSysLanguageRouters(group.Group("/sys/language"))
 	registerSysApiLogRouters(group.Group("/sys/api/log"))
 	registerSysResourceMenuRouters(group.Group("/sys/resource/menu"))
+	registerSysResourceApiRouters(group.Group("/sys/resource/api"))
 }

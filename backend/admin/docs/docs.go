@@ -477,188 +477,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/role/create": {
-            "post": {
-                "description": "创建新的角色",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Role"
-                ],
-                "summary": "创建角色",
-                "parameters": [
-                    {
-                        "description": "角色创建参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/role/del": {
-            "post": {
-                "description": "根据角色 ID 删除角色",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Role"
-                ],
-                "summary": "删除角色",
-                "parameters": [
-                    {
-                        "description": "角色删除参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleDelete"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/role/list": {
-            "get": {
-                "description": "分页查询角色信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Role"
-                ],
-                "summary": "获取角色分页列表",
-                "parameters": [
-                    {
-                        "description": "分页参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.PagingRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysRole"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/role/switch": {
-            "post": {
-                "description": "根据角色 ID 修改启用状态",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Role"
-                ],
-                "summary": "切换角色状态",
-                "parameters": [
-                    {
-                        "description": "角色状态参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleSwitchStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/role/update": {
-            "post": {
-                "description": "根据角色 ID 更新角色信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Role"
-                ],
-                "summary": "更新角色",
-                "parameters": [
-                    {
-                        "description": "角色更新参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_router_logic.ReqRoleUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/sys/api/log/detail": {
             "post": {
                 "description": "根据 ID 获取API日志详情",
@@ -1113,6 +931,150 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/internal_router_logic.ReqLangTypeUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/api/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceApi"
+                ],
+                "summary": "创建API资源",
+                "parameters": [
+                    {
+                        "description": "API资源创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceApiCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/api/del": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceApi"
+                ],
+                "summary": "删除API资源",
+                "parameters": [
+                    {
+                        "description": "批量删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceApiBatchDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/api/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceApi"
+                ],
+                "summary": "获取API资源分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespSysResourceApi"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/resource/api/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceApi"
+                ],
+                "summary": "更新API资源",
+                "parameters": [
+                    {
+                        "description": "API资源更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqResourceApiUpdate"
                         }
                     }
                 ],
@@ -1606,9 +1568,81 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_internal_services_orm_models.SysResourceMenu": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "component": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "menuType": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/datatypes.JSONMap"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "description": "简单树结构字段（保留父级关系与路径）",
+                    "type": "integer"
+                },
+                "parentSysResourceMenu": {
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysResourceMenu"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "redirect": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "treePath": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
         "admin_internal_services_orm_models.SysRole": {
             "type": "object",
             "properties": {
+                "apis": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "childIDs": {
                     "type": "array",
                     "items": {
@@ -1641,6 +1675,12 @@ const docTemplate = `{
                 },
                 "isEnabled": {
                     "type": "boolean"
+                },
+                "menus": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -1787,20 +1827,6 @@ const docTemplate = `{
                 }
             }
         },
-        "gormc.PagingResult-admin_internal_services_orm_models_SysRole": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
         "gormc.PagingResult-internal_router_logic_RespDictType": {
             "type": "object",
             "properties": {
@@ -1808,6 +1834,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_router_logic.RespDictType"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-internal_router_logic_RespSysResourceApi": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespSysResourceApi"
                     }
                 },
                 "total": {
@@ -2323,6 +2363,85 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_router_logic.ReqResourceApiBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceApiCreate": {
+            "type": "object",
+            "required": [
+                "method",
+                "path"
+            ],
+            "properties": {
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "method": {
+                    "type": "string",
+                    "maxLength": 16
+                },
+                "module": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "path": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqResourceApiUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "method": {
+                    "type": "string",
+                    "maxLength": 16
+                },
+                "module": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "path": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sortOrder": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_router_logic.ReqResourceMenuBatchDelete": {
             "type": "object",
             "required": [
@@ -2432,81 +2551,6 @@ const docTemplate = `{
                 },
                 "sortOrder": {
                     "type": "integer"
-                }
-            }
-        },
-        "internal_router_logic.ReqRoleCreate": {
-            "type": "object",
-            "required": [
-                "code",
-                "name"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "remark": {
-                    "type": "string",
-                    "maxLength": 255
-                }
-            }
-        },
-        "internal_router_logic.ReqRoleDelete": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_router_logic.ReqRoleSwitchStatus": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "isEnabled": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_router_logic.ReqRoleUpdate": {
-            "type": "object",
-            "required": [
-                "code",
-                "id",
-                "name"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 64,
-                    "minLength": 1
-                },
-                "remark": {
-                    "type": "string",
-                    "maxLength": 255
                 }
             }
         },
@@ -2658,6 +2702,56 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_router_logic.RespSysResourceApi": {
+            "type": "object",
+            "properties": {
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canWrite": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "module": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_router_logic.RespSysResourceMenu": {
             "type": "object",
             "properties": {
@@ -2709,6 +2803,9 @@ const docTemplate = `{
                 "parentID": {
                     "description": "简单树结构字段（保留父级关系与路径）",
                     "type": "integer"
+                },
+                "parentSysResourceMenu": {
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysResourceMenu"
                 },
                 "path": {
                     "type": "string"

@@ -199,8 +199,56 @@ definitions:
       updatedBy:
         type: integer
     type: object
+  admin_internal_services_orm_models.SysResourceMenu:
+    properties:
+      alias:
+        type: string
+      component:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: integer
+      deletedBy:
+        type: integer
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      menuType:
+        type: string
+      metadata:
+        $ref: '#/definitions/datatypes.JSONMap'
+      name:
+        type: string
+      parentID:
+        description: 简单树结构字段（保留父级关系与路径）
+        type: integer
+      parentSysResourceMenu:
+        $ref: '#/definitions/admin_internal_services_orm_models.SysResourceMenu'
+      path:
+        type: string
+      redirect:
+        type: string
+      remark:
+        type: string
+      sortOrder:
+        type: integer
+      treePath:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
   admin_internal_services_orm_models.SysRole:
     properties:
+      apis:
+        items:
+          type: integer
+        type: array
       childIDs:
         items:
           type: integer
@@ -223,6 +271,10 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
+      menus:
+        items:
+          type: integer
+        type: array
       name:
         type: string
       parentID:
@@ -318,20 +370,20 @@ definitions:
       total:
         type: integer
     type: object
-  gormc.PagingResult-admin_internal_services_orm_models_SysRole:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
-        type: array
-      total:
-        type: integer
-    type: object
   gormc.PagingResult-internal_router_logic_RespDictType:
     properties:
       items:
         items:
           $ref: '#/definitions/internal_router_logic.RespDictType'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-internal_router_logic_RespSysResourceApi:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespSysResourceApi'
         type: array
       total:
         type: integer
@@ -686,6 +738,61 @@ definitions:
     required:
       - id
     type: object
+  internal_router_logic.ReqResourceApiBatchDelete:
+    properties:
+      ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+      - ids
+    type: object
+  internal_router_logic.ReqResourceApiCreate:
+    properties:
+      isEnabled:
+        type: boolean
+      method:
+        maxLength: 16
+        type: string
+      module:
+        maxLength: 128
+        type: string
+      path:
+        maxLength: 255
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+    required:
+      - method
+      - path
+    type: object
+  internal_router_logic.ReqResourceApiUpdate:
+    properties:
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      method:
+        maxLength: 16
+        type: string
+      module:
+        maxLength: 128
+        type: string
+      path:
+        maxLength: 255
+        type: string
+      remark:
+        maxLength: 255
+        type: string
+      sortOrder:
+        type: integer
+    required:
+      - id
+    type: object
   internal_router_logic.ReqResourceMenuBatchDelete:
     properties:
       ids:
@@ -763,59 +870,6 @@ definitions:
         type: integer
     required:
       - id
-    type: object
-  internal_router_logic.ReqRoleCreate:
-    properties:
-      code:
-        maxLength: 64
-        minLength: 1
-        type: string
-      name:
-        maxLength: 64
-        minLength: 1
-        type: string
-      remark:
-        maxLength: 255
-        type: string
-    required:
-      - code
-      - name
-    type: object
-  internal_router_logic.ReqRoleDelete:
-    properties:
-      id:
-        type: integer
-    required:
-      - id
-    type: object
-  internal_router_logic.ReqRoleSwitchStatus:
-    properties:
-      id:
-        type: integer
-      isEnabled:
-        type: integer
-    required:
-      - id
-    type: object
-  internal_router_logic.ReqRoleUpdate:
-    properties:
-      code:
-        maxLength: 64
-        minLength: 1
-        type: string
-      id:
-        type: integer
-      name:
-        maxLength: 64
-        minLength: 1
-        type: string
-      remark:
-        maxLength: 255
-        type: string
-    required:
-      - code
-      - id
-      - name
     type: object
   internal_router_logic.ResAccountPwdLogin:
     properties:
@@ -914,6 +968,39 @@ definitions:
       redirect:
         type: string
     type: object
+  internal_router_logic.RespSysResourceApi:
+    properties:
+      canDelete:
+        type: boolean
+      canWrite:
+        type: boolean
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: integer
+      deletedBy:
+        type: integer
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      method:
+        type: string
+      module:
+        type: string
+      path:
+        type: string
+      remark:
+        type: string
+      sortOrder:
+        type: integer
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
   internal_router_logic.RespSysResourceMenu:
     properties:
       alias:
@@ -949,6 +1036,8 @@ definitions:
       parentID:
         description: 简单树结构字段（保留父级关系与路径）
         type: integer
+      parentSysResourceMenu:
+        $ref: '#/definitions/admin_internal_services_orm_models.SysResourceMenu'
       path:
         type: string
       redirect:
@@ -1321,121 +1410,6 @@ paths:
       summary: 获取加密公钥
       tags:
         - Encrypt
-  /api/role/create:
-    post:
-      consumes:
-        - application/json
-      description: 创建新的角色
-      parameters:
-        - description: 角色创建参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleCreate'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/admin_internal_fiberc_res.Response'
-      summary: 创建角色
-      tags:
-        - Role
-  /api/role/del:
-    post:
-      consumes:
-        - application/json
-      description: 根据角色 ID 删除角色
-      parameters:
-        - description: 角色删除参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleDelete'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/admin_internal_fiberc_res.Response'
-      summary: 删除角色
-      tags:
-        - Role
-  /api/role/list:
-    get:
-      consumes:
-        - application/json
-      description: 分页查询角色信息
-      parameters:
-        - description: 分页参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/v1.PagingRequest'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            allOf:
-              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
-              - properties:
-                  data:
-                    $ref: '#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysRole'
-                type: object
-      summary: 获取角色分页列表
-      tags:
-        - Role
-  /api/role/switch:
-    post:
-      consumes:
-        - application/json
-      description: 根据角色 ID 修改启用状态
-      parameters:
-        - description: 角色状态参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleSwitchStatus'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/admin_internal_fiberc_res.Response'
-      summary: 切换角色状态
-      tags:
-        - Role
-  /api/role/update:
-    post:
-      consumes:
-        - application/json
-      description: 根据角色 ID 更新角色信息
-      parameters:
-        - description: 角色更新参数
-          in: body
-          name: req
-          required: true
-          schema:
-            $ref: '#/definitions/internal_router_logic.ReqRoleUpdate'
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/admin_internal_fiberc_res.Response'
-      summary: 更新角色
-      tags:
-        - Role
   /api/sys/api/log/detail:
     post:
       consumes:
@@ -1724,6 +1698,95 @@ paths:
       summary: 更新语言类型
       tags:
         - Language
+  /api/sys/resource/api/create:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: API资源创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceApiCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 创建API资源
+      tags:
+        - ResourceApi
+  /api/sys/resource/api/del:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 批量删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceApiBatchDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 删除API资源
+      tags:
+        - ResourceApi
+  /api/sys/resource/api/list:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-internal_router_logic_RespSysResourceApi'
+                type: object
+      summary: 获取API资源分页列表
+      tags:
+        - ResourceApi
+  /api/sys/resource/api/update:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: API资源更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqResourceApiUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 更新API资源
+      tags:
+        - ResourceApi
   /api/sys/resource/menu/create:
     post:
       consumes:

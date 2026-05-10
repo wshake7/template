@@ -46,6 +46,16 @@ func newSysResourceMenu(db *gorm.DB, opts ...gen.DOOption) sysResourceMenu {
 	_sysResourceMenu.Component = field.NewString(tableName, "component")
 	_sysResourceMenu.ParentID = field.NewUint64(tableName, "parent_id")
 	_sysResourceMenu.TreePath = field.NewString(tableName, "tree_path")
+	_sysResourceMenu.ParentSysResourceMenu = sysResourceMenuBelongsToParentSysResourceMenu{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("ParentSysResourceMenu", "models.SysResourceMenu"),
+		ParentSysResourceMenu: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("ParentSysResourceMenu.ParentSysResourceMenu", "models.SysResourceMenu"),
+		},
+	}
 
 	_sysResourceMenu.fillFieldMap()
 
@@ -55,26 +65,27 @@ func newSysResourceMenu(db *gorm.DB, opts ...gen.DOOption) sysResourceMenu {
 type sysResourceMenu struct {
 	sysResourceMenuDo
 
-	ALL       field.Asterisk
-	ID        field.Uint64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	CreatedBy field.Uint64
-	UpdatedBy field.Uint64
-	DeletedBy field.Uint64
-	Remark    field.String
-	SortOrder field.Int32
-	Metadata  field.Field
-	IsEnabled field.Bool
-	DeletedAt field.Uint
-	MenuType  field.String // 菜单类型 CATALOG: 目录 MENU: 菜单 BUTTON: 按钮 EMBEDDED: 内嵌 LINK: 外链
-	Path      field.String // 路径，类型为按钮时为操作名
-	Redirect  field.String // 重定向地址
-	Alias_    field.String // 路由别名
-	Name      field.String // 路由命名
-	Component field.String // 前端页面组件
-	ParentID  field.Uint64 // 父级ID
-	TreePath  field.String // 节点路径
+	ALL                   field.Asterisk
+	ID                    field.Uint64
+	CreatedAt             field.Time
+	UpdatedAt             field.Time
+	CreatedBy             field.Uint64
+	UpdatedBy             field.Uint64
+	DeletedBy             field.Uint64
+	Remark                field.String
+	SortOrder             field.Int32
+	Metadata              field.Field
+	IsEnabled             field.Bool
+	DeletedAt             field.Uint
+	MenuType              field.String // 菜单类型 CATALOG: 目录 MENU: 菜单 BUTTON: 按钮 EMBEDDED: 内嵌 LINK: 外链
+	Path                  field.String // 路径，类型为按钮时为操作名
+	Redirect              field.String // 重定向地址
+	Alias_                field.String // 路由别名
+	Name                  field.String // 路由命名
+	Component             field.String // 前端页面组件
+	ParentID              field.Uint64 // 父级ID
+	TreePath              field.String // 节点路径
+	ParentSysResourceMenu sysResourceMenuBelongsToParentSysResourceMenu
 
 	fieldMap map[string]field.Expr
 }
@@ -126,7 +137,7 @@ func (s *sysResourceMenu) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (s *sysResourceMenu) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 19)
+	s.fieldMap = make(map[string]field.Expr, 20)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -146,16 +157,105 @@ func (s *sysResourceMenu) fillFieldMap() {
 	s.fieldMap["component"] = s.Component
 	s.fieldMap["parent_id"] = s.ParentID
 	s.fieldMap["tree_path"] = s.TreePath
+
 }
 
 func (s sysResourceMenu) clone(db *gorm.DB) sysResourceMenu {
 	s.sysResourceMenuDo.ReplaceConnPool(db.Statement.ConnPool)
+	s.ParentSysResourceMenu.db = db.Session(&gorm.Session{Initialized: true})
+	s.ParentSysResourceMenu.db.Statement.ConnPool = db.Statement.ConnPool
 	return s
 }
 
 func (s sysResourceMenu) replaceDB(db *gorm.DB) sysResourceMenu {
 	s.sysResourceMenuDo.ReplaceDB(db)
+	s.ParentSysResourceMenu.db = db.Session(&gorm.Session{})
 	return s
+}
+
+type sysResourceMenuBelongsToParentSysResourceMenu struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	ParentSysResourceMenu struct {
+		field.RelationField
+	}
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenu) Where(conds ...field.Expr) *sysResourceMenuBelongsToParentSysResourceMenu {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenu) WithContext(ctx context.Context) *sysResourceMenuBelongsToParentSysResourceMenu {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenu) Session(session *gorm.Session) *sysResourceMenuBelongsToParentSysResourceMenu {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenu) Model(m *models.SysResourceMenu) *sysResourceMenuBelongsToParentSysResourceMenuTx {
+	return &sysResourceMenuBelongsToParentSysResourceMenuTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenu) Unscoped() *sysResourceMenuBelongsToParentSysResourceMenu {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type sysResourceMenuBelongsToParentSysResourceMenuTx struct{ tx *gorm.Association }
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Find() (result *models.SysResourceMenu, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Append(values ...*models.SysResourceMenu) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Replace(values ...*models.SysResourceMenu) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Delete(values ...*models.SysResourceMenu) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a sysResourceMenuBelongsToParentSysResourceMenuTx) Unscoped() *sysResourceMenuBelongsToParentSysResourceMenuTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type sysResourceMenuDo struct{ gen.DO }

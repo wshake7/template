@@ -56,5 +56,6 @@ VALUES
 (4, NULL, NULL, 0, 0, 0, '', 20, '{"order":20}', TRUE, 0, 'MENU', '/system/dict', '', '', '数据字典', '', 2, '/2/4/'),
 (5, NULL, NULL, 0, 0, 0, '', 30, '{"order":30}', TRUE, 0, 'MENU', '/system/api/log', '', '', 'API日志', '', 2, '/2/5/'),
 (6, NULL, NULL, 0, 0, 0, '', 40, '{"order":40}', TRUE, 0, 'MENU', '/system/resource/menu', '', '', '菜单资源', '', 2, '/2/6/'),
+(9, NULL, NULL, 0, 0, 0, '', 50, '{"order":50}', TRUE, 0, 'MENU', '/system/resource/api', '', '', 'API资源', '', 2, '/2/9/'),
 (7, NULL, NULL, 0, 0, 0, '', 20, '{"order":20}', TRUE, 0, 'CATALOG', '/account', '', '', '账号管理', '', NULL, '/7/'),
 (8, NULL, NULL, 0, 0, 0, '', 10, '{"order":10}', TRUE, 0, 'MENU', '/account/role', '', '', '角色管理', '', 7, '/7/8/');

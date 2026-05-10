@@ -30,6 +30,8 @@ type SysResourceMenu struct {
 	// 简单树结构字段（保留父级关系与路径）
 	ParentID *uint64 `gorm:"column:parent_id;type:bigint;comment:父级ID" json:"parentID"`
 	TreePath *string `gorm:"column:tree_path;type:varchar(1024);comment:节点路径" json:"treePath"`
+
+	ParentSysResourceMenu *SysResourceMenu `gorm:"foreignKey:ParentID;references:ID" json:"parentSysResourceMenu"`
 }
 
 func (SysResourceMenu) TableName() string {
