@@ -61,10 +61,16 @@ interface CachedTabPaneRemoveAction {
 
 type CachedTabPaneAction = CachedTabPaneNavigateAction | CachedTabPaneRemoveAction
 
+function sortDynamicMenuNode(a: ResourceMenuNode, b: ResourceMenuNode) {
+  const orderDiff = (a.order ?? 0) - (b.order ?? 0)
+  return orderDiff || a.id - b.id
+}
+
 function toDynamicMenuItems(nodes: ResourceMenuNode[], router: ReturnType<typeof useRouter>): MenuDataItem[] {
   const routesByPath = router.routesByPath as unknown as Record<string, unknown>
 
   return nodes
+    .toSorted(sortDynamicMenuNode)
     .filter(node => !node.hidden)
     .map((node) => {
       const children = toDynamicMenuItems(node.children ?? [], router)
