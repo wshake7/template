@@ -38,7 +38,6 @@ type ResAccountPwdLogin struct {
 func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*ResAccountPwdLogin, error) {
 	logger := ctx.L().With(zap.String("username", req.Username))
 	sysUser := query.SysUser
-	sysRole := query.SysRole
 	result, err := sysUser.
 		Where(sysUser.Username.Eq(req.Username)).
 		Select(sysUser.ID, sysUser.Username, sysUser.Password).
@@ -55,15 +54,16 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	if !passwd.Match(req.Pwd, result.Password) {
 		return nil, errors.New("用户名或密码无效")
 	}
+	sysRole := query.SysRole
 	sysUserRole := query.SysUserRole
 	userRoles, err := sysUserRole.
-		Select(sysUserRole.RoleID).
+		Select(sysUserRole.ID, sysUserRole.UserID, sysUserRole.RoleID).
 		Preload(sysUserRole.SysRole.Select(sysRole.ID, sysRole.Code).On(sysRole.IsEnabled.Is(true))).
 		Where(sysUserRole.UserID.Eq(result.ID)).
 		Find()
 	if err != nil {
-		logger.Error("鑾峰彇鐢ㄦ埛瑙掕壊澶辫触", zap.Error(err), zap.Uint64("userID", result.ID))
-		return nil, errors.New("鐧诲綍澶辫触")
+		logger.Error("获取用户角色失败", zap.Error(err), zap.Uint64("userID", result.ID))
+		return nil, errors.New("登录失败")
 	}
 	roleCodes := make([]string, 0, len(userRoles))
 	roleIDs := make([]uint64, 0, len(userRoles))
