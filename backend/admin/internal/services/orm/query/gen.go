@@ -27,6 +27,8 @@ var (
 	SysResourceApi    *sysResourceApi
 	SysResourceMenu   *sysResourceMenu
 	SysRole           *sysRole
+	SysRoleApi        *sysRoleApi
+	SysRoleMenu       *sysRoleMenu
 	SysUser           *sysUser
 	SysUserRole       *sysUserRole
 )
@@ -43,6 +45,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	SysResourceApi = &Q.SysResourceApi
 	SysResourceMenu = &Q.SysResourceMenu
 	SysRole = &Q.SysRole
+	SysRoleApi = &Q.SysRoleApi
+	SysRoleMenu = &Q.SysRoleMenu
 	SysUser = &Q.SysUser
 	SysUserRole = &Q.SysUserRole
 }
@@ -60,6 +64,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		SysResourceApi:    newSysResourceApi(db, opts...),
 		SysResourceMenu:   newSysResourceMenu(db, opts...),
 		SysRole:           newSysRole(db, opts...),
+		SysRoleApi:        newSysRoleApi(db, opts...),
+		SysRoleMenu:       newSysRoleMenu(db, opts...),
 		SysUser:           newSysUser(db, opts...),
 		SysUserRole:       newSysUserRole(db, opts...),
 	}
@@ -78,6 +84,8 @@ type Query struct {
 	SysResourceApi    sysResourceApi
 	SysResourceMenu   sysResourceMenu
 	SysRole           sysRole
+	SysRoleApi        sysRoleApi
+	SysRoleMenu       sysRoleMenu
 	SysUser           sysUser
 	SysUserRole       sysUserRole
 }
@@ -97,6 +105,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		SysResourceApi:    q.SysResourceApi.clone(db),
 		SysResourceMenu:   q.SysResourceMenu.clone(db),
 		SysRole:           q.SysRole.clone(db),
+		SysRoleApi:        q.SysRoleApi.clone(db),
+		SysRoleMenu:       q.SysRoleMenu.clone(db),
 		SysUser:           q.SysUser.clone(db),
 		SysUserRole:       q.SysUserRole.clone(db),
 	}
@@ -123,6 +133,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		SysResourceApi:    q.SysResourceApi.replaceDB(db),
 		SysResourceMenu:   q.SysResourceMenu.replaceDB(db),
 		SysRole:           q.SysRole.replaceDB(db),
+		SysRoleApi:        q.SysRoleApi.replaceDB(db),
+		SysRoleMenu:       q.SysRoleMenu.replaceDB(db),
 		SysUser:           q.SysUser.replaceDB(db),
 		SysUserRole:       q.SysUserRole.replaceDB(db),
 	}
@@ -139,6 +151,8 @@ type queryCtx struct {
 	SysResourceApi    ISysResourceApiDo
 	SysResourceMenu   ISysResourceMenuDo
 	SysRole           ISysRoleDo
+	SysRoleApi        ISysRoleApiDo
+	SysRoleMenu       ISysRoleMenuDo
 	SysUser           ISysUserDo
 	SysUserRole       ISysUserRoleDo
 }
@@ -155,6 +169,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		SysResourceApi:    q.SysResourceApi.WithContext(ctx),
 		SysResourceMenu:   q.SysResourceMenu.WithContext(ctx),
 		SysRole:           q.SysRole.WithContext(ctx),
+		SysRoleApi:        q.SysRoleApi.WithContext(ctx),
+		SysRoleMenu:       q.SysRoleMenu.WithContext(ctx),
 		SysUser:           q.SysUser.WithContext(ctx),
 		SysUserRole:       q.SysUserRole.WithContext(ctx),
 	}
