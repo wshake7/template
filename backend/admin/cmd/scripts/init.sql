@@ -32,9 +32,9 @@ VALUES
 (2, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '', '停用', '0', '', 1);
 
 INSERT INTO "public"."sys_role"
-("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "name", "code", "parent_id", "child_ids")
+("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "name", "code", "parent_id")
 VALUES
-(1, NULL, NULL, '', 0, 0, 0, TRUE, 0, '超级管理员', 'root', NULL, '[]');
+(1, NULL, NULL, '', 0, 0, 0, TRUE, 0, '超级管理员', 'root', NULL);
 
 INSERT INTO "public"."sys_user"
 ("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "username", "nickname", "password", "language_code")

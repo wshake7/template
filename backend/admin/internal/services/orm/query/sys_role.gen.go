@@ -39,7 +39,6 @@ func newSysRole(db *gorm.DB, opts ...gen.DOOption) sysRole {
 	_sysRole.Name = field.NewString(tableName, "name")
 	_sysRole.Code = field.NewString(tableName, "code")
 	_sysRole.ParentID = field.NewUint64(tableName, "parent_id")
-	_sysRole.ChildIDs = field.NewField(tableName, "child_ids")
 	_sysRole.Children = sysRoleHasManyChildren{
 		db: db.Session(&gorm.Session{}),
 
@@ -83,7 +82,6 @@ type sysRole struct {
 	Name      field.String // 角色名称
 	Code      field.String // 角色标识
 	ParentID  field.Uint64 // 父级ID
-	ChildIDs  field.Field  // 所有子节点ID
 	Children  sysRoleHasManyChildren
 
 	ParentSysRole sysRoleBelongsToParentSysRole
@@ -115,7 +113,6 @@ func (s *sysRole) updateTableName(table string) *sysRole {
 	s.Name = field.NewString(table, "name")
 	s.Code = field.NewString(table, "code")
 	s.ParentID = field.NewUint64(table, "parent_id")
-	s.ChildIDs = field.NewField(table, "child_ids")
 
 	s.fillFieldMap()
 
@@ -132,7 +129,7 @@ func (s *sysRole) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysRole) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 15)
+	s.fieldMap = make(map[string]field.Expr, 14)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -145,7 +142,6 @@ func (s *sysRole) fillFieldMap() {
 	s.fieldMap["name"] = s.Name
 	s.fieldMap["code"] = s.Code
 	s.fieldMap["parent_id"] = s.ParentID
-	s.fieldMap["child_ids"] = s.ChildIDs
 
 }
 

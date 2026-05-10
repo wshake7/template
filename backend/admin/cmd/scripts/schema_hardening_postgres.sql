@@ -42,6 +42,9 @@ ALTER TABLE "public"."sys_user"
     DROP COLUMN IF EXISTS "last_login_ip",
     ALTER COLUMN "language_code" SET DEFAULT '';
 
+ALTER TABLE "public"."sys_role"
+    DROP COLUMN IF EXISTS "child_ids";
+
 ALTER TABLE "public"."sys_api_log"
     ALTER COLUMN "referer" TYPE text,
     ALTER COLUMN "request_uri" TYPE text;

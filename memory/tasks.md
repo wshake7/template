@@ -12,3 +12,5 @@
 - [x] 2026-05-11 �Ƴ� SysUser �� LastLoginAt��LastLoginIP �ֶΣ���ͬ������ǰ���չʾ����ʼ�� SQL��Swagger �� PostgreSQL Ǩ�ƽű���
 
 - [x] 2026-05-11 移除 SysUser.SysRoles 关联字段，登录角色逻辑改为直接查询 SysUserRole。
+
+- [x] 2026-05-11 移除 SysRole.ChildIDs 字段，并同步初始化 SQL、迁移脚本与 ORM query。
