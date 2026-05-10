@@ -290,20 +290,6 @@ function UserManagement() {
       render: (_, record) => formatDateTimeToMinute(record.createdAt),
     },
     {
-      title: '最近登录时间',
-      dataIndex: 'lastLoginAt',
-      width: 150,
-      ellipsis: true,
-      render: (_, record) => formatDateTimeToMinute(record.lastLoginAt),
-    },
-    {
-      title: '最近登录 IP',
-      dataIndex: 'lastLoginIP',
-      width: 130,
-      ellipsis: true,
-      render: (_, record) => record.lastLoginIP || '-',
-    },
-    {
       title: '备注',
       dataIndex: 'remark',
       ellipsis: true,

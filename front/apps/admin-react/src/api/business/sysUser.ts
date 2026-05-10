@@ -11,8 +11,6 @@ export interface SysUser {
   updatedAt?: string
   createdBy?: number
   updatedBy?: number
-  lastLoginAt?: string
-  lastLoginIP?: string
   canWrite?: boolean
   canDelete?: boolean
 }

@@ -8,3 +8,5 @@
 - [x] 2026-05-10 实现 SysResourceApi 前后端 CRUD 管理页，并支持 `{id}` 到 `:id` 的路径参数模板归一化。
 - [x] 2026-05-10 实现 `SysUser` 后端 CRUD：新增 `/api/sys/user/*` 列表/创建/更新/删除接口、Swagger 注释与 `logic` 层真实 ORM 测试，覆盖密码加密、重名校验、默认排序和软删除。
 - [x] 2026-05-10 接入 `SysUser` 前端管理页：新增 `/system/user` 路由、`sysUser` API 封装与抽屉表单 CRUD 页面，并完成前端构建验证。
+
+- [x] 2026-05-11 �Ƴ� SysUser �� LastLoginAt��LastLoginIP �ֶΣ���ͬ������ǰ���չʾ����ʼ�� SQL��Swagger �� PostgreSQL Ǩ�ƽű���

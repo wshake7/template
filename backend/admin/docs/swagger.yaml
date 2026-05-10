@@ -304,10 +304,6 @@ definitions:
         type: boolean
       languageCode:
         type: string
-      lastLoginAt:
-        type: string
-      lastLoginIP:
-        type: string
       nickname:
         type: string
       remark:
@@ -1137,10 +1133,6 @@ definitions:
       isEnabled:
         type: boolean
       languageCode:
-        type: string
-      lastLoginAt:
-        type: string
-      lastLoginIP:
         type: string
       nickname:
         type: string

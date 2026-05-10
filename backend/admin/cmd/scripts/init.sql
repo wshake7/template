@@ -37,10 +37,10 @@ VALUES
 (1, NULL, NULL, '', 0, 0, 0, TRUE, 0, '超级管理员', 'root', NULL, '[]');
 
 INSERT INTO "public"."sys_user"
-("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "username", "nickname", "password", "last_login_at", "last_login_ip", "language_code")
+("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "username", "nickname", "password", "language_code")
 VALUES
-(1, '2026-05-06 14:13:43.158062+08', '2026-05-06 14:13:43.158062+08', '', 0, 0, 0, TRUE, 0, 'root', '', '$2a$04$ASoVUxXahEpdD9.dxfwsHuUw3PqQ/yAZ0gD2KnqtMAqSGZ4VZCSVO', NULL, '', ''),
-(2, '2026-05-06 14:13:43.159636+08', '2026-05-06 14:13:43.159636+08', '', 0, 0, 0, TRUE, 0, 'admin', '', '$2a$04$ASoVUxXahEpdD9.dxfwsHuUw3PqQ/yAZ0gD2KnqtMAqSGZ4VZCSVO', NULL, '', '');
+(1, '2026-05-06 14:13:43.158062+08', '2026-05-06 14:13:43.158062+08', '', 0, 0, 0, TRUE, 0, 'root', '', '$2a$04$ASoVUxXahEpdD9.dxfwsHuUw3PqQ/yAZ0gD2KnqtMAqSGZ4VZCSVO', ''),
+(2, '2026-05-06 14:13:43.159636+08', '2026-05-06 14:13:43.159636+08', '', 0, 0, 0, TRUE, 0, 'admin', '', '$2a$04$ASoVUxXahEpdD9.dxfwsHuUw3PqQ/yAZ0gD2KnqtMAqSGZ4VZCSVO', '');
 
 INSERT INTO "public"."sys_user_role"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "user_id", "role_id", "deleted_at")

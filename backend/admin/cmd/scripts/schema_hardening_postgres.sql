@@ -38,6 +38,8 @@ ALTER TABLE "public"."sys_data_permission"
     ALTER COLUMN "scope_field" SET DEFAULT 'id';
 
 ALTER TABLE "public"."sys_user"
+    DROP COLUMN IF EXISTS "last_login_at",
+    DROP COLUMN IF EXISTS "last_login_ip",
     ALTER COLUMN "language_code" SET DEFAULT '';
 
 ALTER TABLE "public"."sys_api_log"

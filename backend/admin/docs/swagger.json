@@ -1863,12 +1863,6 @@
         "languageCode": {
           "type": "string"
         },
-        "lastLoginAt": {
-          "type": "string"
-        },
-        "lastLoginIP": {
-          "type": "string"
-        },
         "nickname": {
           "type": "string"
         },
@@ -3088,12 +3082,6 @@
           "type": "boolean"
         },
         "languageCode": {
-          "type": "string"
-        },
-        "lastLoginAt": {
-          "type": "string"
-        },
-        "lastLoginIP": {
           "type": "string"
         },
         "nickname": {

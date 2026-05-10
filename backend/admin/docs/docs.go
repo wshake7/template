@@ -1870,12 +1870,6 @@ const docTemplate = `{
                 "languageCode": {
                     "type": "string"
                 },
-                "lastLoginAt": {
-                    "type": "string"
-                },
-                "lastLoginIP": {
-                    "type": "string"
-                },
                 "nickname": {
                     "type": "string"
                 },
@@ -3095,12 +3089,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "languageCode": {
-                    "type": "string"
-                },
-                "lastLoginAt": {
-                    "type": "string"
-                },
-                "lastLoginIP": {
                     "type": "string"
                 },
                 "nickname": {
