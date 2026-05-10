@@ -40,33 +40,22 @@ func newSysUserRole(db *gorm.DB, opts ...gen.DOOption) sysUserRole {
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("SysUser", "models.SysUser"),
-		SysRoles: struct {
-			field.RelationField
-			ParentSysRole struct {
-				field.RelationField
-			}
-			Children struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("SysUser.SysRoles", "models.SysRole"),
-			ParentSysRole: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("SysUser.SysRoles.ParentSysRole", "models.SysRole"),
-			},
-			Children: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("SysUser.SysRoles.Children", "models.SysRole"),
-			},
-		},
 	}
 
 	_sysUserRole.SysRole = sysUserRoleBelongsToSysRole{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("SysRole", "models.SysRole"),
+		ParentSysRole: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("SysRole.ParentSysRole", "models.SysRole"),
+		},
+		Children: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("SysRole.Children", "models.SysRole"),
+		},
 	}
 
 	_sysUserRole.fillFieldMap()
@@ -164,16 +153,6 @@ type sysUserRoleBelongsToSysUser struct {
 	db *gorm.DB
 
 	field.RelationField
-
-	SysRoles struct {
-		field.RelationField
-		ParentSysRole struct {
-			field.RelationField
-		}
-		Children struct {
-			field.RelationField
-		}
-	}
 }
 
 func (a sysUserRoleBelongsToSysUser) Where(conds ...field.Expr) *sysUserRoleBelongsToSysUser {
@@ -255,6 +234,13 @@ type sysUserRoleBelongsToSysRole struct {
 	db *gorm.DB
 
 	field.RelationField
+
+	ParentSysRole struct {
+		field.RelationField
+	}
+	Children struct {
+		field.RelationField
+	}
 }
 
 func (a sysUserRoleBelongsToSysRole) Where(conds ...field.Expr) *sysUserRoleBelongsToSysRole {

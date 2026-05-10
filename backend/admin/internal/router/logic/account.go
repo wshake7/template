@@ -40,7 +40,6 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	sysUser := query.SysUser
 	sysRole := query.SysRole
 	result, err := sysUser.
-		Preload(sysUser.SysRoles.Select(sysRole.ID, sysRole.Code).On(sysRole.IsEnabled.Is(true))).
 		Where(sysUser.Username.Eq(req.Username)).
 		Select(sysUser.ID, sysUser.Username, sysUser.Password).
 		First()
@@ -56,10 +55,23 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	if !passwd.Match(req.Pwd, result.Password) {
 		return nil, errors.New("用户名或密码无效")
 	}
-	roles := result.SysRoles
-	roleCodes := make([]string, 0, len(roles))
-	roleIDs := make([]uint64, 0, len(roles))
-	for _, role := range roles {
+	sysUserRole := query.SysUserRole
+	userRoles, err := sysUserRole.
+		Select(sysUserRole.RoleID).
+		Preload(sysUserRole.SysRole.Select(sysRole.ID, sysRole.Code).On(sysRole.IsEnabled.Is(true))).
+		Where(sysUserRole.UserID.Eq(result.ID)).
+		Find()
+	if err != nil {
+		logger.Error("鑾峰彇鐢ㄦ埛瑙掕壊澶辫触", zap.Error(err), zap.Uint64("userID", result.ID))
+		return nil, errors.New("鐧诲綍澶辫触")
+	}
+	roleCodes := make([]string, 0, len(userRoles))
+	roleIDs := make([]uint64, 0, len(userRoles))
+	for _, userRole := range userRoles {
+		if userRole == nil || userRole.SysRole == nil {
+			continue
+		}
+		role := userRole.SysRole
 		if role.Code != "" {
 			roleCodes = append(roleCodes, role.Code)
 		}

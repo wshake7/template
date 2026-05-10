@@ -40,21 +40,6 @@ func newSysUser(db *gorm.DB, opts ...gen.DOOption) sysUser {
 	_sysUser.Nickname = field.NewString(tableName, "nickname")
 	_sysUser.Password = field.NewString(tableName, "password")
 	_sysUser.LanguageCode = field.NewString(tableName, "language_code")
-	_sysUser.SysRoles = sysUserManyToManySysRoles{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("SysRoles", "models.SysRole"),
-		ParentSysRole: struct {
-			field.RelationField
-		}{
-			RelationField: field.NewRelation("SysRoles.ParentSysRole", "models.SysRole"),
-		},
-		Children: struct {
-			field.RelationField
-		}{
-			RelationField: field.NewRelation("SysRoles.Children", "models.SysRole"),
-		},
-	}
 
 	_sysUser.fillFieldMap()
 
@@ -78,7 +63,6 @@ type sysUser struct {
 	Nickname     field.String // 昵称
 	Password     field.String // 密码
 	LanguageCode field.String // 语言代码
-	SysRoles     sysUserManyToManySysRoles
 
 	fieldMap map[string]field.Expr
 }
@@ -124,7 +108,7 @@ func (s *sysUser) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysUser) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 14)
+	s.fieldMap = make(map[string]field.Expr, 13)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
@@ -138,108 +122,16 @@ func (s *sysUser) fillFieldMap() {
 	s.fieldMap["nickname"] = s.Nickname
 	s.fieldMap["password"] = s.Password
 	s.fieldMap["language_code"] = s.LanguageCode
-
 }
 
 func (s sysUser) clone(db *gorm.DB) sysUser {
 	s.sysUserDo.ReplaceConnPool(db.Statement.ConnPool)
-	s.SysRoles.db = db.Session(&gorm.Session{Initialized: true})
-	s.SysRoles.db.Statement.ConnPool = db.Statement.ConnPool
 	return s
 }
 
 func (s sysUser) replaceDB(db *gorm.DB) sysUser {
 	s.sysUserDo.ReplaceDB(db)
-	s.SysRoles.db = db.Session(&gorm.Session{})
 	return s
-}
-
-type sysUserManyToManySysRoles struct {
-	db *gorm.DB
-
-	field.RelationField
-
-	ParentSysRole struct {
-		field.RelationField
-	}
-	Children struct {
-		field.RelationField
-	}
-}
-
-func (a sysUserManyToManySysRoles) Where(conds ...field.Expr) *sysUserManyToManySysRoles {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a sysUserManyToManySysRoles) WithContext(ctx context.Context) *sysUserManyToManySysRoles {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a sysUserManyToManySysRoles) Session(session *gorm.Session) *sysUserManyToManySysRoles {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a sysUserManyToManySysRoles) Model(m *models.SysUser) *sysUserManyToManySysRolesTx {
-	return &sysUserManyToManySysRolesTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a sysUserManyToManySysRoles) Unscoped() *sysUserManyToManySysRoles {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type sysUserManyToManySysRolesTx struct{ tx *gorm.Association }
-
-func (a sysUserManyToManySysRolesTx) Find() (result []*models.SysRole, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a sysUserManyToManySysRolesTx) Append(values ...*models.SysRole) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a sysUserManyToManySysRolesTx) Replace(values ...*models.SysRole) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a sysUserManyToManySysRolesTx) Delete(values ...*models.SysRole) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a sysUserManyToManySysRolesTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a sysUserManyToManySysRolesTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a sysUserManyToManySysRolesTx) Unscoped() *sysUserManyToManySysRolesTx {
-	a.tx = a.tx.Unscoped()
-	return &a
 }
 
 type sysUserDo struct{ gen.DO }

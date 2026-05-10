@@ -10,3 +10,5 @@
 - [x] 2026-05-10 接入 `SysUser` 前端管理页：新增 `/system/user` 路由、`sysUser` API 封装与抽屉表单 CRUD 页面，并完成前端构建验证。
 
 - [x] 2026-05-11 �Ƴ� SysUser �� LastLoginAt��LastLoginIP �ֶΣ���ͬ������ǰ���չʾ����ʼ�� SQL��Swagger �� PostgreSQL Ǩ�ƽű���
+
+- [x] 2026-05-11 移除 SysUser.SysRoles 关联字段，登录角色逻辑改为直接查询 SysUserRole。

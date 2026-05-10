@@ -59,27 +59,6 @@ func newSysApiLog(db *gorm.DB, opts ...gen.DOOption) sysApiLog {
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("SysUser", "models.SysUser"),
-		SysRoles: struct {
-			field.RelationField
-			ParentSysRole struct {
-				field.RelationField
-			}
-			Children struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("SysUser.SysRoles", "models.SysRole"),
-			ParentSysRole: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("SysUser.SysRoles.ParentSysRole", "models.SysRole"),
-			},
-			Children: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("SysUser.SysRoles.Children", "models.SysRole"),
-			},
-		},
 	}
 
 	_sysApiLog.fillFieldMap()
@@ -229,16 +208,6 @@ type sysApiLogBelongsToSysUser struct {
 	db *gorm.DB
 
 	field.RelationField
-
-	SysRoles struct {
-		field.RelationField
-		ParentSysRole struct {
-			field.RelationField
-		}
-		Children struct {
-			field.RelationField
-		}
-	}
 }
 
 func (a sysApiLogBelongsToSysUser) Where(conds ...field.Expr) *sysApiLogBelongsToSysUser {
