@@ -55,6 +55,7 @@ type RespResourceMenuNode struct {
 	Component   string                  `json:"component"`
 	Icon        string                  `json:"icon"`
 	Order       int32                   `json:"order"`
+	SortOrder   int32                   `json:"sortOrder"`
 	Hidden      bool                    `json:"hidden"`
 	Authorities []string                `json:"authorities"`
 	IsUrl       bool                    `json:"isUrl"`
@@ -599,6 +600,7 @@ func resourceMenuToNode(item *models.SysResourceMenu) *RespResourceMenuNode {
 		Component:   item.Component,
 		Icon:        stringFromAny(metadata["icon"]),
 		Order:       int32FromAny(metadata["order"]),
+		SortOrder:   item.SortOrder.SortOrder,
 		Hidden:      boolFromAny(metadata["hidden"]),
 		Authorities: stringsFromAny(metadata["authorities"]),
 		IsUrl:       item.MenuType == MenuTypeLink,
@@ -607,8 +609,8 @@ func resourceMenuToNode(item *models.SysResourceMenu) *RespResourceMenuNode {
 
 func sortResourceMenuNodeNodes(nodes []*RespResourceMenuNode) {
 	slices.SortFunc(nodes, func(a, b *RespResourceMenuNode) int {
-		if a.Order != b.Order {
-			return int(a.Order - b.Order)
+		if a.SortOrder != b.SortOrder {
+			return int(a.SortOrder - b.SortOrder)
 		}
 		return int(a.ID - b.ID)
 	})

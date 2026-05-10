@@ -2699,6 +2699,9 @@ const docTemplate = `{
                 },
                 "redirect": {
                     "type": "string"
+                },
+                "sortOrder": {
+                    "type": "integer"
                 }
             }
         },

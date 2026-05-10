@@ -967,6 +967,8 @@ definitions:
         type: string
       redirect:
         type: string
+      sortOrder:
+        type: integer
     type: object
   internal_router_logic.RespSysResourceApi:
     properties:

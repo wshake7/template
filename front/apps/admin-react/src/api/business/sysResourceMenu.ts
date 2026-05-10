@@ -39,6 +39,7 @@ export interface ResourceMenuNode {
   component: string
   icon: string
   order: number
+  sortOrder?: number
   hidden: boolean
   authorities: string[]
   isUrl: boolean
