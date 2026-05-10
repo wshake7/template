@@ -40,13 +40,11 @@ func (SysResourceMenu) TableName() string {
 
 type CatalogMeta struct {
 	Icon   string `json:"icon"`
-	Order  int32  `json:"order"`
 	Hidden bool   `json:"hidden"`
 }
 
 type MenuMeta struct {
 	Icon   string `json:"icon"`
-	Order  int32  `json:"order"`
 	Hidden bool   `json:"hidden"`
 }
 

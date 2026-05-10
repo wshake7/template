@@ -15,7 +15,7 @@ let jsonHighlighterPromise: Promise<{
   codeToHtml: (code: string, options: { lang: string, theme: string }) => string
 }> | undefined
 
-export const Route = createFileRoute('/_app/system/api/log')({
+export const Route = createFileRoute('/_app/logger/api/log')({
   staticData: {
     menu: {
       name: 'API日志',

@@ -62,7 +62,7 @@ interface CachedTabPaneRemoveAction {
 type CachedTabPaneAction = CachedTabPaneNavigateAction | CachedTabPaneRemoveAction
 
 function sortDynamicMenuNode(a: ResourceMenuNode, b: ResourceMenuNode) {
-  const orderDiff = (a.sortOrder ?? a.order ?? 0) - (b.sortOrder ?? b.order ?? 0)
+  const orderDiff = (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
   return orderDiff || a.id - b.id
 }
 

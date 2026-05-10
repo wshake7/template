@@ -54,7 +54,6 @@ type RespResourceMenuNode struct {
 	Name        string                  `json:"name"`
 	Component   string                  `json:"component"`
 	Icon        string                  `json:"icon"`
-	Order       int32                   `json:"order"`
 	SortOrder   int32                   `json:"sortOrder"`
 	Hidden      bool                    `json:"hidden"`
 	Authorities []string                `json:"authorities"`
@@ -375,9 +374,6 @@ func normalizeResourceMenuMetadata(metadata datatypes.JSONMap) {
 	if metadata == nil {
 		return
 	}
-	if order, ok := metadata["order"]; ok {
-		metadata["order"] = int32FromAny(order)
-	}
 	if hidden, ok := metadata["hidden"]; ok {
 		metadata["hidden"] = boolFromAny(hidden)
 	}
@@ -599,7 +595,6 @@ func resourceMenuToNode(item *models.SysResourceMenu) *RespResourceMenuNode {
 		Name:        item.Name,
 		Component:   item.Component,
 		Icon:        stringFromAny(metadata["icon"]),
-		Order:       int32FromAny(metadata["order"]),
 		SortOrder:   item.SortOrder.SortOrder,
 		Hidden:      boolFromAny(metadata["hidden"]),
 		Authorities: stringsFromAny(metadata["authorities"]),

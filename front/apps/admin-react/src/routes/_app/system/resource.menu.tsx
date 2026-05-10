@@ -85,7 +85,7 @@ const ResourceMenuFormSchema = z.object({
   name: z.string(),
   component: z.string().optional(),
   icon: z.string().optional(),
-  sortOrder: z.number().min(0, '排序不能小于 0'),
+  sortOrder: z.number().default(0),
   hidden: z.boolean(),
   isEnabled: z.boolean(),
   authorities: z.string().optional(),
@@ -655,7 +655,6 @@ function ResourceMenuManagement() {
             name="sortOrder"
             label="排序"
             placeholder="请输入"
-            min={0}
             rules={rules}
             fieldProps={{ precision: 0 }}
           />

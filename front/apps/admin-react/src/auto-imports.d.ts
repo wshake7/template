@@ -29,6 +29,7 @@ declare global {
   const ResourceMenuApi: typeof import('./api/business/sysResourceMenu').ResourceMenuApi
   const RoleApi: typeof import('./api/business/sysRole').RoleApi
   const Suspense: typeof import('react').Suspense
+  const SysUserApi: typeof import('./api/business/sysUser').SysUserApi
   const TAB_REFRESH_INTERVAL: typeof import('./config/tabs').TAB_REFRESH_INTERVAL
   const XHeader: typeof import('./domains/http').XHeader
   const aesDecrypt: typeof import('./utils/encrypt').aesDecrypt
@@ -225,4 +226,7 @@ declare global {
   // @ts-ignore
   export type { ResourceMenuType, ResourceMenuMetadata, ResourceMenu, ResourceMenuNode, ReqResourceMenuCreate, ReqResourceMenuUpdate, ReqResourceMenuBatchDelete } from './api/business/sysResourceMenu'
   import('./api/business/sysResourceMenu')
+  // @ts-ignore
+  export type { SysUser, ReqSysUserCreate, ReqSysUserUpdate, ReqSysUserBatchDelete } from './api/business/sysUser'
+  import('./api/business/sysUser')
 }

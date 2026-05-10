@@ -65,7 +65,7 @@ const ResourceApiFormSchema = z.object({
   module: z.string().optional(),
   path: z.string(),
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']),
-  sortOrder: z.number().min(0, '排序不能小于 0'),
+  sortOrder: z.number().default(0),
   isEnabled: z.boolean(),
   remark: z.string().optional(),
 })
