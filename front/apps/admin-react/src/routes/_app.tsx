@@ -1,6 +1,6 @@
 import type { MenuDataItem, ProSettings } from '@ant-design/pro-components'
 import type { FormListFieldData } from 'antd'
-import type { ComponentType } from 'react'
+import type { ComponentType, CSSProperties } from 'react'
 import type { ResourceMenuNode } from '~/api/business/sysResourceMenu'
 
 import type { ChangePwdFormValues } from '~/components/business/account/changePwdModal'
@@ -195,6 +195,20 @@ const CachedTabPaneContent = memo(({ path }: { path: string }) => {
 
   return <Component />
 })
+
+function getCachedTabPaneStyle(active: boolean): CSSProperties {
+  return {
+    inset: active ? undefined : 0,
+    opacity: active ? 1 : 0,
+    pointerEvents: active ? 'auto' : 'none',
+    position: active ? 'relative' : 'absolute',
+    transform: active ? 'translate3d(0, 0, 0)' : 'translate3d(0, 8px, 0)',
+    transition: 'opacity 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+    width: '100%',
+    willChange: 'opacity, transform',
+    zIndex: active ? 1 : 0,
+  }
+}
 
 function AppLayout() {
   const [config, setConfig] = useState<Partial<ProSettings>>({
@@ -519,22 +533,25 @@ function AppLayout() {
                 type: 'editable-card',
               }}
             >
-              <ProCard style={{ minHeight: 1000 }}>
-                {renderedTabs.length > 0
-                  ? renderedTabs.map((item) => {
-                      const pane = cachedTabPanes[item.key] ?? { version: 0 }
-                      const active = item.key === interactivePathname
+              <ProCard style={{ minHeight: 1000, overflow: 'hidden' }}>
+                <div style={{ position: 'relative' }}>
+                  {renderedTabs.length > 0
+                    ? renderedTabs.map((item) => {
+                        const pane = cachedTabPanes[item.key] ?? { version: 0 }
+                        const active = item.key === interactivePathname
 
-                      return (
-                        <div
-                          key={`${item.key}:${pane.version}`}
-                          style={{ display: active ? 'block' : 'none' }}
-                        >
-                          <CachedTabPaneContent path={item.key} />
-                        </div>
-                      )
-                    })
-                  : <Outlet />}
+                        return (
+                          <div
+                            aria-hidden={!active}
+                            key={`${item.key}:${pane.version}`}
+                            style={getCachedTabPaneStyle(active)}
+                          >
+                            <CachedTabPaneContent path={item.key} />
+                          </div>
+                        )
+                      })
+                    : <Outlet />}
+                </div>
               </ProCard>
             </PageContainer>
 
