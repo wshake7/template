@@ -4,7 +4,7 @@ import type { ComponentType } from 'react'
 import type { ResourceMenuNode } from '~/api/business/sysResourceMenu'
 
 import type { ChangePwdFormValues } from '~/components/business/account/changePwdModal'
-import { LockOutlined, LogoutOutlined } from '@ant-design/icons'
+import { CloseCircleOutlined, CloseOutlined, ExportOutlined, LockOutlined, LogoutOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import {
   PageContainer,
@@ -26,7 +26,7 @@ import { ConfigProvider, Dropdown } from 'antd'
 
 import useApp from 'antd/es/app/useApp'
 
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import ChangePwdModal from '~/components/business/account/changePwdModal'
 import { TAB_REFRESH_INTERVAL } from '~/config/tabs'
@@ -58,7 +58,22 @@ interface CachedTabPaneRemoveAction {
   }
 }
 
-type CachedTabPaneAction = CachedTabPaneNavigateAction | CachedTabPaneRemoveAction
+interface CachedTabPaneRemoveAllAction {
+  type: 'REMOVE_ALL'
+}
+
+interface CachedTabPaneRefreshAction {
+  type: 'REFRESH'
+  payload: {
+    key: string
+  }
+}
+
+type CachedTabPaneAction
+  = | CachedTabPaneNavigateAction
+    | CachedTabPaneRemoveAction
+    | CachedTabPaneRemoveAllAction
+    | CachedTabPaneRefreshAction
 
 function sortDynamicMenuNode(a: ResourceMenuNode, b: ResourceMenuNode) {
   const orderDiff = (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
@@ -151,6 +166,20 @@ function cachedTabPaneReducer(
     return next
   }
 
+  if (action.type === 'REMOVE_ALL') {
+    return {}
+  }
+
+  if (action.type === 'REFRESH' && action.payload.key) {
+    const pane = state[action.payload.key] ?? { version: 0 }
+    return {
+      ...state,
+      [action.payload.key]: {
+        version: pane.version + 1,
+      },
+    }
+  }
+
   return state
 }
 
@@ -175,6 +204,7 @@ function AppLayout() {
   const items = useMenuTabsStore(state => state.items)
   const add = useMenuTabsStore(state => state.add)
   const remove = useMenuTabsStore(state => state.remove)
+  const removeAll = useMenuTabsStore(state => state.removeAll)
   const dynamicMenuTree = useResourceMenuStore(state => state.dynamicMenuTree)
   const setDynamicMenuTree = useResourceMenuStore(state => state.setDynamicMenuTree)
   const cachedDynamicMenuItems = useMemo(
@@ -249,6 +279,85 @@ function AppLayout() {
     }
     return [...tabMap.values()]
   }, [currentMenuTab, items])
+
+  const closeTab = useCallback((key: string) => {
+    dispatch({
+      type: 'REMOVE',
+      payload: { key },
+    })
+    remove(key)
+  }, [remove])
+
+  const closeAllTabs = useCallback(() => {
+    dispatch({ type: 'REMOVE_ALL' })
+    removeAll()
+    navigate({ to: '/' })
+  }, [navigate, removeAll])
+
+  const refreshTab = useCallback((key: string) => {
+    dispatch({
+      type: 'REFRESH',
+      payload: { key },
+    })
+  }, [])
+
+  const openTabInNewWindow = useCallback((key: string) => {
+    const url = new URL(key, window.location.origin)
+    window.open(url.toString(), '_blank', 'noopener,noreferrer')
+  }, [])
+
+  const tabList = useMemo(() => {
+    return renderedTabs.map(item => ({
+      ...item,
+      label: (
+        <Dropdown
+          trigger={['contextMenu']}
+          menu={{
+            items: [
+              {
+                key: 'refresh',
+                icon: <ReloadOutlined />,
+                label: '刷新',
+              },
+              {
+                key: 'close',
+                icon: <CloseOutlined />,
+                label: '关闭',
+              },
+              {
+                key: 'closeAll',
+                icon: <CloseCircleOutlined />,
+                label: '全部关闭',
+              },
+              {
+                key: 'openNewWindow',
+                icon: <ExportOutlined />,
+                label: '新窗口打开',
+              },
+            ],
+            onClick: ({ key, domEvent }) => {
+              domEvent.stopPropagation()
+              if (key === 'openNewWindow') {
+                openTabInNewWindow(item.key)
+              }
+              else if (key === 'refresh') {
+                refreshTab(item.key)
+              }
+              else if (key === 'close') {
+                closeTab(item.key)
+              }
+              else if (key === 'closeAll') {
+                closeAllTabs()
+              }
+            },
+          }}
+        >
+          <span onContextMenu={event => event.stopPropagation()}>{item.label}</span>
+        </Dropdown>
+      ),
+    }))
+  }, [closeAllTabs, closeTab, openTabInNewWindow, refreshTab, renderedTabs])
+
   /** ---------------- handlers ---------------- */
 
   function onMenuClick(item: MenuDataItem & { isUrl: boolean, onClick: () => void }) {
@@ -377,7 +486,7 @@ function AppLayout() {
             <PageContainer
               fixedHeader
               title={false}
-              tabList={items}
+              tabList={tabList}
               tabProps={{
                 activeKey: pathname,
                 hideAdd: true,
@@ -388,12 +497,8 @@ function AppLayout() {
                 onEdit(e, action) {
                   if (action === 'remove') {
                     if (typeof e === 'string') {
-                      dispatch({
-                        type: 'REMOVE',
-                        payload: { key: e },
-                      })
+                      closeTab(e)
                     }
-                    remove(e)
                   }
                 },
                 type: 'editable-card',

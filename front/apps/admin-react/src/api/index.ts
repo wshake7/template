@@ -45,7 +45,7 @@ const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthenticati
             },
           },
         })
-        router.navigate({ to: '/dashboard' })
+        router.navigate({ to: '/' })
       }
     }
   },

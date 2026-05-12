@@ -14,6 +14,7 @@ interface MenuTabsStore {
   items: MenuTabsItemProps[]
   add: (item: MenuTabsItemProps) => void
   remove: (targetKey: TargetKey) => void
+  removeAll: () => void
 }
 
 export const useMenuTabsStore = create<MenuTabsStore>()(
@@ -35,12 +36,18 @@ export const useMenuTabsStore = create<MenuTabsStore>()(
       if (index === -1) { return }
       const newItems = items.filter(item => item.key !== targetKey)
       let nextKey: string | undefined
-      if (newItems.length > 0) {
-        if (index < newItems.length) {
-          nextKey = newItems[index].key
+      const activeKey = router.state.location.pathname
+      if (targetKey === activeKey) {
+        if (newItems.length > 0) {
+          if (index < newItems.length) {
+            nextKey = newItems[index].key
+          }
+          else {
+            nextKey = newItems[index - 1].key
+          }
         }
         else {
-          nextKey = newItems[index - 1].key
+          nextKey = '/'
         }
       }
       set((state) => {
@@ -49,6 +56,12 @@ export const useMenuTabsStore = create<MenuTabsStore>()(
       if (nextKey) {
         router.navigate({ to: nextKey })
       }
+    },
+
+    removeAll() {
+      set((state) => {
+        state.items = []
+      })
     },
   })),
 )
