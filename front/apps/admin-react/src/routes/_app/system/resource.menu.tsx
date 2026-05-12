@@ -28,18 +28,10 @@ import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import AntIconPicker from '~/components/common/antIconPicker'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { gMessage } from '~/utils/antd'
-import { AntIcon, renderAntIcon } from '~/utils/antIcons'
+import { AntIcon } from '~/utils/antIcons'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/system/resource/menu')({
-  staticData: {
-    menu: {
-      name: '菜单资源',
-      menuType: 'menu',
-      icon: renderAntIcon('MenuOutlined'),
-      order: 40,
-    },
-  },
   staleTime: 1000 * 60 * 2,
   component: ResourceMenuManagement,
 })

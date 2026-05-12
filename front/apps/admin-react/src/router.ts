@@ -1,4 +1,3 @@
-import type { MenuDataItem } from '@ant-design/pro-components/es/layout/typing'
 import { createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 
@@ -13,16 +12,9 @@ export const router = createRouter({
   },
 })
 
-type MenuType = 'menu' | 'catalog' | 'title'
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
-  }
-  interface StaticDataRouteOption {
-    menu?: {
-      menuType?: MenuType
-      order?: number
-    } & MenuDataItem
   }
 }

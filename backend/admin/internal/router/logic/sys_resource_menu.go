@@ -126,6 +126,29 @@ func (*SysResourceMenuHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*g
 // @Success 200 {object} res.Response{data=[]RespResourceMenuNode} "成功"
 // @Router /api/sys/resource/menu/tree [get]
 func (*SysResourceMenuHandler) Tree(ctx *handler.Ctx) (*[]*RespResourceMenuNode, error) {
+	roleIDs := ctx.SessionInfo.RoleIDs
+	if len(roleIDs) == 0 {
+		tree := make([]*RespResourceMenuNode, 0)
+		return &tree, nil
+	}
+
+	roleMenu := query.SysRoleMenu
+	roleMenus, err := roleMenu.
+		Select(roleMenu.MenuID).
+		Where(roleMenu.RoleID.In(roleIDs...)).
+		Find()
+	if err != nil {
+		return nil, res.FailDefault
+	}
+	allowedMenuIDs := make(map[uint64]bool, len(roleMenus))
+	for _, item := range roleMenus {
+		allowedMenuIDs[item.MenuID] = true
+	}
+	if len(allowedMenuIDs) == 0 {
+		tree := make([]*RespResourceMenuNode, 0)
+		return &tree, nil
+	}
+
 	sysResourceMenu := query.SysResourceMenu
 	items, err := sysResourceMenu.
 		Where(
@@ -137,6 +160,7 @@ func (*SysResourceMenuHandler) Tree(ctx *handler.Ctx) (*[]*RespResourceMenuNode,
 	if err != nil {
 		return nil, res.FailDefault
 	}
+	items = filterAuthorizedResourceMenus(items, allowedMenuIDs)
 	tree := buildResourceMenuNodeTree(items)
 	return &tree, nil
 }
@@ -582,6 +606,37 @@ func buildResourceMenuNodeTree(items []*models.SysResourceMenu) []*RespResourceM
 	}
 	sortResourceMenuNodeNodes(roots)
 	return roots
+}
+
+func filterAuthorizedResourceMenus(items []*models.SysResourceMenu, allowedMenuIDs map[uint64]bool) []*models.SysResourceMenu {
+	byID := make(map[uint64]*models.SysResourceMenu, len(items))
+	for _, item := range items {
+		if item != nil {
+			byID[item.ID] = item
+		}
+	}
+
+	visibleIDs := make(map[uint64]bool, len(allowedMenuIDs))
+	for id := range allowedMenuIDs {
+		for item := byID[id]; item != nil; {
+			if visibleIDs[item.ID] {
+				break
+			}
+			visibleIDs[item.ID] = true
+			if item.ParentID == nil {
+				break
+			}
+			item = byID[*item.ParentID]
+		}
+	}
+
+	result := make([]*models.SysResourceMenu, 0, len(visibleIDs))
+	for _, item := range items {
+		if item != nil && visibleIDs[item.ID] {
+			result = append(result, item)
+		}
+	}
+	return result
 }
 
 func resourceMenuToNode(item *models.SysResourceMenu) *RespResourceMenuNode {

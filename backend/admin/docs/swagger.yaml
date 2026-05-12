@@ -245,14 +245,6 @@ definitions:
     type: object
   admin_internal_services_orm_models.SysRole:
     properties:
-      apis:
-        items:
-          type: integer
-        type: array
-      childIDs:
-        items:
-          type: integer
-        type: array
       children:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
@@ -271,10 +263,6 @@ definitions:
         type: integer
       isEnabled:
         type: boolean
-      menus:
-        items:
-          type: integer
-        type: array
       name:
         type: string
       parentID:
@@ -308,10 +296,6 @@ definitions:
         type: string
       remark:
         type: string
-      sysRoles:
-        items:
-          $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
-        type: array
       updatedAt:
         type: string
       updatedBy:
@@ -389,6 +373,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/internal_router_logic.RespSysResourceMenu'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-internal_router_logic_RespSysRole:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespSysRole'
         type: array
       total:
         type: integer
@@ -876,6 +869,70 @@ definitions:
     required:
       - id
     type: object
+  internal_router_logic.ReqSysRoleBatchDelete:
+    properties:
+      ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+      - ids
+    type: object
+  internal_router_logic.ReqSysRoleCreate:
+    properties:
+      code:
+        maxLength: 128
+        type: string
+      isEnabled:
+        type: boolean
+      name:
+        maxLength: 255
+        type: string
+      parentID:
+        type: integer
+      remark:
+        maxLength: 255
+        type: string
+    required:
+      - code
+      - name
+    type: object
+  internal_router_logic.ReqSysRolePermissionSave:
+    properties:
+      apiIDs:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      menuIDs:
+        items:
+          type: integer
+        type: array
+    required:
+      - id
+    type: object
+  internal_router_logic.ReqSysRoleUpdate:
+    properties:
+      code:
+        maxLength: 128
+        type: string
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      name:
+        maxLength: 255
+        type: string
+      parentID:
+        type: integer
+      remark:
+        maxLength: 255
+        type: string
+    required:
+      - id
+    type: object
   internal_router_logic.ReqSysUserBatchDelete:
     properties:
       ids:
@@ -1029,6 +1086,17 @@ definitions:
       sortOrder:
         type: integer
     type: object
+  internal_router_logic.RespRolePermission:
+    properties:
+      apiIDs:
+        items:
+          type: integer
+        type: array
+      menuIDs:
+        items:
+          type: integer
+        type: array
+    type: object
   internal_router_logic.RespSysResourceApi:
     properties:
       canDelete:
@@ -1114,6 +1182,43 @@ definitions:
       updatedBy:
         type: integer
     type: object
+  internal_router_logic.RespSysRole:
+    properties:
+      canDelete:
+        type: boolean
+      canWrite:
+        type: boolean
+      children:
+        items:
+          $ref: '#/definitions/internal_router_logic.RespSysRole'
+        type: array
+      code:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: integer
+      deletedBy:
+        type: integer
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      name:
+        type: string
+      parentID:
+        type: integer
+      parentSysRole:
+        $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
+      remark:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
   internal_router_logic.RespSysUser:
     properties:
       canDelete:
@@ -1138,10 +1243,6 @@ definitions:
         type: string
       remark:
         type: string
-      sysRoles:
-        items:
-          $ref: '#/definitions/admin_internal_services_orm_models.SysRole'
-        type: array
       updatedAt:
         type: string
       updatedBy:
@@ -1991,6 +2092,158 @@ paths:
       summary: 更新菜单资源
       tags:
         - ResourceMenu
+  /api/sys/role/{id}/permissions:
+    get:
+      parameters:
+        - description: 角色 ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/internal_router_logic.RespRolePermission'
+                type: object
+      summary: 获取角色授权
+      tags:
+        - Role
+  /api/sys/role/create:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 角色创建参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqSysRoleCreate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 创建角色
+      tags:
+        - Role
+  /api/sys/role/del:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 批量删除参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqSysRoleBatchDelete'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 删除角色
+      tags:
+        - Role
+  /api/sys/role/list:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-internal_router_logic_RespSysRole'
+                type: object
+      summary: 获取角色列表
+      tags:
+        - Role
+  /api/sys/role/permissions:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 角色授权参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqSysRolePermissionSave'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 保存角色授权
+      tags:
+        - Role
+  /api/sys/role/tree:
+    get:
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    items:
+                      $ref: '#/definitions/internal_router_logic.RespSysRole'
+                    type: array
+                type: object
+      summary: 获取角色树
+      tags:
+        - Role
+  /api/sys/role/update:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: 角色更新参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqSysRoleUpdate'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/admin_internal_fiberc_res.Response'
+      summary: 更新角色
+      tags:
+        - Role
   /api/sys/user/create:
     post:
       consumes:

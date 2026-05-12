@@ -23,18 +23,9 @@ import z from 'zod'
 import { SysUserApi } from '~/api/business/sysUser'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { gMessage } from '~/utils/antd'
-import { renderAntIcon } from '~/utils/antIcons'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/account/user')({
-  staticData: {
-    menu: {
-      name: '用户管理',
-      menuType: 'menu',
-      icon: renderAntIcon('UserOutlined'),
-      order: 45,
-    },
-  },
   staleTime: 1000 * 60 * 2,
   component: UserManagement,
 })

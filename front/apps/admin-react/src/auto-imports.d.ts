@@ -42,8 +42,6 @@ declare global {
   const api: typeof import('./api/index').default
   const arrayBufferToBase64: typeof import('./utils/encrypt').arrayBufferToBase64
   const base64ToArrayBuffer: typeof import('./utils/encrypt').base64ToArrayBuffer
-  const buildMenuItems: typeof import('./utils/menu').buildMenuItems
-  const buildMenuTree: typeof import('./utils/menu').buildMenuTree
   const cache: typeof import('react').cache
   const cacheSignal: typeof import('react').cacheSignal
   const changePwdModal: typeof import('./components/business/account/changePwdModal').default
@@ -52,21 +50,16 @@ declare global {
   const createRef: typeof import('react').createRef
   const defaultZodValidator: typeof import('./utils/zod').defaultZodValidator
   const fieldZodValidator: typeof import('./utils/zod').fieldZodValidator
-  const filterValidMenu: typeof import('./utils/menu').filterValidMenu
   const forwardRef: typeof import('react').forwardRef
   const gMessage: typeof import('./utils/antd').gMessage
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey
   const getAntIconStyle: typeof import('./utils/antIcons').getAntIconStyle
-  const getMenu: typeof import('./utils/menu').getMenu
-  const getOrder: typeof import('./utils/menu').getOrder
   const globalZodValidator: typeof import('./utils/zod').globalZodValidator
-  const groupByParentId: typeof import('./utils/menu').groupByParentId
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
   const renderAntIcon: typeof import('./utils/antIcons').renderAntIcon
   const renderDictEntryLabel: typeof import('./components/dictEntryLabel').renderDictEntryLabel
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt
-  const sortByOrder: typeof import('./utils/menu').sortByOrder
   const startTransition: typeof import('react').startTransition
   const uriSort: typeof import('./utils/encrypt').uriSort
   const use: typeof import('react').use
@@ -226,6 +219,9 @@ declare global {
   // @ts-ignore
   export type { ResourceMenuType, ResourceMenuMetadata, ResourceMenu, ResourceMenuNode, ReqResourceMenuCreate, ReqResourceMenuUpdate, ReqResourceMenuBatchDelete } from './api/business/sysResourceMenu'
   import('./api/business/sysResourceMenu')
+  // @ts-ignore
+  export type { SysRole, ReqSysRoleCreate, ReqSysRoleUpdate, ReqSysRoleBatchDelete, RolePermission, ReqRolePermissionSave } from './api/business/sysRole'
+  import('./api/business/sysRole')
   // @ts-ignore
   export type { SysUser, ReqSysUserCreate, ReqSysUserUpdate, ReqSysUserBatchDelete } from './api/business/sysUser'
   import('./api/business/sysUser')

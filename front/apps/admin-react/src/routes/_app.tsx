@@ -32,7 +32,6 @@ import ChangePwdModal from '~/components/business/account/changePwdModal'
 import { TAB_REFRESH_INTERVAL } from '~/config/tabs'
 import { useResourceMenuStore } from '~/stores/resourceMenu'
 import { renderAntIcon } from '~/utils/antIcons'
-import { buildMenuTree } from '~/utils/menu'
 
 export const Route = createFileRoute('/_app')({
   component: AppLayout,
@@ -85,6 +84,7 @@ function toDynamicMenuItems(nodes: ResourceMenuNode[], router: ReturnType<typeof
         name: node.name,
         icon: renderAntIcon(node.icon),
         isUrl,
+        menuType: node.menuType,
         routes: children.length > 0 ? children : undefined,
       } as MenuDataItem
     })
@@ -168,7 +168,6 @@ function AppLayout() {
   const navigate = useNavigate()
   const router = useRouter()
 
-  // ⭐ 唯一数据源
   const pathname = useRouterState({
     select: s => s.location.pathname,
   })
@@ -178,17 +177,12 @@ function AppLayout() {
   const remove = useMenuTabsStore(state => state.remove)
   const dynamicMenuTree = useResourceMenuStore(state => state.dynamicMenuTree)
   const setDynamicMenuTree = useResourceMenuStore(state => state.setDynamicMenuTree)
-  const staticMenuItems = useMemo(() => buildMenuTree(router), [router])
   const cachedDynamicMenuItems = useMemo(
     () => dynamicMenuTree.length > 0 ? toDynamicMenuItems(dynamicMenuTree, router) : undefined,
     [dynamicMenuTree, router],
   )
   const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuDataItem[]>()
-  const menuItems = dynamicMenuItems?.length
-    ? dynamicMenuItems
-    : cachedDynamicMenuItems?.length
-      ? cachedDynamicMenuItems
-      : staticMenuItems
+  const menuItems = dynamicMenuItems ?? cachedDynamicMenuItems ?? []
   const menuItemMap = useMemo(() => flattenMenuItems(menuItems), [menuItems])
   const previousPathRef = useRef(pathname)
   const [cachedTabPanes, dispatch] = useReducer(cachedTabPaneReducer, {})
@@ -204,7 +198,7 @@ function AppLayout() {
         const nodes = res.data ?? []
         setDynamicMenuTree(nodes)
         const nextItems = toDynamicMenuItems(nodes, router)
-        setDynamicMenuItems(nextItems.length > 0 ? nextItems : undefined)
+        setDynamicMenuItems(nextItems)
       })
       .catch(() => {
         if (!disposed) {
@@ -216,30 +210,19 @@ function AppLayout() {
     }
   }, [router, setDynamicMenuTree])
 
-  /** ---------------- tab 初始化（路由驱动） ---------------- */
+  /** ---------------- tab 閸掓繂顫愰崠鏍电礄鐠侯垳鏁辨す鍗炲З閿?---------------- */
 
   const currentMenuTab = useMemo(() => {
-    const allRoutes = Object.values(router.routesByPath)
-    const currentRoute = allRoutes.find(r => r.fullPath === pathname)
-    const menu = currentRoute?.options.staticData?.menu
-    const dynamicMenu = menuItemMap.get(pathname)
+    const dynamicMenu = menuItemMap.get(pathname) as (MenuDataItem & { menuType?: ResourceMenuNode['menuType'] }) | undefined
 
-    if (dynamicMenu) {
-      return {
-        key: pathname,
-        label: dynamicMenu.name,
-        icon: dynamicMenu.icon,
-      }
-    }
-
-    if (!menu || menu.menuType === 'catalog') { return null }
+    if (!dynamicMenu || dynamicMenu.menuType === 'CATALOG') { return null }
 
     return {
-      key: currentRoute.fullPath,
-      label: menu.name,
-      icon: menu.icon,
+      key: pathname,
+      label: dynamicMenu.name,
+      icon: dynamicMenu.icon,
     }
-  }, [menuItemMap, pathname, router.routesByPath])
+  }, [menuItemMap, pathname])
 
   useEffect(() => {
     if (!currentMenuTab) { return }
@@ -302,7 +285,7 @@ function AppLayout() {
 
   async function submitChangePwd(values?: ChangePwdFormValues, error?: FormListFieldData) {
     if (error || !values) {
-      app.message.error('提交失败,请检查输入')
+      app.message.error('\u63D0\u4EA4\u5931\u8D25,\u8BF7\u68C0\u67E5\u8F93\u5165')
       return false
     }
 
@@ -315,7 +298,7 @@ function AppLayout() {
     catch {
       return false
     }
-    app.message.success('修改密码成功')
+    app.message.success('娣囶喗鏁肩€靛棛鐖滈幋鎰')
     return true
   }
 
@@ -360,7 +343,7 @@ function AppLayout() {
             avatarProps={{
               src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
               size: 'small',
-              title: '七妮妮',
+              title: '\u4E03\u5996\u5996',
               render: (_, dom) => (
                 <Dropdown
                   menu={{
@@ -368,10 +351,10 @@ function AppLayout() {
                       {
                         key: 'changePwd',
                         label: (
-                          <ChangePwdModal username="七妮妮" onSubmit={submitChangePwd}>
+                          <ChangePwdModal username="\u4E03\u5996\u5996" onSubmit={submitChangePwd}>
                             <div>
                               <LockOutlined className="ant-dropdown-menu-item-icon" />
-                              <span>修改密码</span>
+                              <span>{'\u4FEE\u6539\u5BC6\u7801'}</span>
                             </div>
                           </ChangePwdModal>
                         ),
@@ -379,7 +362,7 @@ function AppLayout() {
                       {
                         key: 'logout',
                         icon: <LogoutOutlined />,
-                        label: '退出登录',
+                        label: '\u9000\u51FA\u767B\u5F55',
                         onClick: async () => {
                           AccountApi.logout()
                         },

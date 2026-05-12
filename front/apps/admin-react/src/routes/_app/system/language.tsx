@@ -1,15 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Splitter } from 'antd'
-import { renderAntIcon } from '~/utils/antIcons'
 
 export const Route = createFileRoute('/_app/system/language')({
-  staticData: {
-    menu: {
-      name: '语言管理',
-      menuType: 'menu',
-      icon: renderAntIcon('TranslationOutlined'),
-    },
-  },
   staleTime: 1000 * 60 * 2,
   component: LanguageManagement,
 })

@@ -1266,6 +1266,257 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/sys/role/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "创建角色",
+                "parameters": [
+                    {
+                        "description": "角色创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqSysRoleCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/role/del": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "删除角色",
+                "parameters": [
+                    {
+                        "description": "批量删除参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqSysRoleBatchDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/role/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "获取角色列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespSysRole"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/role/permissions": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "保存角色授权",
+                "parameters": [
+                    {
+                        "description": "角色授权参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqSysRolePermissionSave"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/role/tree": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "获取角色树",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/internal_router_logic.RespSysRole"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/role/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "更新角色",
+                "parameters": [
+                    {
+                        "description": "角色更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqSysRoleUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/role/{id}/permissions": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role"
+                ],
+                "summary": "获取角色授权",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "角色 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_router_logic.RespRolePermission"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/sys/user/create": {
             "post": {
                 "consumes": [
@@ -1781,18 +2032,6 @@ const docTemplate = `{
         "admin_internal_services_orm_models.SysRole": {
             "type": "object",
             "properties": {
-                "apis": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "childIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
                 "children": {
                     "type": "array",
                     "items": {
@@ -1819,12 +2058,6 @@ const docTemplate = `{
                 },
                 "isEnabled": {
                     "type": "boolean"
-                },
-                "menus": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 },
                 "name": {
                     "type": "string"
@@ -1875,12 +2108,6 @@ const docTemplate = `{
                 },
                 "remark": {
                     "type": "string"
-                },
-                "sysRoles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
-                    }
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2000,6 +2227,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_router_logic.RespSysResourceMenu"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-internal_router_logic_RespSysRole": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespSysRole"
                     }
                 },
                 "total": {
@@ -2706,6 +2947,100 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_router_logic.ReqSysRoleBatchDelete": {
+            "type": "object",
+            "required": [
+                "ids"
+            ],
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqSysRoleCreate": {
+            "type": "object",
+            "required": [
+                "code",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "internal_router_logic.ReqSysRolePermissionSave": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "apiIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "menuIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "internal_router_logic.ReqSysRoleUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
         "internal_router_logic.ReqSysUserBatchDelete": {
             "type": "object",
             "required": [
@@ -2933,6 +3268,23 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_router_logic.RespRolePermission": {
+            "type": "object",
+            "properties": {
+                "apiIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "menuIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "internal_router_logic.RespSysResourceApi": {
             "type": "object",
             "properties": {
@@ -3061,6 +3413,62 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_router_logic.RespSysRole": {
+            "type": "object",
+            "properties": {
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canWrite": {
+                    "type": "boolean"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespSysRole"
+                    }
+                },
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "type": "integer"
+                },
+                "deletedBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "parentSysRole": {
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "updatedBy": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_router_logic.RespSysUser": {
             "type": "object",
             "properties": {
@@ -3096,12 +3504,6 @@ const docTemplate = `{
                 },
                 "remark": {
                     "type": "string"
-                },
-                "sysRoles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin_internal_services_orm_models.SysRole"
-                    }
                 },
                 "updatedAt": {
                     "type": "string"

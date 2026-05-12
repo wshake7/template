@@ -25,18 +25,9 @@ import z from 'zod'
 import { ResourceApiApi } from '~/api/business/sysResourceApi'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { gMessage } from '~/utils/antd'
-import { renderAntIcon } from '~/utils/antIcons'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/system/resource/api')({
-  staticData: {
-    menu: {
-      name: 'API资源',
-      menuType: 'menu',
-      icon: renderAntIcon('ApiOutlined'),
-      order: 50,
-    },
-  },
   staleTime: 1000 * 60 * 2,
   component: ResourceApiManagement,
 })
