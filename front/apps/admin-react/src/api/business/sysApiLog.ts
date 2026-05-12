@@ -31,8 +31,10 @@ export interface SysApiLog {
   browserVersion: string
   clientID: string
   clientName: string
-  osName: string
-  osVersion: string
+  osName?: string
+  osVersion?: string
+  oSName?: string
+  oSVersion?: string
   createdAt: string
 }
 

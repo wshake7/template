@@ -5,17 +5,17 @@ import (
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"fmt"
+	"github.com/bytedance/sonic"
+	"github.com/gofiber/fiber/v3"
+	"github.com/mileusna/useragent"
 	"go-common/utils/coroutine"
 	"go-common/utils/function"
 	"go-common/utils/ip_util"
+	"go.uber.org/zap"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/bytedance/sonic"
-	"github.com/gofiber/fiber/v3"
-	"go.uber.org/zap"
 )
 
 const maxApiLogFieldLength = 64 * 1024
@@ -312,6 +312,15 @@ func ApiLogMiddleware(options ...Option) fiber.Handler {
 				if err != nil {
 					logger.Error("Query Ip fail", zap.Error(err))
 				}
+				ua := useragent.Parse(userAgent)
+				var clientName string
+				if ua.Device != "" {
+					clientName = ua.Device
+				} else {
+					if ua.Desktop {
+						clientName = "PC"
+					}
+				}
 				m := &models.SysApiLog{
 					RequestID:      requestID,
 					Method:         method,
@@ -333,12 +342,12 @@ func ApiLogMiddleware(options ...Option) fiber.Handler {
 					Success:        errCode == nil,
 					Location:       result.String(),
 					UserAgent:      userAgent,
-					BrowserName:    "",
-					BrowserVersion: "",
+					BrowserName:    ua.Name,
+					BrowserVersion: ua.Version,
 					ClientID:       "",
-					ClientName:     "",
-					OSName:         "",
-					OSVersion:      "",
+					ClientName:     clientName,
+					OSName:         ua.OS,
+					OSVersion:      ua.OSVersion,
 				}
 				createSysApiLog(logger, m)
 			})

@@ -166,6 +166,23 @@ function operatorName(record?: SysApiLog | null) {
   return record?.sysUser?.username || (record?.sysUserID ? String(record.sysUserID) : '-')
 }
 
+function osName(record?: SysApiLog | null) {
+  return record?.oSName || record?.osName || ''
+}
+
+function osVersion(record?: SysApiLog | null) {
+  return record?.oSVersion || record?.osVersion || ''
+}
+
+function operationPlatform(record?: SysApiLog | null) {
+  const platform = [
+    osName(record),
+    record?.browserName,
+  ].filter(Boolean).join(' ')
+
+  return platform || '-'
+}
+
 function ApiLogManagement() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailData, setDetailData] = useState<SysApiLog | null>(null)
@@ -234,6 +251,13 @@ function ApiLogManagement() {
       ellipsis: true,
     },
     {
+      title: '请求ID',
+      dataIndex: 'requestID',
+      width: 220,
+      ellipsis: true,
+      render: (_, record) => record.requestID || '-',
+    },
+    {
       title: '操作者',
       dataIndex: ['sysUser', 'username'],
       width: 120,
@@ -243,6 +267,20 @@ function ApiLogManagement() {
       title: '客户端IP',
       dataIndex: 'clientIP',
       width: 130,
+    },
+    {
+      title: '操作平台',
+      dataIndex: 'operationPlatform',
+      width: 160,
+      ellipsis: true,
+      render: (_, record) => operationPlatform(record),
+    },
+    {
+      title: '地理位置',
+      dataIndex: 'location',
+      width: 240,
+      ellipsis: true,
+      render: (_, record) => record.location || '-',
     },
     {
       title: '状态码',
@@ -377,9 +415,9 @@ function ApiLogManagement() {
                 {detailData.browserVersion}
               </Descriptions.Item>
               <Descriptions.Item label="操作系统" span={2}>
-                {detailData.osName}
+                {osName(detailData)}
                 {' '}
-                {detailData.osVersion}
+                {osVersion(detailData)}
               </Descriptions.Item>
               <Descriptions.Item label="客户端" span={2}>
                 {detailData.clientName}

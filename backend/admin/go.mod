@@ -14,11 +14,14 @@ require (
 	github.com/gofiber/fiber/v3 v3.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hibiken/asynq v0.26.0
+	github.com/mileusna/useragent v1.3.5
 	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/redis/rueidis v1.0.74
+	github.com/swaggo/swag v1.16.6
 	go.uber.org/zap v1.27.1
 	gorm.io/datatypes v1.2.7
+	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.31.1
 	gorm.io/plugin/dbresolver v1.6.2
@@ -40,7 +43,6 @@ require (
 	github.com/go-openapi/swag/typeutils v0.26.0 // indirect
 	github.com/go-openapi/swag/yamlutils v0.26.0 // indirect
 	github.com/swaggo/files/v2 v2.0.2 // indirect
-	github.com/swaggo/swag v1.16.6 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 )
 
@@ -119,7 +121,7 @@ require (
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
+	google.golang.org/protobuf v1.36.11
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/driver/sqlserver v1.6.3 // indirect
