@@ -71,16 +71,6 @@ front/apps/admin-react/
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
 - 页签（tabs）行为由 `src/stores/menuTabs.ts` 的 `useMenuTabsStore` 与 `_app.tsx` 共同管理，支持动态打开、关闭、刷新、全部关闭、新窗口打开等操作，并通过右键菜单触发。
 
-### 标签页缓存渲染与导航优化
-
-- 使用 `useReducer` 管理缓存状态，`cachedTabPaneReducer` 处理导航、删除、刷新等动作，维护每个标签页的版本号和上次隐藏时间。
-- 当页面切换时，非活动标签页的内容通过样式隐藏而不是销毁，保留其 DOM 状态，提高切换性能。
-- 渲染标签页内容统一使用 `CachedTabPaneContent` 组件（由 `React.memo` 包裹），该组件直接从路由表中获取对应的页面组件，若无对应组件则回退到 `<Outlet />`。
-- 每个标签页容器的样式由 `getCachedTabPaneStyle(active)` 动态生成，利用 `opacity`、`transform` 和 `pointer-events` 实现淡入淡出的视觉过渡，同时设置 `willChange` 提示浏览器准备动画。
-- 引入 `interactivePathname` 状态（`useReducer` 管理），导航时优先更新该值（例如菜单点击、标签点击、关闭全部时），用于立即驱动 UI 高亮（如 `ProLayout` 的 `location.pathname`、`PageContainer` 的 `activeKey`）；而实际路由跳转通过 `startTransition` 包裹，作为低优先级更新，避免阻塞用户交互。
-- 关闭所有标签页时，先将 `interactivePathname` 设为 `'/'` 以即时反映 UI 状态，再执行导航。
-- 路由状态变化时（`pathname` 改变），通过 `useEffect` 同步 `interactivePathname`，保持最终一致。
-
 ## 常见任务流程
 
 ### 新增系统管理页面
@@ -151,7 +141,7 @@ tsx
 
 - **打开页签**：点击侧边栏菜单时会自动添加对应页签（如果当前路径不是目录）。
 - **关闭页签**：右键选择“关闭”或点击页签上的 × 按钮，会关闭该页签并自动切换到相邻页签或首页。
-- **关闭所有页签**：右键选择“全部关闭”清空所有页签并导航到首页。该操作会立即将 `interactivePathname` 设为 `'/'` 以更新 UI，随后通过 `startTransition` 执行路由跳转。
+- **关闭所有页签**：右键选择“全部关闭”清空所有页签并导航到首页。
 - **刷新页签**：右键选择“刷新”会重新渲染对应页签的内容（通过递增版本号强制更新）。
 - **新窗口打开**：右键选择“新窗口打开”在新标签页中打开该页面对应的 URL。
 
@@ -317,5 +307,6 @@ pnpm --filter admin-react e2e:test
 ## 验证
 
 - 修改前端代码后，提交前执行 `vp staged`。
-- 页面功能变更后运行对应的 E2E 测试。
-- 确保路由、菜单展现无异常，登录与鉴权逻辑正确。
+- 页面/路由/API 行为变化优先执行 `vp run admin-react#build`。
+- 交互复杂或布局敏感时，启动开发服务并用浏览器检查桌面和移动视口。
+- 只改纯文档或技能文件时不需要运行前端验证。
