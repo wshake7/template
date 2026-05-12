@@ -26,7 +26,7 @@ import { ConfigProvider, Dropdown } from 'antd'
 
 import useApp from 'antd/es/app/useApp'
 
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { memo, startTransition, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import ChangePwdModal from '~/components/business/account/changePwdModal'
 import { TAB_REFRESH_INTERVAL } from '~/config/tabs'
@@ -183,6 +183,19 @@ function cachedTabPaneReducer(
   return state
 }
 
+const CachedTabPaneContent = memo(({ path }: { path: string }) => {
+  const router = useRouter()
+  const routesByPath = router.routesByPath as unknown as Record<string, { options: { component?: ComponentType } }>
+  const route = routesByPath[path]
+  const Component = route?.options.component as ComponentType | undefined
+
+  if (!Component) {
+    return <Outlet />
+  }
+
+  return <Component />
+})
+
 function AppLayout() {
   const [config, setConfig] = useState<Partial<ProSettings>>({
     fixSiderbar: true,
@@ -200,6 +213,7 @@ function AppLayout() {
   const pathname = useRouterState({
     select: s => s.location.pathname,
   })
+  const [interactivePathname, setInteractivePathname] = useReducer((_state: string, nextPathname: string) => nextPathname, pathname)
 
   const items = useMenuTabsStore(state => state.items)
   const add = useMenuTabsStore(state => state.add)
@@ -212,10 +226,14 @@ function AppLayout() {
     [dynamicMenuTree, router],
   )
   const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuDataItem[]>()
-  const menuItems = dynamicMenuItems ?? cachedDynamicMenuItems ?? []
+  const menuItems = useMemo(() => dynamicMenuItems ?? cachedDynamicMenuItems ?? [], [cachedDynamicMenuItems, dynamicMenuItems])
   const menuItemMap = useMemo(() => flattenMenuItems(menuItems), [menuItems])
   const previousPathRef = useRef(pathname)
   const [cachedTabPanes, dispatch] = useReducer(cachedTabPaneReducer, {})
+
+  useEffect(() => {
+    setInteractivePathname(pathname)
+  }, [pathname])
 
   useEffect(() => {
     let disposed = false
@@ -289,9 +307,12 @@ function AppLayout() {
   }, [remove])
 
   const closeAllTabs = useCallback(() => {
+    setInteractivePathname('/')
     dispatch({ type: 'REMOVE_ALL' })
     removeAll()
-    navigate({ to: '/' })
+    startTransition(() => {
+      navigate({ to: '/' })
+    })
   }, [navigate, removeAll])
 
   const refreshTab = useCallback((key: string) => {
@@ -371,23 +392,17 @@ function AppLayout() {
     if (!(router.routesByPath as unknown as Record<string, unknown>)[item.path]) {
       return
     }
-    navigate({ to: item.path })
+    setInteractivePathname(item.path)
+    startTransition(() => {
+      navigate({ to: item.path })
+    })
   }
 
   function onTabClick(key: string) {
-    navigate({ to: key })
-  }
-
-  function renderCachedTabPane(path: string) {
-    const routesByPath = router.routesByPath as unknown as Record<string, { options: { component?: ComponentType } }>
-    const route = routesByPath[path]
-    const Component = route?.options.component as ComponentType | undefined
-
-    if (!Component) {
-      return path === pathname ? <Outlet /> : null
-    }
-
-    return <Component />
+    setInteractivePathname(key)
+    startTransition(() => {
+      navigate({ to: key })
+    })
   }
 
   async function submitChangePwd(values?: ChangePwdFormValues, error?: FormListFieldData) {
@@ -427,7 +442,7 @@ function AppLayout() {
         >
           <ProLayout
             route={{ routes: menuItems }}
-            location={{ pathname }}
+            location={{ pathname: interactivePathname }}
             token={{
               header: {
                 // colorBgMenuItemSelected: 'rgba(0,0,0,0.04)',
@@ -488,7 +503,7 @@ function AppLayout() {
               title={false}
               tabList={tabList}
               tabProps={{
-                activeKey: pathname,
+                activeKey: interactivePathname,
                 hideAdd: true,
                 onChange: onTabClick,
                 tabBarStyle: {
@@ -508,14 +523,14 @@ function AppLayout() {
                 {renderedTabs.length > 0
                   ? renderedTabs.map((item) => {
                       const pane = cachedTabPanes[item.key] ?? { version: 0 }
-                      const active = item.key === pathname
+                      const active = item.key === interactivePathname
 
                       return (
                         <div
                           key={`${item.key}:${pane.version}`}
                           style={{ display: active ? 'block' : 'none' }}
                         >
-                          {renderCachedTabPane(item.key)}
+                          <CachedTabPaneContent path={item.key} />
                         </div>
                       )
                     })
