@@ -51,7 +51,6 @@ front/apps/admin-react/
 │   └── useDictMatch.tsx       # 字典批量匹配
 ├── src/utils/
 │   ├── antIcons.tsx           # 可用图标列表
-│   ├── date.ts                # 日期格式化工具
 │   ├── zod.ts
 │   └── ...
 └── locales/, tests/, playwright*.ts
@@ -107,21 +106,6 @@ import AntIconPicker from '@/components/common/antIconPicker';
 
 
 需确保 `src/utils/antIcons.tsx` 已导出所有可选图标。
-
-### 格式化日期和时间
-
-表格列或详情中展示时间时，使用全局可用的 `formatDateYYYYMMDDHHmm(value)`。该函数按 `YYYY-MM-DD HH:mm` 格式化日期字符串，无效输入返回原值或 `-`。已通过自动导入全局注册，无需显式 `import`。
-
-tsx
-// 表格列中使用
-{
-  title: '创建时间',
-  dataIndex: 'createdAt',
-  render: (_, record) => formatDateYYYYMMDDHHmm(record.createdAt),
-}
-
-
-如果需要其他日期格式，可以使用已安装的 `dayjs` 库直接调用，`dayjs` 已在 `package.json` 中按 `catalog:build` 引入。
 
 ### 修改菜单资源后刷新侧边栏
 
