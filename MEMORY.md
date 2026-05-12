@@ -46,7 +46,7 @@
 
 ### Backend
 
-- 后端使用 Go workspace，入口文件为 `backend/go.work`，当前 workspace Go 版本为 `1.25.7`。
+- 后端使用 Go workspace，入口文件为 `backend/go.work`，当前 workspace Go 版本为 `1.26.3`。
 - 主要模块包括：`backend/admin`、`backend/go-common`、`backend/orm-crud/api`、`backend/orm-crud/gormc`、`backend/orm-crud/pagination`、`backend/sa-token/rueidis`。
 - 主服务为 `backend/admin`，HTTP 框架使用 GoFiber v3。
 - 后端核心库：GORM、GORM Gen、GORM datatypes、dbresolver、soft_delete、go-playground/validator、Resty v3、Zap、Bytedance Sonic。
@@ -81,4 +81,4 @@
 
 ---
 
-*最后更新: 2026-04-30*
+*最后更新: 2026-05-12*

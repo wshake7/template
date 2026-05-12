@@ -1,6 +1,6 @@
 module admin
 
-go 1.25.7
+go 1.26.3
 
 require (
 	github.com/bytedance/sonic v1.15.0

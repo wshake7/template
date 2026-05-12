@@ -6,8 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:fix inline
 func String(a string) *string {
-	return &a
+	return new(a)
 }
 
 func StringValue(a *string) string {
@@ -17,8 +18,9 @@ func StringValue(a *string) string {
 	return *a
 }
 
+//go:fix inline
 func Int(a int) *int {
-	return &a
+	return new(a)
 }
 
 func IntValue(a *int) int {
@@ -28,8 +30,9 @@ func IntValue(a *int) int {
 	return *a
 }
 
+//go:fix inline
 func Int8(a int8) *int8 {
-	return &a
+	return new(a)
 }
 
 func Int8Value(a *int8) int8 {
@@ -39,8 +42,9 @@ func Int8Value(a *int8) int8 {
 	return *a
 }
 
+//go:fix inline
 func Int16(a int16) *int16 {
-	return &a
+	return new(a)
 }
 
 func Int16Value(a *int16) int16 {
@@ -50,8 +54,9 @@ func Int16Value(a *int16) int16 {
 	return *a
 }
 
+//go:fix inline
 func Int32(a int32) *int32 {
-	return &a
+	return new(a)
 }
 
 func Int32Value(a *int32) int32 {
@@ -61,8 +66,9 @@ func Int32Value(a *int32) int32 {
 	return *a
 }
 
+//go:fix inline
 func Int64(a int64) *int64 {
-	return &a
+	return new(a)
 }
 
 func Int64Value(a *int64) int64 {
@@ -72,8 +78,9 @@ func Int64Value(a *int64) int64 {
 	return *a
 }
 
+//go:fix inline
 func Bool(a bool) *bool {
-	return &a
+	return new(a)
 }
 
 func BoolValue(a *bool) bool {
@@ -83,8 +90,9 @@ func BoolValue(a *bool) bool {
 	return *a
 }
 
+//go:fix inline
 func Uint(a uint) *uint {
-	return &a
+	return new(a)
 }
 
 func UintValue(a *uint) uint {
@@ -94,8 +102,9 @@ func UintValue(a *uint) uint {
 	return *a
 }
 
+//go:fix inline
 func Uint8(a uint8) *uint8 {
-	return &a
+	return new(a)
 }
 
 func Uint8Value(a *uint8) uint8 {
@@ -105,8 +114,9 @@ func Uint8Value(a *uint8) uint8 {
 	return *a
 }
 
+//go:fix inline
 func Uint16(a uint16) *uint16 {
-	return &a
+	return new(a)
 }
 
 func Uint16Value(a *uint16) uint16 {
@@ -116,8 +126,9 @@ func Uint16Value(a *uint16) uint16 {
 	return *a
 }
 
+//go:fix inline
 func Uint32(a uint32) *uint32 {
-	return &a
+	return new(a)
 }
 
 func Uint32Value(a *uint32) uint32 {
@@ -127,8 +138,9 @@ func Uint32Value(a *uint32) uint32 {
 	return *a
 }
 
+//go:fix inline
 func Uint64(a uint64) *uint64 {
-	return &a
+	return new(a)
 }
 
 func Uint64Value(a *uint64) uint64 {
@@ -138,8 +150,9 @@ func Uint64Value(a *uint64) uint64 {
 	return *a
 }
 
+//go:fix inline
 func Float32(a float32) *float32 {
-	return &a
+	return new(a)
 }
 
 func Float32Value(a *float32) float32 {
@@ -149,8 +162,9 @@ func Float32Value(a *float32) float32 {
 	return *a
 }
 
+//go:fix inline
 func Float64(a float64) *float64 {
-	return &a
+	return new(a)
 }
 
 func Float64Value(a *float64) float64 {
@@ -160,8 +174,9 @@ func Float64Value(a *float64) float64 {
 	return *a
 }
 
+//go:fix inline
 func Time(a time.Time) *time.Time {
-	return &a
+	return new(a)
 }
 
 func TimeValue(a *time.Time) time.Time {
@@ -552,7 +567,7 @@ func ToUuid(str string) uuid.UUID {
 func ToStringPtr(id *uuid.UUID) *string {
 	var strUUID *string
 	if id != nil {
-		strUUID = Ptr(id.String())
+		strUUID = new(id.String())
 	}
 	return strUUID
 }

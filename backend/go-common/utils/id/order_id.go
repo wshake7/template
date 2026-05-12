@@ -2,7 +2,6 @@ package id
 
 import (
 	"fmt"
-	"go-common/utils/pt"
 	"math/rand"
 	"strings"
 	"sync/atomic"
@@ -25,7 +24,7 @@ func GenerateOrderIdWithRandom(prefix string, tm *time.Time) string {
 	// 前缀 + 时间戳（14位） + 随机数（4位）
 
 	if tm == nil {
-		tm = pt.Time(time.Now())
+		tm = new(time.Now())
 	}
 
 	timestamp := tm.Format("20060102150405")
@@ -38,7 +37,7 @@ func GenerateOrderIdWithRandom(prefix string, tm *time.Time) string {
 // GenerateOrderIdWithIncreaseIndex 生成20位订单号，前缀+时间+自增长索引
 func GenerateOrderIdWithIncreaseIndex(prefix string, tm *time.Time) string {
 	if tm == nil {
-		tm = pt.Time(time.Now())
+		tm = new(time.Now())
 	}
 
 	timestamp := tm.Format("20060102150405")

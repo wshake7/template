@@ -12,8 +12,9 @@ import (
 	paginationV1 "orm-crud/api/gen/go/pagination/v1"
 )
 
+//go:fix inline
 func dpPtr(dp paginationV1.DatePart) *paginationV1.DatePart {
-	return &dp
+	return new(dp)
 }
 
 func TestQueryStringToMap_ObjectAndArray(t *testing.T) {
@@ -125,7 +126,7 @@ func TestConvert_DatePart(t *testing.T) {
 			{
 				Field:      "created_at",
 				Op:         paginationV1.Operator_EQ,
-				DatePart:   dpPtr(paginationV1.DatePart_YEAR),
+				DatePart:   new(paginationV1.DatePart_YEAR),
 				ValueOneof: &paginationV1.FilterCondition_Value{Value: "2023"},
 			},
 		},

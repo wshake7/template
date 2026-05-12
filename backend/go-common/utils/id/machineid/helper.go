@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"io"
-	"io/ioutil"
+
 	"os"
 	"os/exec"
 	"strings"
@@ -29,7 +29,7 @@ func protect(appID, id string) string {
 }
 
 func readFile(filename string) ([]byte, error) {
-	return ioutil.ReadFile(filename)
+	return os.ReadFile(filename)
 }
 
 func trim(s string) string {

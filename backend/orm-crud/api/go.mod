@@ -1,6 +1,6 @@
 module orm-crud/api
 
-go 1.24.11
+go 1.26.3
 
 require (
 	github.com/google/gnostic v0.7.1
