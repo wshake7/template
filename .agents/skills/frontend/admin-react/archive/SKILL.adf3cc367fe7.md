@@ -39,7 +39,6 @@ front/apps/admin-react/
 ├── src/stores/
 │   ├── account.ts             # 账号状态
 │   ├── resourceMenu.ts        # 动态菜单树（持久化）
-│   ├── menuTabs.ts            # 页签状态
 │   └── ...
 ├── src/components/
 │   ├── business/
@@ -64,12 +63,11 @@ front/apps/admin-react/
 - 根路由 `src/routes/__root.tsx` 根据 token 做登录跳转。
 - 应用壳 `src/routes/_app.tsx` 使用 `ProLayout`、`PageContainer`，侧边栏菜单来源于后端 `sys_resource_menu` 表，通过 `useResourceMenuStore` 拉取并持久化缓存。该 store 使用 zustand persist，刷新页面后快速恢复菜单树。
 - 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中。
-- HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。
-- 根路径 `/_app/` 不再强制重定向到 `/dashboard`，仅渲染空组件，实际首页内容通过侧边栏菜单导航到具体页面。
+- HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。
 - 字典数据使用 `useDictMatch` 钩子批量获取并缓存启用字典项，返回 `{ value, label }` 格式的映射，适用于下拉选项、表格列渲染。
 - 图标选择使用 `AntIconPicker` 组件，可选图标列表由 `src/utils/antIcons.tsx` 提供。
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
-- 页签（tabs）行为由 `src/stores/menuTabs.ts` 的 `useMenuTabsStore` 与 `_app.tsx` 共同管理，支持动态打开、关闭、刷新、全部关闭、新窗口打开等操作，并通过右键菜单触发。
+- 页签缓存配置在 `src/config/tabs.ts`，`_app.tsx` 维护页签行为。
 
 ## 常见任务流程
 
@@ -134,18 +132,6 @@ tsx
 - 前端 API 路径变更后，同步更新 `src/api/business/` 对应文件的 URL。
 - Header 名称保持与后端 `admin/internal/domains/headers.go` 对齐。
 - 业务码处理集中在 `HttpCodeCheck`，新增业务码同步更新前后端常量。
-
-### 标签页操作
-
-管理后台支持通过 `PageContainer` 的 `tabList` 管理多个打开的页签，并提供右键菜单快捷操作。
-
-- **打开页签**：点击侧边栏菜单时会自动添加对应页签（如果当前路径不是目录）。
-- **关闭页签**：右键选择“关闭”或点击页签上的 × 按钮，会关闭该页签并自动切换到相邻页签或首页。
-- **关闭所有页签**：右键选择“全部关闭”清空所有页签并导航到首页。
-- **刷新页签**：右键选择“刷新”会重新渲染对应页签的内容（通过递增版本号强制更新）。
-- **新窗口打开**：右键选择“新窗口打开”在新标签页中打开该页面对应的 URL。
-
-在 `_app.tsx` 中，这些操作由 `closeTab`、`closeAllTabs`、`refreshTab`、`openTabInNewWindow` 等回调实现，并通过 `tabList` 的 Dropdown 为每个标签项注入右键菜单。相关的状态管理使用 `useMenuTabsStore`，该 store 提供了 `add`、`remove` 和 `removeAll` 方法。
 
 ## 列表分页与表单约定
 
