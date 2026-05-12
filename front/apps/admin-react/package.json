@@ -28,6 +28,7 @@
     "antd-style": "catalog:build",
     "class-variance-authority": "catalog:build",
     "clsx": "catalog:build",
+    "dayjs": "catalog:build",
     "i18next": "catalog:build",
     "i18next-browser-languagedetector": "catalog:build",
     "immer": "catalog:build",

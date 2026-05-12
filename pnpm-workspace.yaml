@@ -30,6 +30,7 @@ catalogs:
     antd-style: latest
     class-variance-authority: latest
     clsx: latest
+    dayjs: latest
     i18next: latest
     i18next-browser-languagedetector: latest
     immer: latest

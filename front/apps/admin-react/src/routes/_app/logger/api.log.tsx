@@ -9,6 +9,7 @@ import {
   Tag,
 } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { formatDateYYYYMMDDHHmm } from '~/utils/date'
 
 let jsonHighlighterPromise: Promise<{
   codeToHtml: (code: string, options: { lang: string, theme: string }) => string
@@ -264,6 +265,7 @@ function ApiLogManagement() {
       title: '操作时间',
       dataIndex: 'createdAt',
       width: 240,
+      render: (_, record) => formatDateYYYYMMDDHHmm(record.createdAt),
     },
     {
       title: '操作',
@@ -365,7 +367,7 @@ function ApiLogManagement() {
               <Descriptions.Item label="状态码">{detailData.statusCode}</Descriptions.Item>
               <Descriptions.Item label="结果">{successTag(detailData.success)}</Descriptions.Item>
               <Descriptions.Item label="耗时">{costTimeDisplay(detailData.costTime)}</Descriptions.Item>
-              <Descriptions.Item label="操作时间">{detailData.createdAt}</Descriptions.Item>
+              <Descriptions.Item label="操作时间">{formatDateYYYYMMDDHHmm(detailData.createdAt)}</Descriptions.Item>
               <Descriptions.Item label="失败原因" span={2}><DetailText>{detailData.reason}</DetailText></Descriptions.Item>
               <Descriptions.Item label="地理位置" span={2}><DetailText>{detailData.location}</DetailText></Descriptions.Item>
               <Descriptions.Item label="来源" span={2}><DetailText>{detailData.referer}</DetailText></Descriptions.Item>

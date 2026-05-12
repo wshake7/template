@@ -23,6 +23,7 @@ import z from 'zod'
 import { SysUserApi } from '~/api/business/sysUser'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { gMessage } from '~/utils/antd'
+import { formatDateYYYYMMDDHHmm } from '~/utils/date'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/account/user')({
@@ -80,25 +81,6 @@ function toFormValues(record: SysUser): UserFormValues {
       remark: record.remark ?? '',
     }),
   })
-}
-
-function formatDateTimeToMinute(value?: string) {
-  if (!value) {
-    return '-'
-  }
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`
 }
 
 function UserManagement() {
@@ -278,7 +260,7 @@ function UserManagement() {
       dataIndex: 'createdAt',
       width: 150,
       ellipsis: true,
-      render: (_, record) => formatDateTimeToMinute(record.createdAt),
+      render: (_, record) => formatDateYYYYMMDDHHmm(record.createdAt),
     },
     {
       title: '备注',

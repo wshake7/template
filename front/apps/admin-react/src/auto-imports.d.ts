@@ -50,6 +50,7 @@ declare global {
   const createRef: typeof import('react').createRef
   const defaultZodValidator: typeof import('./utils/zod').defaultZodValidator
   const fieldZodValidator: typeof import('./utils/zod').fieldZodValidator
+  const formatDateYYYYMMDDHHmm: typeof import('./utils/date').formatDateYYYYMMDDHHmm
   const forwardRef: typeof import('react').forwardRef
   const gMessage: typeof import('./utils/antd').gMessage
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey

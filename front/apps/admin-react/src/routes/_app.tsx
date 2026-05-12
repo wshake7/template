@@ -210,8 +210,6 @@ function AppLayout() {
     }
   }, [router, setDynamicMenuTree])
 
-  /** ---------------- tab 閸掓繂顫愰崠鏍电礄鐠侯垳鏁辨す鍗炲З閿?---------------- */
-
   const currentMenuTab = useMemo(() => {
     const dynamicMenu = menuItemMap.get(pathname) as (MenuDataItem & { menuType?: ResourceMenuNode['menuType'] }) | undefined
 

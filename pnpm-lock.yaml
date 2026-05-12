@@ -51,6 +51,9 @@ catalogs:
     clsx:
       specifier: latest
       version: 2.1.1
+    dayjs:
+      specifier: latest
+      version: 1.11.20
     i18next:
       specifier: latest
       version: 26.0.7
@@ -286,6 +289,9 @@ importers:
       clsx:
         specifier: catalog:build
         version: 2.1.1
+      dayjs:
+        specifier: catalog:build
+        version: 1.11.20
       i18next:
         specifier: catalog:build
         version: 26.0.7(typescript@5.9.3)
