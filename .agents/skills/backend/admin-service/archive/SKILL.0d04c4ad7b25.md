@@ -72,7 +72,6 @@ backend/admin/
 - 普通路由聚合在 `internal/router/router.go`。
 - 业务逻辑放在 `internal/router/logic/<resource>.go`，通过 `handler.CtxHandlerFunc` 等包装。
 - 操作日志通过 `middleware.OperationLogMiddleware(middleware.WithModule("<module>"))` 注入。
-- API 请求日志通过 `internal/fiberc/middleware/api_log.go` 中的中间件自动记录到 `sys_api_log` 表，该中间件使用 `github.com/mileusna/useragent` 解析 User-Agent 提取浏览器和操作系统信息，并对 request/response payload 中的敏感字段（如 token、password）进行脱敏处理。
 - 响应错误优先返回 `internal/fiberc/res` 中的标准错误，不直接拼散乱响应。
 
 ## 新增后台资源的推荐流程
