@@ -2,7 +2,7 @@
 
 ## 何时使用
 
-当任务涉及 `front/apps/admin-react` 或 `front/packages/utils`，包括页面、路由、菜单、API、登录鉴权、主题、Mock、表单、表格、测试和构建时使用。特别适合开发系统管理功能（如角色、用户、菜单、API 资源、字典、语言、API 日志等）。
+当任务涉及 `front/apps/admin-react` 或 `front/packages/utils`，包括页面、路由、菜单、API、登录鉴权、主题、Mock、表单、表格、测试和构建时使用。特别适合开发系统管理功能（如角色、菜单、字典、语言、API 日志等）。
 
 ## 核心路径
 
@@ -14,24 +14,19 @@ front/apps/admin-react/
 ├── src/routes/
 │   ├── _app.tsx
 │   ├── _app/account/
-│   │   ├── role.tsx
-│   │   └── user.tsx
+│   │   └── role.tsx
 │   ├── _app/system/
 │   │   ├── language.tsx
 │   │   ├── dict.tsx
-│   │   ├── logger/
-│   │   │   └── api.log.tsx
-│   │   ├── resource.api.tsx
+│   │   ├── api.log.tsx
 │   │   └── resource.menu.tsx
 │   └── _app/dashboard.tsx
 ├── src/api/
 │   ├── index.ts              # Alova 主实例
 │   └── business/
 │       ├── account.ts
-│       ├── sysResourceApi.ts
-│       ├── sysResourceMenu.ts
 │       ├── sysRole.ts
-│       ├── sysUser.ts
+│       ├── sysResourceMenu.ts
 │       ├── sysDict.ts
 │       ├── sysLanguage.ts
 │       └── sysApiLog.ts
@@ -55,13 +50,12 @@ front/apps/admin-react/
 │   └── ...
 └── locales/, tests/, playwright*.ts
 
-
 ## 关键架构
 
 - 路由使用 TanStack Router 文件路由，`src/routes/**` 通过插件生成 `src/routeTree.gen.ts`。
 - 根路由 `src/routes/__root.tsx` 根据 token 做登录跳转。
 - 应用壳 `src/routes/_app.tsx` 使用 `ProLayout`、`PageContainer`，侧边栏菜单来源于后端 `sys_resource_menu` 表，通过 `useResourceMenuStore` 拉取并持久化缓存。该 store 使用 zustand persist，刷新页面后快速恢复菜单树。
-- 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中。
+- 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中。
 - HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。
 - 字典数据使用 `useDictMatch` 钩子批量获取并缓存启用字典项，返回 `{ value, label }` 格式的映射，适用于下拉选项、表格列渲染。
 - 图标选择使用 `AntIconPicker` 组件，可选图标列表由 `src/utils/antIcons.tsx` 提供。
@@ -72,8 +66,8 @@ front/apps/admin-react/
 
 ### 新增系统管理页面
 
-1. 在 `src/routes/_app/system/`（系统资源）或 `src/routes/_app/account/`（账号管理）下创建文件路由，使用 `createFileRoute`。
-2. 在文件路由的 `staticData.menu` 中配置菜单：`name` 为页面标题，`menuType: 'menu'`；父级目录已在对应 `system.tsx` 或 `account.tsx` 中定义为 `catalog`。
+1. 在 `src/routes/_app/system/` 下创建文件路由，使用 `createFileRoute`。
+2. 在文件路由的 `staticData.menu` 中配置菜单：`name` 为页面标题，`menuType: 'menu'`；父级目录 `system` 已在 `system.tsx` 中定义为 `catalog`。
 3. 页面组件优先使用 Ant Design Pro Components，参照 `resource.menu.tsx` 等实现。
 4. 在 `src/api/business/<resource>.ts` 中定义 API 方法和类型，URL 路径使用 `/api/sys/<resource>/*` 格式（与 Swagger 一致）。
 5. 若列表需要状态下拉，使用 `useDictMatch('system:is_enabled')` 获取选项。

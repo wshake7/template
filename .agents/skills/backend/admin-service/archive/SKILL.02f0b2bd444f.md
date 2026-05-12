@@ -9,7 +9,7 @@
 
 ## 何时使用
 
-当任务涉及 `backend/admin` 的服务启动、配置、路由、业务逻辑、中间件、认证权限、Swagger、GORM Gen 生成代码或后台 API 时使用。特别适合开发系统管理类资源（如角色、用户、菜单、API 资源、字典、语言、API 日志等）。
+当任务涉及 `backend/admin` 的服务启动、配置、路由、业务逻辑、中间件、认证权限、Swagger、GORM Gen 生成代码或后台 API 时使用。特别适合开发系统管理类资源（如角色、菜单、字典、语言、API 日志等）。
 
 ## 核心路径
 
@@ -26,16 +26,10 @@ backend/admin/
 ├── internal/router/                    # 路由注册与业务 logic
 ├── internal/router/auth_router/        # 需要鉴权的系统资源路由
 ├── internal/router/logic/              # 业务逻辑包（建议请求/响应定义集中于此）
-│   ├── sys_resource_api.go
-│   ├── sys_resource_menu.go
-│   ├── sys_role.go
-│   ├── sys_user.go
-│   └── ...
 ├── internal/services/                  # ORM、Redis、Auth、Casbin、Asynq、HTTP、Geo
 ├── internal/services/orm/models/       # GORM models
 ├── internal/services/orm/query/        # GORM Gen 生成代码与扩展
 └── docs/                               # swag 生成的 Swagger 文件
-
 
 ## 启动链路
 
@@ -67,8 +61,8 @@ backend/admin/
 
 - 路由前缀约定：
   - 公开接口（如账号、加密 key）使用 `/api/` 前缀，例如 `/api/account/login/pwd`、`/api/encrypt/public/key`。
-  - 需鉴权的系统管理资源统一使用 `/api/sys/` 前缀，例如 `/api/sys/api/log/list`、`/api/sys/dict/entry/match`、`/api/sys/resource/menu/list`、`/api/sys/resource/api/list`、`/api/sys/role/list`、`/api/sys/user/list` 等。
-  - 新增鉴权资源时，在 `internal/router/auth_router/` 下注册，API 路径格式为 `/api/sys/<resource>/<action>`。角色权限分配使用 `/api/sys/role/permissions`（保存）和 `/api/sys/role/{id}/permissions`（获取）。
+  - 需鉴权的系统管理资源统一使用 `/api/sys/` 前缀，例如 `/api/sys/api/log/list`、`/api/sys/dict/entry/match`、`/api/sys/resource/menu/list`。
+  - 新增鉴权资源时，在 `internal/router/auth_router/` 下注册，API 路径格式为 `/api/sys/<resource>/<action>`。
 - 普通路由聚合在 `internal/router/router.go`。
 - 业务逻辑放在 `internal/router/logic/<resource>.go`，通过 `handler.CtxHandlerFunc` 等包装。
 - 操作日志通过 `middleware.OperationLogMiddleware(middleware.WithModule("<module>"))` 注入。
@@ -115,7 +109,6 @@ go test ./...
 
 # 数据库迁移（根据环境执行加固脚本）
 psql $DATABASE_URL -f cmd/scripts/schema_hardening_postgres.sql
-
 
 ## 验证
 
