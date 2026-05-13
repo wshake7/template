@@ -27,7 +27,6 @@ front/apps/admin-react/
 │   └── _app/dashboard.tsx
 ├── src/api/
 │   ├── index.ts              # Alova 主实例
-│   ├── encryptRequest.ts     # 加密请求配置模块
 │   └── business/
 │       ├── account.ts
 │       ├── sysResourceApi.ts
@@ -68,37 +67,16 @@ front/apps/admin-react/
 - 根路由 `src/routes/__root.tsx` 根据 token 做登录跳转。
 - 应用壳 `src/routes/_app.tsx` 使用 `ProLayout`、`PageContainer`，侧边栏菜单来源于后端 `sys_resource_menu` 表，通过 `useResourceMenuStore` 拉取并持久化缓存。该 store 使用 zustand persist，刷新页面后快速恢复菜单树。
 - 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；日志类页面（如 API 日志、登录日志）放在 `src/routes/_app/logger/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中。
-- HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。
-  - 加密逻辑已抽离至 `src/api/encryptRequest.ts`，提供 `encryptRequest`、`createEncryptedRequestConfig`、`decryptText`、`ensurePublicKey` 等工具函数，可在 Alova `beforeRequest` 及其他场景（如 SSE）中复用。
-  - `beforeRequest` 直接调用 `encryptRequest(method)` 完成加密配置。
-  - 登录成功后的响应解密使用 `decryptText`。
-  - 登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。
+- HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。
 - 根路径 `/_app/` 不再强制重定向到 `/dashboard`，仅渲染空组件，实际首页内容通过侧边栏菜单导航到具体页面。
 - 字典数据使用 `useDictMatch` 钩子批量获取并缓存启用字典项，返回 `{ value, label }` 格式的映射，适用于下拉选项、表格列渲染。
   - 字典条目新增 `label_component` 字段，可存放 JSX 模板（如 `<Tag color="success">${EntryLabel}</Tag>`），前端渲染时通过安全的替换机制生成最终展示内容（例如读取 `label_component` 后替换 `${EntryLabel}` 为真实标签文本）。
 - 图标选择使用 `AntIconPicker` 组件，可选图标列表由 `src/utils/antIcons.tsx` 提供。
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
 - 页签（tabs）行为由 `src/stores/menuTabs.ts` 的 `useMenuTabsStore` 与 `_app.tsx` 共同管理，支持动态打开、关闭、刷新、全部关闭、新窗口打开等操作，并通过右键菜单触发。
-- SSE 事件流通过 `src/api/eventStream.ts` 连接后端 `/api/events` 端点，连接前使用 `createEncryptedRequestConfig` 获取加密配置和 AES 密钥，事件回调中使用 `decryptText` 解密 `payload` 字段后得到实际数据。
+- SSE 事件流通过 `src/api/eventStream.ts` 连接后端 `/api/events` 端点，用于实时接收登录日志等推送。
 
-## 请求加密模块 `encryptRequest.ts`
-
-该文件提供以下核心功能：
-
-- **`encryptRequest(method)`**：处理普通 Alova 方法的加密。如果请求 URL 是 `/api/encrypt/public/key` 则仅添加时间戳和 Nonce；否则调用 `createEncryptedRequestConfig` 并将生成的 headers/data 写入 method 对象，同时将 `aesKey` 和 `nonce` 存入 `meta` 供后续解密使用。
-- **`createEncryptedRequestConfig(options?)`**：独立于 Alova，可用于任何需要生成加密请求配置的场景。它执行完整的加密握手：
-  1. 确保公钥存在（`ensurePublicKey()`）。
-  2. 生成临时 AES 密钥。
-  3. 用 RSA 加密 AES 密钥。
-  4. 构建请求签名所需的附加数据（`uriSort` of timestamp, nonce, params）。
-  5. 用 AES 加密请求体并生成签名。
-  6. 返回 `{ headers, data, aesKey, nonce }`。
-- **`decryptText(encryptedText, aesKey)`**：用于解密响应体，封装 `aesDecrypt`。
-- **`ensurePublicKey()`**：检查 store 中的公钥，若不存在则从 `/api/encrypt/public/key` 获取并缓存。
-
-这些函数已通过自动导入全局可用，无需显式 import。
-
-## 标签页缓存渲染与导航优化
+### 标签页缓存渲染与导航优化
 
 - 使用 `useReducer` 管理缓存状态，`cachedTabPaneReducer` 处理导航、删除、刷新等动作，维护每个标签页的版本号和上次隐藏时间。
 - 当页面切换时，非活动标签页的内容通过样式隐藏而不是销毁，保留其 DOM 状态，提高切换性能。
@@ -179,7 +157,6 @@ tsx
 - 前端 API 路径变更后，同步更新 `src/api/business/` 对应文件的 URL。
 - Header 名称保持与后端 `admin/internal/domains/headers.go` 对齐。
 - 业务码处理集中在 `HttpCodeCheck`，新增业务码同步更新前后端常量。
-- 加密相关功能统一使用 `encryptRequest.ts` 提供的函数，避免在业务代码中重复实现加密握手。
 
 ### 标签页操作
 
@@ -288,21 +265,36 @@ const xxxFormDefaults = XxxFormSchema.parse({
   remark: '',
 })
 
+function toXxxFormValues(record: Xxx): XxxFormValues {
+  return XxxFormSchema.parse({
+    ...xxxFormDefaults,
+    ...XxxFormSchema.partial().parse(record),
+  })
+}
 
-（这里原技能文件被截断，但后续代码并不影响整体理解，保留现有内容即可。）
+const { form, rules, onFinish } = useZodForm<XxxFormValues>({
+  schema: XxxFormSchema,
+  async onSubmit(values) {
+    if (!values) {
+      gMessage.error('请填写完整信息')
+      return
+    }
+    await XxxApi.save(values)
+    gMessage.success('保存成功')
+    form.resetFields()
+    await send()
+  },
+})
 
-## 命令
 
-bash
-cd front
-yarn dev:admin-react   # 启动管理后台开发服务
-yarn build:admin-react # 构建
-yarn test              # 运行测试
+`Form` 对接方式：
 
-
-## 验证
-
-- 修改后运行 `yarn dev:admin-react` 确认开发服务正常启动。
-- 修改路由或 API 后，访问对应页面检查数据加载和交互。
-- 若修改加密请求模块 `encryptRequest.ts` 或 SSE 事件流 `eventStream.ts`，需验证登录、普通接口及 SSE 消息的正确加密/解密。
-- 新增或修改自动导入列表后，确认 `src/auto-imports.d.ts` 已更新（`unplugin-auto-import` 会自动刷新）。
+tsx
+<Form<XxxFormValues> form={form} onFinish={onFinish}>
+  <ProFormText name="name" label="名称" rules={rules} />
+  <ProFormDigit name="sortOrder" label="排序" rules={rules} />
+  <Form.Item name="isEnabled" label="启用状态" valuePropName="checked">
+    <Switch />
+  </Form.Item>
+  <ProFormTextArea name="remark" label="备注" />
+</Form>

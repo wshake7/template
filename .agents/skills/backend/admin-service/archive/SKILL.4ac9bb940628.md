@@ -88,25 +88,6 @@ backend/admin/
 - 登录日志由 `internal/router/logic/login_log_record.go` 在账号操作中记录，其字段与模型 `SysLoginLog` 保持一致。
 - 响应错误优先返回 `internal/fiberc/res` 中的标准错误，不直接拼散乱响应。
 
-## 请求加密与安全中间件
-
-安全中间件位于 `internal/fiberc/middleware/security.go`，提供时间戳校验、Nonce 重放防护、请求解密与响应加密、请求签名验证等功能。
-
-- **TimestampMiddleware**：校验请求头 `X-Request-Timestamp` 与服务器时间的差值不能超过配置的过期时间，防止重放。
-- **NonceMiddleware**：将请求头 `X-Request-ID` 存入 Redis，并设置过期时间，为后续 Nonce 唯一性检查提供依据。
-- **EncryptMiddleware**：使用可复用的函数完成请求解密和响应加密。
-  - 首先调用 `DecryptRequest(ctx)` 获取 AES 密钥和明文请求体。
-  - `DecryptRequest` 内部：
-    - `DecryptRequestAESKey` 从请求头 `X-Request-Encrypted-Key` 用服务端 RSA 私钥解密出 AES 密钥。
-    - `DecryptRequestBody` 使用 AES 密钥和 `RequestAAD(ctx)` 生成的附加认证数据（包含 `X-Request-ID`、`X-Request-Timestamp` 和所有查询参数）解密请求体，解密成功后替换原始请求体。
-  - 处理业务逻辑后，使用 `EncryptText`（`aes_util.Encrypt` 封装）加密响应体，并在响应头添加 `X-Response-Is-Encrypt: true`。
-- **SignMiddleware**：用于不需要解密但需要验证请求完整性的场景（例如简单签名校验）。它构造与 `RequestAAD` 相似的参数组合，对请求体计算签名并与请求头 `X-Request-Signature` 对比。注意：该中间件不用于标准加密流程，仅用于特定签名接口。
-
-S S E 事件流路由 `auth_router/events.go` 也应用了加密：
-- 在处理连接时，调用 `middleware.DecryptRequest(c)` 获取 AES 密钥。
-- 之后对每个推送的事件数据先用 `json.Marshal` 序列化原始数据，再用 `middleware.EncryptText` 加密，最后包装成 `{"payload": "加密后的字符串"}` 并通过 SSE 发送。
-- 响应头同样设置 `X-Response-Is-Encrypt: true`。
-
 ## 新增后台资源的推荐流程
 
 1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`（如 `sys_login_log` 模型）。
@@ -128,7 +109,7 @@ S S E 事件流路由 `auth_router/events.go` 也应用了加密：
 
   [matchers]
   m = r.sub == p.sub && keyMatch2(r.obj, p.obj) && r.act == p.act
-
+  
   策略直接存储主体标识（如 `role:root`）、API 路径和方法，不再使用 eval 表达式。
 - 所有权限变更均通过 `internal/services/casbin/policy.go` 中的函数自动同步，无需手动操作 Casbin API。
 - 关键同步函数：
@@ -154,7 +135,7 @@ S S E 事件流路由 `auth_router/events.go` 也应用了加密：
 - 日志由 `login_log_record.go` 在账号相关操作时自动写入，业务代码无需显式调用。
 - 前端可通过 `POST /api/sys/login/log/list` 分页查询日志，支持按用户名、IP、状态等筛选。
 - 详情接口 `POST /api/sys/login/log/detail` 根据日志 ID 返回完整记录。
-- SSE 事件流 `/api/events` 使用 `auth_router/events.go` 推送实时登录事件，事件数据经过加密，前端需先解密 `payload` 字段再解析 JSON。
+- SSE 事件流 `/api/events` 使用 `auth_router/events.go` 推送实时登录事件，前端通过 `api/eventStream.ts` 订阅。
 
 ## 配置与服务
 
@@ -185,5 +166,4 @@ psql $DATABASE_URL -f cmd/scripts/schema_hardening_postgres.sql
 - 修改 Swagger 注释后执行 `make swagger` 并检查 `docs/**`。
 - 修改模型、请求/响应结构体或 query 生成模板后，先运行 `make script-orm` 重新生成，再确认生成文件与 Swagger 文档符合预期，避免手动修改生成产物后被覆盖。
 - 若涉及 Casbin 权限同步逻辑，确保业务变更触发相应的同步函数，并验证种子数据执行后的策略正确性。
-- 若修改安全中间件（如加密/解密流程），需验证与前端加密请求模块的协调性，确保请求能正常解密、响应能正常加密，并测试 SSE 事件流的加密传输。
 - 数据库迁移脚本需幂等大量使用 `ADD COLUMN IF NOT EXISTS`、`DROP CONSTRAINT IF EXISTS` 等安全操作，执行后检查索引和约束是否生效。
