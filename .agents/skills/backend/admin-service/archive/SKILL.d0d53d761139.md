@@ -32,13 +32,8 @@ backend/admin/
 │   ├── sys_user.go
 │   └── ...
 ├── internal/services/                  # ORM、Redis、Auth、Casbin、Asynq、HTTP、Geo
-│   ├── orm/
-│   │   ├── models/                     # GORM models
-│   │   ├── query/                      # GORM Gen 生成代码与扩展
-│   │   └── data_permission/            # 数据权限引擎（规划中）
-│   └── casbin/
-│       ├── casbin.go                   # 初始化 Casbin 执行器
-│       └── policy.go                   # 权限策略自动同步
+├── internal/services/orm/models/       # GORM models
+├── internal/services/orm/query/        # GORM Gen 生成代码与扩展
 └── docs/                               # swag 生成的 Swagger 文件
 
 
@@ -89,22 +84,8 @@ backend/admin/
 5. 在 `internal/router/auth_router/<resource>.go` 注册路由，使用 `/api/sys/<resource>/*` 路径前缀。
 6. 在 `auth_router.RegisterRouters` 中汇总注册。
 7. 如果需要种子数据（如超级管理员角色、默认菜单树、字典初始条目），在 `cmd/scripts/init.sql` 中添加 INSERT 语句，并确保幂等（常用 `ON CONFLICT` 或先删后插）。对于复杂数据库结构变更，编写迁移脚本（如 `schema_hardening_postgres.sql`）并在部署时执行。
-8. 同步更新 Casbin 权限策略。若资源增删改会影响角色授权，需在业务逻辑中调用 `casbin` 包的同步方法（参考下一节）。
-9. 运行 `make swagger` 更新 Swagger 文档；分页查询响应的 `data` 应引用 logic 包下的自定义 `Resp` 类型。
-10. 前端同步新增 API 文件和页面时，切换到 frontend 技能。
-
-## Casbin 权限自动同步
-
-- Casbin 执行器已在启动时创建（`internal/services/casbin/casbin.go`），并启用 `AutoSave`。
-- 所有权限变更均通过 `internal/services/casbin/policy.go` 中的函数自动同步，无需手动操作 Casbin API。
-- 关键同步函数：
-  - `AddRoleAPIPolicies` / `RemoveRoleAPIPolicies`：为角色添加或移除一组 API 权限。
-  - `SyncRoleAPIPermissions`：当角色权限保存时，计算新旧 API ID 差异，增量更新策略。
-  - `SyncRoleState`：当角色 code 或启用状态变更时，先移除旧策略再添加新策略。
-  - `AddAPIResourcePolicies` / `RemoveAPIResourcePolicies`：当 API 资源被启用/禁用或路径/方法变更时，重新计算关联角色的策略。
-  - `SyncAPIResourcePolicies`：API 资源更新时，移除旧策略并添加新策略。
-- 在业务逻辑中（如 `sys_resource_api.go`、`sys_role.go`），当操作会影响权限时，必须调用对应的同步函数以确保 Casbin 策略与数据库一致。
-- 种子数据（`cmd/scripts/init.sql`）已包含 root 角色的完整策略，部署后即可使用。
+8. 运行 `make swagger` 更新 Swagger 文档；分页查询响应的 `data` 应引用 logic 包下的自定义 `Resp` 类型。
+9. 前端同步新增 API 文件和页面时，切换到 frontend 技能。
 
 ## 数据权限约定
 
@@ -142,4 +123,3 @@ psql $DATABASE_URL -f cmd/scripts/schema_hardening_postgres.sql
 - 修改 `backend/admin` 后，在该模块执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
 - 修改 Swagger 注释后执行 `make swagger` 并检查 `docs/**`。
 - 修改模型、请求/响应结构体或 query 生成模板后，先运行 `make script-orm` 重新生成，再确认生成文件与 Swagger 文档符合预期，避免手动修改生成产物后被覆盖。
-- 若涉及 Casbin 权限同步逻辑，确保业务变更触发相应的同步函数，并验证种子数据执行后的策略正确性。

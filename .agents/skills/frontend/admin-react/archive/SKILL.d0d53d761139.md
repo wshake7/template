@@ -67,7 +67,6 @@ front/apps/admin-react/
 - HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。
 - 根路径 `/_app/` 不再强制重定向到 `/dashboard`，仅渲染空组件，实际首页内容通过侧边栏菜单导航到具体页面。
 - 字典数据使用 `useDictMatch` 钩子批量获取并缓存启用字典项，返回 `{ value, label }` 格式的映射，适用于下拉选项、表格列渲染。
-  - 字典条目新增 `label_component` 字段，可存放 JSX 模板（如 `<Tag color="success">${EntryLabel}</Tag>`），前端渲染时通过安全的替换机制生成最终展示内容（例如读取 `label_component` 后替换 `${EntryLabel}` 为真实标签文本）。
 - 图标选择使用 `AntIconPicker` 组件，可选图标列表由 `src/utils/antIcons.tsx` 提供。
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
 - 页签（tabs）行为由 `src/stores/menuTabs.ts` 的 `useMenuTabsStore` 与 `_app.tsx` 共同管理，支持动态打开、关闭、刷新、全部关闭、新窗口打开等操作，并通过右键菜单触发。
@@ -290,24 +289,33 @@ tsx
 注意：
 
 - 每个参与校验的字段复用同一个 `rules`，字段级错误由 `useZodForm` 按 zod issue path 回填。
-- 编辑场景使用 `toXxxFormValues` 将原始记录转换为表单初始值，保证缺失字段有安全默认值。
+- 不要为表单值手写一份重复的 `interface`；使用 `type XxxFormValues = z.infer<typeof XxxFormSchema>`。
+- 默认值和编辑回显转换优先通过 `XxxFormSchema.partial().parse(...)` 过滤/规范化外部数据，再与默认值合并，最终用 `XxxFormSchema.parse(...)` 得到完整表单值。
+- 如果默认表单值需要空字符串，基础 `XxxFormSchema` 不要直接写 `.min(1)` 这类会让默认值 parse 失败的规则；把必填、按类型必填等提交校验放到单独的 `XxxSubmitSchema = XxxFormSchema.superRefine(...)` 中，再传给 `useZodForm`。
+- 条件字段使用 `superRefine` 做类型相关校验，例如只有菜单类型才要求 `component`。
+- 抽屉或弹窗保存按钮用 `form.submit()` 触发表单提交，不要绕过 `onFinish` 手动 `validateFields()`。
+- 条件渲染字段需要跨类型切换保留回显时，不要在整个 `Form` 上设置 `preserve={false}`；提交 payload 时按类型过滤无效字段。
 
-## 字典条目 label_component 渲染
+## 命令
 
-字典条目可能包含 `label_component` 字段，其值为类似 `<Tag color="success">${EntryLabel}</Tag>` 的模板字符串。前端渲染时，需要将 `${EntryLabel}` 替换为条目实际的 `entry_label`，并安全渲染 HTML。可使用 `dangerouslySetInnerHTML` 或自定义组件解析，确保不产生 XSS 风险（因为模板内容来自受信的管理后台配置）。
+在仓库根目录执行：
 
-示例：
-
-tsx
-function renderLabel(entry: DictEntry) {
-  if (!entry.label_component) {
-    return entry.entry_label;
-  }
-  const html = entry.label_component.replace('${EntryLabel}', entry.entry_label);
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
-}
+bash
+vp run admin-react#dev
+vp run admin-react#build
+vp staged
 
 
-## 初始菜单与 RBAC 种子数据
+在应用目录也可执行：
 
-后端种子数据（`cmd/scripts/init.sql`）已包含完整的初始菜单树、API 资源定义、角色分配和 Casbin 策略。前端启动后应展示菜单管理、角色权限分配等完整功能。若菜单不显示，检查 `useResourceMenuStore` 是否正确拉取 `/api/sys/resource/menu/tree` 并持久化。
+bash
+pnpm --filter admin-react dev
+pnpm --filter admin-react build
+pnpm --filter admin-react e2e:test
+
+
+## 验证
+
+- 修改前端代码后，提交前执行 `vp staged`。
+- 页面功能变更后运行对应的 E2E 测试。
+- 确保路由、菜单展现无异常，登录与鉴权逻辑正确。
