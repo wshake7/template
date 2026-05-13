@@ -2,7 +2,7 @@
 
 ## 何时使用
 
-当任务涉及 `front/apps/admin-react` 或 `front/packages/utils`，包括页面、路由、菜单、API、登录鉴权、主题、Mock、表单、表格、测试和构建时使用。特别适合开发系统管理功能（如角色、用户、菜单、API 资源、字典、语言、API 日志、登录日志、SSE 事件等）。
+当任务涉及 `front/apps/admin-react` 或 `front/packages/utils`，包括页面、路由、菜单、API、登录鉴权、主题、Mock、表单、表格、测试和构建时使用。特别适合开发系统管理功能（如角色、用户、菜单、API 资源、字典、语言、API 日志等）。
 
 ## 核心路径
 
@@ -20,8 +20,7 @@ front/apps/admin-react/
 │   │   ├── language.tsx
 │   │   ├── dict.tsx
 │   │   ├── logger/
-│   │   │   ├── api.log.tsx
-│   │   │   └── login.log.tsx     # 登录日志页面
+│   │   │   └── api.log.tsx
 │   │   ├── resource.api.tsx
 │   │   └── resource.menu.tsx
 │   └── _app/dashboard.tsx
@@ -35,9 +34,7 @@ front/apps/admin-react/
 │       ├── sysUser.ts
 │       ├── sysDict.ts
 │       ├── sysLanguage.ts
-│       ├── sysApiLog.ts
-│       ├── sysLoginLog.ts    # 登录日志 API
-│       └── eventStream.ts   # SSE 事件流
+│       └── sysApiLog.ts
 ├── src/domains/               # 领域类型、HTTP 状态码
 ├── src/stores/
 │   ├── account.ts             # 账号状态
@@ -66,7 +63,7 @@ front/apps/admin-react/
 - 路由使用 TanStack Router 文件路由，`src/routes/**` 通过插件生成 `src/routeTree.gen.ts`。
 - 根路由 `src/routes/__root.tsx` 根据 token 做登录跳转。
 - 应用壳 `src/routes/_app.tsx` 使用 `ProLayout`、`PageContainer`，侧边栏菜单来源于后端 `sys_resource_menu` 表，通过 `useResourceMenuStore` 拉取并持久化缓存。该 store 使用 zustand persist，刷新页面后快速恢复菜单树。
-- 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；日志类页面（如 API 日志、登录日志）放在 `src/routes/_app/logger/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中。
+- 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中。
 - HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。
 - 根路径 `/_app/` 不再强制重定向到 `/dashboard`，仅渲染空组件，实际首页内容通过侧边栏菜单导航到具体页面。
 - 字典数据使用 `useDictMatch` 钩子批量获取并缓存启用字典项，返回 `{ value, label }` 格式的映射，适用于下拉选项、表格列渲染。
@@ -74,7 +71,6 @@ front/apps/admin-react/
 - 图标选择使用 `AntIconPicker` 组件，可选图标列表由 `src/utils/antIcons.tsx` 提供。
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
 - 页签（tabs）行为由 `src/stores/menuTabs.ts` 的 `useMenuTabsStore` 与 `_app.tsx` 共同管理，支持动态打开、关闭、刷新、全部关闭、新窗口打开等操作，并通过右键菜单触发。
-- SSE 事件流通过 `src/api/eventStream.ts` 连接后端 `/api/events` 端点，用于实时接收登录日志等推送。
 
 ### 标签页缓存渲染与导航优化
 
@@ -90,21 +86,13 @@ front/apps/admin-react/
 
 ### 新增系统管理页面
 
-1. 在 `src/routes/_app/system/`（系统资源）或 `src/routes/_app/account/`（账号管理）或 `src/routes/_app/logger/`（日志）下创建文件路由，使用 `createFileRoute`。
-2. 在文件路由的 `staticData.menu` 中配置菜单：`name` 为页面标题，`menuType: 'menu'`；父级目录已在对应 `system.tsx`、`account.tsx` 或 `logger.tsx` 中定义为 `catalog`。
-3. 页面组件优先使用 Ant Design Pro Components，参照 `resource.menu.tsx`、`login.log.tsx` 等实现。
+1. 在 `src/routes/_app/system/`（系统资源）或 `src/routes/_app/account/`（账号管理）下创建文件路由，使用 `createFileRoute`。
+2. 在文件路由的 `staticData.menu` 中配置菜单：`name` 为页面标题，`menuType: 'menu'`；父级目录已在对应 `system.tsx` 或 `account.tsx` 中定义为 `catalog`。
+3. 页面组件优先使用 Ant Design Pro Components，参照 `resource.menu.tsx` 等实现。
 4. 在 `src/api/business/<resource>.ts` 中定义 API 方法和类型，URL 路径使用 `/api/sys/<resource>/*` 格式（与 Swagger 一致）。
 5. 若列表需要状态下拉，使用 `useDictMatch('system:is_enabled')` 获取选项。
 6. 若表单需要图标字段，使用 `AntIconPicker` 组件。
 7. 实现完成后，启动开发服务验证路由、菜单展现和数据交互。
-
-### 登录日志页面
-
-- 页面组件 `src/routes/_app/logger/login.log.tsx` 展示所有登录尝试记录，支持按用户名、IP、状态等筛选。
-- 使用 `alova/client` 的 `usePagination` 分页加载数据，表格列包含用户名、登录 IP、设备信息、状态码、是否成功、登录时间等。
-- 状态列渲染使用 `Tag` 组件，成功显示“成功”并用绿色，失败显示“失败”并用红色。
-- 详情功能通过 `POST /api/sys/login/log/detail` 获取单条日志完整信息。
-- 实时事件通过 `src/api/eventStream.ts` 订阅，页面需要时可监听登录事件更新列表。
 
 ### 使用字典匹配
 
@@ -293,8 +281,33 @@ tsx
 <Form<XxxFormValues> form={form} onFinish={onFinish}>
   <ProFormText name="name" label="名称" rules={rules} />
   <ProFormDigit name="sortOrder" label="排序" rules={rules} />
-  <Form.Item name="isEnabled" label="启用状态" valuePropName="checked">
+  <Form.Item name="isEnabled" label="状态" valuePropName="checked" rules={rules}>
     <Switch />
   </Form.Item>
-  <ProFormTextArea name="remark" label="备注" />
 </Form>
+
+
+注意：
+
+- 每个参与校验的字段复用同一个 `rules`，字段级错误由 `useZodForm` 按 zod issue path 回填。
+- 编辑场景使用 `toXxxFormValues` 将原始记录转换为表单初始值，保证缺失字段有安全默认值。
+
+## 字典条目 label_component 渲染
+
+字典条目可能包含 `label_component` 字段，其值为类似 `<Tag color="success">${EntryLabel}</Tag>` 的模板字符串。前端渲染时，需要将 `${EntryLabel}` 替换为条目实际的 `entry_label`，并安全渲染 HTML。可使用 `dangerouslySetInnerHTML` 或自定义组件解析，确保不产生 XSS 风险（因为模板内容来自受信的管理后台配置）。
+
+示例：
+
+tsx
+function renderLabel(entry: DictEntry) {
+  if (!entry.label_component) {
+    return entry.entry_label;
+  }
+  const html = entry.label_component.replace('${EntryLabel}', entry.entry_label);
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+
+## 初始菜单与 RBAC 种子数据
+
+后端种子数据（`cmd/scripts/init.sql`）已包含完整的初始菜单树、API 资源定义、角色分配和 Casbin 策略。前端启动后应展示菜单管理、角色权限分配等完整功能。若菜单不显示，检查 `useResourceMenuStore` 是否正确拉取 `/api/sys/resource/menu/tree` 并持久化。
