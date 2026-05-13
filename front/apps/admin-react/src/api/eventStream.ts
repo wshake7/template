@@ -3,6 +3,7 @@ import { useSSE } from 'alova/client'
 import adapterFetch from 'alova/fetch'
 import reactHook from 'alova/react'
 import { useEffect, useRef } from 'react'
+import { createEncryptedRequestConfig, decryptText } from '~/api/encryptRequest'
 import { XHeader } from '~/domains/http'
 
 const SSE_API = createAlova({
@@ -17,13 +18,13 @@ export function useEventStream() {
   const token = useAccountStore(state => state.token)
   const connectedRef = useRef(false)
   const tokenRef = useRef(token)
+  const aesKeyRef = useRef<CryptoKey | undefined>(undefined)
+  const headersRef = useRef<Record<string, any>>({})
   tokenRef.current = token
 
   const eventStream = useSSE(
     () => SSE_API.Get('/api/events', {
-      headers: {
-        [XHeader.Token]: useAccountStore.getState().token,
-      },
+      headers: headersRef.current,
     }),
     {
       immediate: false,
@@ -34,21 +35,31 @@ export function useEventStream() {
     },
   )
 
-  const eventBoundRef = useRef(false)
-  if (!eventBoundRef.current) {
-    eventBoundRef.current = true
-    eventStream
-      .on<{ count: number }>('count', (event) => {
-        console.log('[SSE count]', event.data.count)
-      })
-      .onError((event) => {
-        console.error('[SSE error]', event.error)
-        if (tokenRef.current === '') {
-          eventStream.close()
-          connectedRef.current = false
-        }
-      })
-  }
+  useEffect(() => {
+    const offCount = eventStream.on<{ payload: string }>('count', async (event) => {
+      if (!aesKeyRef.current) {
+        console.error('[SSE decrypt error]', 'missing aes key')
+        return
+      }
+      const decrypted = await decryptText(event.data.payload, aesKeyRef.current)
+      const data = JSON.parse(decrypted) as { count: number }
+      console.log('[SSE count]', data.count)
+    }) as unknown
+
+    eventStream.onError((event) => {
+      console.error('[SSE error]', event.error)
+      if (tokenRef.current === '') {
+        eventStream.close()
+        connectedRef.current = false
+      }
+    })
+
+    return () => {
+      if (typeof offCount === 'function') {
+        offCount()
+      }
+    }
+  }, [eventStream])
 
   useEffect(() => {
     if (token === '') {
@@ -61,14 +72,30 @@ export function useEventStream() {
     }
 
     connectedRef.current = true
-    eventStream.send().catch((error) => {
-      connectedRef.current = false
-      console.error('[SSE connect error]', error)
+    createEncryptedRequestConfig({
+      headers: {
+        [XHeader.Token]: useAccountStore.getState().token,
+      },
     })
+      .then((config) => {
+        if (!config.aesKey || tokenRef.current === '') {
+          connectedRef.current = false
+          return
+        }
+        aesKeyRef.current = config.aesKey
+        headersRef.current = config.headers
+        return eventStream.send()
+      })
+      .catch((error) => {
+        connectedRef.current = false
+        console.error('[SSE connect error]', error)
+      })
 
     return () => {
       eventStream.close()
       connectedRef.current = false
+      aesKeyRef.current = undefined
+      headersRef.current = {}
     }
   }, [eventStream, token])
 }

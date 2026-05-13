@@ -48,8 +48,12 @@ declare global {
   const changePwdModal: typeof import('./components/business/account/changePwdModal').default
   const cn: typeof import('./components/lib/utils').cn
   const createContext: typeof import('react').createContext
+  const createEncryptedRequestConfig: typeof import('./api/encryptRequest').createEncryptedRequestConfig
   const createRef: typeof import('react').createRef
+  const decryptText: typeof import('./api/encryptRequest').decryptText
   const defaultZodValidator: typeof import('./utils/zod').defaultZodValidator
+  const encryptRequest: typeof import('./api/encryptRequest').encryptRequest
+  const ensurePublicKey: typeof import('./api/encryptRequest').ensurePublicKey
   const fieldZodValidator: typeof import('./utils/zod').fieldZodValidator
   const formatDateYYYYMMDDHHmm: typeof import('./utils/date').formatDateYYYYMMDDHHmm
   const forwardRef: typeof import('react').forwardRef

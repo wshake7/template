@@ -55,49 +55,11 @@ func NonceMiddleware() fiber.Handler {
 func EncryptMiddleware() fiber.Handler {
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
 		ctx.Set(domains2.HeaderXResponseIsEncrypt, "false")
-		privateKey := ctx.PrivateKey
-		if privateKey == "" {
-			ctx.L().Error("privateKey is empty")
-			return res.FailRequest
-		}
-		encryptedKey := fiber.GetReqHeader[string](ctx, domains2.HeaderXRequestEncryptedKey)
-		if encryptedKey == "" {
-			ctx.L().Error("encrypted key is empty")
-			return res.FailRequest
-		}
-		aesKey, err := rsa_util.Decrypt(encryptedKey, privateKey)
+		aesKey, decrypt, err := DecryptRequest(ctx)
 		if err != nil {
-			ctx.L().Error("encrypt error", zap.Error(err))
-			return res.FailDefault
+			return err
 		}
-		timestamp := fiber.GetReqHeader[int64](ctx, domains2.HeaderXRequestTimestamp)
-		nonce := ctx.RequestID()
-		params := map[string]any{
-			domains2.HeaderXRequestID:        nonce,
-			domains2.HeaderXRequestTimestamp: timestamp,
-		}
-
-		for k, v := range ctx.Queries() {
-			params[k] = v
-		}
-		add := encrypt.UriSort(params, func(key string) bool {
-			return true
-		})
-		reqBody := ctx.Request().Body()
-		sign := fiber.GetReqHeader[string](ctx, domains2.HeaderXRequestSignature)
-		var decrypt []byte
-		if reqBody == nil {
-			decrypt, err = aes_util.DecryptCiphertextAndTag("", sign, aesKey, add)
-			if err != nil {
-				ctx.L().Error("decrypt error", zap.Error(err))
-				return res.FailDefault
-			}
-		} else {
-			decrypt, err = aes_util.DecryptCiphertextAndTag(string(reqBody), sign, aesKey, add)
-			if err != nil {
-				ctx.L().Error("decrypt error", zap.Error(err))
-				return res.FailDefault
-			}
+		if len(ctx.Request().Body()) > 0 {
 			ctx.Request().SetBody(decrypt)
 		}
 		err = ctx.Next()
@@ -107,15 +69,80 @@ func EncryptMiddleware() fiber.Handler {
 		resBody := ctx.Response().Body()
 		resBodyStr := string(resBody)
 		ctx.AddResLogFields(zap.String(domains2.LogFieldDecryptResBody, resBodyStr))
-		result, err := aes_util.Encrypt(resBodyStr, aesKey, "")
+		encryptedBody, err := EncryptText(resBodyStr, aesKey)
 		if err != nil {
 			ctx.L().Error("encrypt error", zap.Error(err))
 			return res.FailDefault
 		}
 		ctx.Set(domains2.HeaderXResponseIsEncrypt, "true")
-		ctx.Response().SetBody([]byte(result.Combined))
+		ctx.Response().SetBody([]byte(encryptedBody))
 		return err
 	})
+}
+
+func DecryptRequest(ctx *handler.Ctx) (string, []byte, error) {
+	aesKey, err := DecryptRequestAESKey(ctx)
+	if err != nil {
+		return "", nil, err
+	}
+	decrypt, err := DecryptRequestBody(ctx, aesKey)
+	if err != nil {
+		return "", nil, err
+	}
+	return aesKey, decrypt, nil
+}
+
+func DecryptRequestAESKey(ctx *handler.Ctx) (string, error) {
+	privateKey := ctx.PrivateKey
+	if privateKey == "" {
+		ctx.L().Error("privateKey is empty")
+		return "", res.FailRequest
+	}
+	encryptedKey := fiber.GetReqHeader[string](ctx, domains2.HeaderXRequestEncryptedKey)
+	if encryptedKey == "" {
+		ctx.L().Error("encrypted key is empty")
+		return "", res.FailRequest
+	}
+	aesKey, err := rsa_util.Decrypt(encryptedKey, privateKey)
+	if err != nil {
+		ctx.L().Error("encrypt error", zap.Error(err))
+		return "", res.FailDefault
+	}
+	return aesKey, nil
+}
+
+func DecryptRequestBody(ctx *handler.Ctx, aesKey string) ([]byte, error) {
+	sign := fiber.GetReqHeader[string](ctx, domains2.HeaderXRequestSignature)
+	decrypt, err := aes_util.DecryptCiphertextAndTag(string(ctx.Request().Body()), sign, aesKey, RequestAAD(ctx))
+	if err != nil {
+		ctx.L().Error("decrypt error", zap.Error(err))
+		return nil, res.FailDefault
+	}
+	return decrypt, nil
+}
+
+func RequestAAD(ctx *handler.Ctx) string {
+	timestamp := fiber.GetReqHeader[int64](ctx, domains2.HeaderXRequestTimestamp)
+	nonce := ctx.RequestID()
+	params := map[string]any{
+		domains2.HeaderXRequestID:        nonce,
+		domains2.HeaderXRequestTimestamp: timestamp,
+	}
+
+	for k, v := range ctx.Queries() {
+		params[k] = v
+	}
+	return encrypt.UriSort(params, func(key string) bool {
+		return true
+	})
+}
+
+func EncryptText(plainText string, aesKey string) (string, error) {
+	result, err := aes_util.Encrypt(plainText, aesKey, "")
+	if err != nil {
+		return "", err
+	}
+	return result.Combined, nil
 }
 
 const SigData = "signData"
