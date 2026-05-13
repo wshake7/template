@@ -49,6 +49,21 @@ ALTER TABLE "public"."sys_api_log"
     ALTER COLUMN "referer" TYPE text,
     ALTER COLUMN "request_uri" TYPE text;
 
+ALTER TABLE "public"."sys_login_log"
+    ADD COLUMN IF NOT EXISTS "username" varchar(64) NOT NULL DEFAULT '',
+    ALTER COLUMN "sys_user_id" DROP NOT NULL,
+    ALTER COLUMN "login_ip" SET DEFAULT '',
+    ALTER COLUMN "login_mac" SET DEFAULT '',
+    ALTER COLUMN "user_agent" TYPE text,
+    ALTER COLUMN "browser_name" TYPE varchar(128),
+    ALTER COLUMN "browser_version" TYPE varchar(128),
+    ALTER COLUMN "client_id" SET DEFAULT '',
+    ALTER COLUMN "client_name" SET DEFAULT '',
+    ALTER COLUMN "os_name" SET DEFAULT '',
+    ALTER COLUMN "os_version" SET DEFAULT '',
+    ALTER COLUMN "status_code" TYPE int,
+    ALTER COLUMN "success" TYPE boolean;
+
 DROP INDEX IF EXISTS "public"."idx_sys_user_username_deleted_at";
 DROP INDEX IF EXISTS "public"."idx_sys_casbin_model_name";
 DROP INDEX IF EXISTS "public"."idx_sys_data_permission_subject_resource_action_deleted_at";
@@ -109,6 +124,27 @@ CREATE INDEX IF NOT EXISTS "idx_sys_api_log_success_created_at"
 
 CREATE INDEX IF NOT EXISTS "idx_sys_api_log_status_created_at"
     ON "public"."sys_api_log" ("status_code", "created_at");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_username"
+    ON "public"."sys_login_log" ("username");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_login_ip"
+    ON "public"."sys_login_log" ("login_ip");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_login_time"
+    ON "public"."sys_login_log" ("login_time");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_sys_user_id"
+    ON "public"."sys_login_log" ("sys_user_id");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_user_login_time"
+    ON "public"."sys_login_log" ("sys_user_id", "login_time");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_success_login_time"
+    ON "public"."sys_login_log" ("success", "login_time");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_login_log_status_login_time"
+    ON "public"."sys_login_log" ("status_code", "login_time");
 
 ALTER TABLE "public"."sys_data_permission"
     DROP CONSTRAINT IF EXISTS "chk_sys_data_permission_subject_type",

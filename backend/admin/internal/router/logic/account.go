@@ -1,12 +1,13 @@
 package logic
 
-import "C"
 import (
 	"admin/internal/auth"
+	"admin/internal/domains"
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
 	"admin/internal/services/orm/query"
 	"errors"
+
 	"go-common/utils/encrypt/rsa_util"
 	"go-common/utils/passwd"
 
@@ -44,16 +45,20 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			recordPwdLoginLog(ctx, req.Username, nil, domains.StatusLoginFail, false, "invalid username or password")
 			return nil, errors.New("用户名或密码无效")
 		}
 		logger.Error("获取用户失败", zap.Error(err))
+		recordPwdLoginLog(ctx, req.Username, nil, domains.StatusFail, false, "query user failed")
 		return nil, errors.New("登录失败")
 	}
 
-	// 校验密码
 	if !passwd.Match(req.Pwd, result.Password) {
+		userID := result.ID
+		recordPwdLoginLog(ctx, req.Username, &userID, domains.StatusLoginFail, false, "invalid username or password")
 		return nil, errors.New("用户名或密码无效")
 	}
+
 	sysRole := query.SysRole
 	sysUserRole := query.SysUserRole
 	userRoles, err := sysUserRole.
@@ -63,8 +68,11 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 		Find()
 	if err != nil {
 		logger.Error("获取用户角色失败", zap.Error(err), zap.Uint64("userID", result.ID))
+		userID := result.ID
+		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusFail, false, "query user roles failed")
 		return nil, errors.New("登录失败")
 	}
+
 	roleCodes := make([]string, 0, len(userRoles))
 	roleIDs := make([]uint64, 0, len(userRoles))
 	for _, userRole := range userRoles {
@@ -83,18 +91,24 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	token, err := stputil.Login(result.ID)
 	if err != nil {
 		logger.Error("获取token失败", zap.Error(err))
+		userID := result.ID
+		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusLoginFail, false, "create token failed")
 		return nil, errors.New("登录失败")
 	}
 
 	session, err := auth.GetSession(result.ID)
 	if err != nil {
 		logger.Error("获取session失败", zap.Error(err))
+		userID := result.ID
+		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusLoginFail, false, "get session failed")
 		return nil, errors.New("登录失败")
 	}
 
 	privateKey, publicKey, err := rsa_util.GenerateKeyPair()
 	if err != nil {
 		logger.Error("获取rsaKey错误", zap.Error(err))
+		userID := result.ID
+		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusFail, false, "generate rsa key failed")
 		return nil, errors.New("登录失败")
 	}
 
@@ -107,8 +121,13 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	})
 	if err != nil {
 		logger.Error("保存SessionInfo错误", zap.Error(err))
+		userID := result.ID
+		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusFail, false, "save session failed")
 		return nil, errors.New("登录失败")
 	}
+
+	userID := result.ID
+	recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusOk, true, "")
 	return &ResAccountPwdLogin{
 		Token:     token,
 		PublicKey: publicKey,
@@ -116,7 +135,7 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 }
 
 type ReqAccountLogout struct {
-	Token string `cookie:"token" binding:"required" binding_msg:"required=请求错误'"`
+	Token string `cookie:"token" binding:"required" binding_msg:"required=请求错误"`
 }
 
 // @Summary 退出登录

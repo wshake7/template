@@ -199,6 +199,47 @@ definitions:
       updatedBy:
         type: integer
     type: object
+  admin_internal_services_orm_models.SysLoginLog:
+    properties:
+      browserName:
+        type: string
+      browserVersion:
+        type: string
+      clientID:
+        type: string
+      clientName:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      loginIP:
+        type: string
+      loginMAC:
+        type: string
+      loginTime:
+        type: string
+      osName:
+        type: string
+      osVersion:
+        type: string
+      reason:
+        type: string
+      statusCode:
+        type: integer
+      success:
+        type: boolean
+      sysUser:
+        $ref: '#/definitions/admin_internal_services_orm_models.SysUser'
+      sysUserID:
+        type: integer
+      userAgent:
+        type: string
+      username:
+        type: string
+    type: object
   admin_internal_services_orm_models.SysResourceMenu:
     properties:
       alias:
@@ -346,6 +387,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/admin_internal_services_orm_models.SysLanguageType'
+        type: array
+      total:
+        type: integer
+    type: object
+  gormc.PagingResult-admin_internal_services_orm_models_SysLoginLog:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/admin_internal_services_orm_models.SysLoginLog'
         type: array
       total:
         type: integer
@@ -730,6 +780,13 @@ definitions:
       - id
     type: object
   internal_router_logic.ReqLogDetail:
+    properties:
+      id:
+        type: integer
+    required:
+      - id
+    type: object
+  internal_router_logic.ReqLoginLogDetail:
     properties:
       id:
         type: integer
@@ -1895,6 +1952,60 @@ paths:
       summary: 更新语言类型
       tags:
         - Language
+  /api/sys/login/log/detail:
+    post:
+      consumes:
+        - application/json
+      description: 根据 ID 获取登录日志详情
+      parameters:
+        - description: 日志ID
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/internal_router_logic.ReqLoginLogDetail'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/admin_internal_services_orm_models.SysLoginLog'
+                type: object
+      summary: 获取登录日志详情
+      tags:
+        - Log
+  /api/sys/login/log/list:
+    post:
+      consumes:
+        - application/json
+      description: 分页查询登录日志信息
+      parameters:
+        - description: 分页参数
+          in: body
+          name: req
+          required: true
+          schema:
+            $ref: '#/definitions/v1.PagingRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/admin_internal_fiberc_res.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysLoginLog'
+                type: object
+      summary: 获取登录日志分页列表
+      tags:
+        - Log
   /api/sys/resource/api/create:
     post:
       consumes:

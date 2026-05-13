@@ -29,6 +29,7 @@ func newSysLoginLog(db *gorm.DB, opts ...gen.DOOption) sysLoginLog {
 	_sysLoginLog.ALL = field.NewAsterisk(tableName)
 	_sysLoginLog.ID = field.NewUint64(tableName, "id")
 	_sysLoginLog.CreatedAt = field.NewTime(tableName, "created_at")
+	_sysLoginLog.Username = field.NewString(tableName, "username")
 	_sysLoginLog.LoginIP = field.NewString(tableName, "login_ip")
 	_sysLoginLog.LoginMAC = field.NewString(tableName, "login_mac")
 	_sysLoginLog.LoginTime = field.NewTime(tableName, "login_time")
@@ -61,6 +62,7 @@ type sysLoginLog struct {
 	ALL            field.Asterisk
 	ID             field.Uint64
 	CreatedAt      field.Time
+	Username       field.String // 登录账号
 	LoginIP        field.String // 登录IP地址
 	LoginMAC       field.String // 登录MAC地址
 	LoginTime      field.Time   // 登录时间
@@ -71,9 +73,9 @@ type sysLoginLog struct {
 	ClientName     field.String // 客户端名称
 	OSName         field.String // 操作系统名称
 	OSVersion      field.String // 操作系统版本
-	SysUserID      field.Uint64 // 操作者用户ID
+	SysUserID      field.Uint64 // 登录用户ID
 	StatusCode     field.Int32  // 状态码
-	Success        field.Bool   // 操作成功
+	Success        field.Bool   // 登录成功
 	Reason         field.String // 登录失败原因
 	Location       field.String // 登录地理位置
 	SysUser        sysLoginLogBelongsToSysUser
@@ -95,6 +97,7 @@ func (s *sysLoginLog) updateTableName(table string) *sysLoginLog {
 	s.ALL = field.NewAsterisk(table)
 	s.ID = field.NewUint64(table, "id")
 	s.CreatedAt = field.NewTime(table, "created_at")
+	s.Username = field.NewString(table, "username")
 	s.LoginIP = field.NewString(table, "login_ip")
 	s.LoginMAC = field.NewString(table, "login_mac")
 	s.LoginTime = field.NewTime(table, "login_time")
@@ -126,9 +129,10 @@ func (s *sysLoginLog) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysLoginLog) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 18)
+	s.fieldMap = make(map[string]field.Expr, 19)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["created_at"] = s.CreatedAt
+	s.fieldMap["username"] = s.Username
 	s.fieldMap["login_ip"] = s.LoginIP
 	s.fieldMap["login_mac"] = s.LoginMAC
 	s.fieldMap["login_time"] = s.LoginTime

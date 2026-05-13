@@ -944,6 +944,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/sys/login/log/detail": {
+            "post": {
+                "description": "根据 ID 获取登录日志详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "获取登录日志详情",
+                "parameters": [
+                    {
+                        "description": "日志ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqLoginLogDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin_internal_services_orm_models.SysLoginLog"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/login/log/list": {
+            "post": {
+                "description": "分页查询登录日志信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "获取登录日志分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-admin_internal_services_orm_models_SysLoginLog"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/sys/resource/api/create": {
             "post": {
                 "consumes": [
@@ -1963,6 +2055,68 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_internal_services_orm_models.SysLoginLog": {
+            "type": "object",
+            "properties": {
+                "browserName": {
+                    "type": "string"
+                },
+                "browserVersion": {
+                    "type": "string"
+                },
+                "clientID": {
+                    "type": "string"
+                },
+                "clientName": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "loginIP": {
+                    "type": "string"
+                },
+                "loginMAC": {
+                    "type": "string"
+                },
+                "loginTime": {
+                    "type": "string"
+                },
+                "osName": {
+                    "type": "string"
+                },
+                "osVersion": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "statusCode": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "sysUser": {
+                    "$ref": "#/definitions/admin_internal_services_orm_models.SysUser"
+                },
+                "sysUserID": {
+                    "type": "integer"
+                },
+                "userAgent": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "admin_internal_services_orm_models.SysResourceMenu": {
             "type": "object",
             "properties": {
@@ -2185,6 +2339,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/admin_internal_services_orm_models.SysLanguageType"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-admin_internal_services_orm_models_SysLoginLog": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin_internal_services_orm_models.SysLoginLog"
                     }
                 },
                 "total": {
@@ -2746,6 +2914,17 @@ const docTemplate = `{
             }
         },
         "internal_router_logic.ReqLogDetail": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqLoginLogDetail": {
             "type": "object",
             "required": [
                 "id"

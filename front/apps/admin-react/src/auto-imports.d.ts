@@ -24,6 +24,7 @@ declare global {
   const LangApi: typeof import('./api/business/sysLanguage').LangApi
   const LanguageEntryPanel: typeof import('./components/business/system/languagePanels').LanguageEntryPanel
   const LanguageTypePanel: typeof import('./components/business/system/languagePanels').LanguageTypePanel
+  const LoginLogApi: typeof import('./api/business/sysLoginLog').LoginLogApi
   const NotFoundComponent: typeof import('./components/notFound').NotFoundComponent
   const ResourceApiApi: typeof import('./api/business/sysResourceApi').ResourceApiApi
   const ResourceMenuApi: typeof import('./api/business/sysResourceMenu').ResourceMenuApi
@@ -214,6 +215,9 @@ declare global {
   // @ts-ignore
   export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/business/sysLanguage'
   import('./api/business/sysLanguage')
+  // @ts-ignore
+  export type { SysLoginLog, ReqLoginLogDetail } from './api/business/sysLoginLog'
+  import('./api/business/sysLoginLog')
   // @ts-ignore
   export type { ResourceApiMethod, ResourceApi, ReqResourceApiCreate, ReqResourceApiUpdate, ReqResourceApiBatchDelete } from './api/business/sysResourceApi'
   import('./api/business/sysResourceApi')

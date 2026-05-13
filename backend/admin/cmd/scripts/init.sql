@@ -72,6 +72,7 @@ INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "cre
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (9, '2026-05-10 17:38:27.019193+08', '2026-05-10 20:06:43.984546+08', 1, 1, 0, '', -1, '{"icon": "", "order": -1, "hidden": false}', 't', 0, 'MENU', '/system/resource/api', '', '', 'API管理', '/system/resource.api.tsx', 2, '/2/9/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (10, '2026-05-09 16:17:20.233627+08', '2026-05-10 20:10:15.368034+08', 1, 1, 0, '', 0, '{"icon": "", "order": 0, "hidden": false}', 't', 0, 'MENU', '/logger/api/log', '', '', 'API日志', '/logger/api.log.tsx', 4, '/10/4/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (11, '2026-05-10 20:28:36.585473+08', '2026-05-10 20:28:36.587573+08', 1, 1, 0, '', 0, '{"icon": "", "order": 0, "hidden": false}', 't', 0, 'MENU', '/account/user', '', '', '用户管理', '/account/user.tsx', 7, '/7/11/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (12, '2026-05-13 00:00:00+08', '2026-05-13 00:00:00+08', 1, 1, 0, '', 1, '{"icon": "", "order": 1, "hidden": false}', 't', 0, 'MENU', '/logger/login/log', '', '', '登录日志', '/logger/login.log.tsx', 4, '/10/12/');
 
 INSERT INTO "public"."sys_resource_api"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "is_enabled", "deleted_at", "module", "path", "method")
@@ -116,7 +117,9 @@ VALUES
     (38, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/list', 'POST'),
     (39, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/create', 'POST'),
     (40, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/update', 'POST'),
-    (41, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/del', 'POST');
+    (41, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/del', 'POST'),
+    (42, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/list', 'POST'),
+    (43, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/detail', 'POST');
 
 INSERT INTO "public"."casbin_rule"
 ("ptype", "v0", "v1", "v2")
@@ -161,7 +164,9 @@ VALUES
     ('p', 'role:root', '/api/sys/resource/api/list', 'POST'),
     ('p', 'role:root', '/api/sys/resource/api/create', 'POST'),
     ('p', 'role:root', '/api/sys/resource/api/update', 'POST'),
-    ('p', 'role:root', '/api/sys/resource/api/del', 'POST');
+    ('p', 'role:root', '/api/sys/resource/api/del', 'POST'),
+    ('p', 'role:root', '/api/sys/login/log/list', 'POST'),
+    ('p', 'role:root', '/api/sys/login/log/detail', 'POST');
 
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (1, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 2, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (2, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 3, 0);
@@ -173,6 +178,7 @@ INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (8, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 9, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (9, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 10, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (10, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 11, 0);
+INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (11, '2026-05-13 00:00:00+08', '2026-05-13 00:00:00+08', 1, 1, 0, 1, 12, 0);
 
 INSERT INTO "public"."sys_role_api"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "api_id", "deleted_at")
@@ -217,4 +223,6 @@ VALUES
     (38, NULL, NULL, 0, 0, 0, 1, 38, 0),
     (39, NULL, NULL, 0, 0, 0, 1, 39, 0),
     (40, NULL, NULL, 0, 0, 0, 1, 40, 0),
-    (41, NULL, NULL, 0, 0, 0, 1, 41, 0);
+    (41, NULL, NULL, 0, 0, 0, 1, 41, 0),
+    (42, NULL, NULL, 0, 0, 0, 1, 42, 0),
+    (43, NULL, NULL, 0, 0, 0, 1, 43, 0);
