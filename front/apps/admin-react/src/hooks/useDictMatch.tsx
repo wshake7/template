@@ -5,6 +5,15 @@ import { useTranslation } from 'react-i18next'
 import { DictApi } from '~/api/business/sysDict'
 import { renderDictEntryLabel } from '~/components/dictEntryLabel'
 
+export interface DictMatchResult {
+  entries: DictMatchedEntry[]
+  getEntry: (value: string | number | boolean) => DictMatchedEntry | undefined
+  getLabel: (value: string | number | boolean, fallback?: string) => string
+  renderLabel: (value: string | number | boolean, fallback?: ReactNode) => ReactNode
+}
+
+export type DictMatchesResult = Record<string, DictMatchResult>
+
 const dictMatchCache = new Map<string, DictMatchedEntry[]>()
 const loadingDictCodes = new Set<string>()
 const pendingDictCodes = new Set<string>()
@@ -77,7 +86,39 @@ function scheduleDictMatches(codes: string[]) {
   }
 }
 
+function createDictMatchResult(
+  entries: DictMatchedEntry[],
+  resolveEntryLabel: (entryLabel: string) => string,
+): DictMatchResult {
+  const entryByValue = new Map(entries.map(item => [item.entryValue, item]))
+
+  const getEntry = (value: string | number | boolean) => {
+    return entryByValue.get(String(value))
+  }
+
+  const getLabel = (value: string | number | boolean, fallback = '') => {
+    const entry = getEntry(value)
+    return entry ? resolveEntryLabel(entry.entryLabel) : fallback
+  }
+
+  const renderLabel = (value: string | number | boolean, fallback: ReactNode = '未知状态') => {
+    const entry = getEntry(value)
+    if (!entry) {
+      return fallback
+    }
+    return renderDictEntryLabel(entry.labelComponent, resolveEntryLabel(entry.entryLabel))
+  }
+
+  return {
+    entries,
+    getEntry,
+    getLabel,
+    renderLabel,
+  }
+}
+
 export function useDictMatches(codes: string[]) {
+  const { t } = useTranslation()
   const codesKey = useMemo(() => normalizeDictCodes(codes).join('\u0000'), [codes])
   const cachedEntriesByCode = useSyncExternalStore(
     subscribeDictMatches,
@@ -90,48 +131,27 @@ export function useDictMatches(codes: string[]) {
     scheduleDictMatches(requestCodes)
   }, [codesKey])
 
-  return useMemo(() => {
-    const requestCodes = codesKey ? codesKey.split('\u0000') : []
-    return Object.fromEntries(requestCodes.map(code => [code, cachedEntriesByCode[code] ?? []]))
-  }, [cachedEntriesByCode, codesKey])
-}
-
-export function useDictMatch(code: string) {
-  const { t } = useTranslation()
-  const codes = useMemo(() => [code], [code])
-  const entriesByCode = useDictMatches(codes)
-  const entries = useMemo<DictMatchedEntry[]>(() => entriesByCode[code] ?? [], [code, entriesByCode])
-
-  const entryByValue = useMemo(() => {
-    return new Map(entries.map(item => [item.entryValue, item]))
-  }, [entries])
-
-  const getEntry = useCallback((value: string | number | boolean) => {
-    return entryByValue.get(String(value))
-  }, [entryByValue])
-
   const resolveEntryLabel = useCallback((entryLabel: string) => {
     const translated = t(entryLabel, { defaultValue: entryLabel })
     return typeof translated === 'string' ? translated : entryLabel
   }, [t])
 
-  const getLabel = useCallback((value: string | number | boolean, fallback = '') => {
-    const entry = getEntry(value)
-    return entry ? resolveEntryLabel(entry.entryLabel) : fallback
-  }, [getEntry, resolveEntryLabel])
+  return useMemo(() => {
+    const requestCodes = codesKey ? codesKey.split('\u0000') : []
+    return Object.fromEntries(
+      requestCodes.map(code => [
+        code,
+        createDictMatchResult(cachedEntriesByCode[code] ?? [], resolveEntryLabel),
+      ]),
+    ) as DictMatchesResult
+  }, [cachedEntriesByCode, codesKey, resolveEntryLabel])
+}
 
-  const renderLabel = useCallback((value: string | number | boolean, fallback: ReactNode = '未知状态') => {
-    const entry = getEntry(value)
-    if (!entry) {
-      return fallback
-    }
-    return renderDictEntryLabel(entry.labelComponent, resolveEntryLabel(entry.entryLabel))
-  }, [getEntry, resolveEntryLabel])
+export function useDictMatch(code: string) {
+  const codes = useMemo(() => [code], [code])
+  const matches = useDictMatches(codes)
 
-  return useMemo(() => ({
-    entries,
-    getEntry,
-    getLabel,
-    renderLabel,
-  }), [entries, getEntry, getLabel, renderLabel])
+  return useMemo(() => {
+    return matches[code] ?? createDictMatchResult([], entryLabel => entryLabel)
+  }, [code, matches])
 }
