@@ -19,6 +19,7 @@ import (
 	_ "admin/internal/services/casbin"
 	_ "admin/internal/services/httpc"
 	_ "admin/internal/services/orm"
+	_ "admin/internal/services/orm/data_permission"
 	_ "admin/internal/services/orm/models"
 	_ "admin/internal/services/orm/query"
 	_ "admin/internal/services/redisc"

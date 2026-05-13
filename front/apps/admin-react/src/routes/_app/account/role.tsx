@@ -131,6 +131,7 @@ function RoleManagement() {
   const [roleTree, setRoleTree] = useState<SysRole[]>([])
   const [menuTree, setMenuTree] = useState<ResourceMenu[]>([])
   const [apiItems, setApiItems] = useState<ResourceApi[]>([])
+  const [apiSearchText, setApiSearchText] = useState('')
   const [selectedMenuKeys, setSelectedMenuKeys] = useState<Key[]>([])
   const [selectedApiKeys, setSelectedApiKeys] = useState<Key[]>([])
 
@@ -182,6 +183,19 @@ function RoleManagement() {
   const roleOptions = useMemo(() => roleTreeToSelectData(roleTree, editing?.id), [editing?.id, roleTree])
   const menuTreeData = useMemo(() => menuTreeToTreeData(menuTree), [menuTree])
   const menuTotal = useMemo(() => flattenResourceMenus(menuTree).length, [menuTree])
+  const filteredApiItems = useMemo(() => {
+    const keyword = apiSearchText.trim().toLowerCase()
+    if (!keyword) {
+      return apiItems
+    }
+    return apiItems.filter(item =>
+      [
+        item.module,
+        item.method,
+        item.path,
+      ].some(value => String(value ?? '').toLowerCase().includes(keyword)),
+    )
+  }, [apiItems, apiSearchText])
 
   const loadRoleTree = async () => {
     const response = await RoleApi.apiTree().send()
@@ -259,6 +273,7 @@ function RoleManagement() {
 
   const openPermissionDrawer = async (record: SysRole) => {
     setPermissionRole(record)
+    setApiSearchText('')
     setSelectedMenuKeys([])
     setSelectedApiKeys([])
     try {
@@ -398,6 +413,12 @@ function RoleManagement() {
       title: '路径',
       dataIndex: 'path',
       ellipsis: true,
+    },
+    {
+      title: '备注',
+      dataIndex: 'remark',
+      ellipsis: true,
+      render: (value: string) => value || '-',
     },
   ]
 
@@ -561,13 +582,24 @@ function RoleManagement() {
               {apiItems.length}
               ）
             </div>
+            <Input.Search
+              allowClear
+              placeholder="搜索模块、方法或路径"
+              value={apiSearchText}
+              onChange={(event) => {
+                setApiSearchText(event.target.value)
+              }}
+              onSearch={setApiSearchText}
+              style={{ marginBottom: 12, width: 320 }}
+            />
             <Table<ResourceApi>
               rowKey="id"
               size="small"
               columns={apiColumns}
-              dataSource={apiItems}
+              dataSource={filteredApiItems}
               pagination={{ pageSize: 8, showSizeChanger: false }}
               rowSelection={{
+                preserveSelectedRowKeys: true,
                 selectedRowKeys: selectedApiKeys,
                 onChange: setSelectedApiKeys,
               }}

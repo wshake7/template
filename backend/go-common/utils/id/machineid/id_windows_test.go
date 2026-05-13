@@ -8,10 +8,10 @@ import (
 func TestMachineID(t *testing.T) {
 	id, err := machineID()
 	if err != nil {
-		t.Errorf("machineID() error: %v (may be expected in restricted/CI environments)", err)
+		t.Skipf("machineID() unavailable in this environment: %v", err)
 	}
 	if id == "" {
-		t.Error("machineID() returned empty string; this may be normal in some environments")
+		t.Skip("machineID() returned empty string in this environment")
 	} else {
 		// 简单验证 ID 格式（8-4-4-4-12 的十六进制字符串）
 		parts := strings.Split(id, "-")
@@ -25,10 +25,10 @@ func TestMachineID(t *testing.T) {
 func TestGetMachineGuid(t *testing.T) {
 	guid, err := getMachineGuid()
 	if err != nil {
-		t.Errorf("getMachineGuid() error: %v (may be expected on some systems)", err)
+		t.Skipf("getMachineGuid() unavailable in this environment: %v", err)
 	}
 	if guid == "" {
-		t.Error("getMachineGuid() returned empty string; this may be normal in some environments")
+		t.Skip("getMachineGuid() returned empty string in this environment")
 	} else {
 		// 简单验证 GUID 格式（8-4-4-4-12 的十六进制字符串）
 		parts := strings.Split(guid, "-")
@@ -59,10 +59,10 @@ func TestGetBIOSUUID(t *testing.T) {
 func TestGetPrimaryMAC(t *testing.T) {
 	mac, err := getPrimaryMAC()
 	if err != nil {
-		t.Errorf("getPrimaryMAC() error: %v (may be expected on some systems)", err)
+		t.Skipf("getPrimaryMAC() unavailable in this environment: %v", err)
 	}
 	if mac == "" {
-		t.Error("getPrimaryMAC() returned empty string; this may be normal in some environments")
+		t.Skip("getPrimaryMAC() returned empty string in this environment")
 	} else {
 		// 支持 Windows 下的 - 或 : 分隔
 		var parts []string

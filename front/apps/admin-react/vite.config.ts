@@ -153,6 +153,10 @@ export default defineConfig(({ mode }: { mode: string }) => {
         include: [/\.[jt]sx?$/, /\.md$/, /tsr-split/],
         imports: ['react', 'ahooks', 'react-i18next'],
         dts: 'src/auto-imports.d.ts',
+        dtsMode: 'overwrite',
+        dirsScanOptions: {
+          fileFilter: file => !file.replaceAll('\\', '/').includes('src/components/business/logger/'),
+        },
         dirs: [
           'src/stores/**',
           'src/domains/**',

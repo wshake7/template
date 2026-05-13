@@ -270,6 +270,20 @@ function ResourceApiManagement() {
     setDrawerOpen(true)
   }
 
+  const toggleEnabled = async (record: ResourceApi) => {
+    try {
+      await ResourceApiApi.apiUpdate({
+        id: record.id,
+        isEnabled: !record.isEnabled,
+      })
+      gMessage.success(record.isEnabled ? '停用成功' : '启用成功')
+      await send()
+    }
+    catch {
+      gMessage.error(record.isEnabled ? '停用失败' : '启用失败')
+    }
+  }
+
   const columns: ProColumns<ResourceApi>[] = [
     {
       title: '模块',
@@ -312,9 +326,17 @@ function ResourceApiManagement() {
     {
       title: '操作',
       valueType: 'option',
-      width: 150,
+      width: 190,
       render: (_, record) => (
         <Space>
+          <Button
+            type="link"
+            size="small"
+            disabled={record.canWrite === false}
+            onClick={() => toggleEnabled(record)}
+          >
+            {record.isEnabled ? '停用' : '启用'}
+          </Button>
           <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => openEditForm(record)}>
             编辑
           </Button>

@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -44,7 +45,15 @@ func Test_run(t *testing.T) {
 	stderr := &bytes.Buffer{}
 	wantStdout := "hello"
 	wantStderr := ""
-	if err := run(stdout, stderr, "echo", "hello"); err != nil {
+
+	cmd := "echo"
+	args := []string{"hello"}
+	if runtime.GOOS == "windows" {
+		cmd = "cmd"
+		args = []string{"/C", "echo", "hello"}
+	}
+
+	if err := run(stdout, stderr, cmd, args...); err != nil {
 		t.Error(err)
 	}
 	gotStdout := strings.TrimRight(stdout.String(), "\r\n")

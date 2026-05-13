@@ -8,12 +8,9 @@ import {
   Modal,
   Tag,
 } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
+import { JsonCodeBlock } from '~/components/business/logger/jsonCodeBlock'
 import { formatDateYYYYMMDDHHmm } from '~/utils/date'
-
-let jsonHighlighterPromise: Promise<{
-  codeToHtml: (code: string, options: { lang: string, theme: string }) => string
-}> | undefined
 
 export const Route = createFileRoute('/_app/logger/api/log')({
   staleTime: 1000 * 60 * 2,
@@ -43,115 +40,6 @@ function costTimeDisplay(costTime: number) {
     return `${costTime}ms`
   }
   return `${(costTime / 1000).toFixed(2)}s`
-}
-
-function formatJsonContent(value?: string) {
-  const content = value?.trim()
-  if (!content) {
-    return ''
-  }
-
-  try {
-    return JSON.stringify(JSON.parse(content), null, 2)
-  }
-  catch {
-    return content
-  }
-}
-
-function getJsonHighlighter() {
-  jsonHighlighterPromise ??= Promise
-    .all([
-      import('shiki/core'),
-      import('shiki/engine/javascript'),
-      import('shiki/langs/json.mjs'),
-      import('shiki/themes'),
-    ])
-    .then(async ([{ createHighlighterCore }, { createJavaScriptRegexEngine }, json, themes]) => {
-      const githubLight = await themes.bundledThemes['github-light']()
-      const highlighter = await createHighlighterCore({
-        themes: [githubLight.default],
-        langs: [json.default],
-        engine: createJavaScriptRegexEngine({ forgiving: true }),
-      })
-      return {
-        codeToHtml: (code: string, options: { lang: string, theme: string }) => highlighter.codeToHtml(code, options),
-      }
-    })
-
-  return jsonHighlighterPromise
-}
-
-function JsonCodeBlock({ value }: { value?: string }) {
-  const formattedValue = useMemo(() => formatJsonContent(value), [value])
-  const [highlightedHtml, setHighlightedHtml] = useState('')
-
-  useEffect(() => {
-    if (!formattedValue) {
-      setHighlightedHtml('')
-      return
-    }
-
-    let disposed = false
-    getJsonHighlighter()
-      .then(highlighter => highlighter.codeToHtml(formattedValue, {
-        lang: 'json',
-        theme: 'github-light',
-      }))
-      .then((html) => {
-        if (!disposed) {
-          setHighlightedHtml(html)
-        }
-      })
-      .catch(() => {
-        if (!disposed) {
-          setHighlightedHtml('')
-        }
-      })
-
-    return () => {
-      disposed = true
-    }
-  }, [formattedValue])
-
-  if (!formattedValue) {
-    return '-'
-  }
-
-  return (
-    <div
-      style={{
-        maxHeight: 240,
-        maxWidth: '100%',
-        overflow: 'auto',
-        border: '1px solid var(--ant-color-border-secondary)',
-        borderRadius: 6,
-        background: 'var(--ant-color-bg-layout)',
-      }}
-    >
-      {highlightedHtml
-        ? (
-            <div
-              className="api-log-json-code"
-              dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-            />
-          )
-        : (
-            <pre
-              style={{
-                margin: 0,
-                padding: 12,
-                whiteSpace: 'pre-wrap',
-                overflowWrap: 'anywhere',
-                fontSize: 12,
-                lineHeight: 1.6,
-              }}
-            >
-              {formattedValue}
-            </pre>
-          )}
-    </div>
-  )
 }
 
 function DetailText({ children }: { children?: string }) {
@@ -378,18 +266,6 @@ function ApiLogManagement() {
                 .api-log-detail .ant-descriptions-item-content {
                   min-width: 0;
                   max-width: 0;
-                }
-                .api-log-json-code pre {
-                  margin: 0 !important;
-                  padding: 12px !important;
-                  white-space: pre-wrap !important;
-                  overflow-wrap: anywhere !important;
-                  background: transparent !important;
-                  font-size: 12px !important;
-                  line-height: 1.6 !important;
-                }
-                .api-log-json-code code {
-                  white-space: pre-wrap !important;
                 }
               `}
             </style>
