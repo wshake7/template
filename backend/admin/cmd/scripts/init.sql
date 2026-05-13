@@ -118,6 +118,51 @@ VALUES
     (40, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/update', 'POST'),
     (41, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/del', 'POST');
 
+INSERT INTO "public"."casbin_rule"
+("ptype", "v0", "v1", "v2")
+VALUES
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/tree")', 'GET'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/:id/permissions")', 'GET'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/permissions")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/match")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/batch/copy")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/batch/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/api/log/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/api/log/detail")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/tree")', 'GET'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/del")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/list")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/create")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/update")', 'POST'),
+    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/del")', 'POST');
+
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (1, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 2, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (2, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 3, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (3, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 4, 0);
