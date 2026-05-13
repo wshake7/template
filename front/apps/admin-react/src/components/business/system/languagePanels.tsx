@@ -460,7 +460,14 @@ export function LanguageTypePanel({
         <ProFormText required name="typeName" label="语言名称" rules={rules} placeholder="如: 简体中文" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />
         <ProFormSwitch name="isDefault" label="是否默认" />
-        <ProFormSwitch name="isEnabled" label="启用状态" />
+        <ProFormSwitch
+          name="isEnabled"
+          label="启用状态"
+          fieldProps={{
+            checkedChildren: enabledStatus.getLabel(enabledStatusValue(true), fallbackEnabledStatusLabel(true)),
+            unCheckedChildren: enabledStatus.getLabel(enabledStatusValue(false), fallbackEnabledStatusLabel(false)),
+          }}
+        />
       </ModalForm>
     </>
   )

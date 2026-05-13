@@ -30,6 +30,7 @@ import { ResourceApiApi } from '~/api/business/sysResourceApi'
 import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import { RoleApi } from '~/api/business/sysRole'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { formatDateYYYYMMDDHHmm } from '~/utils/date'
 import { useZodForm } from '~/utils/zod'
@@ -57,6 +58,9 @@ const defaultFormValues = RoleFormSchema.parse({
   isEnabled: true,
   remark: '',
 })
+
+const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
+const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 const RoleSubmitSchema = RoleFormSchema.superRefine((values, ctx) => {
   if (!values.name.trim()) {
@@ -134,6 +138,7 @@ function RoleManagement() {
   const [apiSearchText, setApiSearchText] = useState('')
   const [selectedMenuKeys, setSelectedMenuKeys] = useState<Key[]>([])
   const [selectedApiKeys, setSelectedApiKeys] = useState<Key[]>([])
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
 
   const {
     data,
@@ -181,6 +186,21 @@ function RoleManagement() {
   )
 
   const roleOptions = useMemo(() => roleTreeToSelectData(roleTree, editing?.id), [editing?.id, roleTree])
+  const enabledStatusOptions = useMemo(() => {
+    const options = enabledStatus.entries
+      .filter(entry => entry.entryValue === '1' || entry.entryValue === '0')
+      .map(entry => ({
+        label: enabledStatus.getLabel(entry.entryValue, entry.entryLabel),
+        value: entry.entryValue === '1',
+      }))
+
+    return options.length > 0
+      ? options
+      : [
+          { label: fallbackEnabledStatusLabel(true), value: true },
+          { label: fallbackEnabledStatusLabel(false), value: false },
+        ]
+  }, [enabledStatus])
   const menuTreeData = useMemo(() => menuTreeToTreeData(menuTree), [menuTree])
   const menuTotal = useMemo(() => flattenResourceMenus(menuTree).length, [menuTree])
   const filteredApiItems = useMemo(() => {
@@ -263,11 +283,11 @@ function RoleManagement() {
         id: record.id,
         isEnabled: !record.isEnabled,
       })
-      gMessage.success(record.isEnabled ? '停用成功' : '启用成功')
+      gMessage.success(`${enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}成功`)
       await send()
     }
     catch {
-      gMessage.error(record.isEnabled ? '停用失败' : '启用失败')
+      gMessage.error(`${enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}失败`)
     }
   }
 
@@ -340,9 +360,7 @@ function RoleManagement() {
       dataIndex: 'isEnabled',
       width: 90,
       render: (_, record) => (
-        <Tag color={record.isEnabled ? 'success' : 'default'}>
-          {record.isEnabled ? '正常' : '停用'}
-        </Tag>
+        enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled))
       ),
     },
     {
@@ -366,7 +384,7 @@ function RoleManagement() {
       render: (_, record) => (
         <Space size="small">
           <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => toggleEnabled(record)}>
-            {record.isEnabled ? '停用' : '启用'}
+            {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
           </Button>
           <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => openEditForm(record)}>
             编辑
@@ -468,10 +486,7 @@ function RoleManagement() {
             placeholder="状态"
             value={enabledFilter}
             style={{ width: 120 }}
-            options={[
-              { label: '正常', value: true },
-              { label: '停用', value: false },
-            ]}
+            options={enabledStatusOptions}
             onChange={setEnabledFilter}
           />,
         ]}
@@ -527,7 +542,10 @@ function RoleManagement() {
           {!editing
             ? (
                 <Form.Item name="isEnabled" label="状态" valuePropName="checked" rules={rules}>
-                  <Switch checkedChildren="正常" unCheckedChildren="停用" />
+                  <Switch
+                    checkedChildren={enabledStatus.getLabel(enabledStatusValue(true), fallbackEnabledStatusLabel(true))}
+                    unCheckedChildren={enabledStatus.getLabel(enabledStatusValue(false), fallbackEnabledStatusLabel(false))}
+                  />
                 </Form.Item>
               )
             : null}

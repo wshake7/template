@@ -27,6 +27,7 @@ import z from 'zod'
 import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import AntIconPicker from '~/components/common/antIconPicker'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { AntIcon } from '~/utils/antIcons'
 import { useZodForm } from '~/utils/zod'
@@ -102,6 +103,9 @@ const defaultFormValues = ResourceMenuFormSchema.parse({
   authorities: '',
   remark: '',
 })
+
+const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
+const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 const ResourceMenuSubmitSchema = ResourceMenuFormSchema.superRefine((values, ctx) => {
   if (!values.name.trim()) {
@@ -277,6 +281,7 @@ function ResourceMenuManagement() {
   const [editing, setEditing] = useState<ResourceMenu>()
   const [searchText, setSearchText] = useState('')
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
 
   const {
     data,
@@ -316,6 +321,22 @@ function ResourceMenuManagement() {
       debounce: [500, 0],
     },
   )
+
+  const enabledStatusOptions = useMemo(() => {
+    const options = enabledStatus.entries
+      .filter(entry => entry.entryValue === '1' || entry.entryValue === '0')
+      .map(entry => ({
+        label: enabledStatus.getLabel(entry.entryValue, entry.entryLabel),
+        value: entry.entryValue === '1',
+      }))
+
+    return options.length > 0
+      ? options
+      : [
+          { label: fallbackEnabledStatusLabel(true), value: true },
+          { label: fallbackEnabledStatusLabel(false), value: false },
+        ]
+  }, [enabledStatus])
 
   const refreshParentRows = async () => {
     const res = await ResourceMenuApi.menuList({
@@ -467,15 +488,8 @@ function ResourceMenuManagement() {
       dataIndex: 'isEnabled',
       width: 90,
       valueType: 'select',
-      valueEnum: {
-        true: { text: '正常' },
-        false: { text: '停用' },
-      },
-      render: (_, record) => (
-        <Tag color={record.isEnabled ? 'success' : 'default'}>
-          {record.isEnabled ? '正常' : '停用'}
-        </Tag>
-      ),
+      render: (_, record) =>
+        enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '排序',
@@ -575,10 +589,7 @@ function ResourceMenuManagement() {
             placeholder="状态"
             value={enabledFilter}
             style={{ width: 120 }}
-            options={[
-              { label: '正常', value: true },
-              { label: '停用', value: false },
-            ]}
+            options={enabledStatusOptions}
             onChange={setEnabledFilter}
           />,
         ]}
@@ -693,7 +704,10 @@ function ResourceMenuManagement() {
               )
             : null}
           <Form.Item name="isEnabled" label="状态" valuePropName="checked" rules={rules}>
-            <Switch checkedChildren="正常" unCheckedChildren="停用" />
+            <Switch
+              checkedChildren={enabledStatus.getLabel(enabledStatusValue(true), fallbackEnabledStatusLabel(true))}
+              unCheckedChildren={enabledStatus.getLabel(enabledStatusValue(false), fallbackEnabledStatusLabel(false))}
+            />
           </Form.Item>
           {isIconType(menuType)
             ? (

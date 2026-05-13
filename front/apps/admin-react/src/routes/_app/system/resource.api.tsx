@@ -20,10 +20,11 @@ import {
   Switch,
   Tag,
 } from 'antd'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import z from 'zod'
 import { ResourceApiApi } from '~/api/business/sysResourceApi'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { useZodForm } from '~/utils/zod'
 
@@ -72,6 +73,9 @@ const defaultFormValues = ResourceApiFormSchema.parse({
   isEnabled: true,
   remark: '',
 })
+
+const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
+const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
 
 const ResourceApiSubmitSchema = ResourceApiFormSchema.superRefine((values, ctx) => {
   const path = values.path.trim()
@@ -170,6 +174,7 @@ function ResourceApiManagement() {
   const [searchText, setSearchText] = useState('')
   const [methodFilter, setMethodFilter] = useState<ResourceApiMethod | undefined>()
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
+  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
 
   const {
     data,
@@ -218,6 +223,22 @@ function ResourceApiManagement() {
       debounce: [500, 0, 0],
     },
   )
+
+  const enabledStatusOptions = useMemo(() => {
+    const options = enabledStatus.entries
+      .filter(entry => entry.entryValue === '1' || entry.entryValue === '0')
+      .map(entry => ({
+        label: enabledStatus.getLabel(entry.entryValue, entry.entryLabel),
+        value: entry.entryValue === '1',
+      }))
+
+    return options.length > 0
+      ? options
+      : [
+          { label: fallbackEnabledStatusLabel(true), value: true },
+          { label: fallbackEnabledStatusLabel(false), value: false },
+        ]
+  }, [enabledStatus])
 
   const closeDrawer = () => {
     setDrawerOpen(false)
@@ -276,11 +297,11 @@ function ResourceApiManagement() {
         id: record.id,
         isEnabled: !record.isEnabled,
       })
-      gMessage.success(record.isEnabled ? '停用成功' : '启用成功')
+      gMessage.success(`${enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}成功`)
       await send()
     }
     catch {
-      gMessage.error(record.isEnabled ? '停用失败' : '启用失败')
+      gMessage.error(`${enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}失败`)
     }
   }
 
@@ -307,11 +328,8 @@ function ResourceApiManagement() {
       title: '状态',
       dataIndex: 'isEnabled',
       width: 90,
-      render: (_, record) => (
-        <Tag color={record.isEnabled ? 'success' : 'default'}>
-          {record.isEnabled ? '正常' : '停用'}
-        </Tag>
-      ),
+      render: (_, record) =>
+        enabledStatus.renderLabel(enabledStatusValue(record.isEnabled), fallbackEnabledStatusLabel(record.isEnabled)),
     },
     {
       title: '排序',
@@ -335,7 +353,7 @@ function ResourceApiManagement() {
             disabled={record.canWrite === false}
             onClick={() => toggleEnabled(record)}
           >
-            {record.isEnabled ? '停用' : '启用'}
+            {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
           </Button>
           <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => openEditForm(record)}>
             编辑
@@ -416,10 +434,7 @@ function ResourceApiManagement() {
             placeholder="状态"
             value={enabledFilter}
             style={{ width: 120 }}
-            options={[
-              { label: '正常', value: true },
-              { label: '停用', value: false },
-            ]}
+            options={enabledStatusOptions}
             onChange={setEnabledFilter}
           />,
         ]}
@@ -476,7 +491,10 @@ function ResourceApiManagement() {
             fieldProps={{ precision: 0 }}
           />
           <Form.Item name="isEnabled" label="状态" valuePropName="checked" rules={rules}>
-            <Switch checkedChildren="正常" unCheckedChildren="停用" />
+            <Switch
+              checkedChildren={enabledStatus.getLabel(enabledStatusValue(true), fallbackEnabledStatusLabel(true))}
+              unCheckedChildren={enabledStatus.getLabel(enabledStatusValue(false), fallbackEnabledStatusLabel(false))}
+            />
           </Form.Item>
           <ProFormTextArea name="remark" label="备注" rules={rules} fieldProps={{ maxLength: 255, showCount: true }} />
         </Form>

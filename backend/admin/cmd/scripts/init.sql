@@ -28,8 +28,8 @@ VALUES
 INSERT INTO "public"."sys_dict_entry"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "sort_order", "is_enabled", "remark", "deleted_at", "label_component", "entry_label", "entry_value", "language_code", "sys_dict_type_id")
 VALUES
-    (1, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '', '启用', '1', '', 1),
-    (2, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '', '停用', '0', '', 1);
+    (1, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="error">${EntryLabel}</Tag>', '启用', '1', '', 1),
+    (2, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="success">${EntryLabel}</Tag>', '停用', '0', '', 1);
 
 INSERT INTO "public"."sys_role"
 ("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "name", "code", "parent_id")

@@ -533,7 +533,14 @@ export function DictTypePanel({
         <ProFormText required name="typeCode" label="类型编码" rules={rules} placeholder="请输入类型编码" />
         <ProFormText required name="typeName" label="类型名称" rules={rules} placeholder="请输入类型名称" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />
-        <ProFormSwitch name="isEnabled" label="启用状态" />
+        <ProFormSwitch
+          name="isEnabled"
+          label="启用状态"
+          fieldProps={{
+            checkedChildren: enabledStatus.getLabel(enabledStatusValue(true), fallbackEnabledStatusLabel(true)),
+            unCheckedChildren: enabledStatus.getLabel(enabledStatusValue(false), fallbackEnabledStatusLabel(false)),
+          }}
+        />
         <ProFormText name="remark" label="备注" placeholder="请输入备注" />
       </ModalForm>
     </>
@@ -944,7 +951,14 @@ export function DictEntryPanel({
         </Form.Item>
         <ProFormText name="languageCode" label="语言代码" placeholder="请输入语言代码" />
         <ProFormDigit name="sortOrder" label="排序" fieldProps={{ precision: 0 }} />
-        <ProFormSwitch name="isEnabled" label="启用状态" />
+        <ProFormSwitch
+          name="isEnabled"
+          label="启用状态"
+          fieldProps={{
+            checkedChildren: enabledStatus.getLabel(enabledStatusValue(true), fallbackEnabledStatusLabel(true)),
+            unCheckedChildren: enabledStatus.getLabel(enabledStatusValue(false), fallbackEnabledStatusLabel(false)),
+          }}
+        />
         <ProFormText name="remark" label="备注" placeholder="请输入备注" />
       </ModalForm>
     </>
