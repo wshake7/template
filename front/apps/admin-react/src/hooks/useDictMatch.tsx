@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 import type { DictMatchedEntriesByCode, DictMatchedEntry } from '~/api/business/sysDict'
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect, useMemo, useSyncExternalStore } from 'react'
 import { DictApi } from '~/api/business/sysDict'
 import { renderDictEntryLabel } from '~/components/dictEntryLabel'
+import i18n from '~/i18n'
 
 export interface DictMatchResult {
   entries: DictMatchedEntry[]
@@ -39,6 +39,20 @@ function emitDictMatchesChange() {
 
 function getDictMatchSnapshot() {
   return dictMatchSnapshot
+}
+
+function subscribeI18nLanguage(listener: () => void) {
+  i18n.on('languageChanged', listener)
+  i18n.on('loaded', listener)
+
+  return () => {
+    i18n.off('languageChanged', listener)
+    i18n.off('loaded', listener)
+  }
+}
+
+function getI18nLanguageSnapshot() {
+  return i18n.resolvedLanguage ?? i18n.language
 }
 
 function flushPendingDictMatches() {
@@ -118,7 +132,11 @@ function createDictMatchResult(
 }
 
 export function useDictMatches(codes: string[]) {
-  const { t } = useTranslation()
+  const language = useSyncExternalStore(
+    subscribeI18nLanguage,
+    getI18nLanguageSnapshot,
+    getI18nLanguageSnapshot,
+  )
   const codesKey = useMemo(() => normalizeDictCodes(codes).join('\u0000'), [codes])
   const cachedEntriesByCode = useSyncExternalStore(
     subscribeDictMatches,
@@ -131,20 +149,20 @@ export function useDictMatches(codes: string[]) {
     scheduleDictMatches(requestCodes)
   }, [codesKey])
 
-  const resolveEntryLabel = useCallback((entryLabel: string) => {
-    const translated = t(entryLabel, { defaultValue: entryLabel })
-    return typeof translated === 'string' ? translated : entryLabel
-  }, [t])
-
   return useMemo(() => {
     const requestCodes = codesKey ? codesKey.split('\u0000') : []
+    const resolveEntryLabel = (entryLabel: string) => {
+      const translated = i18n.t(entryLabel, { defaultValue: entryLabel, lng: language })
+      return typeof translated === 'string' ? translated : entryLabel
+    }
+
     return Object.fromEntries(
       requestCodes.map(code => [
         code,
         createDictMatchResult(cachedEntriesByCode[code] ?? [], resolveEntryLabel),
       ]),
     ) as DictMatchesResult
-  }, [cachedEntriesByCode, codesKey, resolveEntryLabel])
+  }, [cachedEntriesByCode, codesKey, language])
 }
 
 export function useDictMatch(code: string) {

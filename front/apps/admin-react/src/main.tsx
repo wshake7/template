@@ -4,6 +4,7 @@ import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { router } from './router'
 import GlobalMessage from './utils/antd'
+import './i18n'
 import '~/styles/index.css'
 
 async function prepare() {
