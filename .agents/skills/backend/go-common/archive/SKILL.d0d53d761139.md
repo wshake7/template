@@ -6,7 +6,7 @@
 
 ## 模块地图
 
-text
+```text
 backend/go-common/
 ├── collection/        # bitmap、deque、sync map、tuple
 ├── dto/               # 通用 DTO，如分页
@@ -24,7 +24,7 @@ backend/go-common/
     ├── stringcase/    # snake/camel/kebab 等命名转换
     ├── trans/         # 类型和 JSON 转换
     └── ...            # retry、pool、promise、money、passwd 等
-
+```
 
 ## 使用原则
 
@@ -47,9 +47,7 @@ backend/go-common/
 
 1. 读 `utils/id/README.md` 和相关实现。
 2. 注意 Windows/Linux/Darwin/BSD/AIX 等平台文件的 build tags 或文件后缀。
-3. 更新平台无关测试；平台特定测试可针对当前环境编写，并通过条件编译保证跨平台兼容（如 Windows 测试使用 `cmd`）。
-   - 示例：`machineid/helper_test.go` 已兼容 Windows，通过 `runtime.GOOS` 判断使用 `cmd /C` 调用外部命令。
-4. 只在确有必要时改变公开行为，并在日志或说明里记录原因。
+3. 更新平台无关测试；平台特定测试只改能在当前环境验证的部分。
 
 ### 修改 stringcase 或 trans
 
@@ -65,12 +63,12 @@ backend/go-common/
 
 ## 命令
 
-bash
+```bash
 cd backend/go-common
 go fix ./...
 go vet ./...
 go test ./...
-
+```
 
 ## 验证
 
