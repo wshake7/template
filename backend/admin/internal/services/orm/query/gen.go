@@ -24,6 +24,7 @@ var (
 	SysDictType       *sysDictType
 	SysLanguageEntry  *sysLanguageEntry
 	SysLanguageType   *sysLanguageType
+	SysLoginLog       *sysLoginLog
 	SysResourceApi    *sysResourceApi
 	SysResourceMenu   *sysResourceMenu
 	SysRole           *sysRole
@@ -42,6 +43,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	SysDictType = &Q.SysDictType
 	SysLanguageEntry = &Q.SysLanguageEntry
 	SysLanguageType = &Q.SysLanguageType
+	SysLoginLog = &Q.SysLoginLog
 	SysResourceApi = &Q.SysResourceApi
 	SysResourceMenu = &Q.SysResourceMenu
 	SysRole = &Q.SysRole
@@ -61,6 +63,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		SysDictType:       newSysDictType(db, opts...),
 		SysLanguageEntry:  newSysLanguageEntry(db, opts...),
 		SysLanguageType:   newSysLanguageType(db, opts...),
+		SysLoginLog:       newSysLoginLog(db, opts...),
 		SysResourceApi:    newSysResourceApi(db, opts...),
 		SysResourceMenu:   newSysResourceMenu(db, opts...),
 		SysRole:           newSysRole(db, opts...),
@@ -81,6 +84,7 @@ type Query struct {
 	SysDictType       sysDictType
 	SysLanguageEntry  sysLanguageEntry
 	SysLanguageType   sysLanguageType
+	SysLoginLog       sysLoginLog
 	SysResourceApi    sysResourceApi
 	SysResourceMenu   sysResourceMenu
 	SysRole           sysRole
@@ -102,6 +106,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		SysDictType:       q.SysDictType.clone(db),
 		SysLanguageEntry:  q.SysLanguageEntry.clone(db),
 		SysLanguageType:   q.SysLanguageType.clone(db),
+		SysLoginLog:       q.SysLoginLog.clone(db),
 		SysResourceApi:    q.SysResourceApi.clone(db),
 		SysResourceMenu:   q.SysResourceMenu.clone(db),
 		SysRole:           q.SysRole.clone(db),
@@ -130,6 +135,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		SysDictType:       q.SysDictType.replaceDB(db),
 		SysLanguageEntry:  q.SysLanguageEntry.replaceDB(db),
 		SysLanguageType:   q.SysLanguageType.replaceDB(db),
+		SysLoginLog:       q.SysLoginLog.replaceDB(db),
 		SysResourceApi:    q.SysResourceApi.replaceDB(db),
 		SysResourceMenu:   q.SysResourceMenu.replaceDB(db),
 		SysRole:           q.SysRole.replaceDB(db),
@@ -148,6 +154,7 @@ type queryCtx struct {
 	SysDictType       ISysDictTypeDo
 	SysLanguageEntry  ISysLanguageEntryDo
 	SysLanguageType   ISysLanguageTypeDo
+	SysLoginLog       ISysLoginLogDo
 	SysResourceApi    ISysResourceApiDo
 	SysResourceMenu   ISysResourceMenuDo
 	SysRole           ISysRoleDo
@@ -166,6 +173,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		SysDictType:       q.SysDictType.WithContext(ctx),
 		SysLanguageEntry:  q.SysLanguageEntry.WithContext(ctx),
 		SysLanguageType:   q.SysLanguageType.WithContext(ctx),
+		SysLoginLog:       q.SysLoginLog.WithContext(ctx),
 		SysResourceApi:    q.SysResourceApi.WithContext(ctx),
 		SysResourceMenu:   q.SysResourceMenu.WithContext(ctx),
 		SysRole:           q.SysRole.WithContext(ctx),

@@ -1,9 +1,7 @@
 package casbin
 
 import (
-	"fmt"
 	"slices"
-	"strconv"
 
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
@@ -29,7 +27,7 @@ func RemoveRoleAPIPolicies(roleCode string, apis []*models.SysResourceApi) error
 		if api == nil {
 			continue
 		}
-		if _, err := E.RemoveFilteredPolicy(0, subjectRule(roleCode), objectRule(api.Path), api.Method); err != nil {
+		if _, err := E.RemoveFilteredPolicy(0, roleSubject(roleCode), api.Path, api.Method); err != nil {
 			return err
 		}
 	}
@@ -91,7 +89,7 @@ func RemoveAPIResourcePolicies(api *models.SysResourceApi) error {
 	if E == nil || api == nil {
 		return nil
 	}
-	_, err := E.RemoveFilteredPolicy(1, objectRule(api.Path), api.Method)
+	_, err := E.RemoveFilteredPolicy(1, api.Path, api.Method)
 	return err
 }
 
@@ -146,15 +144,11 @@ func buildRoleAPIPolicyRules(roleCode string, apis []*models.SysResourceApi) [][
 }
 
 func buildRoleAPIPolicyRule(roleCode string, api *models.SysResourceApi) []string {
-	return []string{subjectRule(roleCode), objectRule(api.Path), api.Method}
+	return []string{roleSubject(roleCode), api.Path, api.Method}
 }
 
-func subjectRule(roleCode string) string {
-	return fmt.Sprintf("r.sub == %s", strconv.Quote("role:"+roleCode))
-}
-
-func objectRule(path string) string {
-	return fmt.Sprintf("keyMatch2(r.obj, %s)", strconv.Quote(path))
+func roleSubject(roleCode string) string {
+	return "role:" + roleCode
 }
 
 func diffUint64(oldIDs, newIDs []uint64) ([]uint64, []uint64) {

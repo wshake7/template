@@ -5,13 +5,13 @@ VALUES
                 r = sub, obj, act
 
                 [policy_definition]
-                p = sub_rule, obj_rule, act
+                p = sub, obj, act
 
                 [policy_effect]
                 e = some(where (p.eft == allow))
 
                 [matchers]
-                m = eval(p.sub_rule) && eval(p.obj_rule) && r.act == p.act');
+                m = r.sub == p.sub && keyMatch2(r.obj, p.obj) && r.act == p.act');
 
 INSERT INTO "public"."sys_data_permission"
 ("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "subject_type", "subject_id", "resource_table", "action", "action_key", "scope_type", "scope_field", "scope_values", "conditions", "priority")
@@ -62,12 +62,12 @@ VALUES
     (1, NULL, NULL, 0, 0, 0, 1, 1, 0);
 
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (1, '2026-05-09 15:44:29.247468+08', '2026-05-09 17:31:30.430037+08', 1, 1, 0, '', 0, '{"icon": "", "hidden": false}', 't', 0, 'CATALOG', '/dashboard', '', '', '控制台1', '', NULL, '/1/');
-INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (2, '2026-05-09 16:01:45.414731+08', '2026-05-09 17:54:40.486485+08', 1, 1, 0, '', 0, '{"icon": "SettingOutlined", "hidden": false}', 't', 0, 'CATALOG', '/system', '', '', '系统管理', '', NULL, '/2/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (2, '2026-05-09 16:01:45.414731+08', '2026-05-09 17:54:40.486485+08', 1, 1, 0, '', 1, '{"icon": "SettingOutlined", "order": 1, "hidden": false}', 't', 0, 'CATALOG', '/system', '', '', '系统管理', '', NULL, '/2/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (3, '2026-05-09 16:13:02.748554+08', '2026-05-10 20:06:34.713589+08', 1, 1, 0, '', -2, '{"icon": "", "order": -2, "hidden": false}', 't', 0, 'MENU', '/system/resource/menu', '', '', '菜单管理', '/system/resource.menu.tsx', 2, '/2/3/');
-INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (4, '2026-05-10 20:10:00.656317+08', '2026-05-10 20:10:45.771044+08', 1, 1, 0, '', 0, '{"icon": "ReconciliationOutlined", "order": 0, "hidden": false}', 't', 0, 'CATALOG', '/logger', '', '', '日志信息', '', NULL, '/10/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (4, '2026-05-10 20:10:00.656317+08', '2026-05-10 20:10:45.771044+08', 1, 1, 0, '', 3, '{"icon": "ReconciliationOutlined", "order": 3, "hidden": false}', 't', 0, 'CATALOG', '/logger', '', '', '日志信息', '', NULL, '/10/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (5, '2026-05-09 16:42:05.166618+08', '2026-05-10 19:54:52.382881+08', 1, 1, 0, '', 0, '{"icon": "", "hidden": false}', 't', 0, 'MENU', '/system/language', '', '', '语言管理', '/system/language.tsx', 2, '/2/5/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (6, '2026-05-09 16:42:36.997454+08', '2026-05-10 19:54:57.037816+08', 1, 1, 0, '', 0, '{"icon": "", "hidden": false}', 't', 0, 'MENU', '/system/dict', '', '', '字典管理', '/system/dict.tsx', 2, '/2/6/');
-INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (7, '2026-05-09 16:49:51.215257+08', '2026-05-10 20:28:47.004123+08', 1, 1, 0, '', 0, '{"icon": "UserOutlined", "order": 0, "hidden": false}', 't', 0, 'CATALOG', '/account', '', '', '账号管理', '', NULL, '/7/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (7, '2026-05-09 16:49:51.215257+08', '2026-05-10 20:28:47.004123+08', 1, 1, 0, '', 2, '{"icon": "UserOutlined", "order": 2, "hidden": false}', 't', 0, 'CATALOG', '/account', '', '', '账号管理', '', NULL, '/7/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (8, '2026-05-09 16:50:35.892181+08', '2026-05-09 17:55:29.888606+08', 1, 1, 0, '', 0, '{"icon": "", "hidden": false}', 't', 0, 'MENU', '/account/role', '', '', '角色管理', '/account/role.tsx', 7, '/7/8/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (9, '2026-05-10 17:38:27.019193+08', '2026-05-10 20:06:43.984546+08', 1, 1, 0, '', -1, '{"icon": "", "order": -1, "hidden": false}', 't', 0, 'MENU', '/system/resource/api', '', '', 'API管理', '/system/resource.api.tsx', 2, '/2/9/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (10, '2026-05-09 16:17:20.233627+08', '2026-05-10 20:10:15.368034+08', 1, 1, 0, '', 0, '{"icon": "", "order": 0, "hidden": false}', 't', 0, 'MENU', '/logger/api/log', '', '', 'API日志', '/logger/api.log.tsx', 4, '/10/4/');
@@ -121,47 +121,47 @@ VALUES
 INSERT INTO "public"."casbin_rule"
 ("ptype", "v0", "v1", "v2")
 VALUES
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/tree")', 'GET'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/:id/permissions")', 'GET'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/role/permissions")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/user/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/type/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/match")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/dict/entry/batch/copy")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/type/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/language/entry/batch/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/api/log/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/api/log/detail")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/tree")', 'GET'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/menu/del")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/list")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/create")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/update")', 'POST'),
-    ('p', 'r.sub == "role:root"', 'keyMatch2(r.obj, "/api/sys/resource/api/del")', 'POST');
+    ('p', 'role:root', '/api/sys/role/list', 'POST'),
+    ('p', 'role:root', '/api/sys/role/tree', 'GET'),
+    ('p', 'role:root', '/api/sys/role/:id/permissions', 'GET'),
+    ('p', 'role:root', '/api/sys/role/create', 'POST'),
+    ('p', 'role:root', '/api/sys/role/update', 'POST'),
+    ('p', 'role:root', '/api/sys/role/del', 'POST'),
+    ('p', 'role:root', '/api/sys/role/permissions', 'POST'),
+    ('p', 'role:root', '/api/sys/user/list', 'POST'),
+    ('p', 'role:root', '/api/sys/user/create', 'POST'),
+    ('p', 'role:root', '/api/sys/user/update', 'POST'),
+    ('p', 'role:root', '/api/sys/user/del', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/type/list', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/type/create', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/type/update', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/type/del', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/entry/list', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/entry/match', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/entry/create', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/entry/update', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/entry/del', 'POST'),
+    ('p', 'role:root', '/api/sys/dict/entry/batch/copy', 'POST'),
+    ('p', 'role:root', '/api/sys/language/type/list', 'POST'),
+    ('p', 'role:root', '/api/sys/language/type/create', 'POST'),
+    ('p', 'role:root', '/api/sys/language/type/update', 'POST'),
+    ('p', 'role:root', '/api/sys/language/type/del', 'POST'),
+    ('p', 'role:root', '/api/sys/language/entry/list', 'POST'),
+    ('p', 'role:root', '/api/sys/language/entry/create', 'POST'),
+    ('p', 'role:root', '/api/sys/language/entry/update', 'POST'),
+    ('p', 'role:root', '/api/sys/language/entry/del', 'POST'),
+    ('p', 'role:root', '/api/sys/language/entry/batch/create', 'POST'),
+    ('p', 'role:root', '/api/sys/api/log/list', 'POST'),
+    ('p', 'role:root', '/api/sys/api/log/detail', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/menu/list', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/menu/tree', 'GET'),
+    ('p', 'role:root', '/api/sys/resource/menu/create', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/menu/update', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/menu/del', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/api/list', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/api/create', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/api/update', 'POST'),
+    ('p', 'role:root', '/api/sys/resource/api/del', 'POST');
 
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (1, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 2, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (2, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 3, 0);
@@ -218,4 +218,3 @@ VALUES
     (39, NULL, NULL, 0, 0, 0, 1, 39, 0),
     (40, NULL, NULL, 0, 0, 0, 1, 40, 0),
     (41, NULL, NULL, 0, 0, 0, 1, 41, 0);
-

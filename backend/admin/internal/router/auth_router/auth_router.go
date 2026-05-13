@@ -1,13 +1,13 @@
 package auth_router
 
 import (
-	middleware2 "admin/internal/fiberc/middleware"
+	"admin/internal/fiberc/middleware"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 func RegisterRouters(router fiber.Router) {
-	group := router.Use(middleware2.AuthMiddleware(), middleware2.EncryptMiddleware(), middleware2.LanguageMiddleware())
+	group := router.Use(middleware.AuthMiddleware(), middleware.CasbinAPIMiddleware(), middleware.EncryptMiddleware(), middleware.LanguageMiddleware())
 	registerSysRoleRouters(group.Group("/sys/role"))
 	registerSysUserRouters(group.Group("/sys/user"))
 	registerSysDictRouters(group.Group("/sys/dict"))
