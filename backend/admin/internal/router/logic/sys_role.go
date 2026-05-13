@@ -7,6 +7,7 @@ import (
 
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
+	"admin/internal/services/casbin"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
@@ -167,7 +168,11 @@ func (*SysRoleHandler) Create(ctx *handler.Ctx, req *ReqSysRoleCreate) error {
 // @Router /api/sys/role/update [post]
 func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqSysRoleUpdate) error {
 	req.normalize()
-	return query.Q.Transaction(func(tx *query.Query) error {
+	var oldCode string
+	var oldEnabled bool
+	var newCode string
+	var newEnabled bool
+	err := query.Q.Transaction(func(tx *query.Query) error {
 		sysRole := tx.SysRole
 		current, err := sysRole.Where(sysRole.ID.Eq(req.ID)).First()
 		if err != nil {
@@ -222,8 +227,24 @@ func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqSysRoleUpdate) error {
 		if info.RowsAffected == 0 {
 			return res.FailMsg("角色不存在")
 		}
+		oldCode = current.Code
+		oldEnabled = current.IsEnabled.IsEnabled
+		newCode = code
+		newEnabled = current.IsEnabled.IsEnabled
+		if req.IsEnabled != nil {
+			newEnabled = *req.IsEnabled
+		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	if oldCode != newCode || oldEnabled != newEnabled {
+		if err := casbin.SyncRoleState(req.ID, oldCode, oldEnabled, newCode, newEnabled); err != nil {
+			return res.FailDefault
+		}
+	}
+	return nil
 }
 
 // @Summary 删除角色
@@ -301,9 +322,17 @@ func (*SysRoleHandler) Permissions(ctx *handler.Ctx, req *ReqSysRolePermissionQu
 func (*SysRoleHandler) SavePermissions(ctx *handler.Ctx, req *ReqSysRolePermissionSave) error {
 	menuIDs := slices_utils.Distinct(req.MenuIDs)
 	apiIDs := slices_utils.Distinct(req.ApiIDs)
-	return query.Q.Transaction(func(tx *query.Query) error {
-		if err := ensureSysRoleExists(tx, req.ID); err != nil {
-			return err
+	var roleCode string
+	var roleEnabled bool
+	var oldAPIIDs []uint64
+	err := query.Q.Transaction(func(tx *query.Query) error {
+		sysRole := tx.SysRole
+		role, err := sysRole.Select(sysRole.Code, sysRole.IsEnabled).Where(sysRole.ID.Eq(req.ID)).First()
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return res.FailMsg("角色不存在")
+			}
+			return res.FailDefault
 		}
 		if err := ensureSysRoleMenuIDsExist(tx, menuIDs); err != nil {
 			return err
@@ -317,6 +346,14 @@ func (*SysRoleHandler) SavePermissions(ctx *handler.Ctx, req *ReqSysRolePermissi
 			return res.FailDefault
 		}
 		roleAPI := tx.SysRoleApi
+		oldAPIs, err := roleAPI.Select(roleAPI.ApiID).Where(roleAPI.RoleID.Eq(req.ID)).Find()
+		if err != nil {
+			return res.FailDefault
+		}
+		oldAPIIDs = make([]uint64, 0, len(oldAPIs))
+		for _, item := range oldAPIs {
+			oldAPIIDs = append(oldAPIIDs, item.ApiID)
+		}
 		if _, err := roleAPI.Where(roleAPI.RoleID.Eq(req.ID)).Delete(); err != nil {
 			return res.FailDefault
 		}
@@ -355,8 +392,19 @@ func (*SysRoleHandler) SavePermissions(ctx *handler.Ctx, req *ReqSysRolePermissi
 				return res.FailDefault
 			}
 		}
+		roleCode = role.Code
+		roleEnabled = role.IsEnabled.IsEnabled
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	if roleEnabled {
+		if err := casbin.SyncRoleAPIPermissions(roleCode, oldAPIIDs, apiIDs); err != nil {
+			return res.FailDefault
+		}
+	}
+	return nil
 }
 
 func (req *ReqSysRoleCreate) normalize() {

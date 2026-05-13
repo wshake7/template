@@ -31,4 +31,5 @@ func New(db *gorm.DB) {
 	if err != nil {
 		panic(err)
 	}
+	E.EnableAutoSave(true)
 }

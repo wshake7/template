@@ -7,6 +7,7 @@ import (
 
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
+	"admin/internal/services/casbin"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
@@ -150,7 +151,7 @@ func (*SysResourceApiHandler) Update(ctx *handler.Ctx, req *ReqResourceApiUpdate
 
 	sysResourceApi := query.SysResourceApi
 	current, err := sysResourceApi.
-		Select(sysResourceApi.Method, sysResourceApi.Path).
+		Select(sysResourceApi.ID, sysResourceApi.Method, sysResourceApi.Path, sysResourceApi.IsEnabled).
 		Where(sysResourceApi.ID.Eq(req.ID)).
 		First()
 	if err != nil {
@@ -162,11 +163,15 @@ func (*SysResourceApiHandler) Update(ctx *handler.Ctx, req *ReqResourceApiUpdate
 
 	method := current.Method
 	path := current.Path
+	isEnabled := current.IsEnabled.IsEnabled
 	if req.Method != nil {
 		method = *req.Method
 	}
 	if req.Path != nil {
 		path = *req.Path
+	}
+	if req.IsEnabled != nil {
+		isEnabled = *req.IsEnabled
 	}
 	if err := validateResourceApiValues(method, path); err != nil {
 		return err
@@ -190,6 +195,19 @@ func (*SysResourceApiHandler) Update(ctx *handler.Ctx, req *ReqResourceApiUpdate
 	if info.RowsAffected == 0 {
 		return res.FailMsg("API资源不存在")
 	}
+	if current.IsEnabled.IsEnabled != isEnabled || current.Method != method || current.Path != path {
+		if err := casbin.SyncAPIResourcePolicies(
+			current,
+			&models.SysResourceApi{
+				AutoIncrementID: current.AutoIncrementID,
+				IsEnabled:       mixin.IsEnabled{IsEnabled: isEnabled},
+				Path:            path,
+				Method:          method,
+			},
+		); err != nil {
+			return res.FailDefault
+		}
+	}
 	return nil
 }
 
@@ -206,12 +224,24 @@ func (*SysResourceApiHandler) Del(ctx *handler.Ctx, req *ReqResourceApiBatchDele
 	if len(ids) == 0 {
 		return res.FailMsg("请选择API资源")
 	}
+	apis, err := query.SysResourceApi.
+		Select(query.SysResourceApi.ID, query.SysResourceApi.Path, query.SysResourceApi.Method, query.SysResourceApi.IsEnabled).
+		Where(query.SysResourceApi.ID.In(ids...)).
+		Find()
+	if err != nil {
+		return res.FailDefault
+	}
 	info, err := query.SysResourceApi.Where(query.SysResourceApi.ID.In(ids...)).Delete()
 	if err != nil {
 		return res.FailDefault
 	}
 	if info.RowsAffected != int64(len(ids)) {
 		return res.FailMsg("API资源不存在")
+	}
+	for _, api := range apis {
+		if err := casbin.RemoveAPIResourcePolicies(api); err != nil {
+			return res.FailDefault
+		}
 	}
 	return nil
 }
