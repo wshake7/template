@@ -119,7 +119,8 @@ VALUES
     (40, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/update', 'POST'),
     (41, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/del', 'POST'),
     (42, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/list', 'POST'),
-    (43, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/detail', 'POST');
+    (43, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/detail', 'POST'),
+    (44, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'events', '/api/events', 'GET');
 
 INSERT INTO "public"."casbin_rule"
 ("ptype", "v0", "v1", "v2")
@@ -166,7 +167,8 @@ VALUES
     ('p', 'role:root', '/api/sys/resource/api/update', 'POST'),
     ('p', 'role:root', '/api/sys/resource/api/del', 'POST'),
     ('p', 'role:root', '/api/sys/login/log/list', 'POST'),
-    ('p', 'role:root', '/api/sys/login/log/detail', 'POST');
+    ('p', 'role:root', '/api/sys/login/log/detail', 'POST'),
+    ('p', 'role:root', '/api/events', 'GET');
 
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (1, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 2, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (2, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 3, 0);
@@ -225,4 +227,5 @@ VALUES
     (40, NULL, NULL, 0, 0, 0, 1, 40, 0),
     (41, NULL, NULL, 0, 0, 0, 1, 41, 0),
     (42, NULL, NULL, 0, 0, 0, 1, 42, 0),
-    (43, NULL, NULL, 0, 0, 0, 1, 43, 0);
+    (43, NULL, NULL, 0, 0, 0, 1, 43, 0),
+    (44, NULL, NULL, 0, 0, 0, 1, 44, 0);

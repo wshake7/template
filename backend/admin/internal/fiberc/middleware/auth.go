@@ -13,11 +13,21 @@ import (
 
 func AuthMiddleware() fiber.Handler {
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
-		token := fiber.GetReqHeader[string](ctx, config.Conf.Auth.TokenName)
+		headerToken := fiber.GetReqHeader[string](ctx, config.Conf.Auth.TokenName)
+		cookieToken := ctx.Cookies(config.Conf.Auth.TokenName)
+		token := headerToken
+		if token == "" {
+			token = cookieToken
+		}
 		if token == "" {
 			return res.FailNotLogin
 		}
+
 		session, err := auth.GetSessionByToken(token)
+		if err != nil {
+			ctx.L().Warn("header token failed, fallback to cookie token", zap.Error(err))
+			session, err = auth.GetSessionByToken(token)
+		}
 		if err != nil {
 			ctx.L().Error("get session error", zap.Error(err))
 			return auth.CheckLoginErr(err)

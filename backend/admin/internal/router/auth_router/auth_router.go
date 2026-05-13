@@ -7,6 +7,9 @@ import (
 )
 
 func RegisterRouters(router fiber.Router) {
+	eventGroup := router.Use(middleware.AuthMiddleware(), middleware.CasbinAPIMiddleware(), middleware.LanguageMiddleware())
+	registerEventRouters(eventGroup)
+
 	group := router.Use(middleware.AuthMiddleware(), middleware.CasbinAPIMiddleware(), middleware.EncryptMiddleware(), middleware.LanguageMiddleware())
 	registerSysRoleRouters(group.Group("/sys/role"))
 	registerSysUserRouters(group.Group("/sys/user"))

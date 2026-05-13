@@ -97,6 +97,7 @@ declare global {
   const useEffectEvent: typeof import('react').useEffectEvent
   const useEventEmitter: typeof import('ahooks').useEventEmitter
   const useEventListener: typeof import('ahooks').useEventListener
+  const useEventStream: typeof import('./api/eventStream').useEventStream
   const useEventTarget: typeof import('ahooks').useEventTarget
   const useExternal: typeof import('ahooks').useExternal
   const useFavicon: typeof import('ahooks').useFavicon

@@ -2,6 +2,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { App, ConfigProvider } from 'antd'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
+import { useEventStream } from './api/eventStream'
 import { router } from './router'
 import GlobalMessage from './utils/antd'
 import './i18n'
@@ -17,6 +18,8 @@ async function prepare() {
 
 const Root = () => {
   const { theme } = useAntTheme()
+  useEventStream()
+
   return (
     <ConfigProvider {...theme}>
       <App>
