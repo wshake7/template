@@ -123,7 +123,22 @@ function flattenResourceMenus(items: ResourceMenu[]) {
   return result
 }
 
+function collectRoleRowKeys(items: SysRole[]) {
+  const keys: Key[] = []
+  const walk = (nodes: SysRole[]) => {
+    for (const node of nodes) {
+      keys.push(node.id)
+      if (node.children?.length) {
+        walk(node.children)
+      }
+    }
+  }
+  walk(items)
+  return keys
+}
+
 function RoleManagement() {
+  const [expandedRowKeys, setExpandedRowKeys] = useState<Key[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [permissionDrawerOpen, setPermissionDrawerOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -142,11 +157,7 @@ function RoleManagement() {
 
   const {
     data,
-    total,
-    page,
-    pageSize,
     loading,
-    update,
     send,
   } = usePagination(
     (nextPage, nextPageSize) => {
@@ -167,7 +178,8 @@ function RoleManagement() {
       return RoleApi.apiList({
         page: nextPage,
         pageSize: nextPageSize,
-        orderBy: 'id desc',
+        noPaging: true,
+        orderBy: 'id asc',
         query: filters.length > 0 ? JSON.stringify({ $and: filters }) : undefined,
       })
     },
@@ -261,10 +273,13 @@ function RoleManagement() {
     },
   })
 
-  const openCreateForm = async () => {
+  const openCreateForm = async (parentID?: number) => {
     setEditing(undefined)
     form.resetFields()
-    form.setFieldsValue(defaultFormValues)
+    form.setFieldsValue({
+      ...defaultFormValues,
+      parentID,
+    })
     await loadRoleTree()
     setDrawerOpen(true)
   }
@@ -379,10 +394,13 @@ function RoleManagement() {
     {
       title: '操作',
       valueType: 'option',
-      width: 220,
+      width: 260,
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
+          <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => openCreateForm(record.id)}>
+            新增
+          </Button>
           <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => toggleEnabled(record)}>
             {enabledStatus.getLabel(enabledStatusValue(!record.isEnabled), fallbackEnabledStatusLabel(!record.isEnabled))}
           </Button>
@@ -450,24 +468,23 @@ function RoleManagement() {
         headerTitle="角色管理"
         search={false}
         scroll={{ x: 1100 }}
-        pagination={{
-          showSizeChanger: true,
-          current: page,
-          pageSize,
-          total,
-          onChange: (nextPage, nextPageSize) => {
-            update({
-              page: nextPage,
-              pageSize: nextPageSize,
-            })
-          },
+        pagination={false}
+        expandable={{
+          expandedRowKeys,
+          onExpandedRowsChange: keys => setExpandedRowKeys([...keys]),
         }}
         options={{
           reload: () => send(),
         }}
         toolBarRender={() => [
-          <Button key="create" type="primary" onClick={openCreateForm}>
+          <Button key="create" type="primary" onClick={() => openCreateForm()}>
             创建角色
+          </Button>,
+          <Button key="expand" onClick={() => setExpandedRowKeys(collectRoleRowKeys(data))}>
+            展开全部
+          </Button>,
+          <Button key="collapse" onClick={() => setExpandedRowKeys([])}>
+            折叠全部
           </Button>,
           <Input.Search
             key="search"
