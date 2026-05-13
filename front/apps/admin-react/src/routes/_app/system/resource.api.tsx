@@ -18,7 +18,6 @@ import {
   Select,
   Space,
   Switch,
-  Tag,
 } from 'antd'
 import { useMemo, useState } from 'react'
 import z from 'zod'
@@ -33,25 +32,7 @@ export const Route = createFileRoute('/_app/system/resource/api')({
   component: ResourceApiManagement,
 })
 
-const methodOptions: { label: string, value: ResourceApiMethod }[] = [
-  { label: 'GET', value: 'GET' },
-  { label: 'POST', value: 'POST' },
-  { label: 'PUT', value: 'PUT' },
-  { label: 'PATCH', value: 'PATCH' },
-  { label: 'DELETE', value: 'DELETE' },
-  { label: 'OPTIONS', value: 'OPTIONS' },
-  { label: 'HEAD', value: 'HEAD' },
-]
-
-const methodColor: Record<ResourceApiMethod, string> = {
-  GET: 'green',
-  POST: 'blue',
-  PUT: 'orange',
-  PATCH: 'gold',
-  DELETE: 'red',
-  OPTIONS: 'purple',
-  HEAD: 'cyan',
-}
+const resourceApiMethodValues: ResourceApiMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
 
 const ResourceApiFormSchema = z.object({
   module: z.string().optional(),
@@ -175,6 +156,7 @@ function ResourceApiManagement() {
   const [methodFilter, setMethodFilter] = useState<ResourceApiMethod | undefined>()
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
   const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
+  const resourceApiType = useDictMatch(DictCode.SYS_RESOURCE_API_TYPE_DICT_CODE)
 
   const {
     data,
@@ -239,6 +221,22 @@ function ResourceApiManagement() {
           { label: fallbackEnabledStatusLabel(false), value: false },
         ]
   }, [enabledStatus])
+
+  const methodOptions = useMemo(() => {
+    const options = resourceApiType.entries
+      .filter(entry => resourceApiMethodValues.includes(entry.entryValue as ResourceApiMethod))
+      .map(entry => ({
+        label: resourceApiType.getLabel(entry.entryValue, entry.entryLabel),
+        value: entry.entryValue as ResourceApiMethod,
+      }))
+
+    return options.length > 0
+      ? options
+      : resourceApiMethodValues.map(value => ({
+          label: value,
+          value,
+        }))
+  }, [resourceApiType])
 
   const closeDrawer = () => {
     setDrawerOpen(false)
@@ -317,7 +315,7 @@ function ResourceApiManagement() {
       title: '方法',
       dataIndex: 'method',
       width: 100,
-      render: (_, record) => <Tag color={methodColor[record.method]}>{record.method}</Tag>,
+      render: (_, record) => resourceApiType.renderLabel(record.method, record.method),
     },
     {
       title: '路径模板',

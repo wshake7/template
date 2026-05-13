@@ -24,18 +24,26 @@ INSERT INTO "public"."sys_dict_type"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "is_enabled", "sort_order", "remark", "deleted_at", "type_code", "type_name")
 VALUES
     (1, NULL, NULL, 0, 0, 0, TRUE, 0, '', 0, 'system:is_enabled', '开关状态'),
-    (2, NULL, NULL, 0, 0, 0, TRUE, 0, '', 0, 'system:resource_menu_type', '菜单类型');
+    (2, NULL, NULL, 0, 0, 0, TRUE, 0, '', 0, 'system:resource_menu_type', '菜单类型'),
+    (3, NULL, NULL, 0, 0, 0, TRUE, 0, '', 0, 'system:resource_api_type', 'API 请求方法');
 
 INSERT INTO "public"."sys_dict_entry"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "sort_order", "is_enabled", "remark", "deleted_at", "label_component", "entry_label", "entry_value", "language_code", "sys_dict_type_id")
 VALUES
-    (1, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="error">${EntryLabel}</Tag>', '启用', '1', '', 1),
-    (2, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="success">${EntryLabel}</Tag>', '停用', '0', '', 1),
+    (1, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="success">${EntryLabel}</Tag>', '启用', '1', '', 1),
+    (2, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="error">${EntryLabel}</Tag>', '停用', '0', '', 1),
     (3, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="green">${EntryLabel}</Tag>', '目录', 'CATALOG', '', 2),
     (4, NULL, NULL, 0, 0, 0, 1, TRUE, '', 0, '<Tag color="blue">${EntryLabel}</Tag>', '菜单', 'MENU', '', 2),
     (5, NULL, NULL, 0, 0, 0, 2, TRUE, '', 0, '<Tag color="purple">${EntryLabel}</Tag>', '按钮', 'BUTTON', '', 2),
     (6, NULL, NULL, 0, 0, 0, 3, TRUE, '', 0, '<Tag color="cyan">${EntryLabel}</Tag>', '内嵌', 'EMBEDDED', '', 2),
-    (7, NULL, NULL, 0, 0, 0, 4, TRUE, '', 0, '<Tag color="orange">${EntryLabel}</Tag>', '外链', 'LINK', '', 2);
+    (7, NULL, NULL, 0, 0, 0, 4, TRUE, '', 0, '<Tag color="orange">${EntryLabel}</Tag>', '外链', 'LINK', '', 2),
+    (8, NULL, NULL, 0, 0, 0, 0, TRUE, '', 0, '<Tag color="green">${EntryLabel}</Tag>', 'GET', 'GET', '', 3),
+    (9, NULL, NULL, 0, 0, 0, 1, TRUE, '', 0, '<Tag color="blue">${EntryLabel}</Tag>', 'POST', 'POST', '', 3),
+    (10, NULL, NULL, 0, 0, 0, 2, TRUE, '', 0, '<Tag color="orange">${EntryLabel}</Tag>', 'PUT', 'PUT', '', 3),
+    (11, NULL, NULL, 0, 0, 0, 3, TRUE, '', 0, '<Tag color="gold">${EntryLabel}</Tag>', 'PATCH', 'PATCH', '', 3),
+    (12, NULL, NULL, 0, 0, 0, 4, TRUE, '', 0, '<Tag color="red">${EntryLabel}</Tag>', 'DELETE', 'DELETE', '', 3),
+    (13, NULL, NULL, 0, 0, 0, 5, TRUE, '', 0, '<Tag color="purple">${EntryLabel}</Tag>', 'OPTIONS', 'OPTIONS', '', 3),
+    (14, NULL, NULL, 0, 0, 0, 6, TRUE, '', 0, '<Tag color="cyan">${EntryLabel}</Tag>', 'HEAD', 'HEAD', '', 3);
 
 INSERT INTO "public"."sys_role"
 ("id", "created_at", "updated_at", "remark", "created_by", "updated_by", "deleted_by", "is_enabled", "deleted_at", "name", "code", "parent_id")
