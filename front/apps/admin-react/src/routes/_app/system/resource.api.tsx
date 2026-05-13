@@ -174,7 +174,7 @@ function ResourceApiManagement() {
   const [searchText, setSearchText] = useState('')
   const [methodFilter, setMethodFilter] = useState<ResourceApiMethod | undefined>()
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
 
   const {
     data,

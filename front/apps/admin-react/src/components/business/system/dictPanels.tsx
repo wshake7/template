@@ -191,7 +191,7 @@ export function DictTypePanel({
   const [hoveredDropTypeId, setHoveredDropTypeId] = useState<number | undefined>()
   const [selectedTypeIds, setSelectedTypeIds] = useState<number[]>([])
   const [searchText, setSearchText] = useState('')
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
   const {
     data,
     total,
@@ -564,7 +564,7 @@ export function DictEntryPanel({
   const [editing, setEditing] = useState<DictEntry>()
   const [searchText, setSearchText] = useState('')
   const [labelComponentMode, setLabelComponentMode] = useState<string>('')
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
   const {
     data,
     total,

@@ -171,7 +171,7 @@ export function LanguageTypePanel({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<LanguageType>()
   const [searchText, setSearchText] = useState('')
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
   const {
     data,
     total,
@@ -490,7 +490,7 @@ export function LanguageEntryPanel({
   const [editDrawerForm] = Form.useForm()
   const [batchCreateOpen, setBatchCreateOpen] = useState(false)
   const [batchCreateForm] = Form.useForm()
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
 
   const {
     data,

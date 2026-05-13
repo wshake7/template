@@ -92,7 +92,7 @@ function UserManagement() {
   const [editing, setEditing] = useState<SysUser>()
   const [searchText, setSearchText] = useState('')
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
 
   const {
     data,

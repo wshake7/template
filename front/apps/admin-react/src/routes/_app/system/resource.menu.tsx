@@ -37,15 +37,7 @@ export const Route = createFileRoute('/_app/system/resource/menu')({
   component: ResourceMenuManagement,
 })
 
-const menuTypeOptions: { label: string, value: ResourceMenuType }[] = [
-  { label: '目录', value: 'CATALOG' },
-  { label: '菜单', value: 'MENU' },
-  { label: '按钮', value: 'BUTTON' },
-  { label: '内嵌', value: 'EMBEDDED' },
-  { label: '外链', value: 'LINK' },
-]
-
-const menuTypeLabel: Record<ResourceMenuType, string> = {
+const resourceMenuTypeLabels: Record<ResourceMenuType, string> = {
   CATALOG: '目录',
   MENU: '菜单',
   BUTTON: '按钮',
@@ -53,13 +45,7 @@ const menuTypeLabel: Record<ResourceMenuType, string> = {
   LINK: '外链',
 }
 
-const menuTypeColor: Record<ResourceMenuType, string> = {
-  CATALOG: 'green',
-  MENU: 'blue',
-  BUTTON: 'purple',
-  EMBEDDED: 'cyan',
-  LINK: 'orange',
-}
+const resourceMenuTypeValues = Object.keys(resourceMenuTypeLabels) as ResourceMenuType[]
 
 const parentMenuTypes: Record<ResourceMenuType, ResourceMenuType[]> = {
   CATALOG: ['CATALOG'],
@@ -106,6 +92,7 @@ const defaultFormValues = ResourceMenuFormSchema.parse({
 
 const enabledStatusValue = (isEnabled: boolean) => isEnabled ? '1' : '0'
 const fallbackEnabledStatusLabel = (isEnabled: boolean) => isEnabled ? '启用' : '停用'
+const fallbackResourceMenuTypeLabel = (menuType: ResourceMenuType) => resourceMenuTypeLabels[menuType]
 
 const ResourceMenuSubmitSchema = ResourceMenuFormSchema.superRefine((values, ctx) => {
   if (!values.name.trim()) {
@@ -281,7 +268,8 @@ function ResourceMenuManagement() {
   const [editing, setEditing] = useState<ResourceMenu>()
   const [searchText, setSearchText] = useState('')
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
+  const resourceMenuType = useDictMatch(DictCode.SYS_RESOURCE_MENU_TYPE_DICT_CODE)
 
   const {
     data,
@@ -337,6 +325,22 @@ function ResourceMenuManagement() {
           { label: fallbackEnabledStatusLabel(false), value: false },
         ]
   }, [enabledStatus])
+
+  const menuTypeOptions = useMemo(() => {
+    const options = resourceMenuType.entries
+      .filter(entry => resourceMenuTypeValues.includes(entry.entryValue as ResourceMenuType))
+      .map(entry => ({
+        label: resourceMenuType.getLabel(entry.entryValue, entry.entryLabel),
+        value: entry.entryValue as ResourceMenuType,
+      }))
+
+    return options.length > 0
+      ? options
+      : resourceMenuTypeValues.map(value => ({
+          label: fallbackResourceMenuTypeLabel(value),
+          value,
+        }))
+  }, [resourceMenuType])
 
   const refreshParentRows = async () => {
     const res = await ResourceMenuApi.menuList({
@@ -455,7 +459,8 @@ function ResourceMenuManagement() {
       dataIndex: 'menuType',
       width: 90,
       search: false,
-      render: (_, record) => <Tag color={menuTypeColor[record.menuType]}>{menuTypeLabel[record.menuType]}</Tag>,
+      render: (_, record) =>
+        resourceMenuType.renderLabel(record.menuType, fallbackResourceMenuTypeLabel(record.menuType)),
     },
     {
       title: '权限标识',

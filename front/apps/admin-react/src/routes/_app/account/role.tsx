@@ -138,7 +138,7 @@ function RoleManagement() {
   const [apiSearchText, setApiSearchText] = useState('')
   const [selectedMenuKeys, setSelectedMenuKeys] = useState<Key[]>([])
   const [selectedApiKeys, setSelectedApiKeys] = useState<Key[]>([])
-  const enabledStatus = useDictMatch(DictCode.SYS_ENABLED_STATUS_DICT_CODE)
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
 
   const {
     data,
