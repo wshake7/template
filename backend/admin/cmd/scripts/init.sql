@@ -73,6 +73,9 @@ INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "cre
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (10, '2026-05-09 16:17:20.233627+08', '2026-05-10 20:10:15.368034+08', 1, 1, 0, '', 0, '{"icon": "", "order": 0, "hidden": false}', 't', 0, 'MENU', '/logger/api/log', '', '', 'API日志', '/logger/api.log.tsx', 4, '/10/4/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (11, '2026-05-10 20:28:36.585473+08', '2026-05-10 20:28:36.587573+08', 1, 1, 0, '', 0, '{"icon": "", "order": 0, "hidden": false}', 't', 0, 'MENU', '/account/user', '', '', '用户管理', '/account/user.tsx', 7, '/7/11/');
 INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (12, '2026-05-13 00:00:00+08', '2026-05-13 00:00:00+08', 1, 1, 0, '', 1, '{"icon": "", "order": 1, "hidden": false}', 't', 0, 'MENU', '/logger/login/log', '', '', '登录日志', '/logger/login.log.tsx', 4, '/10/12/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (13, '2026-05-14 00:00:00+08', '2026-05-14 00:00:00+08', 1, 1, 0, '', 4, '{"icon": "ScheduleOutlined", "order": 4, "hidden": false}', 't', 0, 'CATALOG', '/job', '', '', '任务调度', '', NULL, '/13/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (14, '2026-05-14 00:00:00+08', '2026-05-14 00:00:00+08', 1, 1, 0, '', 0, '{"icon": "", "order": 0, "hidden": false}', 't', 0, 'MENU', '/job/schedule', '', '', '任务配置', '/job/schedule.tsx', 13, '/13/14/');
+INSERT INTO "public"."sys_resource_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "metadata", "is_enabled", "deleted_at", "menu_type", "path", "redirect", "alias", "name", "component", "parent_id", "tree_path") VALUES (15, '2026-05-14 00:00:00+08', '2026-05-14 00:00:00+08', 1, 1, 0, '', 1, '{"icon": "", "order": 1, "hidden": false}', 't', 0, 'MENU', '/job/execution', '', '', '执行记录', '/job/execution.tsx', 13, '/13/15/');
 
 INSERT INTO "public"."sys_resource_api"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "remark", "sort_order", "is_enabled", "deleted_at", "module", "path", "method")
@@ -120,7 +123,19 @@ VALUES
     (41, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'resource_api', '/api/sys/resource/api/del', 'POST'),
     (42, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/list', 'POST'),
     (43, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'login_log', '/api/sys/login/log/detail', 'POST'),
-    (44, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'events', '/api/events', 'GET');
+    (44, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'events', '/api/events', 'GET'),
+    (45, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/list', 'POST'),
+    (46, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/detail', 'POST'),
+    (47, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/create', 'POST'),
+    (48, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/update', 'POST'),
+    (49, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/del', 'POST'),
+    (50, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/switch', 'POST'),
+    (51, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/sync', 'POST'),
+    (52, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_schedule', '/api/sys/job/schedule/trigger', 'POST'),
+    (53, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_execution', '/api/sys/job/execution/list', 'POST'),
+    (54, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_execution', '/api/sys/job/execution/detail', 'POST'),
+    (55, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_execution', '/api/sys/job/execution/cancel', 'POST'),
+    (56, NULL, NULL, 0, 0, 0, '', 0, TRUE, 0, 'job_execution', '/api/sys/job/execution/retry', 'POST');
 
 INSERT INTO "public"."casbin_rule"
 ("ptype", "v0", "v1", "v2")
@@ -168,7 +183,19 @@ VALUES
     ('p', 'role:root', '/api/sys/resource/api/del', 'POST'),
     ('p', 'role:root', '/api/sys/login/log/list', 'POST'),
     ('p', 'role:root', '/api/sys/login/log/detail', 'POST'),
-    ('p', 'role:root', '/api/events', 'GET');
+    ('p', 'role:root', '/api/events', 'GET'),
+    ('p', 'role:root', '/api/sys/job/schedule/list', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/detail', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/create', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/update', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/del', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/switch', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/sync', 'POST'),
+    ('p', 'role:root', '/api/sys/job/schedule/trigger', 'POST'),
+    ('p', 'role:root', '/api/sys/job/execution/list', 'POST'),
+    ('p', 'role:root', '/api/sys/job/execution/detail', 'POST'),
+    ('p', 'role:root', '/api/sys/job/execution/cancel', 'POST'),
+    ('p', 'role:root', '/api/sys/job/execution/retry', 'POST');
 
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (1, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 2, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (2, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 3, 0);
@@ -181,6 +208,9 @@ INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (9, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 10, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (10, '2026-05-12 16:54:34.859724+08', '2026-05-12 16:54:34.859724+08', 1, 1, 0, 1, 11, 0);
 INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (11, '2026-05-13 00:00:00+08', '2026-05-13 00:00:00+08', 1, 1, 0, 1, 12, 0);
+INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (12, '2026-05-14 00:00:00+08', '2026-05-14 00:00:00+08', 1, 1, 0, 1, 13, 0);
+INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (13, '2026-05-14 00:00:00+08', '2026-05-14 00:00:00+08', 1, 1, 0, 1, 14, 0);
+INSERT INTO "public"."sys_role_menu" ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "menu_id", "deleted_at") VALUES (14, '2026-05-14 00:00:00+08', '2026-05-14 00:00:00+08', 1, 1, 0, 1, 15, 0);
 
 INSERT INTO "public"."sys_role_api"
 ("id", "created_at", "updated_at", "created_by", "updated_by", "deleted_by", "role_id", "api_id", "deleted_at")
@@ -228,4 +258,42 @@ VALUES
     (41, NULL, NULL, 0, 0, 0, 1, 41, 0),
     (42, NULL, NULL, 0, 0, 0, 1, 42, 0),
     (43, NULL, NULL, 0, 0, 0, 1, 43, 0),
-    (44, NULL, NULL, 0, 0, 0, 1, 44, 0);
+    (44, NULL, NULL, 0, 0, 0, 1, 44, 0),
+    (45, NULL, NULL, 0, 0, 0, 1, 45, 0),
+    (46, NULL, NULL, 0, 0, 0, 1, 46, 0),
+    (47, NULL, NULL, 0, 0, 0, 1, 47, 0),
+    (48, NULL, NULL, 0, 0, 0, 1, 48, 0),
+    (49, NULL, NULL, 0, 0, 0, 1, 49, 0),
+    (50, NULL, NULL, 0, 0, 0, 1, 50, 0),
+    (51, NULL, NULL, 0, 0, 0, 1, 51, 0),
+    (52, NULL, NULL, 0, 0, 0, 1, 52, 0),
+    (53, NULL, NULL, 0, 0, 0, 1, 53, 0),
+    (54, NULL, NULL, 0, 0, 0, 1, 54, 0),
+    (55, NULL, NULL, 0, 0, 0, 1, 55, 0),
+    (56, NULL, NULL, 0, 0, 0, 1, 56, 0);
+
+INSERT INTO job_schedule (
+    job_code,
+    job_name,
+    workflow_type,
+    task_queue,
+    schedule_type,
+    interval_seconds,
+    input_json,
+    status,
+    temporal_schedule_id,
+    temporal_workflow_id_prefix,
+    description
+) VALUES (
+             'print_count_10s',
+             '每10秒打印count',
+             'PrintCountWorkflow',
+             'admin',
+             'INTERVAL',
+             10,
+             '{"count":1}',
+             'ENABLED',
+             'print_count_10s',
+             'print-count',
+             '示例任务：每10秒运行一次 PrintCountWorkflow'
+         );

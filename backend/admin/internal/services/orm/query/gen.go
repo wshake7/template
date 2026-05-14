@@ -17,6 +17,8 @@ import (
 
 var (
 	Q                 = new(Query)
+	JobExecution      *jobExecution
+	JobSchedule       *jobSchedule
 	SysApiLog         *sysApiLog
 	SysCasbinModel    *sysCasbinModel
 	SysDataPermission *sysDataPermission
@@ -36,6 +38,8 @@ var (
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	JobExecution = &Q.JobExecution
+	JobSchedule = &Q.JobSchedule
 	SysApiLog = &Q.SysApiLog
 	SysCasbinModel = &Q.SysCasbinModel
 	SysDataPermission = &Q.SysDataPermission
@@ -56,6 +60,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                db,
+		JobExecution:      newJobExecution(db, opts...),
+		JobSchedule:       newJobSchedule(db, opts...),
 		SysApiLog:         newSysApiLog(db, opts...),
 		SysCasbinModel:    newSysCasbinModel(db, opts...),
 		SysDataPermission: newSysDataPermission(db, opts...),
@@ -77,6 +83,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
+	JobExecution      jobExecution
+	JobSchedule       jobSchedule
 	SysApiLog         sysApiLog
 	SysCasbinModel    sysCasbinModel
 	SysDataPermission sysDataPermission
@@ -99,6 +107,8 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                db,
+		JobExecution:      q.JobExecution.clone(db),
+		JobSchedule:       q.JobSchedule.clone(db),
 		SysApiLog:         q.SysApiLog.clone(db),
 		SysCasbinModel:    q.SysCasbinModel.clone(db),
 		SysDataPermission: q.SysDataPermission.clone(db),
@@ -128,6 +138,8 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                db,
+		JobExecution:      q.JobExecution.replaceDB(db),
+		JobSchedule:       q.JobSchedule.replaceDB(db),
 		SysApiLog:         q.SysApiLog.replaceDB(db),
 		SysCasbinModel:    q.SysCasbinModel.replaceDB(db),
 		SysDataPermission: q.SysDataPermission.replaceDB(db),
@@ -147,6 +159,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
+	JobExecution      IJobExecutionDo
+	JobSchedule       IJobScheduleDo
 	SysApiLog         ISysApiLogDo
 	SysCasbinModel    ISysCasbinModelDo
 	SysDataPermission ISysDataPermissionDo
@@ -166,6 +180,8 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		JobExecution:      q.JobExecution.WithContext(ctx),
+		JobSchedule:       q.JobSchedule.WithContext(ctx),
 		SysApiLog:         q.SysApiLog.WithContext(ctx),
 		SysCasbinModel:    q.SysCasbinModel.WithContext(ctx),
 		SysDataPermission: q.SysDataPermission.WithContext(ctx),

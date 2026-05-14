@@ -19,4 +19,6 @@ func RegisterRouters(router fiber.Router) {
 	registerSysLoginLogRouters(group.Group("/sys/login/log"))
 	registerSysResourceMenuRouters(group.Group("/sys/resource/menu"))
 	registerSysResourceApiRouters(group.Group("/sys/resource/api"))
+	registerJobScheduleRouters(group.Group("/sys/job/schedule"))
+	registerJobExecutionRouters(group.Group("/sys/job/execution"))
 }

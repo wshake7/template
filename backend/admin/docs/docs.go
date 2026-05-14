@@ -614,6 +614,450 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/sys/job/execution/cancel": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobExecution"
+                ],
+                "summary": "取消运行中的任务执行",
+                "parameters": [
+                    {
+                        "description": "取消参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobExecutionID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/execution/detail": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobExecution"
+                ],
+                "summary": "获取任务执行记录详情",
+                "parameters": [
+                    {
+                        "description": "详情参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobExecutionID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin_internal_services_orm_models.JobExecution"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/execution/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobExecution"
+                ],
+                "summary": "获取任务执行记录分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespJobExecution"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/execution/retry": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobExecution"
+                ],
+                "summary": "重试失败态任务执行",
+                "parameters": [
+                    {
+                        "description": "重试参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobExecutionID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "创建任务调度配置",
+                "parameters": [
+                    {
+                        "description": "创建参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/del": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "删除任务调度配置",
+                "parameters": [
+                    {
+                        "description": "任务ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/detail": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "获取任务调度配置详情",
+                "parameters": [
+                    {
+                        "description": "任务ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/admin_internal_services_orm_models.JobSchedule"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "获取任务调度配置分页列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.PagingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/gormc.PagingResult-internal_router_logic_RespJobSchedule"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/switch": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "启用或停用任务调度配置",
+                "parameters": [
+                    {
+                        "description": "切换参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleSwitch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/sync": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "同步任务调度配置到 Temporal",
+                "parameters": [
+                    {
+                        "description": "任务ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/trigger": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "立即触发任务调度",
+                "parameters": [
+                    {
+                        "description": "任务ID",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sys/job/schedule/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JobSchedule"
+                ],
+                "summary": "更新任务调度配置",
+                "parameters": [
+                    {
+                        "description": "更新参数",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_router_logic.ReqJobScheduleUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/admin_internal_fiberc_res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/sys/language/entry/batch/create": {
             "post": {
                 "description": "根据条目编码和语言值映射批量创建语言条目，已存在的则更新",
@@ -1769,6 +2213,118 @@ const docTemplate = `{
                 }
             }
         },
+        "admin_internal_services_orm_models.JobExecution": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputJSON": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "jobCode": {
+                    "type": "string"
+                },
+                "resultJSON": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "retryCount": {
+                    "type": "integer"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "temporalRunID": {
+                    "type": "string"
+                },
+                "temporalWorkflowID": {
+                    "type": "string"
+                },
+                "triggerTime": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin_internal_services_orm_models.JobSchedule": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "cronExpr": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputJSON": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "intervalSeconds": {
+                    "type": "integer"
+                },
+                "jobCode": {
+                    "type": "string"
+                },
+                "jobName": {
+                    "type": "string"
+                },
+                "scheduleType": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "taskQueue": {
+                    "type": "string"
+                },
+                "temporalScheduleID": {
+                    "type": "string"
+                },
+                "temporalWorkflowIDPrefix": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "workflowType": {
+                    "type": "string"
+                }
+            }
+        },
         "admin_internal_services_orm_models.SysApiLog": {
             "type": "object",
             "properties": {
@@ -2374,6 +2930,34 @@ const docTemplate = `{
                 }
             }
         },
+        "gormc.PagingResult-internal_router_logic_RespJobExecution": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespJobExecution"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gormc.PagingResult-internal_router_logic_RespJobSchedule": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_router_logic.RespJobSchedule"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "gormc.PagingResult-internal_router_logic_RespSysResourceApi": {
             "type": "object",
             "properties": {
@@ -2701,6 +3285,172 @@ const docTemplate = `{
                     "maxLength": 128
                 },
                 "typeName": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "internal_router_logic.ReqJobExecutionID": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqJobScheduleCreate": {
+            "type": "object",
+            "required": [
+                "jobCode",
+                "jobName",
+                "scheduleType",
+                "taskQueue",
+                "workflowType"
+            ],
+            "properties": {
+                "cronExpr": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 512
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "inputJSON": {
+                    "type": "string"
+                },
+                "intervalSeconds": {
+                    "type": "integer"
+                },
+                "jobCode": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "jobName": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "scheduleType": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "taskQueue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "temporalScheduleID": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "temporalWorkflowIDPrefix": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "workflowType": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "internal_router_logic.ReqJobScheduleDetail": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqJobScheduleID": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqJobScheduleSwitch": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.ReqJobScheduleUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "cronExpr": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 512
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputJSON": {
+                    "type": "string"
+                },
+                "intervalSeconds": {
+                    "type": "integer"
+                },
+                "jobName": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "scheduleType": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "taskQueue": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "temporalWorkflowIDPrefix": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "workflowType": {
                     "type": "string",
                     "maxLength": 255
                 }
@@ -3394,6 +4144,130 @@ const docTemplate = `{
                 },
                 "updatedBy": {
                     "type": "integer"
+                }
+            }
+        },
+        "internal_router_logic.RespJobExecution": {
+            "type": "object",
+            "properties": {
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canWrite": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "errorMessage": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputJSON": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "jobCode": {
+                    "type": "string"
+                },
+                "resultJSON": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "retryCount": {
+                    "type": "integer"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "temporalRunID": {
+                    "type": "string"
+                },
+                "temporalWorkflowID": {
+                    "type": "string"
+                },
+                "triggerTime": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_router_logic.RespJobSchedule": {
+            "type": "object",
+            "properties": {
+                "canDelete": {
+                    "type": "boolean"
+                },
+                "canWrite": {
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "cronExpr": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputJSON": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "intervalSeconds": {
+                    "type": "integer"
+                },
+                "jobCode": {
+                    "type": "string"
+                },
+                "jobName": {
+                    "type": "string"
+                },
+                "scheduleType": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "taskQueue": {
+                    "type": "string"
+                },
+                "temporalScheduleID": {
+                    "type": "string"
+                },
+                "temporalWorkflowIDPrefix": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "workflowType": {
+                    "type": "string"
                 }
             }
         },

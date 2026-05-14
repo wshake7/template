@@ -21,6 +21,8 @@ declare global {
   const Fragment: typeof import('react').Fragment
   const HttpCode: typeof import('./domains/http').HttpCode
   const HttpCodeCheck: typeof import('./domains/http').HttpCodeCheck
+  const JobExecutionApi: typeof import('./api/business/jobExecution').JobExecutionApi
+  const JobScheduleApi: typeof import('./api/business/jobSchedule').JobScheduleApi
   const LangApi: typeof import('./api/business/sysLanguage').LangApi
   const LanguageEntryPanel: typeof import('./components/business/system/languagePanels').LanguageEntryPanel
   const LanguageTypePanel: typeof import('./components/business/system/languagePanels').LanguageTypePanel
@@ -211,6 +213,12 @@ declare global {
   // @ts-ignore
   export type { LangTypeFormValues } from './components/business/system/languagePanels'
   import('./components/business/system/languagePanels')
+  // @ts-ignore
+  export type { JobExecutionStatus, JobExecution, ReqJobExecutionID } from './api/business/jobExecution'
+  import('./api/business/jobExecution')
+  // @ts-ignore
+  export type { JobScheduleType, JobScheduleStatus, JobSchedule, ReqJobScheduleCreate, ReqJobScheduleUpdate, ReqJobScheduleID, ReqJobScheduleSwitch } from './api/business/jobSchedule'
+  import('./api/business/jobSchedule')
   // @ts-ignore
   export type { SysApiLog, ReqLogDetail } from './api/business/sysApiLog'
   import('./api/business/sysApiLog')

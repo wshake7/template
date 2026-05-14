@@ -13,11 +13,14 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSystemRouteImport } from './routes/_app/system'
 import { Route as AppLoggerRouteImport } from './routes/_app/logger'
+import { Route as AppJobRouteImport } from './routes/_app/job'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as loginLoginRouteImport } from './routes/(login)/login'
 import { Route as AppSystemLanguageRouteImport } from './routes/_app/system/language'
 import { Route as AppSystemDictRouteImport } from './routes/_app/system/dict'
+import { Route as AppJobScheduleRouteImport } from './routes/_app/job/schedule'
+import { Route as AppJobExecutionRouteImport } from './routes/_app/job/execution'
 import { Route as AppAccountUserRouteImport } from './routes/_app/account/user'
 import { Route as AppAccountRoleRouteImport } from './routes/_app/account/role'
 import { Route as AppSystemResourceMenuRouteImport } from './routes/_app/system/resource.menu'
@@ -44,6 +47,11 @@ const AppLoggerRoute = AppLoggerRouteImport.update({
   path: '/logger',
   getParentRoute: () => AppRoute,
 } as any)
+const AppJobRoute = AppJobRouteImport.update({
+  id: '/job',
+  path: '/job',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -68,6 +76,16 @@ const AppSystemDictRoute = AppSystemDictRouteImport.update({
   id: '/dict',
   path: '/dict',
   getParentRoute: () => AppSystemRoute,
+} as any)
+const AppJobScheduleRoute = AppJobScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AppJobRoute,
+} as any)
+const AppJobExecutionRoute = AppJobExecutionRouteImport.update({
+  id: '/execution',
+  path: '/execution',
+  getParentRoute: () => AppJobRoute,
 } as any)
 const AppAccountUserRoute = AppAccountUserRouteImport.update({
   id: '/user',
@@ -105,10 +123,13 @@ export interface FileRoutesByFullPath {
   '/login': typeof loginLoginRoute
   '/account': typeof AppAccountRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/job': typeof AppJobRouteWithChildren
   '/logger': typeof AppLoggerRouteWithChildren
   '/system': typeof AppSystemRouteWithChildren
   '/account/role': typeof AppAccountRoleRoute
   '/account/user': typeof AppAccountUserRoute
+  '/job/execution': typeof AppJobExecutionRoute
+  '/job/schedule': typeof AppJobScheduleRoute
   '/system/dict': typeof AppSystemDictRoute
   '/system/language': typeof AppSystemLanguageRoute
   '/logger/api/log': typeof AppLoggerApiLogRoute
@@ -120,11 +141,14 @@ export interface FileRoutesByTo {
   '/login': typeof loginLoginRoute
   '/account': typeof AppAccountRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/job': typeof AppJobRouteWithChildren
   '/logger': typeof AppLoggerRouteWithChildren
   '/system': typeof AppSystemRouteWithChildren
   '/': typeof AppIndexRoute
   '/account/role': typeof AppAccountRoleRoute
   '/account/user': typeof AppAccountUserRoute
+  '/job/execution': typeof AppJobExecutionRoute
+  '/job/schedule': typeof AppJobScheduleRoute
   '/system/dict': typeof AppSystemDictRoute
   '/system/language': typeof AppSystemLanguageRoute
   '/logger/api/log': typeof AppLoggerApiLogRoute
@@ -138,11 +162,14 @@ export interface FileRoutesById {
   '/(login)/login': typeof loginLoginRoute
   '/_app/account': typeof AppAccountRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/job': typeof AppJobRouteWithChildren
   '/_app/logger': typeof AppLoggerRouteWithChildren
   '/_app/system': typeof AppSystemRouteWithChildren
   '/_app/': typeof AppIndexRoute
   '/_app/account/role': typeof AppAccountRoleRoute
   '/_app/account/user': typeof AppAccountUserRoute
+  '/_app/job/execution': typeof AppJobExecutionRoute
+  '/_app/job/schedule': typeof AppJobScheduleRoute
   '/_app/system/dict': typeof AppSystemDictRoute
   '/_app/system/language': typeof AppSystemLanguageRoute
   '/_app/logger/api/log': typeof AppLoggerApiLogRoute
@@ -157,10 +184,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/account'
     | '/dashboard'
+    | '/job'
     | '/logger'
     | '/system'
     | '/account/role'
     | '/account/user'
+    | '/job/execution'
+    | '/job/schedule'
     | '/system/dict'
     | '/system/language'
     | '/logger/api/log'
@@ -172,11 +202,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/account'
     | '/dashboard'
+    | '/job'
     | '/logger'
     | '/system'
     | '/'
     | '/account/role'
     | '/account/user'
+    | '/job/execution'
+    | '/job/schedule'
     | '/system/dict'
     | '/system/language'
     | '/logger/api/log'
@@ -189,11 +222,14 @@ export interface FileRouteTypes {
     | '/(login)/login'
     | '/_app/account'
     | '/_app/dashboard'
+    | '/_app/job'
     | '/_app/logger'
     | '/_app/system'
     | '/_app/'
     | '/_app/account/role'
     | '/_app/account/user'
+    | '/_app/job/execution'
+    | '/_app/job/schedule'
     | '/_app/system/dict'
     | '/_app/system/language'
     | '/_app/logger/api/log'
@@ -237,6 +273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLoggerRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/job': {
+      id: '/_app/job'
+      path: '/job'
+      fullPath: '/job'
+      preLoaderRoute: typeof AppJobRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -271,6 +314,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/system/dict'
       preLoaderRoute: typeof AppSystemDictRouteImport
       parentRoute: typeof AppSystemRoute
+    }
+    '/_app/job/schedule': {
+      id: '/_app/job/schedule'
+      path: '/schedule'
+      fullPath: '/job/schedule'
+      preLoaderRoute: typeof AppJobScheduleRouteImport
+      parentRoute: typeof AppJobRoute
+    }
+    '/_app/job/execution': {
+      id: '/_app/job/execution'
+      path: '/execution'
+      fullPath: '/job/execution'
+      preLoaderRoute: typeof AppJobExecutionRouteImport
+      parentRoute: typeof AppJobRoute
     }
     '/_app/account/user': {
       id: '/_app/account/user'
@@ -331,6 +388,19 @@ const AppAccountRouteWithChildren = AppAccountRoute._addFileChildren(
   AppAccountRouteChildren,
 )
 
+interface AppJobRouteChildren {
+  AppJobExecutionRoute: typeof AppJobExecutionRoute
+  AppJobScheduleRoute: typeof AppJobScheduleRoute
+}
+
+const AppJobRouteChildren: AppJobRouteChildren = {
+  AppJobExecutionRoute: AppJobExecutionRoute,
+  AppJobScheduleRoute: AppJobScheduleRoute,
+}
+
+const AppJobRouteWithChildren =
+  AppJobRoute._addFileChildren(AppJobRouteChildren)
+
 interface AppLoggerRouteChildren {
   AppLoggerApiLogRoute: typeof AppLoggerApiLogRoute
   AppLoggerLoginLogRoute: typeof AppLoggerLoginLogRoute
@@ -366,6 +436,7 @@ const AppSystemRouteWithChildren = AppSystemRoute._addFileChildren(
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
+  AppJobRoute: typeof AppJobRouteWithChildren
   AppLoggerRoute: typeof AppLoggerRouteWithChildren
   AppSystemRoute: typeof AppSystemRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
@@ -374,6 +445,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
+  AppJobRoute: AppJobRouteWithChildren,
   AppLoggerRoute: AppLoggerRouteWithChildren,
   AppSystemRoute: AppSystemRouteWithChildren,
   AppIndexRoute: AppIndexRoute,

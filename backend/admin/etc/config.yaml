@@ -14,9 +14,9 @@ Redis:
   Username:
   Password:
 Temporal:
-  Enabled: false
+  Enabled: true
   HostPort: 127.0.0.1:7233
   Namespace: default
   Identity:
   TaskQueue: admin
-  WorkerEnabled: false
+  WorkerEnabled: true
