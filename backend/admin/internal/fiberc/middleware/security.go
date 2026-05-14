@@ -43,7 +43,7 @@ func NonceMiddleware() fiber.Handler {
 
 				err := redisc2.Client.Do(ctx.Context(), redisc2.Client.B().Set().Key(nonceKey).Value(nonce).Ex(encrypt.NONCE_EXPIRE_TIME).Build()).Error()
 				if err != nil {
-					zap.L().Error("redis error", zap.Error(err))
+					ctx.L().Error("redis error", zap.Error(err))
 					return res.FailDefault
 				}
 			}
