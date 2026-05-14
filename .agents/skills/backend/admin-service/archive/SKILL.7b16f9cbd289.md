@@ -9,7 +9,7 @@
 
 ## 何时使用
 
-当任务涉及 `backend/admin` 的服务启动、配置、路由、业务逻辑、中间件、认证权限、Swagger、GORM Gen 生成代码、Temporal 任务调度或后台 API 时使用。特别适合开发系统管理类资源（如角色、用户、菜单、API 资源、字典、语言、API 日志、登录日志、任务调度等）。
+当任务涉及 `backend/admin` 的服务启动、配置、路由、业务逻辑、中间件、认证权限、Swagger、GORM Gen 生成代码或后台 API 时使用。特别适合开发系统管理类资源（如角色、用户、菜单、API 资源、字典、语言、API 日志、登录日志等）。
 
 ## 核心路径
 
@@ -28,8 +28,6 @@ backend/admin/
 ├── internal/router/auth_router/        # 需要鉴权的系统资源路由
 │   ├── sys_login_log.go               # 登录日志相关路由
 │   ├── events.go                      # SSE 事件流路由
-│   ├── job_execution.go               # 任务执行记录路由
-│   ├── job_schedule.go                # 任务调度路由
 │   └── ...
 ├── internal/router/logic/              # 业务逻辑包（建议请求/响应定义集中于此）
 │   ├── sys_resource_api.go
@@ -37,28 +35,14 @@ backend/admin/
 │   ├── sys_role.go
 │   ├── sys_user.go
 │   ├── sys_login_log.go               # 登录日志列表与详情
-│   ├── job_execution.go               # 任务执行记录逻辑
-│   ├── job_schedule.go                # 任务调度逻辑
 │   └── ...
-├── internal/services/                  # ORM、Redis、Auth、Casbin、Asynq、HTTP、Geo、Temporal
+├── internal/services/                  # ORM、Redis、Auth、Casbin、Asynq、HTTP、Geo
 │   ├── orm/
 │   │   ├── models/                     # GORM models
 │   │   │   ├── sys_login_log.go       # 登录日志模型
-│   │   │   ├── job_execution.go       # 任务执行记录模型
-│   │   │   ├── job_schedule.go        # 任务调度模型
 │   │   │   └── ...
 │   │   ├── query/                      # GORM Gen 生成代码与扩展
-│   │   │   ├── job_execution.gen.go   # 生成的基础查询
-│   │   │   ├── job_execution_extend.gen.go   # 扩展查询
-│   │   │   ├── job_schedule.gen.go
-│   │   │   ├── job_schedule_extend.gen.go
 │   │   └── data_permission/            # 数据权限引擎（规划中）
-│   ├── temporal.go                     # Temporal 客户端初始化
-│   ├── temporalc/                      # Temporal 客户端封装
-│   │   └── temporalc.go
-│   ├── temporaljob/                    # 任务工作流定义
-│   │   ├── example.go
-│   │   └── job.go
 │   └── casbin/
 │       ├── casbin.go                   # 初始化 Casbin 执行器
 │       ├── policy.go                   # 权限策略自动同步
@@ -70,7 +54,7 @@ backend/admin/
 
 1. `cmd/main.go` 读取 `etc/config.yaml` 到 `config.Conf`。
 2. 初始化日志：`go-common/log`。
-3. `services.New(conf)` 初始化 ORM、Redis、HTTP client、Auth、Geo、Asynq、Casbin，以及 Temporal 客户端（通过 `temporal.go` 和 `temporalc` 包）。
+3. `services.New(conf)` 初始化 ORM、Redis、HTTP client、Auth、Geo、Asynq、Casbin。
 4. `fiberc.NewFiber(conf)` 创建 Fiber app。
 5. `router.Router{}.RegisterRouters(group)` 注册 `/api/**` 路由。
 6. `app.Start()` 启动服务，端口来自配置。
@@ -104,7 +88,7 @@ backend/admin/
 
 - 路由前缀约定：
   - 公开接口（如账号、加密 key）使用 `/api/` 前缀，例如 `/api/account/login/pwd`、`/api/encrypt/public/key`。
-  - 需鉴权的系统管理资源统一使用 `/api/sys/` 前缀，例如 `/api/sys/api/log/list`、`/api/sys/dict/entry/match`、`/api/sys/resource/menu/list`、`/api/sys/resource/api/list`、`/api/sys/role/list`、`/api/sys/user/list`、`/api/sys/login/log/list`、`/api/sys/login/log/detail`、`/api/sys/job/schedule/list`、`/api/sys/job/execution/list` 等。
+  - 需鉴权的系统管理资源统一使用 `/api/sys/` 前缀，例如 `/api/sys/api/log/list`、`/api/sys/dict/entry/match`、`/api/sys/resource/menu/list`、`/api/sys/resource/api/list`、`/api/sys/role/list`、`/api/sys/user/list`、`/api/sys/login/log/list`、`/api/sys/login/log/detail` 等。
   - SSE 事件流端点使用 `/api/events`，通过 `auth_router/events.go` 注册。
 - 普通路由聚合在 `internal/router/router.go`。
 - 业务逻辑放在 `internal/router/logic/<resource>.go`，通过 `handler.CtxHandlerFunc` 等包装。
@@ -135,17 +119,16 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
 
 ## 新增后台资源的推荐流程
 
-1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`（如 `job_schedule`、`job_execution` 模型）。
+1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`（如 `sys_login_log` 模型）。
 2. 如需特定查询扩展，修改 `cmd/scripts/orm/templates/` 下的模板。
 3. 运行 `make script-orm` 重新生成 `internal/services/orm/query/` 下的代码。
-4. 在 `internal/router/logic/<resource>.go` 定义请求/响应结构体（建议 `ReqXxx`、`RespXxx`）和业务方法（List/Create/Update/Delete/Switch/Detail/Trigger/Sync/Cancel/Retry 等）。响应结构体避免直接暴露 ORM Model。
-5. 在 `internal/router/auth_router/<resource>.go` 注册路由，使用 `/api/sys/<resource>/*` 路径前缀。例如任务调度列表 `POST /api/sys/job/schedule/list`、详情 `POST /api/sys/job/schedule/detail`；任务执行列表 `POST /api/sys/job/execution/list`、取消 `POST /api/sys/job/execution/cancel` 等。
+4. 在 `internal/router/logic/<resource>.go` 定义请求/响应结构体（建议 `ReqXxx`、`RespXxx`）和业务方法（List/Create/Update/Delete/Switch 等）。响应结构体避免直接暴露 ORM Model。
+5. 在 `internal/router/auth_router/<resource>.go` 注册路由，使用 `/api/sys/<resource>/*` 路径前缀。例如登录日志列表 `POST /api/sys/login/log/list`、详情 `POST /api/sys/login/log/detail`。
 6. 在 `auth_router.RegisterRouters` 中汇总注册。
 7. 如果需要种子数据（如超级管理员角色、默认菜单树、字典初始条目），在 `cmd/scripts/init.sql` 中添加 INSERT 语句，并确保幂等（常用 `ON CONFLICT` 或先删后插）。对于复杂数据库结构变更，编写迁移脚本（如 `schema_hardening_postgres.sql`）并在部署时执行。
 8. 同步更新 Casbin 权限策略。若资源增删改会影响角色授权，需在业务逻辑中调用 `casbin` 包的同步方法（参考下一节）。
-9. 对于涉及 Temporal 的资源（如 `job_schedule`），需要确保 Temporal 客户端已初始化并在业务逻辑中通过 `temporalc` 包与 Temporal 通信。任务工作流定义应放在 `internal/services/temporaljob/` 目录下。
-10. 运行 `make swagger` 更新 Swagger 文档；分页查询响应的 `data` 应引用 logic 包下的自定义 `Resp` 类型。
-11. 前端同步新增 API 文件和页面时，切换到 frontend 技能。
+9. 运行 `make swagger` 更新 Swagger 文档；分页查询响应的 `data` 应引用 logic 包下的自定义 `Resp` 类型。
+10. 前端同步新增 API 文件和页面时，切换到 frontend 技能。
 
 ## Casbin 权限自动同步
 
@@ -165,7 +148,7 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
   - `AddAPIResourcePolicies` / `RemoveAPIResourcePolicies`：当 API 资源被启用/禁用或路径/方法变更时，重新计算关联角色的策略。
   - `SyncAPIResourcePolicies`：API 资源更新时，移除旧策略并添加新策略。
 - 在业务逻辑中（如 `sys_resource_api.go`、`sys_role.go`），当操作会影响权限时，必须调用对应的同步函数以确保 Casbin 策略与数据库一致。
-- 种子数据（`cmd/scripts/init.sql`）已包含 root 角色的完整策略，包括新增的任务调度 API 权限，部署后即可使用。
+- 种子数据（`cmd/scripts/init.sql`）已包含 root 角色的完整策略，部署后即可使用。
 
 ## 数据权限约定
 
@@ -180,19 +163,22 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
 - 模型 `SysLoginLog` 记录每次登录/退出尝试，包含 `username`、`loginIP`、`userAgent`、`browserName`、`osName`、`statusCode`、`success`、`reason` 等字段，其中 `sys_user_id` 可为空（当用户不存在时）。
 - 日志由 `login_log_record.go` 在账号相关操作时自动写入，业务代码无需显式调用。
 - 前端可通过 `POST /api/sys/login/log/list` 分页查询日志，支持按用户名、IP、状态等筛选。
-- 详情接口 `POST /api/sys/login/log/detail` 返回完整信息。
+- 详情接口 `POST /api/sys/login/log/detail` 根据日志 ID 返回完整记录。
+- SSE 事件流 `/api/events` 使用 `auth_router/events.go` 推送实时登录事件，事件数据经过加密，前端需先解密 `payload` 字段再解析 JSON。事件循环已整合优雅关闭支持，服务关闭时流将安全退出。
 
-## 任务调度模块约定
+## 配置与服务
 
-- 任务调度基于 Temporal 工作流引擎。
-- 所有 Temporal 客户端连接池由 `internal/services/temporal.go` 初始化，配置项在 `etc/config.yaml` 中（Temporal Server 地址、namespace 等）。
-- `internal/services/temporalc/temporalc.go` 封装了 Temporal 客户端的常用操作（如启动 Schedule、触发 Workflow、取消 Workflow 等）。
-- 业务代码通过 `temporalc` 包与 Temporal 交互，不直接引用 Temporal SDK 的复杂接口。
-- 任务调度配置表 `job_schedule` 存储定时任务定义，包括任务编码 (`job_code`)、工作流类型 (`workflow_type`)、调度策略 (`schedule_type`，如 INTERVAL/CRON)、状态 (`status`)、Temporal Schedule ID 等。
-- 任务执行记录表 `job_execution` 记录每次执行，与 Temporal Workflow ID 关联。
-- 新增任务调度时：
-  1. 在 `internal/services/temporaljob/` 中实现对应的 Workflow 和 Activity（例如 `PrintCountWorkflow`）。
-  2. 通过管理接口创建 `job_schedule` 记录，并调用 `Sync` 接口同步到 Temporal。
-  3. `Trigger` 接口可用于立即触发一次任务执行，`Switch` 启用/停用定时。
-  4. 任务执行记录由系统自动记录，前端可查看、重试或取消运行中的执行。
-- 取消和重试操作通过 `POST /api/sys/job/execution/cancel` 和 `POST /api/sys/job/execution/retry` 实现。
+- 本地配置在 `etc/config.yaml`，结构定义在 `internal/config/**`。
+- ORM 服务在 `internal/services/orm.go` 与 `internal/services/orm/orm.go`。
+- Redis 服务在 `internal/services/redis.go` 与 `internal/services/redisc/**`。
+- Casbin 模型文件在 `internal/services/casbin/*.conf`。
+- 生命周期管理见 `internal/lifecycle/shutdown.go`，提供 `BeginShutdown` 和 `ShutdownDone` 用于各组件优雅退出协调。
+- Header、HTTP code 等跨端约定需与前端 `src/domains/http.ts` 对齐。
+
+## 命令
+
+```bash
+cd backend/admin
+go run .
+make script-orm   # 生成 ORM query 代码（go run ./cmd/scripts/orm）
+make swagger      # 更新

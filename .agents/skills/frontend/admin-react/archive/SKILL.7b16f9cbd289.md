@@ -2,7 +2,7 @@
 
 ## 何时使用
 
-当任务涉及 `front/apps/admin-react` 或 `front/packages/utils`，包括页面、路由、菜单、API、登录鉴权、主题、Mock、表单、表格、测试、构建以及任务调度页面时使用。特别适合开发系统管理功能（如角色、用户、菜单、API 资源、字典、语言、API 日志、登录日志、SSE 事件、任务配置、执行记录等）。
+当任务涉及 `front/apps/admin-react` 或 `front/packages/utils`，包括页面、路由、菜单、API、登录鉴权、主题、Mock、表单、表格、测试和构建时使用。特别适合开发系统管理功能（如角色、用户、菜单、API 资源、字典、语言、API 日志、登录日志、SSE 事件等）。
 
 ## 核心路径
 
@@ -24,9 +24,6 @@ front/apps/admin-react/
 │   │   │   └── login.log.tsx     # 登录日志页面
 │   │   ├── resource.api.tsx
 │   │   └── resource.menu.tsx
-│   ├── _app/job/
-│   │   ├── schedule.tsx          # 任务配置页面
-│   │   └── execution.tsx         # 执行记录页面
 │   └── _app/dashboard.tsx
 ├── src/api/
 │   ├── index.ts              # Alova 主实例
@@ -40,9 +37,7 @@ front/apps/admin-react/
 │       ├── sysDict.ts
 │       ├── sysLanguage.ts
 │       ├── sysApiLog.ts
-│       ├── sysLoginLog.ts
-│       ├── jobSchedule.ts    # 任务调度 API
-│       ├── jobExecution.ts   # 任务执行 API
+│       ├── sysLoginLog.ts    # 登录日志 API
 │       └── eventStream.ts   # SSE 事件流
 ├── src/domains/               # 领域类型、HTTP 状态码
 ├── src/stores/
@@ -72,7 +67,7 @@ front/apps/admin-react/
 - 路由使用 TanStack Router 文件路由，`src/routes/**` 通过插件生成 `src/routeTree.gen.ts`。
 - 根路由 `src/routes/__root.tsx` 根据 token 做登录跳转。
 - 应用壳 `src/routes/_app.tsx` 使用 `ProLayout`、`PageContainer`，侧边栏菜单来源于后端 `sys_resource_menu` 表，通过 `useResourceMenuStore` 拉取并持久化缓存。该 store 使用 zustand persist，刷新页面后快速恢复菜单树。
-- 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；日志类页面（如 API 日志、登录日志）放在 `src/routes/_app/logger/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中；任务调度相关页面放在 `src/routes/_app/job/` 目录中。
+- 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；日志类页面（如 API 日志、登录日志）放在 `src/routes/_app/logger/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中。
 - HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。
   - 加密逻辑已抽离至 `src/api/encryptRequest.ts`，提供 `encryptRequest`、`createEncryptedRequestConfig`、`decryptText`、`ensurePublicKey` 等工具函数，可在 Alova `beforeRequest` 及其他场景（如 SSE）中复用。
   - `beforeRequest` 直接调用 `encryptRequest(method)` 完成加密配置。
@@ -117,9 +112,9 @@ front/apps/admin-react/
 
 ### 新增系统管理页面
 
-1. 在 `src/routes/_app/system/`（系统资源）、`src/routes/_app/account/`（账号管理）、`src/routes/_app/logger/`（日志）或 `src/routes/_app/job/`（任务调度）下创建文件路由，使用 `createFileRoute`。
-2. 在文件路由的 `staticData.menu` 中配置菜单：`name` 为页面标题，`menuType: 'menu'`；父级目录已在对应 `system.tsx`、`account.tsx`、`logger.tsx` 或 `job.tsx` 中定义为 `catalog`。
-3. 页面组件优先使用 Ant Design Pro Components，参照 `resource.menu.tsx`、`login.log.tsx`、`job/schedule.tsx` 等实现。
+1. 在 `src/routes/_app/system/`（系统资源）或 `src/routes/_app/account/`（账号管理）或 `src/routes/_app/logger/`（日志）下创建文件路由，使用 `createFileRoute`。
+2. 在文件路由的 `staticData.menu` 中配置菜单：`name` 为页面标题，`menuType: 'menu'`；父级目录已在对应 `system.tsx`、`account.tsx` 或 `logger.tsx` 中定义为 `catalog`。
+3. 页面组件优先使用 Ant Design Pro Components，参照 `resource.menu.tsx`、`login.log.tsx` 等实现。
 4. 在 `src/api/business/<resource>.ts` 中定义 API 方法和类型，URL 路径使用 `/api/sys/<resource>/*` 格式（与 Swagger 一致）。
 5. 若列表需要状态下拉，使用 `useDictMatch('system:is_enabled')` 获取选项。
 6. 若表单需要图标字段，使用 `AntIconPicker` 组件。
@@ -132,14 +127,6 @@ front/apps/admin-react/
 - 状态列渲染使用 `Tag` 组件，成功显示“成功”并用绿色，失败显示“失败”并用红色。
 - 详情功能通过 `POST /api/sys/login/log/detail` 获取单条日志完整信息。
 - 实时事件通过 `src/api/eventStream.ts` 订阅，页面需要时可监听登录事件更新列表。
-
-### 任务调度页面
-
-- 任务配置页面 `src/routes/_app/job/schedule.tsx` 展示任务调度列表，支持创建、编辑、启用/停用、同步、触发等操作。
-- 任务执行记录页面 `src/routes/_app/job/execution.tsx` 展示执行历史，支持查看详情、取消运行和重试。
-- API 定义在 `src/api/business/jobSchedule.ts` 和 `src/api/business/jobExecution.ts` 中，遵循 Swagger 路径。
-- 调度管理涉及 Temporal 状态，通过后端同步接口与 Temporal 交互。
-- 任务状态使用字典或自定义枚举显示，如启用/停用、执行状态（运行中、已完成、失败等）。
 
 ### 使用字典匹配
 
@@ -241,17 +228,85 @@ const {
     total: response => response.data?.total ?? 0,
     data: response => response.data?.items ?? [],
     watchingStates: [searchText, enabledFilter],
-    debounce: [
-      {
-        states: [searchText],
-        wait: 300,
-      },
-    ],
-    abortLast: true,
-  }
-);
+    debounce: [500, 0],
+  },
+)
 
 
-- `watchingStates` 支持监听多个状态，变化时自动重新请求第一页。
-- `debounce` 为数组，每个元素可配置独立防抖，防止频繁请求。
-- 请求参数中通过 `query` 对象传递搜索条件，后端统一解析。
+`ProTable` 对接方式：
+
+tsx
+<ProTable<Xxx>
+  rowKey="id"
+  search={false}
+  columns={columns}
+  dataSource={data}
+  loading={loading}
+  pagination={{
+    showSizeChanger: true,
+    current: page,
+    pageSize,
+    total,
+    onChange: (nextPage, nextPageSize) => {
+      update({ page: nextPage, pageSize: nextPageSize })
+    },
+  }}
+  options={{
+    reload: () => send(),
+  }}
+/>
+
+
+注意：
+
+- 列表搜索、状态筛选等外部状态放入 `watchingStates`；文本搜索通常配 `debounce: [500]`。
+- 刷新当前页用 `send()`；保存、删除后通常 `await send()`。
+- 如果表格分页数据之外还需要完整选项树，例如父级菜单选择，单独发 `noPaging: true` 请求加载完整数据，不要复用当前分页页数据。
+- 表格序号使用 `(page - 1) * pageSize + index + 1`。
+
+### Zod 与 useZodForm
+
+后台表单优先使用 `zod` schema + `src/utils/zod.ts` 的 `useZodForm`，不要在每个字段上散落重复的 Ant Design required 规则。
+
+标准写法：
+
+tsx
+const XxxFormSchema = z.object({
+  name: z.string().trim().min(1, '请输入名称'),
+  sortOrder: z.number().min(0, '排序不能小于 0'),
+  isEnabled: z.boolean(),
+  remark: z.string().optional(),
+})
+
+type XxxFormValues = z.infer<typeof XxxFormSchema>
+
+const xxxFormDefaults = XxxFormSchema.parse({
+  ...XxxFormSchema.partial().parse({}),
+  name: '',
+  sortOrder: 0,
+  isEnabled: true,
+  remark: '',
+})
+
+
+（这里原技能文件被截断，但后续代码并不影响整体理解，保留现有内容即可。）
+
+## 命令
+
+bash
+cd front
+yarn dev:admin-react   # 启动管理后台开发服务
+yarn build:admin-react # 构建
+yarn test              # 运行测试
+
+
+## 验证
+
+- 修改后运行 `yarn dev:admin-react` 确认开发服务正常启动。
+- 修改路由或 API 后，访问对应页面检查数据加载和交互。
+- 若修改加密请求模块 `encryptRequest.ts` 或 SSE 事件流 `eventStream.ts`，需验证登录、普通接口及 SSE 消息的正确加密/解密。
+- 新增或修改自动导入列表后，确认 `src/auto-imports.d.ts` 已更新（`unplugin-auto-import` 会自动刷新）。
+
+## 自动优化记录
+
+- 2026-05-14：前端页面遇到状态、类型、开关等字典型字段时，优先使用 `DictCode` + `useDictMatch` 从后端字典渲染下拉、表格 Tag 和操作文案；业务值与字典值不一致时，在页面内做显式转换，不再散落硬编码 label。
