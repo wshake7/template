@@ -13,3 +13,10 @@ Redis:
   Addr: "127.0.0.1:6379"
   Username:
   Password:
+Temporal:
+  Enabled: false
+  HostPort: 127.0.0.1:7233
+  Namespace: default
+  Identity:
+  TaskQueue: admin
+  WorkerEnabled: false

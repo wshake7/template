@@ -16,6 +16,7 @@ type Config struct {
 	Fiber           FiberConfig
 	Orm             OrmConfig
 	Redis           RedisConfig
+	Temporal        TemporalConfig
 }
 
 var Conf = new(Config)
@@ -55,4 +56,13 @@ type RedisConfig struct {
 	DisableAutoPipeline bool          `mapstructure:"DisableAutoPipeline"` // 是否禁用自动管道
 	AlwaysPipelining    bool          `mapstructure:"AlwaysPipelining"`    // 是否始终使用管道
 	AlwaysRESP2         bool          `mapstructure:"AlwaysRESP2"`         // 是否始终使用 RESP2 协议
+}
+
+type TemporalConfig struct {
+	Enabled       bool   `mapstructure:"Enabled" default:"false"`
+	HostPort      string `mapstructure:"HostPort" default:"127.0.0.1:7233"`
+	Namespace     string `mapstructure:"Namespace" default:"default"`
+	Identity      string `mapstructure:"Identity"`
+	TaskQueue     string `mapstructure:"TaskQueue" default:"admin"`
+	WorkerEnabled bool   `mapstructure:"WorkerEnabled" default:"false"`
 }
