@@ -16,6 +16,7 @@ import { useMemo, useState } from 'react'
 import z from 'zod'
 import { JobScheduleApi } from '~/api/business/jobSchedule'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
+import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
 import { formatDateYYYYMMDDHHmm } from '~/utils/date'
 import { useZodForm } from '~/utils/zod'
@@ -29,11 +30,6 @@ const scheduleTypeOptions: { label: string, value: JobScheduleType }[] = [
   { label: '单次', value: 'ONCE' },
   { label: 'Cron', value: 'CRON' },
   { label: '固定间隔', value: 'INTERVAL' },
-]
-
-const statusOptions: { label: string, value: JobScheduleStatus }[] = [
-  { label: '启用', value: 'ENABLED' },
-  { label: '停用', value: 'DISABLED' },
 ]
 
 const JobScheduleFormSchema = z.object({
@@ -106,15 +102,10 @@ const JobScheduleSubmitSchema = JobScheduleFormSchema.superRefine((values, ctx) 
   }
 })
 
-function statusTag(status: JobScheduleStatus) {
-  const map: Record<JobScheduleStatus, { color: string, label: string }> = {
-    ENABLED: { color: 'success', label: '启用' },
-    DISABLED: { color: 'default', label: '停用' },
-    DELETED: { color: 'error', label: '已删除' },
-  }
-  const item = map[status]
-  return <Tag color={item.color}>{item.label}</Tag>
-}
+const enabledStatusValue = (status: JobScheduleStatus) => status === 'ENABLED' ? '1' : '0'
+const scheduleStatusFromEnabledValue = (value: string): Extract<JobScheduleStatus, 'ENABLED' | 'DISABLED'> =>
+  value === '1' ? 'ENABLED' : 'DISABLED'
+const fallbackEnabledStatusLabel = (status: JobScheduleStatus) => status === 'ENABLED' ? '启用' : '停用'
 
 function scheduleTypeTag(type: JobScheduleType) {
   const map: Record<JobScheduleType, { color: string, label: string }> = {
@@ -198,6 +189,7 @@ function JobScheduleManagement() {
   const [statusFilter, setStatusFilter] = useState<JobScheduleStatus | undefined>()
   const [form] = Form.useForm<JobScheduleFormValues>()
   const watchedScheduleType = Form.useWatch('scheduleType', form) ?? 'CRON'
+  const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
 
   const {
     data,
@@ -244,6 +236,22 @@ function JobScheduleManagement() {
       debounce: [500, 0, 0],
     },
   )
+
+  const statusOptions = useMemo(() => {
+    const options = enabledStatus.entries
+      .filter(entry => entry.entryValue === '1' || entry.entryValue === '0')
+      .map(entry => ({
+        label: enabledStatus.getLabel(entry.entryValue, entry.entryLabel),
+        value: scheduleStatusFromEnabledValue(entry.entryValue),
+      }))
+
+    return options.length > 0
+      ? options
+      : [
+          { label: fallbackEnabledStatusLabel('ENABLED'), value: 'ENABLED' as const },
+          { label: fallbackEnabledStatusLabel('DISABLED'), value: 'DISABLED' as const },
+        ]
+  }, [enabledStatus])
 
   const { rules, onFinish } = useZodForm<JobScheduleFormValues>({
     form,
@@ -314,7 +322,12 @@ function JobScheduleManagement() {
       title: '状态',
       dataIndex: 'status',
       width: 90,
-      render: (_, record) => statusTag(record.status),
+      render: (_, record) => record.status === 'DELETED'
+        ? <Tag color="error">已删除</Tag>
+        : enabledStatus.renderLabel(
+            enabledStatusValue(record.status),
+            <Tag color={record.status === 'ENABLED' ? 'success' : 'default'}>{fallbackEnabledStatusLabel(record.status)}</Tag>,
+          ),
     },
     { title: 'Temporal Schedule ID', dataIndex: 'temporalScheduleID', width: 220, ellipsis: true },
     {
@@ -328,51 +341,56 @@ function JobScheduleManagement() {
       valueType: 'option',
       width: 260,
       fixed: 'right',
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            disabled={record.canWrite === false}
-            onClick={() => action(
-              () => JobScheduleApi.switchStatus({ id: record.id, enabled: record.status !== 'ENABLED' }),
-              record.status === 'ENABLED' ? '停用成功' : '启用成功',
-              record.status === 'ENABLED' ? '停用失败' : '启用失败',
-            )}
-          >
-            {record.status === 'ENABLED' ? '停用' : '启用'}
-          </Button>
-          <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => openEditForm(record)}>
-            编辑
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            disabled={record.canWrite === false}
-            onClick={() => action(() => JobScheduleApi.sync({ id: record.id }), '同步成功', '同步失败')}
-          >
-            同步
-          </Button>
-          <Popconfirm
-            title="确认立即触发该任务？"
-            onConfirm={() => action(() => JobScheduleApi.trigger({ id: record.id }), '触发成功', '触发失败')}
-          >
-            <Button type="link" size="small" disabled={record.canWrite === false}>
-              触发
+      render: (_, record) => {
+        const nextStatus: Extract<JobScheduleStatus, 'ENABLED' | 'DISABLED'> = record.status === 'ENABLED' ? 'DISABLED' : 'ENABLED'
+        const nextStatusLabel = enabledStatus.getLabel(enabledStatusValue(nextStatus), fallbackEnabledStatusLabel(nextStatus))
+
+        return (
+          <Space>
+            <Button
+              type="link"
+              size="small"
+              disabled={record.canWrite === false}
+              onClick={() => action(
+                () => JobScheduleApi.switchStatus({ id: record.id, enabled: record.status !== 'ENABLED' }),
+                `${nextStatusLabel}成功`,
+                `${nextStatusLabel}失败`,
+              )}
+            >
+              {nextStatusLabel}
             </Button>
-          </Popconfirm>
-          <Popconfirm
-            title="确认删除该任务配置？"
-            onConfirm={() => action(() => JobScheduleApi.del({ id: record.id }), '删除成功', '删除失败')}
-          >
-            <Button type="link" size="small" danger disabled={record.canDelete === false}>
-              删除
+            <Button type="link" size="small" disabled={record.canWrite === false} onClick={() => openEditForm(record)}>
+              编辑
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            <Button
+              type="link"
+              size="small"
+              disabled={record.canWrite === false}
+              onClick={() => action(() => JobScheduleApi.sync({ id: record.id }), '同步成功', '同步失败')}
+            >
+              同步
+            </Button>
+            <Popconfirm
+              title="确认立即触发该任务？"
+              onConfirm={() => action(() => JobScheduleApi.trigger({ id: record.id }), '触发成功', '触发失败')}
+            >
+              <Button type="link" size="small" disabled={record.canWrite === false}>
+                触发
+              </Button>
+            </Popconfirm>
+            <Popconfirm
+              title="确认删除该任务配置？"
+              onConfirm={() => action(() => JobScheduleApi.del({ id: record.id }), '删除成功', '删除失败')}
+            >
+              <Button type="link" size="small" danger disabled={record.canDelete === false}>
+                删除
+              </Button>
+            </Popconfirm>
+          </Space>
+        )
+      },
     },
-  ], [send])
+  ], [enabledStatus, send])
 
   return (
     <>

@@ -306,3 +306,7 @@ yarn test              # 运行测试
 - 修改路由或 API 后，访问对应页面检查数据加载和交互。
 - 若修改加密请求模块 `encryptRequest.ts` 或 SSE 事件流 `eventStream.ts`，需验证登录、普通接口及 SSE 消息的正确加密/解密。
 - 新增或修改自动导入列表后，确认 `src/auto-imports.d.ts` 已更新（`unplugin-auto-import` 会自动刷新）。
+
+## 自动优化记录
+
+- 2026-05-14：前端页面遇到状态、类型、开关等字典型字段时，优先使用 `DictCode` + `useDictMatch` 从后端字典渲染下拉、表格 Tag 和操作文案；业务值与字典值不一致时，在页面内做显式转换，不再散落硬编码 label。
