@@ -286,7 +286,7 @@ func ApiLogMiddleware(options ...Option) fiber.Handler {
 			ip := ctx.IP()
 			method := ctx.Method()
 			path := ctx.Path()
-			requestID := ctx.RequestID()
+			requestID := ctx.TraceId
 			requestBody := sanitizeApiLogPayload(string(ctx.Request().Body()))
 			responseBody := sanitizeApiLogPayload(string(ctx.Response().Body()))
 			statusCode := ctx.Response().StatusCode()
@@ -305,7 +305,7 @@ func ApiLogMiddleware(options ...Option) fiber.Handler {
 			costTime := time.Since(now).Milliseconds()
 			var formatChange string
 			function.RecFn(func() {
-				//formatChange = DiffChange(beforeChangeData, afterChangeData)
+				formatChange = DiffChange(beforeChangeData, afterChangeData)
 			})
 			coroutine.Launch(func() {
 				result, err := ip_util.Client.Query(ip)

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"admin/internal/domains"
 	"admin/internal/fiberc/handler"
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
@@ -13,14 +14,11 @@ const (
 
 func TraceMiddleware() fiber.Handler {
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
-		traceId := ctx.Get("X-Trace-Id")
-		if traceId == "" {
-			traceId = ctx.RequestID()
-		}
+		traceId := ctx.RequestID()
 		if traceId == "" {
 			traceId = uuid.NewString()
 		}
-		ctx.Set("X-Trace-Id", traceId)
+		ctx.Set(domains.HeaderXRequestID, traceId)
 		ctx.TraceId = traceId
 		ctx.AddLogFields(zap.String(TraceIDKey, traceId), zap.String("method", ctx.Method()), zap.String("path", ctx.Path()))
 		ctx.AddResLogFields(zap.String(TraceIDKey, traceId))
