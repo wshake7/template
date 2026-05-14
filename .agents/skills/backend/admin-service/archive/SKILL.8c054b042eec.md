@@ -23,7 +23,6 @@ backend/admin/
 ├── etc/config.yaml                     # 本地配置
 ├── internal/config/                    # 配置结构
 ├── internal/fiberc/                    # Fiber app、handler、middleware、response
-├── internal/lifecycle/                 # 服务生命周期管理，优雅关闭信号广播
 ├── internal/router/                    # 路由注册与业务 logic
 ├── internal/router/auth_router/        # 需要鉴权的系统资源路由
 │   ├── sys_login_log.go               # 登录日志相关路由
@@ -58,14 +57,6 @@ backend/admin/
 4. `fiberc.NewFiber(conf)` 创建 Fiber app。
 5. `router.Router{}.RegisterRouters(group)` 注册 `/api/**` 路由。
 6. `app.Start()` 启动服务，端口来自配置。
-
-## 优雅关闭流程
-
-- 服务通过 `fiberc.gracefulShutdown` 监听 OS 信号 (SIGINT, SIGTERM)，收到信号后调用 `app.ShutdownWithTimeout(5 * time.Second)` 启动超时关闭。
-- 在 Fiber 的 `OnPreShutdown` 钩子中调用 `lifecycle.BeginShutdown()`，关闭 `lifecycle.shutdownDone` 通道，通知所有等待关闭的组件（例如 SSE 流）。
-- `lifecycle` 包提供 `BeginShutdown()`（一次性关闭信号）和 `ShutdownDone()`（返回只读通道）。
-- 长时间运行的任务（如 SSE 连接）应在循环中 select `lifecycle.ShutdownDone()` 主动退出，避免阻塞关闭过程。
-- 关闭流程完成后的清理工作在 `OnPostShutdown` 钩子中处理（如日志同步、资源释放）。
 
 ## API 响应码约定
 
@@ -111,11 +102,10 @@ backend/admin/
   - 处理业务逻辑后，使用 `EncryptText`（`aes_util.Encrypt` 封装）加密响应体，并在响应头添加 `X-Response-Is-Encrypt: true`。
 - **SignMiddleware**：用于不需要解密但需要验证请求完整性的场景（例如简单签名校验）。它构造与 `RequestAAD` 相似的参数组合，对请求体计算签名并与请求头 `X-Request-Signature` 对比。注意：该中间件不用于标准加密流程，仅用于特定签名接口。
 
-SSE 事件流路由 `auth_router/events.go` 也应用了加密：
+S S E 事件流路由 `auth_router/events.go` 也应用了加密：
 - 在处理连接时，调用 `middleware.DecryptRequest(c)` 获取 AES 密钥。
 - 之后对每个推送的事件数据先用 `json.Marshal` 序列化原始数据，再用 `middleware.EncryptText` 加密，最后包装成 `{"payload": "加密后的字符串"}` 并通过 SSE 发送。
 - 响应头同样设置 `X-Response-Is-Encrypt: true`。
-- 事件循环现在同时监听 `lifecycle.ShutdownDone()` 信号，服务器关闭时会主动退出循环，避免阻塞 shutdown。
 
 ## 新增后台资源的推荐流程
 
@@ -164,7 +154,7 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
 - 日志由 `login_log_record.go` 在账号相关操作时自动写入，业务代码无需显式调用。
 - 前端可通过 `POST /api/sys/login/log/list` 分页查询日志，支持按用户名、IP、状态等筛选。
 - 详情接口 `POST /api/sys/login/log/detail` 根据日志 ID 返回完整记录。
-- SSE 事件流 `/api/events` 使用 `auth_router/events.go` 推送实时登录事件，事件数据经过加密，前端需先解密 `payload` 字段再解析 JSON。事件循环已整合优雅关闭支持，服务关闭时流将安全退出。
+- SSE 事件流 `/api/events` 使用 `auth_router/events.go` 推送实时登录事件，事件数据经过加密，前端需先解密 `payload` 字段再解析 JSON。
 
 ## 配置与服务
 
@@ -172,13 +162,28 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
 - ORM 服务在 `internal/services/orm.go` 与 `internal/services/orm/orm.go`。
 - Redis 服务在 `internal/services/redis.go` 与 `internal/services/redisc/**`。
 - Casbin 模型文件在 `internal/services/casbin/*.conf`。
-- 生命周期管理见 `internal/lifecycle/shutdown.go`，提供 `BeginShutdown` 和 `ShutdownDone` 用于各组件优雅退出协调。
 - Header、HTTP code 等跨端约定需与前端 `src/domains/http.ts` 对齐。
 
 ## 命令
 
-```bash
+bash
 cd backend/admin
 go run .
 make script-orm   # 生成 ORM query 代码（go run ./cmd/scripts/orm）
-make swagger      # 更新
+make swagger      # 更新 Swagger 文档
+go fix ./...
+go vet ./...
+go test ./...
+
+# 数据库迁移（根据环境执行加固脚本）
+psql $DATABASE_URL -f cmd/scripts/schema_hardening_postgres.sql
+
+
+## 验证
+
+- 修改 `backend/admin` 后，在该模块执行 `go fix ./...`、`go vet ./...`、`go test ./...`。
+- 修改 Swagger 注释后执行 `make swagger` 并检查 `docs/**`。
+- 修改模型、请求/响应结构体或 query 生成模板后，先运行 `make script-orm` 重新生成，再确认生成文件与 Swagger 文档符合预期，避免手动修改生成产物后被覆盖。
+- 若涉及 Casbin 权限同步逻辑，确保业务变更触发相应的同步函数，并验证种子数据执行后的策略正确性。
+- 若修改安全中间件（如加密/解密流程），需验证与前端加密请求模块的协调性，确保请求能正常解密、响应能正常加密，并测试 SSE 事件流的加密传输。
+- 数据库迁移脚本需幂等大量使用 `ADD COLUMN IF NOT EXISTS`、`DROP CONSTRAINT IF EXISTS` 等安全操作，执行后检查索引和约束是否生效。
