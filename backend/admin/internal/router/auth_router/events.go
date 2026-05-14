@@ -4,6 +4,7 @@ import (
 	"admin/internal/domains"
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/middleware"
+	"admin/internal/lifecycle"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -31,7 +32,13 @@ func registerEventRouters(router fiber.Router) {
 			ticker := time.NewTicker(time.Minute)
 			defer ticker.Stop()
 			count := 0
-			for range ticker.C {
+			for {
+				select {
+				case <-lifecycle.ShutdownDone():
+					zap.L().Debug("sse stream closed by server shutdown")
+					return
+				case <-ticker.C:
+				}
 				count++
 				plainData, err := json.Marshal(map[string]int{"count": count})
 				if err != nil {

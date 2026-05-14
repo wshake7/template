@@ -6,6 +6,7 @@ import (
 	"admin/internal/fiberc/handler"
 	middleware2 "admin/internal/fiberc/middleware"
 	"admin/internal/fiberc/res"
+	"admin/internal/lifecycle"
 	"context"
 	"encoding/xml"
 	"errors"
@@ -15,6 +16,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"syscall"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/contrib/monitor"
@@ -195,6 +197,7 @@ func initializeHoos(app *App) {
 	})
 	// 在服务器开始关闭流程前执行，用于处理需要在关闭前完成的清理任务，例如停止后台任务、保存状态或关闭数据库连接
 	app.Hooks().OnPreShutdown(func() error {
+		lifecycle.BeginShutdown()
 		zap.L().Info("服务器关闭OnPreShutdown")
 		return nil
 	})
@@ -217,7 +220,7 @@ func gracefulShutdown(app *App) chan struct{} {
 	go func() {
 		<-c
 		zap.L().Info("收到服务器关闭信号")
-		err := app.Shutdown()
+		err := app.ShutdownWithTimeout(5 * time.Second)
 		if err != nil {
 			zap.L().Error("服务器关闭异常")
 		} else {
