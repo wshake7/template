@@ -15,6 +15,9 @@ func TraceMiddleware() fiber.Handler {
 	return handler.CtxNilMiddlewareFunc(func(ctx *handler.Ctx) error {
 		traceId := ctx.Get("X-Trace-Id")
 		if traceId == "" {
+			traceId = ctx.RequestID()
+		}
+		if traceId == "" {
 			traceId = uuid.NewString()
 		}
 		ctx.Set("X-Trace-Id", traceId)
