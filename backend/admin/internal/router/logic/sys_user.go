@@ -10,6 +10,7 @@ import (
 	"admin/internal/services/orm/query"
 	"go-common/utils/passwd"
 	"go-common/utils/slices_utils"
+	"go-common/utils/str"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 	"orm-crud/gormc/mixin"
@@ -27,9 +28,9 @@ type RespSysUser struct {
 }
 
 type ReqSysUserCreate struct {
-	Username     string `json:"username" change:"用户名" binding:"required,max=64" binding_msg:"required=用户名不能为空,max=用户名最多64位"`
-	Nickname     string `json:"nickname" change:"昵称" binding:"required,max=64" binding_msg:"required=昵称不能为空,max=昵称最多64位"`
-	Password     string `json:"password" binding:"required,min=6,max=255" binding_msg:"required=密码不能为空,min=密码至少6位,max=密码最多255位"`
+	Username     string `json:"username" change:"用户名" binding:"notblank,max=64" binding_msg:"notblank=用户名不能为空,max=用户名最多64位"`
+	Nickname     string `json:"nickname" change:"昵称" binding:"max=64" binding_msg:"max=昵称最多64位"`
+	Password     string `json:"password" binding:"notblank,min=6,max=255" binding_msg:"notblank=密码不能为空,min=密码至少6位,max=密码最多255位"`
 	LanguageCode string `json:"languageCode" change:"语言" binding:"max=32" binding_msg:"max=语言代码最多32位"`
 	IsEnabled    bool   `json:"isEnabled" change:"启用状态"`
 	Remark       string `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
@@ -37,7 +38,7 @@ type ReqSysUserCreate struct {
 
 type ReqSysUserUpdate struct {
 	ID           uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	Username     *string `json:"username" change:"用户名" binding:"omitempty,max=64" binding_msg:"max=用户名最多64位"`
+	Username     *string `json:"username" change:"用户名" binding:"omitempty,notblank,max=64" binding_msg:"notblank=用户名不能为空,max=用户名最多64位"`
 	Nickname     *string `json:"nickname" change:"昵称" binding:"omitempty,max=64" binding_msg:"max=昵称最多64位"`
 	LanguageCode *string `json:"languageCode" change:"语言" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
 	IsEnabled    *bool   `json:"isEnabled" change:"启用状态"`
@@ -93,9 +94,6 @@ func (*SysUserHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.Pag
 // @Router /api/sys/user/create [post]
 func (*SysUserHandler) Create(ctx *handler.Ctx, req *ReqSysUserCreate) error {
 	req.normalize()
-	if err := validateCreateSysUserValues(req); err != nil {
-		return err
-	}
 
 	encodedPwd, err := passwd.Encode(req.Password)
 	if err != nil {
@@ -136,8 +134,8 @@ func (*SysUserHandler) Update(ctx *handler.Ctx, req *ReqSysUserUpdate) error {
 	req.normalize()
 
 	sysUser := query.SysUser
-	current, err := sysUser.
-		Select(sysUser.ID, sysUser.Username, sysUser.Nickname, sysUser.LanguageCode).
+	_, err := sysUser.
+		Select(sysUser.ID).
 		Where(sysUser.ID.Eq(req.ID)).
 		First()
 	if err != nil {
@@ -145,22 +143,6 @@ func (*SysUserHandler) Update(ctx *handler.Ctx, req *ReqSysUserUpdate) error {
 			return res.FailMsg("用户不存在")
 		}
 		return res.FailDefault
-	}
-
-	username := current.Username
-	if req.Username != nil {
-		username = *req.Username
-	}
-	nickname := current.Nickname
-	if req.Nickname != nil {
-		nickname = *req.Nickname
-	}
-	languageCode := current.LanguageCode
-	if req.LanguageCode != nil {
-		languageCode = *req.LanguageCode
-	}
-	if err = validateUpdateSysUserValues(username, nickname, languageCode); err != nil {
-		return err
 	}
 
 	exprs := []field.AssignExpr{sysUser.UpdatedBy.Value(ctx.SessionInfo.Id)}
@@ -215,34 +197,8 @@ func (req *ReqSysUserCreate) normalize() {
 }
 
 func (req *ReqSysUserUpdate) normalize() {
-	trimStringPtr(req.Username, nil)
-	trimStringPtr(req.Nickname, nil)
-	trimStringPtr(req.LanguageCode, nil)
-	trimStringPtr(req.Remark, nil)
-}
-
-func validateCreateSysUserValues(req *ReqSysUserCreate) error {
-	if req == nil {
-		return res.FailMsg("请求错误")
-	}
-	if err := validateUpdateSysUserValues(req.Username, req.Nickname, req.LanguageCode); err != nil {
-		return err
-	}
-	if req.Password == "" {
-		return res.FailMsg("密码不能为空")
-	}
-	return nil
-}
-
-func validateUpdateSysUserValues(username, nickname, languageCode string) error {
-	if username == "" {
-		return res.FailMsg("用户名不能为空")
-	}
-	if nickname == "" {
-		return res.FailMsg("昵称不能为空")
-	}
-	if len(languageCode) > 32 {
-		return res.FailMsg("语言代码最多32位")
-	}
-	return nil
+	str.TrimStringPtr(req.Username, nil)
+	str.TrimStringPtr(req.Nickname, nil)
+	str.TrimStringPtr(req.LanguageCode, nil)
+	str.TrimStringPtr(req.Remark, nil)
 }

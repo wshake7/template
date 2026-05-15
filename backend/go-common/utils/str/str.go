@@ -31,6 +31,17 @@ func Join(ss ...string) string {
 	return strings.Join(ss, "")
 }
 
+func TrimStringPtr(value *string, transform func(string) string) {
+	if value == nil {
+		return
+	}
+	next := strings.TrimSpace(*value)
+	if transform != nil {
+		next = transform(next)
+	}
+	*value = next
+}
+
 func Sprintf(format string, params map[string]any) string {
 	return printfReg.ReplaceAllStringFunc(format, func(str string) string {
 		key := printfReg.FindStringSubmatch(str)[1]

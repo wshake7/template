@@ -14,6 +14,7 @@ import (
 	"admin/internal/services/temporalc"
 	"admin/internal/services/temporaljob"
 	"github.com/bytedance/sonic"
+	"go-common/utils/str"
 	"go.temporal.io/api/serviceerror"
 	"go.temporal.io/sdk/client"
 	"go.uber.org/zap"
@@ -339,15 +340,15 @@ func (req *ReqJobScheduleCreate) normalize() {
 }
 
 func (req *ReqJobScheduleUpdate) normalize() {
-	trimStringPtr(req.JobName, nil)
-	trimStringPtr(req.WorkflowType, nil)
-	trimStringPtr(req.TaskQueue, nil)
-	trimStringPtr(req.ScheduleType, func(value string) string { return strings.ToUpper(value) })
-	trimStringPtr(req.CronExpr, nil)
-	trimStringPtr(req.InputJSON, nil)
-	trimStringPtr(req.Status, func(value string) string { return strings.ToUpper(value) })
-	trimStringPtr(req.TemporalWorkflowIDPrefix, nil)
-	trimStringPtr(req.Description, nil)
+	str.TrimStringPtr(req.JobName, nil)
+	str.TrimStringPtr(req.WorkflowType, nil)
+	str.TrimStringPtr(req.TaskQueue, nil)
+	str.TrimStringPtr(req.ScheduleType, func(value string) string { return strings.ToUpper(value) })
+	str.TrimStringPtr(req.CronExpr, nil)
+	str.TrimStringPtr(req.InputJSON, nil)
+	str.TrimStringPtr(req.Status, func(value string) string { return strings.ToUpper(value) })
+	str.TrimStringPtr(req.TemporalWorkflowIDPrefix, nil)
+	str.TrimStringPtr(req.Description, nil)
 }
 
 func (req *ReqJobScheduleCreate) toModel() (*models.JobSchedule, any, error) {

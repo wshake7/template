@@ -14,6 +14,19 @@ var (
 
 func init() {
 	validate.SetTagName("binding")
+	_ = validate.RegisterValidation("notblank", func(fl validator.FieldLevel) bool {
+		field := fl.Field()
+		if field.Kind() == reflect.Pointer {
+			if field.IsNil() {
+				return false
+			}
+			field = field.Elem()
+		}
+		if field.Kind() != reflect.String {
+			return false
+		}
+		return strings.TrimSpace(field.String()) != ""
+	})
 }
 
 func Struct[T any](t T) error {

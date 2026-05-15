@@ -12,6 +12,7 @@ import (
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
+	"go-common/utils/str"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 	"orm-crud/gormc/mixin"
@@ -368,30 +369,19 @@ func (req *ReqResourceMenuCreate) normalize() {
 }
 
 func (req *ReqResourceMenuUpdate) normalize() {
-	trimStringPtr(req.MenuType, func(v string) string { return strings.ToUpper(v) })
-	trimStringPtr(req.Path, nil)
-	trimStringPtr(req.Redirect, nil)
-	trimStringPtr(req.Alias, nil)
-	trimStringPtr(req.Name, nil)
-	trimStringPtr(req.Component, nil)
-	trimStringPtr(req.Remark, nil)
+	str.TrimStringPtr(req.MenuType, func(v string) string { return strings.ToUpper(v) })
+	str.TrimStringPtr(req.Path, nil)
+	str.TrimStringPtr(req.Redirect, nil)
+	str.TrimStringPtr(req.Alias, nil)
+	str.TrimStringPtr(req.Name, nil)
+	str.TrimStringPtr(req.Component, nil)
+	str.TrimStringPtr(req.Remark, nil)
 	if req.Metadata != nil {
 		if *req.Metadata == nil {
 			*req.Metadata = datatypes.JSONMap{}
 		}
 		normalizeResourceMenuMetadata(*req.Metadata)
 	}
-}
-
-func trimStringPtr(value *string, transform func(string) string) {
-	if value == nil {
-		return
-	}
-	next := strings.TrimSpace(*value)
-	if transform != nil {
-		next = transform(next)
-	}
-	*value = next
 }
 
 func normalizeResourceMenuMetadata(metadata datatypes.JSONMap) {

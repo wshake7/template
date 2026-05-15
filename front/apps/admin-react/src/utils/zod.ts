@@ -4,6 +4,7 @@ import type { NamePath } from 'antd/es/form/interface'
 import type z from 'zod'
 import { Form } from 'antd'
 import { useCallback, useMemo } from 'react'
+import { gMessage } from '~/utils/antd'
 
 interface UseFormProps<T extends object> {
   form?: FormInstance<T>
@@ -30,6 +31,44 @@ const mapErrorFromZodIssue = (issues: z.core.$ZodIssue[]) =>
     return obj
   }, {})
 
+const getZodIssues = (error: unknown) => {
+  const issues = (error as { issues?: unknown })?.issues
+  return Array.isArray(issues) ? issues as z.core.$ZodIssue[] : []
+}
+
+const getIssueFieldName = (issue: z.core.$ZodIssue) => issue.path.join('.') || '表单'
+
+const getIssueMessage = (issue: z.core.$ZodIssue) => {
+  if (issue.message && !issue.message.startsWith('Invalid input')) {
+    return issue.message
+  }
+  return `${getIssueFieldName(issue)} 校验失败`
+}
+
+const getFirstIssueMessage = (issues: z.core.$ZodIssue[]) => {
+  const issue = issues[0]
+  return issue ? getIssueMessage(issue) : '请检查表单信息'
+}
+
+const setZodFormErrors = <T extends Record<string, any>>(
+  form: FormInstance<T>,
+  issues: z.core.$ZodIssue[],
+) => {
+  const errorMap = mapErrorFromZodIssue(issues)
+  const values = form.getFieldsValue()
+  const fieldNames = new Set([
+    ...Object.keys(values),
+    ...Object.keys(errorMap),
+  ])
+
+  form.setFields(
+    Array.from(fieldNames, key => ({
+      name: key as NamePath,
+      errors: errorMap[key] ?? [],
+    })),
+  )
+}
+
 interface ZodValidatorProps<T extends Record<string, any>> {
   form: FormInstance<T>
   schema: z.ZodObject
@@ -39,7 +78,11 @@ export const fieldZodValidator = <T extends object>(props: ZodValidatorProps<T>)
   async validator(rule: any) {
     const values = props.form.getFieldsValue()
     await props.schema.parseAsync(values).catch((e: z.ZodError) => {
-      const errorMap = mapErrorFromZodIssue(e.issues)
+      const issues = getZodIssues(e)
+      if (!issues.length) {
+        throw e
+      }
+      const errorMap = mapErrorFromZodIssue(issues)
       const currentFieldError = errorMap[rule.field]
       if (currentFieldError?.length) {
         throw new Error(currentFieldError[0])
@@ -54,14 +97,9 @@ export const globalZodValidator = <T extends Record<string, any>>(
   async validator(rule: any) {
     const values = props.form.getFieldsValue()
     const result = await props.schema.safeParseAsync(values)
-    const errorMap = result.success ? {} : mapErrorFromZodIssue(result.error.issues)
-    const fields = Object.keys(values)
-      .filter(key => values[key] !== undefined)
-      .map(key => ({
-        name: key as NamePath,
-        errors: errorMap[key] ?? [],
-      }))
-    props.form.setFields(fields)
+    const issues = result.success ? [] : result.error.issues
+    const errorMap = mapErrorFromZodIssue(issues)
+    setZodFormErrors(props.form, issues)
     const currentFieldError = errorMap[rule.field]
     if (currentFieldError?.length) {
       throw new Error(currentFieldError[0])
@@ -90,14 +128,13 @@ export function useZodForm<T extends Record<string, any>>({
         await schema.parseAsync(formData)
         return await onSubmit(formData)
       }
-      catch (e: any) {
-        const errorMap = mapErrorFromZodIssue(e.issues)
-        const _fields = form.getFieldsValue()
-        const fields = Object.keys(_fields).map(key => ({
-          name: key as NamePath,
-          errors: errorMap[key] ?? [],
-        }))
-        form.setFields(fields)
+      catch (e: unknown) {
+        const issues = getZodIssues(e)
+        if (!issues.length) {
+          throw e
+        }
+        setZodFormErrors(form, issues)
+        gMessage.error(getFirstIssueMessage(issues))
         return false // 校验失败 → 弹窗不关闭
       }
     },

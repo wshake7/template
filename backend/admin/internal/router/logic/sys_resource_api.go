@@ -11,6 +11,7 @@ import (
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
+	"go-common/utils/str"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 	"orm-crud/gormc/mixin"
@@ -254,13 +255,13 @@ func (req *ReqResourceApiCreate) normalize() {
 }
 
 func (req *ReqResourceApiUpdate) normalize() {
-	trimStringPtr(req.Module, nil)
-	trimStringPtr(req.Remark, nil)
-	trimStringPtr(req.Method, func(value string) string {
+	str.TrimStringPtr(req.Module, nil)
+	str.TrimStringPtr(req.Remark, nil)
+	str.TrimStringPtr(req.Method, func(value string) string {
 		return strings.ToUpper(value)
 	})
 	if req.Path != nil {
-		trimStringPtr(req.Path, normalizeResourceApiPath)
+		str.TrimStringPtr(req.Path, normalizeResourceApiPath)
 	}
 }
 

@@ -17,7 +17,7 @@ export interface SysUser {
 
 export interface ReqSysUserCreate {
   username: string
-  nickname: string
+  nickname?: string
   password: string
   languageCode: string
   isEnabled: boolean

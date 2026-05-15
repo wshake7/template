@@ -11,6 +11,7 @@ import (
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
+	"go-common/utils/str"
 	v1 "orm-crud/api/gen/go/pagination/v1"
 	"orm-crud/gormc"
 	"orm-crud/gormc/mixin"
@@ -414,9 +415,9 @@ func (req *ReqSysRoleCreate) normalize() {
 }
 
 func (req *ReqSysRoleUpdate) normalize() {
-	trimStringPtr(req.Name, nil)
-	trimStringPtr(req.Code, nil)
-	trimStringPtr(req.Remark, nil)
+	str.TrimStringPtr(req.Name, nil)
+	str.TrimStringPtr(req.Code, nil)
+	str.TrimStringPtr(req.Remark, nil)
 }
 
 func validateSysRoleValues(name, code string) error {

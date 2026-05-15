@@ -33,7 +33,7 @@ export const Route = createFileRoute('/_app/account/user')({
 
 const UserFormSchema = z.object({
   username: z.string(),
-  nickname: z.string(),
+  nickname: z.string().optional(),
   password: z.string().optional(),
   languageCode: z.string().optional(),
   isEnabled: z.boolean(),
@@ -61,13 +61,6 @@ const UserSubmitSchema = UserFormSchema.superRefine((values, ctx) => {
       code: 'custom',
       path: ['username'],
       message: '请输入用户名',
-    })
-  }
-  if (!values.nickname.trim()) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['nickname'],
-      message: '请输入昵称',
     })
   }
 })
@@ -168,7 +161,7 @@ function UserManagement() {
       }
 
       const username = values.username.trim()
-      const nickname = values.nickname.trim()
+      const nickname = values.nickname?.trim()
       const languageCode = values.languageCode?.trim() ?? ''
       const remark = values.remark?.trim() ?? ''
       const password = values.password?.trim() ?? ''
@@ -191,6 +184,7 @@ function UserManagement() {
             username,
             nickname,
             languageCode,
+            isEnabled: values.isEnabled ?? editing.isEnabled,
             remark,
           })
         }
@@ -216,6 +210,20 @@ function UserManagement() {
       }
     },
   })
+
+  const saveUser = async () => {
+    try {
+      const values = await form.validateFields()
+      await onFinish?.({
+        ...defaultFormValues,
+        ...values,
+        isEnabled: values.isEnabled ?? editing?.isEnabled ?? true,
+      })
+    }
+    catch {
+      gMessage.error('请检查表单信息')
+    }
+  }
 
   const openCreateForm = () => {
     setEditing(undefined)
@@ -387,7 +395,7 @@ function UserManagement() {
         extra={(
           <Space>
             <Button onClick={closeDrawer}>取消</Button>
-            <Button type="primary" loading={submitting} onClick={() => form.submit()}>
+            <Button type="primary" loading={submitting} onClick={saveUser}>
               保存
             </Button>
           </Space>
