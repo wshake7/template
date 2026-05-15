@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
@@ -42,6 +43,7 @@ type SysResourceMenuHandler struct{}
 type RespSysResourceMenu struct {
 	models.SysResourceMenu
 	Children  []*RespSysResourceMenu `json:"children,omitempty"`
+	ApiIDs    []uint64               `json:"apiIDs"`
 	CanWrite  bool                   `json:"canWrite"`
 	CanDelete bool                   `json:"canDelete"`
 }
@@ -71,6 +73,7 @@ type ReqResourceMenuCreate struct {
 	Name      string            `json:"name" change:"路由命名" binding:"max=255" binding_msg:"max=路由命名最多255位"`
 	Component string            `json:"component" change:"前端组件" binding:"max=255" binding_msg:"max=前端组件最多255位"`
 	Metadata  datatypes.JSONMap `json:"metadata" change:"元数据"`
+	ApiIDs    []uint64          `json:"apiIDs" change:"API"`
 	SortOrder int32             `json:"sortOrder" change:"排序"`
 	IsEnabled bool              `json:"isEnabled" change:"启用状态"`
 	Remark    string            `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
@@ -86,6 +89,7 @@ type ReqResourceMenuUpdate struct {
 	Name      *string            `json:"name" change:"路由命名" binding:"omitempty,max=255" binding_msg:"max=路由命名最多255位"`
 	Component *string            `json:"component" change:"前端组件" binding:"omitempty,max=255" binding_msg:"max=前端组件最多255位"`
 	Metadata  *datatypes.JSONMap `json:"metadata" change:"元数据"`
+	ApiIDs    *[]uint64          `json:"apiIDs" change:"API"`
 	SortOrder *int32             `json:"sortOrder" change:"排序"`
 	IsEnabled *bool              `json:"isEnabled" change:"启用状态"`
 	Remark    *string            `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
@@ -113,7 +117,11 @@ func (*SysResourceMenuHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*g
 		return nil, res.FailDefault
 	}
 
-	items := buildResourceMenuRespTree(pagination.Items)
+	apiMap, err := resourceMenuAPIIDsMap(query.Q, collectResourceMenuIDs(pagination.Items))
+	if err != nil {
+		return nil, err
+	}
+	items := buildResourceMenuRespTree(pagination.Items, apiMap)
 	return &gormc.PagingResult[RespSysResourceMenu]{
 		Items: items,
 		Total: pagination.Total,
@@ -204,8 +212,34 @@ func (*SysResourceMenuHandler) Create(ctx *handler.Ctx, req *ReqResourceMenuCrea
 			Component: req.Component,
 			ParentID:  parentID,
 		}
-		if err := tx.SysResourceMenu.Create(item); err != nil {
+		db := tx.SysResourceMenu.UnderlyingDB().Session(&gorm.Session{NewDB: true})
+		if db.Dialector.Name() == "sqlite" {
+			var maxID uint64
+			if err := db.Model(&models.SysResourceMenu{}).
+				Select("COALESCE(MAX(id), 0)").
+				Scan(&maxID).
+				Error; err != nil {
+				return res.FailDefault
+			}
+			item.ID = maxID + 1
+		}
+		createDB := db.Omit("id")
+		if db.Dialector.Name() == "sqlite" {
+			createDB = db
+		}
+		if err := createDB.Create(item).Error; err != nil {
 			return res.FailDefault
+		}
+		if item.ID == 0 {
+			if err := db.Model(&models.SysResourceMenu{}).
+				Select("COALESCE(MAX(id), 0)").
+				Scan(&item.ID).
+				Error; err != nil {
+				return res.FailDefault
+			}
+		}
+		if err := syncResourceMenuAPIs(tx, item.ID, req.MenuType, req.ApiIDs, operationID); err != nil {
+			return err
 		}
 		return updateResourceMenuTreePath(tx, item.ID)
 	})
@@ -313,7 +347,15 @@ func (*SysResourceMenuHandler) Update(ctx *handler.Ctx, req *ReqResourceMenuUpda
 			return res.FailMsg("菜单资源不存在")
 		}
 		if parentChanged {
-			return updateResourceMenuTreePath(tx, req.ID)
+			if err := updateResourceMenuTreePath(tx, req.ID); err != nil {
+				return err
+			}
+		}
+		if req.ApiIDs != nil {
+			return syncResourceMenuAPIs(tx, req.ID, menuType, *req.ApiIDs, ctx.SessionInfo.Id)
+		}
+		if current.MenuType != menuType && !canAssociateResourceMenuAPIs(menuType) {
+			return syncResourceMenuAPIs(tx, req.ID, menuType, nil, ctx.SessionInfo.Id)
 		}
 		return nil
 	})
@@ -344,14 +386,23 @@ func (*SysResourceMenuHandler) Del(ctx *handler.Ctx, req *ReqResourceMenuBatchDe
 		return res.FailMsg("存在子节点，不能删除")
 	}
 
-	info, err := sysResourceMenu.Where(sysResourceMenu.ID.In(ids...)).Delete()
-	if err != nil {
-		return res.FailDefault
-	}
-	if info.RowsAffected != int64(len(ids)) {
-		return res.FailMsg("菜单资源不存在")
-	}
-	return nil
+	return query.Q.Transaction(func(tx *query.Query) error {
+		info, err := tx.SysResourceMenu.Where(tx.SysResourceMenu.ID.In(ids...)).Delete()
+		if err != nil {
+			return res.FailDefault
+		}
+		if info.RowsAffected != int64(len(ids)) {
+			return res.FailMsg("菜单资源不存在")
+		}
+		if err := tx.SysResourceMenu.UnderlyingDB().Session(&gorm.Session{NewDB: true}).
+			Model(&models.SysResourceMenuApi{}).
+			Where("menu_id IN ?", ids).
+			Update("deleted_at", time.Now().UnixMilli()).
+			Error; err != nil {
+			return res.FailDefault
+		}
+		return nil
+	})
 }
 
 func (req *ReqResourceMenuCreate) normalize() {
@@ -394,6 +445,96 @@ func normalizeResourceMenuMetadata(metadata datatypes.JSONMap) {
 	if authorities, ok := metadata["authorities"]; ok {
 		metadata["authorities"] = stringsFromAny(authorities)
 	}
+}
+
+func canAssociateResourceMenuAPIs(menuType string) bool {
+	return menuType == MenuTypeMenu || menuType == MenuTypeButton
+}
+
+func syncResourceMenuAPIs(tx *query.Query, menuID uint64, menuType string, apiIDs []uint64, operationID uint64) error {
+	ids := slices_utils.Distinct(apiIDs)
+	if !canAssociateResourceMenuAPIs(menuType) {
+		ids = nil
+	}
+	if err := ensureResourceMenuAPIIDsExist(tx, ids); err != nil {
+		return err
+	}
+
+	db := tx.SysResourceMenu.UnderlyingDB().Session(&gorm.Session{NewDB: true}).Model(&models.SysResourceMenuApi{})
+	if err := db.
+		Where("menu_id = ?", menuID).
+		Update("deleted_at", time.Now().UnixMilli()).
+		Error; err != nil {
+		return res.FailDefault
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+
+	items := make([]*models.SysResourceMenuApi, 0, len(ids))
+	for _, apiID := range ids {
+		items = append(items, &models.SysResourceMenuApi{
+			OperatorID: mixin.OperatorID{
+				CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
+				UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
+			},
+			MenuID: menuID,
+			ApiID:  apiID,
+		})
+	}
+	if err := db.CreateInBatches(items, 100).Error; err != nil {
+		return res.FailDefault
+	}
+	return nil
+}
+
+func ensureResourceMenuAPIIDsExist(tx *query.Query, ids []uint64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	sysResourceAPI := tx.SysResourceApi
+	items, err := sysResourceAPI.Select(sysResourceAPI.ID).Where(sysResourceAPI.ID.In(ids...)).Find()
+	if err != nil {
+		return res.FailDefault
+	}
+	if len(items) != len(ids) {
+		return res.FailMsg("API资源不存在")
+	}
+	return nil
+}
+
+func collectResourceMenuIDs(items []*models.SysResourceMenu) []uint64 {
+	ids := make([]uint64, 0, len(items))
+	for _, item := range items {
+		if item != nil {
+			ids = append(ids, item.ID)
+		}
+	}
+	return ids
+}
+
+func resourceMenuAPIIDsMap(tx *query.Query, menuIDs []uint64) (map[uint64][]uint64, error) {
+	result := make(map[uint64][]uint64, len(menuIDs))
+	if len(menuIDs) == 0 {
+		return result, nil
+	}
+	var items []*models.SysResourceMenuApi
+	if err := tx.SysResourceMenu.UnderlyingDB().Session(&gorm.Session{NewDB: true}).
+		Model(&models.SysResourceMenuApi{}).
+		Select("menu_id", "api_id").
+		Where("menu_id IN ?", menuIDs).
+		Where("deleted_at = 0").
+		Order("api_id asc").
+		Find(&items).
+		Error; err != nil {
+		return nil, res.FailDefault
+	}
+	for _, item := range items {
+		if item != nil {
+			result[item.MenuID] = append(result[item.MenuID], item.ApiID)
+		}
+	}
+	return result, nil
 }
 
 func validateResourceMenuValues(menuType, name, path, component string) error {
@@ -523,7 +664,7 @@ func parentTreePath(item *models.SysResourceMenu) string {
 	return fmt.Sprintf("/%d/", item.ID)
 }
 
-func buildResourceMenuRespTree(items []*models.SysResourceMenu) []*RespSysResourceMenu {
+func buildResourceMenuRespTree(items []*models.SysResourceMenu, apiMap map[uint64][]uint64) []*RespSysResourceMenu {
 	nodes := make(map[uint64]*RespSysResourceMenu, len(items))
 	roots := make([]*RespSysResourceMenu, 0)
 	for _, item := range items {
@@ -532,6 +673,7 @@ func buildResourceMenuRespTree(items []*models.SysResourceMenu) []*RespSysResour
 		}
 		nodes[item.ID] = &RespSysResourceMenu{
 			SysResourceMenu: *item,
+			ApiIDs:          apiMap[item.ID],
 			CanWrite:        true,
 			CanDelete:       true,
 		}

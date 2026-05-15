@@ -288,6 +288,7 @@ func setupSysRoleTestDB(t *testing.T) {
 		&models.SysUserRole{},
 		&models.SysResourceMenu{},
 		&models.SysResourceApi{},
+		&models.SysResourceMenuApi{},
 		&models.SysRoleMenu{},
 		&models.SysRoleApi{},
 	); err != nil {
@@ -330,6 +331,7 @@ func createTestResourceMenu(t *testing.T, id uint64) uint64 {
 		MenuType:  MenuTypeMenu,
 		Path:      fmt.Sprintf("/menu/%d", id),
 		Name:      fmt.Sprintf("menu-%d", id),
+		Component: fmt.Sprintf("/menu/%d.tsx", id),
 	}
 	if err := query.SysResourceMenu.Create(item); err != nil {
 		t.Fatalf("create test resource menu failed: %v", err)

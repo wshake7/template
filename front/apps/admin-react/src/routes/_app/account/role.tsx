@@ -123,6 +123,14 @@ function flattenResourceMenus(items: ResourceMenu[]) {
   return result
 }
 
+function buildMenuApiMap(items: ResourceMenu[]) {
+  const map = new Map<number, number[]>()
+  for (const item of flattenResourceMenus(items)) {
+    map.set(item.id, item.apiIDs ?? [])
+  }
+  return map
+}
+
 function collectRoleRowKeys(items: SysRole[]) {
   const keys: Key[] = []
   const walk = (nodes: SysRole[]) => {
@@ -215,6 +223,7 @@ function RoleManagement() {
   }, [enabledStatus])
   const menuTreeData = useMemo(() => menuTreeToTreeData(menuTree), [menuTree])
   const menuTotal = useMemo(() => flattenResourceMenus(menuTree).length, [menuTree])
+  const menuApiMap = useMemo(() => buildMenuApiMap(menuTree), [menuTree])
   const filteredApiItems = useMemo(() => {
     const keyword = apiSearchText.trim().toLowerCase()
     if (!keyword) {
@@ -619,7 +628,20 @@ function RoleManagement() {
               checkedKeys={selectedMenuKeys}
               treeData={menuTreeData}
               onCheck={(keys) => {
-                setSelectedMenuKeys(Array.isArray(keys) ? keys : keys.checked)
+                const nextKeys = Array.isArray(keys) ? keys : keys.checked
+                const previous = new Set(selectedMenuKeys.map(Number))
+                const nextApiKeys = new Set(selectedApiKeys.map(Number))
+                for (const key of nextKeys) {
+                  const menuID = Number(key)
+                  if (previous.has(menuID)) {
+                    continue
+                  }
+                  for (const apiID of menuApiMap.get(menuID) ?? []) {
+                    nextApiKeys.add(apiID)
+                  }
+                }
+                setSelectedMenuKeys(nextKeys)
+                setSelectedApiKeys([...nextApiKeys])
               }}
             />
           </section>

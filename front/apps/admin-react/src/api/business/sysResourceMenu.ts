@@ -21,6 +21,7 @@ export interface ResourceMenu {
   name: string
   component: string
   metadata: ResourceMenuMetadata
+  apiIDs?: number[]
   sortOrder: number
   isEnabled: boolean
   remark: string
@@ -55,6 +56,7 @@ export interface ReqResourceMenuCreate {
   name: string
   component: string
   metadata: ResourceMenuMetadata
+  apiIDs: number[]
   sortOrder: number
   isEnabled: boolean
   remark: string

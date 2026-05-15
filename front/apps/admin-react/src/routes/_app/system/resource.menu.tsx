@@ -1,5 +1,6 @@
 import type { ProColumns } from '@ant-design/pro-components'
 import type { Key } from 'react'
+import type { ResourceApi } from '~/api/business/sysResourceApi'
 import type { ResourceMenu, ResourceMenuType } from '~/api/business/sysResourceMenu'
 import {
   ProFormDigit,
@@ -24,6 +25,7 @@ import {
 } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import z from 'zod'
+import { ResourceApiApi } from '~/api/business/sysResourceApi'
 import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import AntIconPicker from '~/components/common/antIconPicker'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
@@ -68,6 +70,7 @@ const ResourceMenuFormSchema = z.object({
   hidden: z.boolean(),
   isEnabled: z.boolean(),
   authorities: z.string().optional(),
+  apiIDs: z.array(z.number()).default([]),
   remark: z.string().optional(),
 })
 
@@ -87,6 +90,7 @@ const defaultFormValues = ResourceMenuFormSchema.parse({
   hidden: false,
   isEnabled: true,
   authorities: '',
+  apiIDs: [],
   remark: '',
 })
 
@@ -124,6 +128,10 @@ function isIconType(type: ResourceMenuType) {
 
 function isAuthorityType(type: ResourceMenuType) {
   return type === 'BUTTON' || type === 'EMBEDDED' || type === 'LINK'
+}
+
+function canAssociateApi(type: ResourceMenuType) {
+  return type === 'MENU' || type === 'BUTTON'
 }
 
 function isPathType(type: ResourceMenuType) {
@@ -229,6 +237,7 @@ function toFormValues(record: ResourceMenu): ResourceMenuFormValues {
       hidden: Boolean(record.metadata?.hidden),
       isEnabled: Boolean(record.isEnabled),
       authorities: authoritiesToText(record.metadata?.authorities),
+      apiIDs: record.apiIDs ?? [],
       remark: record.remark ?? '',
     }),
   })
@@ -254,6 +263,7 @@ function toPayload(values: ResourceMenuFormValues) {
     name: values.name ?? '',
     component: values.menuType === 'MENU' ? values.component ?? '' : '',
     metadata,
+    apiIDs: canAssociateApi(values.menuType) ? values.apiIDs ?? [] : [],
     sortOrder: values.sortOrder ?? 0,
     isEnabled: values.isEnabled ?? true,
     remark: values.remark ?? '',
@@ -266,6 +276,7 @@ function ResourceMenuManagement() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [editing, setEditing] = useState<ResourceMenu>()
+  const [apiItems, setApiItems] = useState<ResourceApi[]>([])
   const [searchText, setSearchText] = useState('')
   const [enabledFilter, setEnabledFilter] = useState<boolean | undefined>()
   const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
@@ -342,6 +353,19 @@ function ResourceMenuManagement() {
         }))
   }, [resourceMenuType])
 
+  const apiOptions = useMemo(() => apiItems.map(item => ({
+    label: `${item.method} ${item.path}${item.module ? ` (${item.module})` : ''}`,
+    value: item.id,
+  })), [apiItems])
+
+  const refreshApiItems = async () => {
+    const res = await ResourceApiApi.apiList({
+      noPaging: true,
+      orderBy: 'module asc,sort_order asc,id asc',
+    }).send()
+    setApiItems(res.data?.items ?? [])
+  }
+
   const refreshParentRows = async () => {
     const res = await ResourceMenuApi.menuList({
       noPaging: true,
@@ -411,6 +435,7 @@ function ResourceMenuManagement() {
     setEditing(undefined)
     form.resetFields()
     form.setFieldsValue(nextFormValues)
+    refreshApiItems().catch(() => undefined)
     setDrawerOpen(true)
   }
 
@@ -419,6 +444,7 @@ function ResourceMenuManagement() {
     setEditing(record)
     form.resetFields()
     form.setFieldsValue(nextFormValues)
+    refreshApiItems().catch(() => undefined)
     setDrawerOpen(true)
   }
 
@@ -700,6 +726,22 @@ function ResourceMenuManagement() {
                   label="权限标识"
                   placeholder="多个权限用逗号隔开，如：sys:user:list, sys:user:create"
                   rules={rules}
+                />
+              )
+            : null}
+          {canAssociateApi(menuType)
+            ? (
+                <ProFormSelect
+                  name="apiIDs"
+                  label="关联 API"
+                  placeholder="请选择关联 API"
+                  options={apiOptions}
+                  rules={rules}
+                  fieldProps={{
+                    mode: 'multiple',
+                    showSearch: true,
+                    optionFilterProp: 'label',
+                  }}
                 />
               )
             : null}

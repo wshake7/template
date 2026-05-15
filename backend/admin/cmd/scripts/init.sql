@@ -1,3 +1,28 @@
+CREATE TABLE IF NOT EXISTS "public"."sys_resource_menu_api" (
+    "id" BIGSERIAL PRIMARY KEY,
+    "created_at" TIMESTAMPTZ,
+    "updated_at" TIMESTAMPTZ,
+    "created_by" BIGINT NOT NULL DEFAULT 0,
+    "updated_by" BIGINT NOT NULL DEFAULT 0,
+    "deleted_by" BIGINT NOT NULL DEFAULT 0,
+    "menu_id" BIGINT NOT NULL,
+    "api_id" BIGINT NOT NULL,
+    "deleted_at" BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_menu_id"
+    ON "public"."sys_resource_menu_api" ("menu_id");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_api_id"
+    ON "public"."sys_resource_menu_api" ("api_id");
+
+CREATE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_deleted_at"
+    ON "public"."sys_resource_menu_api" ("deleted_at");
+
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_menu_api_active"
+    ON "public"."sys_resource_menu_api" ("menu_id", "api_id")
+    WHERE "deleted_at" = 0;
+
 INSERT INTO
     "public"."sys_casbin_model" (
         "id",
@@ -2082,6 +2107,76 @@ VALUES
         '/api/sys/job/schedule/options',
         'POST'
     );
+
+INSERT INTO
+    "public"."sys_resource_menu_api" (
+        "id",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "deleted_by",
+        "menu_id",
+        "api_id",
+        "deleted_at"
+    )
+VALUES
+    (1, NULL, NULL, 0, 0, 0, 8, 1, 0),
+    (2, NULL, NULL, 0, 0, 0, 8, 2, 0),
+    (3, NULL, NULL, 0, 0, 0, 8, 3, 0),
+    (4, NULL, NULL, 0, 0, 0, 8, 4, 0),
+    (5, NULL, NULL, 0, 0, 0, 8, 5, 0),
+    (6, NULL, NULL, 0, 0, 0, 8, 6, 0),
+    (7, NULL, NULL, 0, 0, 0, 8, 7, 0),
+    (8, NULL, NULL, 0, 0, 0, 11, 8, 0),
+    (9, NULL, NULL, 0, 0, 0, 11, 9, 0),
+    (10, NULL, NULL, 0, 0, 0, 11, 10, 0),
+    (11, NULL, NULL, 0, 0, 0, 11, 11, 0),
+    (12, NULL, NULL, 0, 0, 0, 6, 12, 0),
+    (13, NULL, NULL, 0, 0, 0, 6, 13, 0),
+    (14, NULL, NULL, 0, 0, 0, 6, 14, 0),
+    (15, NULL, NULL, 0, 0, 0, 6, 15, 0),
+    (16, NULL, NULL, 0, 0, 0, 6, 16, 0),
+    (17, NULL, NULL, 0, 0, 0, 6, 17, 0),
+    (18, NULL, NULL, 0, 0, 0, 6, 18, 0),
+    (19, NULL, NULL, 0, 0, 0, 6, 19, 0),
+    (20, NULL, NULL, 0, 0, 0, 6, 20, 0),
+    (21, NULL, NULL, 0, 0, 0, 6, 21, 0),
+    (22, NULL, NULL, 0, 0, 0, 5, 22, 0),
+    (23, NULL, NULL, 0, 0, 0, 5, 23, 0),
+    (24, NULL, NULL, 0, 0, 0, 5, 24, 0),
+    (25, NULL, NULL, 0, 0, 0, 5, 25, 0),
+    (26, NULL, NULL, 0, 0, 0, 5, 26, 0),
+    (27, NULL, NULL, 0, 0, 0, 5, 27, 0),
+    (28, NULL, NULL, 0, 0, 0, 5, 28, 0),
+    (29, NULL, NULL, 0, 0, 0, 5, 29, 0),
+    (30, NULL, NULL, 0, 0, 0, 5, 30, 0),
+    (31, NULL, NULL, 0, 0, 0, 10, 31, 0),
+    (32, NULL, NULL, 0, 0, 0, 10, 32, 0),
+    (33, NULL, NULL, 0, 0, 0, 3, 33, 0),
+    (34, NULL, NULL, 0, 0, 0, 3, 34, 0),
+    (35, NULL, NULL, 0, 0, 0, 3, 35, 0),
+    (36, NULL, NULL, 0, 0, 0, 3, 36, 0),
+    (37, NULL, NULL, 0, 0, 0, 3, 37, 0),
+    (38, NULL, NULL, 0, 0, 0, 9, 38, 0),
+    (39, NULL, NULL, 0, 0, 0, 9, 39, 0),
+    (40, NULL, NULL, 0, 0, 0, 9, 40, 0),
+    (41, NULL, NULL, 0, 0, 0, 9, 41, 0),
+    (42, NULL, NULL, 0, 0, 0, 12, 42, 0),
+    (43, NULL, NULL, 0, 0, 0, 12, 43, 0),
+    (44, NULL, NULL, 0, 0, 0, 14, 45, 0),
+    (45, NULL, NULL, 0, 0, 0, 14, 46, 0),
+    (46, NULL, NULL, 0, 0, 0, 14, 47, 0),
+    (47, NULL, NULL, 0, 0, 0, 14, 48, 0),
+    (48, NULL, NULL, 0, 0, 0, 14, 49, 0),
+    (49, NULL, NULL, 0, 0, 0, 14, 50, 0),
+    (50, NULL, NULL, 0, 0, 0, 14, 51, 0),
+    (51, NULL, NULL, 0, 0, 0, 14, 52, 0),
+    (52, NULL, NULL, 0, 0, 0, 14, 57, 0),
+    (53, NULL, NULL, 0, 0, 0, 15, 53, 0),
+    (54, NULL, NULL, 0, 0, 0, 15, 54, 0),
+    (55, NULL, NULL, 0, 0, 0, 15, 55, 0),
+    (56, NULL, NULL, 0, 0, 0, 15, 56, 0);
 
 INSERT INTO
     "public"."casbin_rule" ("ptype", "v0", "v1", "v2")
