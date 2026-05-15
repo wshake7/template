@@ -41,7 +41,7 @@ front/apps/admin-react/
 │       ├── sysLanguage.ts
 │       ├── sysApiLog.ts
 │       ├── sysLoginLog.ts
-│       ├── jobSchedule.ts    # 任务调度 API，包含 options 接口
+│       ├── jobSchedule.ts    # 任务调度 API
 │       ├── jobExecution.ts   # 任务执行 API
 │       └── eventStream.ts   # SSE 事件流
 ├── src/domains/               # 领域类型、HTTP 状态码
@@ -137,7 +137,7 @@ front/apps/admin-react/
 
 - 任务配置页面 `src/routes/_app/job/schedule.tsx` 展示任务调度列表，支持创建、编辑、启用/停用、同步、触发等操作。
 - 任务执行记录页面 `src/routes/_app/job/execution.tsx` 展示执行历史，支持查看详情、取消运行和重试。
-- API 定义在 `src/api/business/jobSchedule.ts` 和 `src/api/business/jobExecution.ts` 中，遵循 Swagger 路径。现在已包含 `options` 接口 (`/api/sys/job/schedule/options`)，用于获取调度配置选项。
+- API 定义在 `src/api/business/jobSchedule.ts` 和 `src/api/business/jobExecution.ts` 中，遵循 Swagger 路径。
 - 调度管理涉及 Temporal 状态，通过后端同步接口与 Temporal 交互。
 - 任务状态使用字典或自定义枚举显示，如启用/停用、执行状态（运行中、已完成、失败等）。
 
@@ -207,3 +207,51 @@ tsx
 在 `_app.tsx` 中，这些操作由 `closeTab`、`closeAllTabs`、`refreshTab`、`openTabInNewWindow` 等回调实现，并通过 `tabList` 的 Dropdown 为每个标签项注入右键菜单。相关的状态管理使用 `useMenuTabsStore`，该 store 提供了 `add`、`remove` 和 `removeAll` 方法。
 
 ## 列表分页与表单约定
+
+### Alova 分页
+
+管理后台列表页优先使用 `alova/client` 的 `usePagination`，不要把分页请求写在 `ProTable.request` 里。
+
+标准写法：
+
+tsx
+const {
+  data,
+  total,
+  page,
+  pageSize,
+  loading,
+  update,
+  send,
+} = usePagination(
+  (nextPage, nextPageSize) =>
+    XxxApi.list({
+      page: nextPage,
+      pageSize: nextPageSize,
+      orderBy: 'id desc',
+      query,
+    }),
+  {
+    initialData: {
+      total: 0,
+      items: [],
+    },
+    initialPage: 1,
+    initialPageSize: DEFAULT_PAGE_SIZE,
+    total: response => response.data?.total ?? 0,
+    data: response => response.data?.items ?? [],
+    watchingStates: [searchText, enabledFilter],
+    debounce: [
+      {
+        states: [searchText],
+        wait: 300,
+      },
+    ],
+    abortLast: true,
+  }
+);
+
+
+- `watchingStates` 支持监听多个状态，变化时自动重新请求第一页。
+- `debounce` 为数组，每个元素可配置独立防抖，防止频繁请求。
+- 请求参数中通过 `query` 对象传递搜索条件，后端统一解析。
