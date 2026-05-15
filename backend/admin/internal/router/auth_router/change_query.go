@@ -9,7 +9,6 @@ import (
 	"admin/internal/router/logic"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
-	"go-common/utils/pt"
 	"gorm.io/gorm"
 )
 
@@ -64,11 +63,11 @@ func sysUserUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	}
 	return &logic.ReqSysUserUpdate{
 		ID:           m.ID,
-		Username:     pt.Ptr(m.Username),
-		Nickname:     pt.Ptr(m.Nickname),
-		LanguageCode: pt.Ptr(m.LanguageCode),
-		IsEnabled:    pt.Ptr(m.IsEnabled.IsEnabled),
-		Remark:       pt.Ptr(m.Remark.Remark),
+		Username:     new(m.Username),
+		Nickname:     new(m.Nickname),
+		LanguageCode: new(m.LanguageCode),
+		IsEnabled:    new(m.IsEnabled.IsEnabled),
+		Remark:       new(m.Remark.Remark),
 	}, nil
 }
 
@@ -101,11 +100,11 @@ func sysRoleUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	}
 	return &logic.ReqSysRoleUpdate{
 		ID:        m.ID,
-		Name:      pt.Ptr(m.Name),
-		Code:      pt.Ptr(m.Code),
+		Name:      new(m.Name),
+		Code:      new(m.Code),
 		ParentID:  m.ParentID,
-		IsEnabled: pt.Ptr(m.IsEnabled.IsEnabled),
-		Remark:    pt.Ptr(m.Remark.Remark),
+		IsEnabled: new(m.IsEnabled.IsEnabled),
+		Remark:    new(m.Remark.Remark),
 	}, nil
 }
 
@@ -164,12 +163,12 @@ func resourceApiUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	}
 	return &logic.ReqResourceApiUpdate{
 		ID:        m.ID,
-		Module:    pt.Ptr(m.Module),
-		Path:      pt.Ptr(m.Path),
-		Method:    pt.Ptr(m.Method),
-		SortOrder: pt.Ptr(m.SortOrder.SortOrder),
-		IsEnabled: pt.Ptr(m.IsEnabled.IsEnabled),
-		Remark:    pt.Ptr(m.Remark.Remark),
+		Module:    new(m.Module),
+		Path:      new(m.Path),
+		Method:    new(m.Method),
+		SortOrder: new(m.SortOrder.SortOrder),
+		IsEnabled: new(m.IsEnabled.IsEnabled),
+		Remark:    new(m.Remark.Remark),
 	}, nil
 }
 
@@ -204,16 +203,16 @@ func resourceMenuUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	return &logic.ReqResourceMenuUpdate{
 		ID:        m.ID,
 		ParentID:  m.ParentID,
-		MenuType:  pt.Ptr(m.MenuType),
-		Path:      pt.Ptr(m.Path),
-		Redirect:  pt.Ptr(m.Redirect),
-		Alias:     pt.Ptr(m.Alias),
-		Name:      pt.Ptr(m.Name),
-		Component: pt.Ptr(m.Component),
-		Metadata:  pt.Ptr(m.Metadata.Metadata),
-		SortOrder: pt.Ptr(m.SortOrder.SortOrder),
-		IsEnabled: pt.Ptr(m.IsEnabled.IsEnabled),
-		Remark:    pt.Ptr(m.Remark.Remark),
+		MenuType:  new(m.MenuType),
+		Path:      new(m.Path),
+		Redirect:  new(m.Redirect),
+		Alias:     new(m.Alias),
+		Name:      new(m.Name),
+		Component: new(m.Component),
+		Metadata:  new(m.Metadata.Metadata),
+		SortOrder: new(m.SortOrder.SortOrder),
+		IsEnabled: new(m.IsEnabled.IsEnabled),
+		Remark:    new(m.Remark.Remark),
 	}, nil
 }
 
@@ -256,18 +255,18 @@ func jobScheduleUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	}
 	return &logic.ReqJobScheduleUpdate{
 		ID:                       m.ID,
-		JobName:                  pt.Ptr(m.JobName),
-		WorkflowType:             pt.Ptr(m.WorkflowType),
-		TaskQueue:                pt.Ptr(m.TaskQueue),
-		ScheduleType:             pt.Ptr(m.ScheduleType),
-		CronExpr:                 pt.Ptr(m.CronExpr),
+		JobName:                  new(m.JobName),
+		WorkflowType:             new(m.WorkflowType),
+		TaskQueue:                new(m.TaskQueue),
+		ScheduleType:             new(m.ScheduleType),
+		CronExpr:                 new(m.CronExpr),
 		IntervalSeconds:          m.IntervalSeconds,
 		StartTime:                m.StartTime,
 		EndTime:                  m.EndTime,
-		InputJSON:                pt.Ptr(string(m.InputJSON)),
-		Status:                   pt.Ptr(m.Status),
-		TemporalWorkflowIDPrefix: pt.Ptr(m.TemporalWorkflowIDPrefix),
-		Description:              pt.Ptr(m.Description),
+		InputJSON:                new(string(m.InputJSON)),
+		Status:                   new(m.Status),
+		TemporalWorkflowIDPrefix: new(m.TemporalWorkflowIDPrefix),
+		Description:              new(m.Description),
 	}, nil
 }
 
@@ -364,11 +363,11 @@ func dictTypeUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	}
 	return &logic.ReqDictTypeUpdate{
 		ID:        m.ID,
-		TypeCode:  pt.Ptr(m.TypeCode),
-		TypeName:  pt.Ptr(m.TypeName),
-		IsEnabled: pt.Ptr(m.IsEnabled.IsEnabled),
-		SortOrder: pt.Ptr(m.SortOrder.SortOrder),
-		Remark:    pt.Ptr(m.Remark.Remark),
+		TypeCode:  new(m.TypeCode),
+		TypeName:  new(m.TypeName),
+		IsEnabled: new(m.IsEnabled.IsEnabled),
+		SortOrder: new(m.SortOrder.SortOrder),
+		Remark:    new(m.Remark.Remark),
 	}, nil
 }
 
@@ -423,14 +422,14 @@ func dictEntryUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	for _, m := range items {
 		result.Updates = append(result.Updates, logic.ReqDictEntryUpdateItem{
 			ID:             m.ID,
-			LabelComponent: pt.Ptr(m.LabelComponent),
-			EntryLabel:     pt.Ptr(m.EntryLabel),
-			EntryValue:     pt.Ptr(m.EntryValue),
-			LanguageCode:   pt.Ptr(m.LanguageCode),
+			LabelComponent: new(m.LabelComponent),
+			EntryLabel:     new(m.EntryLabel),
+			EntryValue:     new(m.EntryValue),
+			LanguageCode:   new(m.LanguageCode),
 			SysDictTypeId:  &m.SysDictTypeId,
-			SortOrder:      pt.Ptr(m.SortOrder.SortOrder),
-			IsEnabled:      pt.Ptr(m.IsEnabled.IsEnabled),
-			Remark:         pt.Ptr(m.Remark.Remark),
+			SortOrder:      new(m.SortOrder.SortOrder),
+			IsEnabled:      new(m.IsEnabled.IsEnabled),
+			Remark:         new(m.Remark.Remark),
 		})
 	}
 	return result, nil
@@ -463,14 +462,14 @@ func dictEntryBatchCopyChangeQuery(ctx *handler.Ctx) (any, error) {
 	for _, m := range items {
 		result.Updates = append(result.Updates, logic.ReqDictEntryUpdateItem{
 			ID:             m.ID,
-			LabelComponent: pt.Ptr(m.LabelComponent),
-			EntryLabel:     pt.Ptr(m.EntryLabel),
-			EntryValue:     pt.Ptr(m.EntryValue),
-			LanguageCode:   pt.Ptr(m.LanguageCode),
+			LabelComponent: new(m.LabelComponent),
+			EntryLabel:     new(m.EntryLabel),
+			EntryValue:     new(m.EntryValue),
+			LanguageCode:   new(m.LanguageCode),
 			SysDictTypeId:  &m.SysDictTypeId,
-			SortOrder:      pt.Ptr(m.SortOrder.SortOrder),
-			IsEnabled:      pt.Ptr(m.IsEnabled.IsEnabled),
-			Remark:         pt.Ptr(m.Remark.Remark),
+			SortOrder:      new(m.SortOrder.SortOrder),
+			IsEnabled:      new(m.IsEnabled.IsEnabled),
+			Remark:         new(m.Remark.Remark),
 		})
 	}
 	return result, nil
@@ -505,11 +504,11 @@ func langTypeUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	}
 	return &logic.ReqLangTypeUpdate{
 		ID:        m.ID,
-		TypeCode:  pt.Ptr(m.TypeCode),
-		TypeName:  pt.Ptr(m.TypeName),
-		IsDefault: pt.Ptr(m.IsDefault),
-		IsEnabled: pt.Ptr(m.IsEnabled.IsEnabled),
-		SortOrder: pt.Ptr(m.SortOrder.SortOrder),
+		TypeCode:  new(m.TypeCode),
+		TypeName:  new(m.TypeName),
+		IsDefault: new(m.IsDefault),
+		IsEnabled: new(m.IsEnabled.IsEnabled),
+		SortOrder: new(m.SortOrder.SortOrder),
 	}, nil
 }
 
@@ -557,12 +556,12 @@ func langEntryUpdateChangeQuery(ctx *handler.Ctx) (any, error) {
 	for _, m := range items {
 		result.Updates = append(result.Updates, logic.ReqLangEntryUpdateItem{
 			ID:                m.ID,
-			EntryCode:         pt.Ptr(m.EntryCode),
-			EntryValue:        pt.Ptr(m.EntryValue),
+			EntryCode:         new(m.EntryCode),
+			EntryValue:        new(m.EntryValue),
 			SysLanguageTypeId: &m.SysLanguageTypeId,
-			SortOrder:         pt.Ptr(m.SortOrder.SortOrder),
-			IsEnabled:         pt.Ptr(m.IsEnabled.IsEnabled),
-			Remark:            pt.Ptr(m.Remark.Remark),
+			SortOrder:         new(m.SortOrder.SortOrder),
+			IsEnabled:         new(m.IsEnabled.IsEnabled),
+			Remark:            new(m.Remark.Remark),
 		})
 	}
 	return result, nil

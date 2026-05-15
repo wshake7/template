@@ -6,8 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:fix inline
 func Ptr[T any](v T) *T {
-	return &v
+	return new(v)
 }
 
 func PtrValue[T any](v *T) T {
@@ -503,7 +504,7 @@ func ToUuid(str string) uuid.UUID {
 func ToStringPtr(id *uuid.UUID) *string {
 	var strUUID *string
 	if id != nil {
-		strUUID = Ptr(id.String())
+		strUUID = new(id.String())
 	}
 	return strUUID
 }
