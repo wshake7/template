@@ -16,6 +16,12 @@ import (
 
 const DispatchWorkflowName = "JobDispatchWorkflow"
 
+func WorkflowTypeOptions() map[string]string {
+	return map[string]string{
+		PrintCountWorkflowName: PrintCountWorkflowName,
+	}
+}
+
 type DispatchInput struct {
 	JobCode          string `json:"jobCode"`
 	WorkflowType     string `json:"workflowType"`

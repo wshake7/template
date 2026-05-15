@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
+	"admin/internal/config"
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
 	"admin/internal/services/orm/models"
@@ -30,6 +32,17 @@ type RespJobSchedule struct {
 	models.JobSchedule
 	CanWrite  bool `json:"canWrite"`
 	CanDelete bool `json:"canDelete"`
+}
+
+type RespJobScheduleOption struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+}
+
+type RespJobScheduleOptions struct {
+	WorkflowTypes    []RespJobScheduleOption `json:"workflowTypes"`
+	TaskQueues       []RespJobScheduleOption `json:"taskQueues"`
+	DefaultTaskQueue string                  `json:"defaultTaskQueue"`
 }
 
 type ReqJobScheduleDetail struct {
@@ -76,6 +89,27 @@ type ReqJobScheduleID struct {
 type ReqJobScheduleSwitch struct {
 	ID      uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
 	Enabled bool   `json:"enabled" change:"启用状态"`
+}
+
+// @Summary 获取任务调度表单选项
+// @Tags JobSchedule
+// @Produce json
+// @Success 200 {object} res.Response{data=RespJobScheduleOptions} "成功"
+// @Router /api/sys/job/schedule/options [post]
+func (*JobScheduleHandler) Options(ctx *handler.Ctx) (*RespJobScheduleOptions, error) {
+	defaultTaskQueue := strings.TrimSpace(config.Conf.Temporal.TaskQueue)
+	if defaultTaskQueue == "" {
+		defaultTaskQueue = "admin"
+	}
+	taskQueues := map[string]string{
+		"admin":          "admin",
+		defaultTaskQueue: defaultTaskQueue,
+	}
+	return &RespJobScheduleOptions{
+		WorkflowTypes:    buildJobScheduleOptions(temporaljob.WorkflowTypeOptions()),
+		TaskQueues:       buildJobScheduleOptions(taskQueues),
+		DefaultTaskQueue: defaultTaskQueue,
+	}, nil
 }
 
 // @Summary 获取任务调度配置分页列表
@@ -490,6 +524,27 @@ var validJobScheduleStatuses = map[string]struct{}{
 	models.JobScheduleStatusDeleted:  {},
 }
 
+func buildJobScheduleOptions(items map[string]string) []RespJobScheduleOption {
+	keys := make([]string, 0, len(items))
+	for value := range items {
+		if strings.TrimSpace(value) == "" {
+			continue
+		}
+		keys = append(keys, value)
+	}
+	sort.Strings(keys)
+
+	options := make([]RespJobScheduleOption, 0, len(keys))
+	for _, value := range keys {
+		label := strings.TrimSpace(items[value])
+		if label == "" {
+			label = value
+		}
+		options = append(options, RespJobScheduleOption{Label: label, Value: value})
+	}
+	return options
+}
+
 func findActiveJobSchedule(id uint64) (*models.JobSchedule, error) {
 	jobSchedule := query.JobSchedule
 	current, err := jobSchedule.Where(jobSchedule.ID.Eq(id), jobSchedule.Status.Neq(models.JobScheduleStatusDeleted)).First()
@@ -523,6 +578,7 @@ func syncTemporalSchedule(ctx context.Context, m *models.JobSchedule, inputValue
 				Schedule: &client.Schedule{
 					Action: options.Action,
 					Spec:   &spec,
+					Policy: &client.SchedulePolicies{},
 					State: &client.ScheduleState{
 						Paused:           options.Paused,
 						LimitedActions:   options.RemainingActions > 0,

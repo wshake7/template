@@ -217,7 +217,7 @@ declare global {
   export type { JobExecutionStatus, JobExecution, ReqJobExecutionID } from './api/business/jobExecution'
   import('./api/business/jobExecution')
   // @ts-ignore
-  export type { JobScheduleType, JobScheduleStatus, JobSchedule, ReqJobScheduleCreate, ReqJobScheduleUpdate, ReqJobScheduleID, ReqJobScheduleSwitch } from './api/business/jobSchedule'
+  export type { JobScheduleType, JobScheduleStatus, JobScheduleOption, JobScheduleOptions, JobSchedule, ReqJobScheduleCreate, ReqJobScheduleUpdate, ReqJobScheduleID, ReqJobScheduleSwitch } from './api/business/jobSchedule'
   import('./api/business/jobSchedule')
   // @ts-ignore
   export type { SysApiLog, ReqLogDetail } from './api/business/sysApiLog'

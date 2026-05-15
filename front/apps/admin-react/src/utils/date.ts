@@ -8,5 +8,5 @@ export function formatDateYYYYMMDDHHmm(value?: string) {
   if (!date.isValid()) {
     return value
   }
-  return date.format('YYYY-MM-DD HH:mm')
+  return date.format('YYYY-MM-DD HH:mm:ss')
 }

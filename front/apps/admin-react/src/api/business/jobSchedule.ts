@@ -3,6 +3,17 @@ import API from '../index'
 export type JobScheduleType = 'ONCE' | 'CRON' | 'INTERVAL'
 export type JobScheduleStatus = 'ENABLED' | 'DISABLED' | 'DELETED'
 
+export interface JobScheduleOption {
+  label: string
+  value: string
+}
+
+export interface JobScheduleOptions {
+  workflowTypes: JobScheduleOption[]
+  taskQueues: JobScheduleOption[]
+  defaultTaskQueue: string
+}
+
 export interface JobSchedule {
   id: number
   jobCode: string
@@ -37,8 +48,6 @@ export interface ReqJobScheduleCreate {
   endTime?: string | null
   inputJSON?: string
   status: JobScheduleStatus
-  temporalScheduleID?: string
-  temporalWorkflowIDPrefix?: string
   description?: string
 }
 
@@ -58,6 +67,12 @@ function list(req: PagingRequest) {
   return API.Post<Res<PagingResult<JobSchedule>>>('/api/sys/job/schedule/list', req, {
     cacheFor: 0,
   })
+}
+
+async function options() {
+  return await API.Post<Res<JobScheduleOptions>>('/api/sys/job/schedule/options', {}, {
+    cacheFor: 0,
+  }).send()
 }
 
 async function detail(req: ReqJobScheduleID) {
@@ -104,6 +119,7 @@ async function trigger(req: ReqJobScheduleID) {
 
 export const JobScheduleApi = {
   list,
+  options,
   detail,
   create,
   update,

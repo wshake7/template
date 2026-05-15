@@ -15,6 +15,7 @@ func registerJobScheduleRouters(router fiber.Router) {
 	updateLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("job_schedule"), middleware.WithChangeQuery(jobScheduleUpdateChangeQuery))
 	switchLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("job_schedule"), middleware.WithChangeQuery(jobScheduleSwitchChangeQuery))
 
+	router.Post("/options", handler.CtxFunc(jobScheduleHandler.Options))
 	router.Post("/list", handler.CtxHandlerFunc(jobScheduleHandler.List))
 	router.Post("/detail", handler.CtxHandlerFunc(jobScheduleHandler.Detail))
 	router.Post("/create", createLogMiddleware, handler.CtxHandlerNilFunc(jobScheduleHandler.Create))

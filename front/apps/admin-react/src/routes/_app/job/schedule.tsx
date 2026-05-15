@@ -1,6 +1,6 @@
 import type { ProColumns } from '@ant-design/pro-components'
 import type { Dayjs } from 'dayjs'
-import type { JobSchedule, JobScheduleStatus, JobScheduleType } from '~/api/business/jobSchedule'
+import type { JobSchedule, JobScheduleOptions, JobScheduleStatus, JobScheduleType } from '~/api/business/jobSchedule'
 import {
   ProFormDigit,
   ProFormSelect,
@@ -10,9 +10,9 @@ import {
 } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
-import { Button, DatePicker, Drawer, Form, Input, Popconfirm, Select, Space, Tag } from 'antd'
+import { AutoComplete, Button, DatePicker, Drawer, Form, Input, Popconfirm, Select, Space, Tag } from 'antd'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import z from 'zod'
 import { JobScheduleApi } from '~/api/business/jobSchedule'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
@@ -32,6 +32,12 @@ const scheduleTypeOptions: { label: string, value: JobScheduleType }[] = [
   { label: '固定间隔', value: 'INTERVAL' },
 ]
 
+const emptyJobScheduleOptions: JobScheduleOptions = {
+  workflowTypes: [],
+  taskQueues: [],
+  defaultTaskQueue: 'admin',
+}
+
 const JobScheduleFormSchema = z.object({
   jobCode: z.string(),
   jobName: z.string(),
@@ -44,8 +50,6 @@ const JobScheduleFormSchema = z.object({
   endTime: z.custom<Dayjs>().optional().nullable(),
   inputJSON: z.string().optional(),
   status: z.enum(['ENABLED', 'DISABLED']),
-  temporalScheduleID: z.string().optional(),
-  temporalWorkflowIDPrefix: z.string().optional(),
   description: z.string().optional(),
 })
 
@@ -63,8 +67,6 @@ const defaultFormValues: JobScheduleFormValues = {
   endTime: undefined,
   inputJSON: '',
   status: 'ENABLED',
-  temporalScheduleID: '',
-  temporalWorkflowIDPrefix: '',
   description: '',
 }
 
@@ -154,8 +156,6 @@ function toFormValues(record: JobSchedule): JobScheduleFormValues {
     endTime: toDayjs(record.endTime),
     inputJSON: stringifyJSON(record.inputJSON),
     status: record.status === 'DELETED' ? 'DISABLED' : record.status,
-    temporalScheduleID: record.temporalScheduleID ?? '',
-    temporalWorkflowIDPrefix: record.temporalWorkflowIDPrefix ?? '',
     description: record.description ?? '',
   }
 }
@@ -174,10 +174,14 @@ function toPayload(values: JobScheduleFormValues) {
     endTime: values.endTime ? values.endTime.format('YYYY-MM-DD HH:mm:ss') : null,
     inputJSON: input ? JSON.stringify(JSON.parse(input), null, 2) : '',
     status: values.status,
-    temporalScheduleID: values.temporalScheduleID?.trim() ?? '',
-    temporalWorkflowIDPrefix: values.temporalWorkflowIDPrefix?.trim() ?? '',
     description: values.description?.trim() ?? '',
   }
+}
+
+function filterAutoCompleteOption(input: string, option?: { label?: unknown, value?: unknown }) {
+  const keyword = input.toLowerCase()
+  return String(option?.label ?? '').toLowerCase().includes(keyword)
+    || String(option?.value ?? '').toLowerCase().includes(keyword)
 }
 
 function JobScheduleManagement() {
@@ -187,9 +191,33 @@ function JobScheduleManagement() {
   const [searchText, setSearchText] = useState('')
   const [scheduleTypeFilter, setScheduleTypeFilter] = useState<JobScheduleType | undefined>()
   const [statusFilter, setStatusFilter] = useState<JobScheduleStatus | undefined>()
+  const [jobScheduleOptions, setJobScheduleOptions] = useState<JobScheduleOptions>(emptyJobScheduleOptions)
   const [form] = Form.useForm<JobScheduleFormValues>()
   const watchedScheduleType = Form.useWatch('scheduleType', form) ?? 'CRON'
   const enabledStatus = useDictMatch(DictCode.SYS_IS_ENABLED_DICT_CODE)
+
+  useEffect(() => {
+    let ignore = false
+    JobScheduleApi.options()
+      .then((response) => {
+        if (!ignore && response.data) {
+          setJobScheduleOptions(response.data)
+        }
+      })
+      .catch(() => {
+        gMessage.error('加载任务选项失败')
+      })
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!drawerOpen || editing || !jobScheduleOptions.defaultTaskQueue || form.getFieldValue('taskQueue')) {
+      return
+    }
+    form.setFieldValue('taskQueue', jobScheduleOptions.defaultTaskQueue)
+  }, [drawerOpen, editing, form, jobScheduleOptions.defaultTaskQueue])
 
   const {
     data,
@@ -285,7 +313,7 @@ function JobScheduleManagement() {
   const openCreateForm = () => {
     setEditing(undefined)
     form.resetFields()
-    form.setFieldsValue(defaultFormValues)
+    form.setFieldsValue({ ...defaultFormValues, taskQueue: jobScheduleOptions.defaultTaskQueue })
     setDrawerOpen(true)
   }
 
@@ -329,7 +357,6 @@ function JobScheduleManagement() {
             <Tag color={record.status === 'ENABLED' ? 'success' : 'default'}>{fallbackEnabledStatusLabel(record.status)}</Tag>,
           ),
     },
-    { title: 'Temporal Schedule ID', dataIndex: 'temporalScheduleID', width: 220, ellipsis: true },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
@@ -457,8 +484,16 @@ function JobScheduleManagement() {
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <ProFormText name="jobCode" label="任务编码" disabled={Boolean(editing)} fieldProps={{ maxLength: 128 }} rules={rules} />
           <ProFormText name="jobName" label="任务名称" fieldProps={{ maxLength: 255 }} rules={rules} />
-          <ProFormText name="workflowType" label="Workflow 类型" fieldProps={{ maxLength: 255 }} rules={rules} />
-          <ProFormText name="taskQueue" label="Task Queue" fieldProps={{ maxLength: 255 }} rules={rules} />
+          <Form.Item name="workflowType" label="Workflow 类型" rules={rules}>
+            <AutoComplete options={jobScheduleOptions.workflowTypes} filterOption={filterAutoCompleteOption}>
+              <Input maxLength={255} />
+            </AutoComplete>
+          </Form.Item>
+          <Form.Item name="taskQueue" label="Task Queue" rules={rules}>
+            <AutoComplete options={jobScheduleOptions.taskQueues} filterOption={filterAutoCompleteOption}>
+              <Input maxLength={255} />
+            </AutoComplete>
+          </Form.Item>
           <ProFormSelect name="scheduleType" label="调度类型" options={scheduleTypeOptions} rules={rules} />
           {watchedScheduleType === 'CRON' && (
             <ProFormText name="cronExpr" label="Cron 表达式" fieldProps={{ maxLength: 128 }} rules={rules} />
@@ -474,8 +509,6 @@ function JobScheduleManagement() {
           <Form.Item name="endTime" label="结束时间" rules={rules}>
             <DatePicker showTime style={{ width: '100%' }} />
           </Form.Item>
-          <ProFormText name="temporalScheduleID" label="Temporal Schedule ID" disabled={Boolean(editing)} fieldProps={{ maxLength: 255 }} />
-          <ProFormText name="temporalWorkflowIDPrefix" label="Workflow ID 前缀" fieldProps={{ maxLength: 255 }} />
           <ProFormSelect name="status" label="状态" options={statusOptions} rules={rules} />
           <ProFormTextArea name="inputJSON" label="Workflow 输入 JSON" fieldProps={{ rows: 8 }} rules={rules} />
           <ProFormTextArea name="description" label="描述" fieldProps={{ rows: 3, maxLength: 512 }} />
