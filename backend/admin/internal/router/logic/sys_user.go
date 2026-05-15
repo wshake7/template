@@ -27,21 +27,21 @@ type RespSysUser struct {
 }
 
 type ReqSysUserCreate struct {
-	Username     string `json:"username" binding:"required,max=64" binding_msg:"required=用户名不能为空,max=用户名最多64位"`
-	Nickname     string `json:"nickname" binding:"required,max=64" binding_msg:"required=昵称不能为空,max=昵称最多64位"`
+	Username     string `json:"username" change:"用户名" binding:"required,max=64" binding_msg:"required=用户名不能为空,max=用户名最多64位"`
+	Nickname     string `json:"nickname" change:"昵称" binding:"required,max=64" binding_msg:"required=昵称不能为空,max=昵称最多64位"`
 	Password     string `json:"password" binding:"required,min=6,max=255" binding_msg:"required=密码不能为空,min=密码至少6位,max=密码最多255位"`
-	LanguageCode string `json:"languageCode" binding:"max=32" binding_msg:"max=语言代码最多32位"`
-	IsEnabled    bool   `json:"isEnabled"`
-	Remark       string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	LanguageCode string `json:"languageCode" change:"语言" binding:"max=32" binding_msg:"max=语言代码最多32位"`
+	IsEnabled    bool   `json:"isEnabled" change:"启用状态"`
+	Remark       string `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqSysUserUpdate struct {
 	ID           uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	Username     *string `json:"username" binding:"omitempty,max=64" binding_msg:"max=用户名最多64位"`
-	Nickname     *string `json:"nickname" binding:"omitempty,max=64" binding_msg:"max=昵称最多64位"`
-	LanguageCode *string `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
-	IsEnabled    *bool   `json:"isEnabled"`
-	Remark       *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	Username     *string `json:"username" change:"用户名" binding:"omitempty,max=64" binding_msg:"max=用户名最多64位"`
+	Nickname     *string `json:"nickname" change:"昵称" binding:"omitempty,max=64" binding_msg:"max=昵称最多64位"`
+	LanguageCode *string `json:"languageCode" change:"语言" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
+	IsEnabled    *bool   `json:"isEnabled" change:"启用状态"`
+	Remark       *string `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqSysUserBatchDelete struct {

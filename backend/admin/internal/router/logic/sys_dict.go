@@ -27,20 +27,20 @@ type SysDictHandler struct{}
 // --- 字典类型 (DictType) ---
 
 type ReqDictTypeCreate struct {
-	TypeCode  string `json:"typeCode" binding:"required,max=128" binding_msg:"required=字典类型代码不能为空,max=字典类型代码最多128位"`
-	TypeName  string `json:"typeName" binding:"required,max=255" binding_msg:"required=字典类型名称不能为空,max=字典类型名称最多255位"`
-	IsEnabled bool   `json:"isEnabled"`
-	SortOrder int32  `json:"sortOrder"`
-	Remark    string `json:"remark" binding:"max=255" binding_msg:"max=描述最多255位"`
+	TypeCode  string `json:"typeCode" change:"字典类型代码" binding:"required,max=128" binding_msg:"required=字典类型代码不能为空,max=字典类型代码最多128位"`
+	TypeName  string `json:"typeName" change:"字典类型名称" binding:"required,max=255" binding_msg:"required=字典类型名称不能为空,max=字典类型名称最多255位"`
+	IsEnabled bool   `json:"isEnabled" change:"启用状态"`
+	SortOrder int32  `json:"sortOrder" change:"排序"`
+	Remark    string `json:"remark" change:"描述" binding:"max=255" binding_msg:"max=描述最多255位"`
 }
 
 type ReqDictTypeUpdate struct {
 	ID        uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	TypeCode  *string `json:"typeCode" binding:"omitempty,max=128" binding_msg:"max=字典类型代码最多128位"`
-	TypeName  *string `json:"typeName" binding:"omitempty,max=255" binding_msg:"max=字典类型名称最多255位"`
-	IsEnabled *bool   `json:"isEnabled"`
-	SortOrder *int32  `json:"sortOrder"`
-	Remark    *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=描述最多255位"`
+	TypeCode  *string `json:"typeCode" change:"字典类型代码" binding:"omitempty,max=128" binding_msg:"max=字典类型代码最多128位"`
+	TypeName  *string `json:"typeName" change:"字典类型名称" binding:"omitempty,max=255" binding_msg:"max=字典类型名称最多255位"`
+	IsEnabled *bool   `json:"isEnabled" change:"启用状态"`
+	SortOrder *int32  `json:"sortOrder" change:"排序"`
+	Remark    *string `json:"remark" change:"描述" binding:"omitempty,max=255" binding_msg:"max=描述最多255位"`
 }
 
 type ReqDictTypeBatchDelete struct {
@@ -345,14 +345,14 @@ func (*SysDictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) er
 // --- 字典数据项 (DictEntry) ---
 
 type ReqDictEntryCreate struct {
-	LabelComponent string `json:"labelComponent" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
-	EntryLabel     string `json:"entryLabel" binding:"required,max=255" binding_msg:"required=显示标签不能为空,max=显示标签最多255位"`
-	EntryValue     string `json:"entryValue" binding:"required,max=255" binding_msg:"required=数据值不能为空,max=数据值最多255位"`
-	LanguageCode   string `json:"languageCode" binding:"max=32" binding_msg:"max=语言代码最多32位"`
-	SysDictTypeId  uint64 `json:"sysDictTypeId" binding:"required" binding_msg:"required=字典类型ID不能为空"`
-	SortOrder      int32  `json:"sortOrder"`
-	IsEnabled      bool   `json:"isEnabled"`
-	Remark         string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	LabelComponent string `json:"labelComponent" change:"标签组件" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
+	EntryLabel     string `json:"entryLabel" change:"显示标签" binding:"required,max=255" binding_msg:"required=显示标签不能为空,max=显示标签最多255位"`
+	EntryValue     string `json:"entryValue" change:"数据值" binding:"required,max=255" binding_msg:"required=数据值不能为空,max=数据值最多255位"`
+	LanguageCode   string `json:"languageCode" change:"语言" binding:"max=32" binding_msg:"max=语言代码最多32位"`
+	SysDictTypeId  uint64 `json:"sysDictTypeId" change:"字典类型" binding:"required" binding_msg:"required=字典类型ID不能为空"`
+	SortOrder      int32  `json:"sortOrder" change:"排序"`
+	IsEnabled      bool   `json:"isEnabled" change:"启用状态"`
+	Remark         string `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqDictEntryUpdate struct {
@@ -365,19 +365,19 @@ type ReqDictEntryUpdate struct {
 	SortOrder      *int32                   `json:"sortOrder"`
 	IsEnabled      *bool                    `json:"isEnabled"`
 	Remark         *string                  `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
-	Updates        []ReqDictEntryUpdateItem `json:"updates"`
+	Updates        []ReqDictEntryUpdateItem `json:"updates" change:"更新列表"`
 }
 
 type ReqDictEntryUpdateItem struct {
 	ID             uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	LabelComponent *string `json:"labelComponent" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
-	EntryLabel     *string `json:"entryLabel" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
-	EntryValue     *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
-	LanguageCode   *string `json:"languageCode" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
-	SysDictTypeId  *uint64 `json:"sysDictTypeId"`
-	SortOrder      *int32  `json:"sortOrder"`
-	IsEnabled      *bool   `json:"isEnabled"`
-	Remark         *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	LabelComponent *string `json:"labelComponent" change:"标签组件" binding:"omitempty,max=255" binding_msg:"max=显示标签组件最多255位"`
+	EntryLabel     *string `json:"entryLabel" change:"显示标签" binding:"omitempty,max=255" binding_msg:"max=显示标签最多255位"`
+	EntryValue     *string `json:"entryValue" change:"数据值" binding:"omitempty,max=255" binding_msg:"max=数据值最多255位"`
+	LanguageCode   *string `json:"languageCode" change:"语言" binding:"omitempty,max=32" binding_msg:"max=语言代码最多32位"`
+	SysDictTypeId  *uint64 `json:"sysDictTypeId" change:"字典类型"`
+	SortOrder      *int32  `json:"sortOrder" change:"排序"`
+	IsEnabled      *bool   `json:"isEnabled" change:"启用状态"`
+	Remark         *string `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqDictEntryBatchDelete struct {
@@ -385,8 +385,8 @@ type ReqDictEntryBatchDelete struct {
 }
 
 type ReqDictEntryBatchCopy struct {
-	EntryIds     []uint64 `json:"entryIds" binding:"required,min=1" binding_msg:"required=请选择字典项,min=至少选择一项"`
-	TargetTypeId uint64   `json:"targetTypeId" binding:"required" binding_msg:"required=目标字典类型不能为空"`
+	EntryIds     []uint64 `json:"entryIds" change:"源字典项" binding:"required,min=1" binding_msg:"required=请选择字典项,min=至少选择一项"`
+	TargetTypeId uint64   `json:"targetTypeId" change:"目标字典类型" binding:"required" binding_msg:"required=目标字典类型不能为空"`
 }
 
 type ReqDictEntryMatch struct {

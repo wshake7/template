@@ -11,9 +11,11 @@ import (
 func registerSysResourceApiRouters(router fiber.Router) {
 	sysResourceApiHandler := logic.SysResourceApiHandler{}
 	logMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("resource_api"))
+	createLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("resource_api"), middleware.WithChangeQuery(resourceApiCreateChangeQuery))
+	updateLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("resource_api"), middleware.WithChangeQuery(resourceApiUpdateChangeQuery))
 
 	router.Post("/list", handler.CtxHandlerFunc(sysResourceApiHandler.List))
-	router.Post("/create", logMiddleware, handler.CtxHandlerNilFunc(sysResourceApiHandler.Create))
-	router.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(sysResourceApiHandler.Update))
+	router.Post("/create", createLogMiddleware, handler.CtxHandlerNilFunc(sysResourceApiHandler.Create))
+	router.Post("/update", updateLogMiddleware, handler.CtxHandlerNilFunc(sysResourceApiHandler.Update))
 	router.Post("/del", logMiddleware, handler.CtxHandlerNilFunc(sysResourceApiHandler.Del))
 }

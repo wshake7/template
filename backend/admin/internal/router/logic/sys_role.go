@@ -33,20 +33,20 @@ type RespRolePermission struct {
 }
 
 type ReqSysRoleCreate struct {
-	Name      string  `json:"name" binding:"required,max=255" binding_msg:"required=角色名称不能为空,max=角色名称最多255位"`
-	Code      string  `json:"code" binding:"required,max=128" binding_msg:"required=角色标识不能为空,max=角色标识最多128位"`
-	ParentID  *uint64 `json:"parentID"`
-	IsEnabled bool    `json:"isEnabled"`
-	Remark    string  `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	Name      string  `json:"name" change:"角色名称" binding:"required,max=255" binding_msg:"required=角色名称不能为空,max=角色名称最多255位"`
+	Code      string  `json:"code" change:"角色标识" binding:"required,max=128" binding_msg:"required=角色标识不能为空,max=角色标识最多128位"`
+	ParentID  *uint64 `json:"parentID" change:"父级角色"`
+	IsEnabled bool    `json:"isEnabled" change:"启用状态"`
+	Remark    string  `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqSysRoleUpdate struct {
 	ID        uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	Name      *string `json:"name" binding:"omitempty,max=255" binding_msg:"max=角色名称最多255位"`
-	Code      *string `json:"code" binding:"omitempty,max=128" binding_msg:"max=角色标识最多128位"`
-	ParentID  *uint64 `json:"parentID"`
-	IsEnabled *bool   `json:"isEnabled"`
-	Remark    *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	Name      *string `json:"name" change:"角色名称" binding:"omitempty,max=255" binding_msg:"max=角色名称最多255位"`
+	Code      *string `json:"code" change:"角色标识" binding:"omitempty,max=128" binding_msg:"max=角色标识最多128位"`
+	ParentID  *uint64 `json:"parentID" change:"父级角色"`
+	IsEnabled *bool   `json:"isEnabled" change:"启用状态"`
+	Remark    *string `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqSysRoleBatchDelete struct {
@@ -59,8 +59,8 @@ type ReqSysRolePermissionQuery struct {
 
 type ReqSysRolePermissionSave struct {
 	ID      uint64   `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	MenuIDs []uint64 `json:"menuIDs"`
-	ApiIDs  []uint64 `json:"apiIDs"`
+	MenuIDs []uint64 `json:"menuIDs" change:"菜单权限"`
+	ApiIDs  []uint64 `json:"apiIDs" change:"API权限"`
 }
 
 // @Summary 获取角色列表

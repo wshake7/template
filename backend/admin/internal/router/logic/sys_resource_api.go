@@ -48,22 +48,22 @@ type RespSysResourceApi struct {
 }
 
 type ReqResourceApiCreate struct {
-	Module    string `json:"module" binding:"max=128" binding_msg:"max=业务模块最多128位"`
-	Path      string `json:"path" binding:"required,max=255" binding_msg:"required=接口路径不能为空,max=接口路径最多255位"`
-	Method    string `json:"method" binding:"required,max=16" binding_msg:"required=请求方法不能为空,max=请求方法最多16位"`
-	SortOrder int32  `json:"sortOrder"`
-	IsEnabled bool   `json:"isEnabled"`
-	Remark    string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	Module    string `json:"module" change:"业务模块" binding:"max=128" binding_msg:"max=业务模块最多128位"`
+	Path      string `json:"path" change:"接口路径" binding:"required,max=255" binding_msg:"required=接口路径不能为空,max=接口路径最多255位"`
+	Method    string `json:"method" change:"请求方法" binding:"required,max=16" binding_msg:"required=请求方法不能为空,max=请求方法最多16位"`
+	SortOrder int32  `json:"sortOrder" change:"排序"`
+	IsEnabled bool   `json:"isEnabled" change:"启用状态"`
+	Remark    string `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqResourceApiUpdate struct {
 	ID        uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	Module    *string `json:"module" binding:"omitempty,max=128" binding_msg:"max=业务模块最多128位"`
-	Path      *string `json:"path" binding:"omitempty,max=255" binding_msg:"max=接口路径最多255位"`
-	Method    *string `json:"method" binding:"omitempty,max=16" binding_msg:"max=请求方法最多16位"`
-	SortOrder *int32  `json:"sortOrder"`
-	IsEnabled *bool   `json:"isEnabled"`
-	Remark    *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	Module    *string `json:"module" change:"业务模块" binding:"omitempty,max=128" binding_msg:"max=业务模块最多128位"`
+	Path      *string `json:"path" change:"接口路径" binding:"omitempty,max=255" binding_msg:"max=接口路径最多255位"`
+	Method    *string `json:"method" change:"请求方法" binding:"omitempty,max=16" binding_msg:"max=请求方法最多16位"`
+	SortOrder *int32  `json:"sortOrder" change:"排序"`
+	IsEnabled *bool   `json:"isEnabled" change:"启用状态"`
+	Remark    *string `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqResourceApiBatchDelete struct {

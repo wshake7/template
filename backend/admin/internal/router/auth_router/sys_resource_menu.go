@@ -11,10 +11,12 @@ import (
 func registerSysResourceMenuRouters(router fiber.Router) {
 	sysResourceMenuHandler := logic.SysResourceMenuHandler{}
 	logMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("resource_menu"))
+	createLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("resource_menu"), middleware.WithChangeQuery(resourceMenuCreateChangeQuery))
+	updateLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("resource_menu"), middleware.WithChangeQuery(resourceMenuUpdateChangeQuery))
 
 	router.Post("/list", handler.CtxHandlerFunc(sysResourceMenuHandler.List))
 	router.Get("/tree", handler.CtxFunc(sysResourceMenuHandler.Tree))
-	router.Post("/create", logMiddleware, handler.CtxHandlerNilFunc(sysResourceMenuHandler.Create))
-	router.Post("/update", logMiddleware, handler.CtxHandlerNilFunc(sysResourceMenuHandler.Update))
+	router.Post("/create", createLogMiddleware, handler.CtxHandlerNilFunc(sysResourceMenuHandler.Create))
+	router.Post("/update", updateLogMiddleware, handler.CtxHandlerNilFunc(sysResourceMenuHandler.Update))
 	router.Post("/del", logMiddleware, handler.CtxHandlerNilFunc(sysResourceMenuHandler.Del))
 }

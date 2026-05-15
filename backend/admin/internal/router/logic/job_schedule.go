@@ -36,36 +36,36 @@ type ReqJobScheduleDetail struct {
 }
 
 type ReqJobScheduleCreate struct {
-	JobCode                  string     `json:"jobCode" binding:"required,max=128" binding_msg:"required=任务编码不能为空,max=任务编码最多128位"`
-	JobName                  string     `json:"jobName" binding:"required,max=255" binding_msg:"required=任务名称不能为空,max=任务名称最多255位"`
-	WorkflowType             string     `json:"workflowType" binding:"required,max=255" binding_msg:"required=Workflow 类型不能为空,max=Workflow 类型最多255位"`
-	TaskQueue                string     `json:"taskQueue" binding:"required,max=255" binding_msg:"required=Task Queue 不能为空,max=Task Queue 最多255位"`
-	ScheduleType             string     `json:"scheduleType" binding:"required,max=32" binding_msg:"required=调度类型不能为空,max=调度类型最多32位"`
-	CronExpr                 string     `json:"cronExpr" binding:"max=128" binding_msg:"max=cron 表达式最多128位"`
-	IntervalSeconds          *int       `json:"intervalSeconds"`
-	StartTime                *time.Time `json:"startTime"`
-	EndTime                  *time.Time `json:"endTime"`
-	InputJSON                string     `json:"inputJSON"`
-	Status                   string     `json:"status" binding:"max=32" binding_msg:"max=状态最多32位"`
-	TemporalScheduleID       string     `json:"temporalScheduleID" binding:"max=255" binding_msg:"max=Temporal Schedule ID 最多255位"`
-	TemporalWorkflowIDPrefix string     `json:"temporalWorkflowIDPrefix" binding:"max=255" binding_msg:"max=Workflow ID 前缀最多255位"`
-	Description              string     `json:"description" binding:"max=512" binding_msg:"max=描述最多512位"`
+	JobCode                  string     `json:"jobCode" change:"任务编码" binding:"required,max=128" binding_msg:"required=任务编码不能为空,max=任务编码最多128位"`
+	JobName                  string     `json:"jobName" change:"任务名称" binding:"required,max=255" binding_msg:"required=任务名称不能为空,max=任务名称最多255位"`
+	WorkflowType             string     `json:"workflowType" change:"Workflow类型" binding:"required,max=255" binding_msg:"required=Workflow 类型不能为空,max=Workflow 类型最多255位"`
+	TaskQueue                string     `json:"taskQueue" change:"Task Queue" binding:"required,max=255" binding_msg:"required=Task Queue 不能为空,max=Task Queue 最多255位"`
+	ScheduleType             string     `json:"scheduleType" change:"调度类型" binding:"required,max=32" binding_msg:"required=调度类型不能为空,max=调度类型最多32位"`
+	CronExpr                 string     `json:"cronExpr" change:"Cron表达式" binding:"max=128" binding_msg:"max=cron 表达式最多128位"`
+	IntervalSeconds          *int       `json:"intervalSeconds" change:"间隔秒数"`
+	StartTime                *time.Time `json:"startTime" change:"开始时间"`
+	EndTime                  *time.Time `json:"endTime" change:"结束时间"`
+	InputJSON                string     `json:"inputJSON" change:"输入参数"`
+	Status                   string     `json:"status" change:"状态" binding:"max=32" binding_msg:"max=状态最多32位"`
+	TemporalScheduleID       string     `json:"temporalScheduleID" change:"Temporal Schedule ID" binding:"max=255" binding_msg:"max=Temporal Schedule ID 最多255位"`
+	TemporalWorkflowIDPrefix string     `json:"temporalWorkflowIDPrefix" change:"Workflow ID前缀" binding:"max=255" binding_msg:"max=Workflow ID 前缀最多255位"`
+	Description              string     `json:"description" change:"描述" binding:"max=512" binding_msg:"max=描述最多512位"`
 }
 
 type ReqJobScheduleUpdate struct {
 	ID                       uint64     `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	JobName                  *string    `json:"jobName" binding:"omitempty,max=255" binding_msg:"max=任务名称最多255位"`
-	WorkflowType             *string    `json:"workflowType" binding:"omitempty,max=255" binding_msg:"max=Workflow 类型最多255位"`
-	TaskQueue                *string    `json:"taskQueue" binding:"omitempty,max=255" binding_msg:"max=Task Queue 最多255位"`
-	ScheduleType             *string    `json:"scheduleType" binding:"omitempty,max=32" binding_msg:"max=调度类型最多32位"`
-	CronExpr                 *string    `json:"cronExpr" binding:"omitempty,max=128" binding_msg:"max=cron 表达式最多128位"`
-	IntervalSeconds          *int       `json:"intervalSeconds"`
-	StartTime                *time.Time `json:"startTime"`
-	EndTime                  *time.Time `json:"endTime"`
-	InputJSON                *string    `json:"inputJSON"`
-	Status                   *string    `json:"status" binding:"omitempty,max=32" binding_msg:"max=状态最多32位"`
-	TemporalWorkflowIDPrefix *string    `json:"temporalWorkflowIDPrefix" binding:"omitempty,max=255" binding_msg:"max=Workflow ID 前缀最多255位"`
-	Description              *string    `json:"description" binding:"omitempty,max=512" binding_msg:"max=描述最多512位"`
+	JobName                  *string    `json:"jobName" change:"任务名称" binding:"omitempty,max=255" binding_msg:"max=任务名称最多255位"`
+	WorkflowType             *string    `json:"workflowType" change:"Workflow类型" binding:"omitempty,max=255" binding_msg:"max=Workflow 类型最多255位"`
+	TaskQueue                *string    `json:"taskQueue" change:"Task Queue" binding:"omitempty,max=255" binding_msg:"max=Task Queue 最多255位"`
+	ScheduleType             *string    `json:"scheduleType" change:"调度类型" binding:"omitempty,max=32" binding_msg:"max=调度类型最多32位"`
+	CronExpr                 *string    `json:"cronExpr" change:"Cron表达式" binding:"omitempty,max=128" binding_msg:"max=cron 表达式最多128位"`
+	IntervalSeconds          *int       `json:"intervalSeconds" change:"间隔秒数"`
+	StartTime                *time.Time `json:"startTime" change:"开始时间"`
+	EndTime                  *time.Time `json:"endTime" change:"结束时间"`
+	InputJSON                *string    `json:"inputJSON" change:"输入参数"`
+	Status                   *string    `json:"status" change:"状态" binding:"omitempty,max=32" binding_msg:"max=状态最多32位"`
+	TemporalWorkflowIDPrefix *string    `json:"temporalWorkflowIDPrefix" change:"Workflow ID前缀" binding:"omitempty,max=255" binding_msg:"max=Workflow ID 前缀最多255位"`
+	Description              *string    `json:"description" change:"描述" binding:"omitempty,max=512" binding_msg:"max=描述最多512位"`
 }
 
 type ReqJobScheduleID struct {
@@ -74,7 +74,7 @@ type ReqJobScheduleID struct {
 
 type ReqJobScheduleSwitch struct {
 	ID      uint64 `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	Enabled bool   `json:"enabled"`
+	Enabled bool   `json:"enabled" change:"启用状态"`
 }
 
 // @Summary 获取任务调度配置分页列表

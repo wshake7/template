@@ -62,32 +62,32 @@ type RespResourceMenuNode struct {
 }
 
 type ReqResourceMenuCreate struct {
-	ParentID  *uint64           `json:"parentID"`
-	MenuType  string            `json:"menuType" binding:"required" binding_msg:"required=菜单类型不能为空"`
-	Path      string            `json:"path" binding:"max=1024" binding_msg:"max=路径最多1024位"`
-	Redirect  string            `json:"redirect" binding:"max=1024" binding_msg:"max=重定向地址最多1024位"`
-	Alias     string            `json:"alias" binding:"max=255" binding_msg:"max=路由别名最多255位"`
-	Name      string            `json:"name" binding:"max=255" binding_msg:"max=路由命名最多255位"`
-	Component string            `json:"component" binding:"max=255" binding_msg:"max=前端组件最多255位"`
-	Metadata  datatypes.JSONMap `json:"metadata"`
-	SortOrder int32             `json:"sortOrder"`
-	IsEnabled bool              `json:"isEnabled"`
-	Remark    string            `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	ParentID  *uint64           `json:"parentID" change:"父级菜单"`
+	MenuType  string            `json:"menuType" change:"菜单类型" binding:"required" binding_msg:"required=菜单类型不能为空"`
+	Path      string            `json:"path" change:"路径" binding:"max=1024" binding_msg:"max=路径最多1024位"`
+	Redirect  string            `json:"redirect" change:"重定向地址" binding:"max=1024" binding_msg:"max=重定向地址最多1024位"`
+	Alias     string            `json:"alias" change:"路由别名" binding:"max=255" binding_msg:"max=路由别名最多255位"`
+	Name      string            `json:"name" change:"路由命名" binding:"max=255" binding_msg:"max=路由命名最多255位"`
+	Component string            `json:"component" change:"前端组件" binding:"max=255" binding_msg:"max=前端组件最多255位"`
+	Metadata  datatypes.JSONMap `json:"metadata" change:"元数据"`
+	SortOrder int32             `json:"sortOrder" change:"排序"`
+	IsEnabled bool              `json:"isEnabled" change:"启用状态"`
+	Remark    string            `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqResourceMenuUpdate struct {
 	ID        uint64             `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	ParentID  *uint64            `json:"parentID"`
-	MenuType  *string            `json:"menuType"`
-	Path      *string            `json:"path" binding:"omitempty,max=1024" binding_msg:"max=路径最多1024位"`
-	Redirect  *string            `json:"redirect" binding:"omitempty,max=1024" binding_msg:"max=重定向地址最多1024位"`
-	Alias     *string            `json:"alias" binding:"omitempty,max=255" binding_msg:"max=路由别名最多255位"`
-	Name      *string            `json:"name" binding:"omitempty,max=255" binding_msg:"max=路由命名最多255位"`
-	Component *string            `json:"component" binding:"omitempty,max=255" binding_msg:"max=前端组件最多255位"`
-	Metadata  *datatypes.JSONMap `json:"metadata"`
-	SortOrder *int32             `json:"sortOrder"`
-	IsEnabled *bool              `json:"isEnabled"`
-	Remark    *string            `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	ParentID  *uint64            `json:"parentID" change:"父级菜单"`
+	MenuType  *string            `json:"menuType" change:"菜单类型"`
+	Path      *string            `json:"path" change:"路径" binding:"omitempty,max=1024" binding_msg:"max=路径最多1024位"`
+	Redirect  *string            `json:"redirect" change:"重定向地址" binding:"omitempty,max=1024" binding_msg:"max=重定向地址最多1024位"`
+	Alias     *string            `json:"alias" change:"路由别名" binding:"omitempty,max=255" binding_msg:"max=路由别名最多255位"`
+	Name      *string            `json:"name" change:"路由命名" binding:"omitempty,max=255" binding_msg:"max=路由命名最多255位"`
+	Component *string            `json:"component" change:"前端组件" binding:"omitempty,max=255" binding_msg:"max=前端组件最多255位"`
+	Metadata  *datatypes.JSONMap `json:"metadata" change:"元数据"`
+	SortOrder *int32             `json:"sortOrder" change:"排序"`
+	IsEnabled *bool              `json:"isEnabled" change:"启用状态"`
+	Remark    *string            `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqResourceMenuBatchDelete struct {

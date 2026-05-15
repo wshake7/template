@@ -21,20 +21,20 @@ type SysLanguageHandler struct{}
 // --- 语言类型 (LanguageType) ---
 
 type ReqLangTypeCreate struct {
-	TypeCode  string `json:"typeCode" binding:"required,max=128" binding_msg:"required=语言编码不能为空,max=语言编码最多128位"`
-	TypeName  string `json:"typeName" binding:"required,max=255" binding_msg:"required=语言名称不能为空,max=语言名称最多255位"`
-	IsDefault bool   `json:"isDefault"`
-	IsEnabled bool   `json:"isEnabled"`
-	SortOrder int32  `json:"sortOrder"`
+	TypeCode  string `json:"typeCode" change:"语言编码" binding:"required,max=128" binding_msg:"required=语言编码不能为空,max=语言编码最多128位"`
+	TypeName  string `json:"typeName" change:"语言名称" binding:"required,max=255" binding_msg:"required=语言名称不能为空,max=语言名称最多255位"`
+	IsDefault bool   `json:"isDefault" change:"默认语言"`
+	IsEnabled bool   `json:"isEnabled" change:"启用状态"`
+	SortOrder int32  `json:"sortOrder" change:"排序"`
 }
 
 type ReqLangTypeUpdate struct {
 	ID        uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	TypeCode  *string `json:"typeCode" binding:"omitempty,max=128" binding_msg:"max=语言编码最多128位"`
-	TypeName  *string `json:"typeName" binding:"omitempty,max=255" binding_msg:"max=语言名称最多255位"`
-	IsDefault *bool   `json:"isDefault"`
-	IsEnabled *bool   `json:"isEnabled"`
-	SortOrder *int32  `json:"sortOrder"`
+	TypeCode  *string `json:"typeCode" change:"语言编码" binding:"omitempty,max=128" binding_msg:"max=语言编码最多128位"`
+	TypeName  *string `json:"typeName" change:"语言名称" binding:"omitempty,max=255" binding_msg:"max=语言名称最多255位"`
+	IsDefault *bool   `json:"isDefault" change:"默认语言"`
+	IsEnabled *bool   `json:"isEnabled" change:"启用状态"`
+	SortOrder *int32  `json:"sortOrder" change:"排序"`
 }
 
 type ReqLangTypeBatchDelete struct {
@@ -192,12 +192,12 @@ func (*SysLanguageHandler) TypeDel(ctx *handler.Ctx, req *ReqLangTypeBatchDelete
 // --- 语言条目 (LanguageEntry) ---
 
 type ReqLangEntryCreate struct {
-	EntryCode         string `json:"entryCode" binding:"required,max=128" binding_msg:"required=条目编码不能为空,max=条目编码最多128位"`
-	EntryValue        string `json:"entryValue" binding:"required,max=255" binding_msg:"required=语言值不能为空,max=语言值最多255位"`
-	SysLanguageTypeId uint64 `json:"sysLanguageTypeId" binding:"required" binding_msg:"required=语言类型ID不能为空"`
-	SortOrder         int32  `json:"sortOrder"`
-	IsEnabled         bool   `json:"isEnabled"`
-	Remark            string `json:"remark" binding:"max=255" binding_msg:"max=备注最多255位"`
+	EntryCode         string `json:"entryCode" change:"条目编码" binding:"required,max=128" binding_msg:"required=条目编码不能为空,max=条目编码最多128位"`
+	EntryValue        string `json:"entryValue" change:"语言值" binding:"required,max=255" binding_msg:"required=语言值不能为空,max=语言值最多255位"`
+	SysLanguageTypeId uint64 `json:"sysLanguageTypeId" change:"语言类型" binding:"required" binding_msg:"required=语言类型ID不能为空"`
+	SortOrder         int32  `json:"sortOrder" change:"排序"`
+	IsEnabled         bool   `json:"isEnabled" change:"启用状态"`
+	Remark            string `json:"remark" change:"备注" binding:"max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqLangEntryUpdate struct {
@@ -208,17 +208,17 @@ type ReqLangEntryUpdate struct {
 	SortOrder         *int32                   `json:"sortOrder"`
 	IsEnabled         *bool                    `json:"isEnabled"`
 	Remark            *string                  `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
-	Updates           []ReqLangEntryUpdateItem `json:"updates"`
+	Updates           []ReqLangEntryUpdateItem `json:"updates" change:"更新列表"`
 }
 
 type ReqLangEntryUpdateItem struct {
 	ID                uint64  `json:"id" binding:"required" binding_msg:"required=请求错误"`
-	EntryCode         *string `json:"entryCode" binding:"omitempty,max=128" binding_msg:"max=条目编码最多128位"`
-	EntryValue        *string `json:"entryValue" binding:"omitempty,max=255" binding_msg:"max=语言值最多255位"`
-	SysLanguageTypeId *uint64 `json:"sysLanguageTypeId"`
-	SortOrder         *int32  `json:"sortOrder"`
-	IsEnabled         *bool   `json:"isEnabled"`
-	Remark            *string `json:"remark" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
+	EntryCode         *string `json:"entryCode" change:"条目编码" binding:"omitempty,max=128" binding_msg:"max=条目编码最多128位"`
+	EntryValue        *string `json:"entryValue" change:"语言值" binding:"omitempty,max=255" binding_msg:"max=语言值最多255位"`
+	SysLanguageTypeId *uint64 `json:"sysLanguageTypeId" change:"语言类型"`
+	SortOrder         *int32  `json:"sortOrder" change:"排序"`
+	IsEnabled         *bool   `json:"isEnabled" change:"启用状态"`
+	Remark            *string `json:"remark" change:"备注" binding:"omitempty,max=255" binding_msg:"max=备注最多255位"`
 }
 
 type ReqLangEntryBatchDelete struct {
@@ -226,10 +226,10 @@ type ReqLangEntryBatchDelete struct {
 }
 
 type ReqLangEntryBatchCreate struct {
-	EntryCode string            `json:"entryCode" binding:"required,max=128" binding_msg:"required=条目编码不能为空,max=条目编码最多128位"`
-	Values    map[string]string `json:"values" binding:"required,min=1" binding_msg:"required=语言值不能为空"`
-	SortOrder int32             `json:"sortOrder"`
-	IsEnabled bool              `json:"isEnabled"`
+	EntryCode string            `json:"entryCode" change:"条目编码" binding:"required,max=128" binding_msg:"required=条目编码不能为空,max=条目编码最多128位"`
+	Values    map[string]string `json:"values" change:"语言值"`
+	SortOrder int32             `json:"sortOrder" change:"排序"`
+	IsEnabled bool              `json:"isEnabled" change:"启用状态"`
 }
 
 // @Summary 获取语言条目分页列表
