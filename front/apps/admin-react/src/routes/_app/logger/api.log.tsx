@@ -171,6 +171,13 @@ function ApiLogManagement() {
       render: (_, record) => record.location || '-',
     },
     {
+      title: '变更项',
+      dataIndex: 'formatChange',
+      width: 260,
+      ellipsis: true,
+      render: (_, record) => <DetailText>{record.formatChange}</DetailText>,
+    },
+    {
       title: '状态码',
       dataIndex: 'statusCode',
       width: 80,
@@ -283,6 +290,7 @@ function ApiLogManagement() {
               <Descriptions.Item label="耗时">{costTimeDisplay(detailData.costTime)}</Descriptions.Item>
               <Descriptions.Item label="操作时间">{formatDateYYYYMMDDHHmm(detailData.createdAt)}</Descriptions.Item>
               <Descriptions.Item label="失败原因" span={2}><DetailText>{detailData.reason}</DetailText></Descriptions.Item>
+              <Descriptions.Item label="变更项" span={2}><DetailText>{detailData.formatChange}</DetailText></Descriptions.Item>
               <Descriptions.Item label="地理位置" span={2}><DetailText>{detailData.location}</DetailText></Descriptions.Item>
               <Descriptions.Item label="来源" span={2}><DetailText>{detailData.referer}</DetailText></Descriptions.Item>
               <Descriptions.Item label="浏览器" span={2}>

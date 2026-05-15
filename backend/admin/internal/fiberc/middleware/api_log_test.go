@@ -43,3 +43,42 @@ func TestSanitizeApiLogPayloadTruncates(t *testing.T) {
 		t.Fatalf("expected truncation marker, got suffix %q", result[len(result)-20:])
 	}
 }
+
+func TestDiffChangeFormatsPointerValues(t *testing.T) {
+	type changeReq struct {
+		Nickname  *string `change:"昵称"`
+		IsEnabled *bool   `change:"启用状态"`
+	}
+
+	oldNickname := "旧昵称"
+	newNickname := "新昵称"
+	enabled := true
+	disabled := false
+	before := &changeReq{
+		Nickname:  &oldNickname,
+		IsEnabled: &enabled,
+	}
+	after := &changeReq{
+		Nickname:  &newNickname,
+		IsEnabled: &disabled,
+	}
+
+	got := DiffChange(before, after)
+	want := "昵称：旧昵称->新昵称, 启用状态：true->false"
+	if got != want {
+		t.Fatalf("DiffChange() = %q, want %q", got, want)
+	}
+}
+
+func TestDiffChangeFormatsNilPointerValue(t *testing.T) {
+	type changeReq struct {
+		Remark *string `change:"备注"`
+	}
+
+	remark := "补充说明"
+	got := DiffChange(&changeReq{Remark: nil}, &changeReq{Remark: &remark})
+	want := "备注：空->补充说明"
+	if got != want {
+		t.Fatalf("DiffChange() = %q, want %q", got, want)
+	}
+}

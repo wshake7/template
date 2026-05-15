@@ -132,8 +132,11 @@ func diffByTag(before, after any) string {
 		}
 		bField := bVal.Field(i)
 		aField := aVal.Field(i)
+		if !bField.CanInterface() || !aField.CanInterface() {
+			continue
+		}
 		if !reflect.DeepEqual(bField.Interface(), aField.Interface()) {
-			parts = append(parts, fmt.Sprintf("%s：%v->%v", tag, bField.Interface(), aField.Interface()))
+			parts = append(parts, fmt.Sprintf("%s：%s->%s", tag, formatChangeFieldValue(bField), formatChangeFieldValue(aField)))
 		}
 	}
 	return strings.Join(parts, ", ")
@@ -155,9 +158,26 @@ func diffNewByTag(after any) string {
 		if tag == "" {
 			continue
 		}
-		parts = append(parts, fmt.Sprintf("%s：%v", tag, aVal.Field(i).Interface()))
+		aField := aVal.Field(i)
+		if !aField.CanInterface() {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("%s：%s", tag, formatChangeFieldValue(aField)))
 	}
 	return strings.Join(parts, ", ")
+}
+
+func formatChangeFieldValue(value reflect.Value) string {
+	for value.IsValid() && (value.Kind() == reflect.Pointer || value.Kind() == reflect.Interface) {
+		if value.IsNil() {
+			return "空"
+		}
+		value = value.Elem()
+	}
+	if !value.IsValid() || !value.CanInterface() {
+		return "空"
+	}
+	return fmt.Sprint(value.Interface())
 }
 
 type Changeable[T any] interface {

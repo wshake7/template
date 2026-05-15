@@ -247,7 +247,7 @@ function RoleManagement() {
           name: values.name.trim(),
           code: values.code.trim(),
           parentID: values.parentID,
-          isEnabled: values.isEnabled ?? true,
+          isEnabled: values.isEnabled ?? editing?.isEnabled ?? true,
           remark: values.remark?.trim() ?? '',
         }
         if (editing) {
@@ -272,6 +272,20 @@ function RoleManagement() {
       }
     },
   })
+
+  const saveRole = async () => {
+    try {
+      const values = await form.validateFields()
+      await onFinish?.({
+        ...defaultFormValues,
+        ...values,
+        isEnabled: values.isEnabled ?? editing?.isEnabled ?? true,
+      })
+    }
+    catch {
+      gMessage.error('请检查表单信息')
+    }
+  }
 
   const openCreateForm = async (parentID?: number) => {
     setEditing(undefined)
@@ -519,7 +533,7 @@ function RoleManagement() {
         extra={(
           <Space>
             <Button onClick={() => setDrawerOpen(false)}>取消</Button>
-            <Button type="primary" loading={submitting} onClick={() => form.submit()}>
+            <Button type="primary" loading={submitting} onClick={saveRole}>
               保存
             </Button>
           </Space>
