@@ -10,7 +10,7 @@ import { JobExecutionApi } from '~/api/business/jobExecution'
 import { JsonCodeBlock } from '~/components/business/logger/jsonCodeBlock'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { gMessage } from '~/utils/antd'
-import { formatDateYYYYMMDDHHmm } from '~/utils/date'
+import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 
 export const Route = createFileRoute('/_app/job/execution')({
   staleTime: 1000 * 60 * 2,
@@ -146,19 +146,19 @@ function JobExecutionManagement() {
       title: '触发时间',
       dataIndex: 'triggerTime',
       width: 160,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.triggerTime),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.triggerTime),
     },
     {
       title: '开始时间',
       dataIndex: 'startTime',
       width: 160,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.startTime ?? undefined),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.startTime ?? undefined),
     },
     {
       title: '结束时间',
       dataIndex: 'endTime',
       width: 160,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.endTime ?? undefined),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.endTime ?? undefined),
     },
     {
       title: '状态',
@@ -263,9 +263,9 @@ function JobExecutionManagement() {
             <DetailText>{detailData?.temporalRunID}</DetailText>
           </Descriptions.Item>
           <Descriptions.Item label="状态">{detailData ? statusTag(detailData.status) : '-'}</Descriptions.Item>
-          <Descriptions.Item label="触发时间">{formatDateYYYYMMDDHHmm(detailData?.triggerTime)}</Descriptions.Item>
-          <Descriptions.Item label="开始时间">{formatDateYYYYMMDDHHmm(detailData?.startTime ?? undefined)}</Descriptions.Item>
-          <Descriptions.Item label="结束时间">{formatDateYYYYMMDDHHmm(detailData?.endTime ?? undefined)}</Descriptions.Item>
+          <Descriptions.Item label="触发时间">{formatDateYYYYMMDDHHmmss(detailData?.triggerTime)}</Descriptions.Item>
+          <Descriptions.Item label="开始时间">{formatDateYYYYMMDDHHmmss(detailData?.startTime ?? undefined)}</Descriptions.Item>
+          <Descriptions.Item label="结束时间">{formatDateYYYYMMDDHHmmss(detailData?.endTime ?? undefined)}</Descriptions.Item>
           <Descriptions.Item label="输入参数">
             <JsonCodeBlock value={stringifyJSON(detailData?.inputJSON)} />
           </Descriptions.Item>

@@ -13,7 +13,7 @@ import {
 import { useCallback, useState } from 'react'
 import { LoginLogApi } from '~/api/business/sysLoginLog'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
-import { formatDateYYYYMMDDHHmm } from '~/utils/date'
+import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 
 export const Route = createFileRoute('/_app/logger/login/log')({
   staleTime: 1000 * 60 * 2,
@@ -174,7 +174,7 @@ function LoginLogManagement() {
       title: '登录时间',
       dataIndex: 'loginTime',
       width: 170,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.loginTime || record.createdAt),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.loginTime || record.createdAt),
     },
     {
       title: '操作',
@@ -270,7 +270,7 @@ function LoginLogManagement() {
             <Descriptions.Item label="登录IP"><DetailText>{detailData.loginIP}</DetailText></Descriptions.Item>
             <Descriptions.Item label="状态码"><DetailText>{detailData.statusCode}</DetailText></Descriptions.Item>
             <Descriptions.Item label="结果">{successTag(detailData.success)}</Descriptions.Item>
-            <Descriptions.Item label="登录时间"><DetailText>{formatDateYYYYMMDDHHmm(detailData.loginTime || detailData.createdAt)}</DetailText></Descriptions.Item>
+            <Descriptions.Item label="登录时间"><DetailText>{formatDateYYYYMMDDHHmmss(detailData.loginTime || detailData.createdAt)}</DetailText></Descriptions.Item>
             <Descriptions.Item label="失败原因" span={2}><DetailText>{detailData.reason}</DetailText></Descriptions.Item>
             <Descriptions.Item label="地理位置" span={2}><DetailText>{detailData.location}</DetailText></Descriptions.Item>
             <Descriptions.Item label="浏览器" span={2}>
@@ -289,7 +289,7 @@ function LoginLogManagement() {
               </DetailText>
             </Descriptions.Item>
             <Descriptions.Item label="User-Agent" span={2}><DetailText>{detailData.userAgent}</DetailText></Descriptions.Item>
-            <Descriptions.Item label="创建时间"><DetailText>{formatDateYYYYMMDDHHmm(detailData.createdAt)}</DetailText></Descriptions.Item>
+            <Descriptions.Item label="创建时间"><DetailText>{formatDateYYYYMMDDHHmmss(detailData.createdAt)}</DetailText></Descriptions.Item>
             <Descriptions.Item label="登录MAC"><DetailText>{detailData.loginMAC}</DetailText></Descriptions.Item>
           </Descriptions>
         )}

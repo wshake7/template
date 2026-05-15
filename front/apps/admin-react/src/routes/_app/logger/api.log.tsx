@@ -10,7 +10,7 @@ import {
 } from 'antd'
 import { useCallback, useState } from 'react'
 import { JsonCodeBlock } from '~/components/business/logger/jsonCodeBlock'
-import { formatDateYYYYMMDDHHmm } from '~/utils/date'
+import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 
 export const Route = createFileRoute('/_app/logger/api/log')({
   staleTime: 1000 * 60 * 2,
@@ -198,7 +198,7 @@ function ApiLogManagement() {
       title: '操作时间',
       dataIndex: 'createdAt',
       width: 240,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.createdAt),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.createdAt),
     },
     {
       title: '操作',
@@ -288,7 +288,7 @@ function ApiLogManagement() {
               <Descriptions.Item label="状态码">{detailData.statusCode}</Descriptions.Item>
               <Descriptions.Item label="结果">{successTag(detailData.success)}</Descriptions.Item>
               <Descriptions.Item label="耗时">{costTimeDisplay(detailData.costTime)}</Descriptions.Item>
-              <Descriptions.Item label="操作时间">{formatDateYYYYMMDDHHmm(detailData.createdAt)}</Descriptions.Item>
+              <Descriptions.Item label="操作时间">{formatDateYYYYMMDDHHmmss(detailData.createdAt)}</Descriptions.Item>
               <Descriptions.Item label="失败原因" span={2}><DetailText>{detailData.reason}</DetailText></Descriptions.Item>
               <Descriptions.Item label="变更项" span={2}><DetailText>{detailData.formatChange}</DetailText></Descriptions.Item>
               <Descriptions.Item label="地理位置" span={2}><DetailText>{detailData.location}</DetailText></Descriptions.Item>

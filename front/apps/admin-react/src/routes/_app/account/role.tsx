@@ -32,7 +32,7 @@ import { RoleApi } from '~/api/business/sysRole'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
-import { formatDateYYYYMMDDHHmm } from '~/utils/date'
+import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/account/role')({
@@ -397,7 +397,7 @@ function RoleManagement() {
       dataIndex: 'createdAt',
       width: 150,
       ellipsis: true,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.createdAt),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.createdAt),
     },
     {
       title: '备注',

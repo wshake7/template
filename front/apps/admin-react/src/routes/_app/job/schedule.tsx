@@ -18,7 +18,7 @@ import { JobScheduleApi } from '~/api/business/jobSchedule'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/antd'
-import { formatDateYYYYMMDDHHmm } from '~/utils/date'
+import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/job/schedule')({
@@ -361,7 +361,7 @@ function JobScheduleManagement() {
       title: '创建时间',
       dataIndex: 'createdAt',
       width: 160,
-      render: (_, record) => formatDateYYYYMMDDHHmm(record.createdAt),
+      render: (_, record) => formatDateYYYYMMDDHHmmss(record.createdAt),
     },
     {
       title: '操作',

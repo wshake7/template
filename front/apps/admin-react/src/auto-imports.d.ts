@@ -57,7 +57,7 @@ declare global {
   const encryptRequest: typeof import('./api/encryptRequest').encryptRequest
   const ensurePublicKey: typeof import('./api/encryptRequest').ensurePublicKey
   const fieldZodValidator: typeof import('./utils/zod').fieldZodValidator
-  const formatDateYYYYMMDDHHmm: typeof import('./utils/date').formatDateYYYYMMDDHHmm
+  const formatDateYYYYMMDDHHmmss: typeof import('./utils/date').formatDateYYYYMMDDHHmmss
   const forwardRef: typeof import('react').forwardRef
   const gMessage: typeof import('./utils/antd').gMessage
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey

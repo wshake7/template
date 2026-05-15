@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 
-export function formatDateYYYYMMDDHHmm(value?: string) {
+export function formatDateYYYYMMDDHHmmss(value?: string) {
   if (!value) {
     return '-'
   }
