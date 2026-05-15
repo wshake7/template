@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware'
 interface ResourceMenuStore {
   dynamicMenuTree: ResourceMenuNode[]
   setDynamicMenuTree: (dynamicMenuTree: ResourceMenuNode[]) => void
+  clear: () => void
 }
 
 export const useResourceMenuStore = create<ResourceMenuStore>()(
@@ -12,6 +13,10 @@ export const useResourceMenuStore = create<ResourceMenuStore>()(
     set => ({
       dynamicMenuTree: [],
       setDynamicMenuTree: dynamicMenuTree => set({ dynamicMenuTree }),
+      clear: () => {
+        set({ dynamicMenuTree: [] })
+        useResourceMenuStore.persist.clearStorage()
+      },
     }),
     {
       name: 'resource-menu-store',

@@ -81,7 +81,7 @@ const API = createAlova({
       if (contentType.includes('application/json')) {
         const json = await response.clone().json()
         const res = json as Res
-        console.log('response', res)
+        console.log(`${method.url}:response`, res)
         if (method.url !== '/api/account/logout') {
           await HttpCodeCheck(res)
         }

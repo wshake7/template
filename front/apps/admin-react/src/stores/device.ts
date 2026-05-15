@@ -10,6 +10,7 @@ interface DeviceState {
 interface DeviceActions {
   setPublicKey: (key: string) => void
   getPublicCryptoKey: () => Promise<CryptoKey | undefined>
+  clear: () => void
 }
 
 export const useDeviceStore = create<DeviceState & DeviceActions>()(
@@ -35,6 +36,12 @@ export const useDeviceStore = create<DeviceState & DeviceActions>()(
           return publicKey
         }
         return undefined
+      },
+      clear: () => {
+        set((state) => {
+          state.publicKey = ''
+        })
+        useDeviceStore.persist.clearStorage()
       },
     })),
 

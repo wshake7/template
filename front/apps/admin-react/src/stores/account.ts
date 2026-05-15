@@ -22,8 +22,11 @@ export const useAccountStore = create<AccountState & AccountActions>()(
         set((state) => { state.token = token })
       },
       logout() {
-        useAccountStore.persist.clearStorage()
         set((state) => { state.token = '' })
+        useAccountStore.persist.clearStorage()
+        useMenuTabsStore.getState().removeAll()
+        useDeviceStore.getState().clear()
+        useResourceMenuStore.getState().clear()
       },
     })),
     {
