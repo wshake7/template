@@ -223,6 +223,7 @@ function AppLayout() {
   const app = useApp()
   const navigate = useNavigate()
   const router = useRouter()
+  const accountToken = useAccountStore(state => state.token)
 
   const pathname = useRouterState({
     select: s => s.location.pathname,
@@ -250,6 +251,10 @@ function AppLayout() {
   }, [pathname])
 
   useEffect(() => {
+    if (!accountToken) {
+      setDynamicMenuItems([])
+      return
+    }
     let disposed = false
     ResourceMenuApi.menuTree()
       .send()
@@ -270,7 +275,7 @@ function AppLayout() {
     return () => {
       disposed = true
     }
-  }, [router, setDynamicMenuTree])
+  }, [accountToken, router, setDynamicMenuTree])
 
   const currentMenuTab = useMemo(() => {
     const dynamicMenu = menuItemMap.get(pathname) as (MenuDataItem & { menuType?: ResourceMenuNode['menuType'] }) | undefined

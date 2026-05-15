@@ -51,6 +51,21 @@ const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthenticati
   },
 })
 
+interface RequestMethodMeta {
+  meta?: {
+    authRole?: string
+  }
+  url: string
+}
+
+function canRequestWithoutToken(method: RequestMethodMeta) {
+  const authRole = (method.meta as { authRole?: string } | undefined)?.authRole
+  return authRole === 'login'
+    || authRole === 'logout'
+    || authRole === 'visitor'
+    || method.url === '/api/encrypt/public/key'
+}
+
 const API = createAlova({
   baseURL: gEnv.VITE_MOCK ? '' : '',
   statesHook: reactHook,
@@ -58,6 +73,10 @@ const API = createAlova({
   requestAdapter: adapterFetch(),
   shareRequest: false,
   beforeRequest: onAuthRequired(async (method) => {
+    const token = Cookies.get(XHeader.Token) || useAccountStore.getState().token
+    if (!token && !canRequestWithoutToken(method)) {
+      throw new Error('request canceled: unauthenticated')
+    }
     NProgress.start()
     await encryptRequest(method)
   }),

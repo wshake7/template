@@ -12,6 +12,12 @@ const SSE_API = createAlova({
   requestAdapter: adapterFetch(),
   cacheFor: null,
   shareRequest: false,
+  beforeRequest(method) {
+    if (!useAccountStore.getState().token) {
+      throw new Error('event stream canceled: unauthenticated')
+    }
+    method.config.headers[XHeader.Token] = useAccountStore.getState().token
+  },
 })
 
 export function useEventStream() {
@@ -19,7 +25,7 @@ export function useEventStream() {
   const connectedRef = useRef(false)
   const tokenRef = useRef(token)
   const aesKeyRef = useRef<CryptoKey | undefined>(undefined)
-  const headersRef = useRef<Record<string, any>>({})
+  const headersRef = useRef<Record<string, string>>({})
   tokenRef.current = token
 
   const eventStream = useSSE(
@@ -65,20 +71,23 @@ export function useEventStream() {
     if (token === '') {
       eventStream.close()
       connectedRef.current = false
+      aesKeyRef.current = undefined
+      headersRef.current = {}
       return
     }
     if (connectedRef.current) {
       return
     }
 
+    const connectingToken = token
     connectedRef.current = true
     createEncryptedRequestConfig({
       headers: {
-        [XHeader.Token]: useAccountStore.getState().token,
+        [XHeader.Token]: connectingToken,
       },
     })
       .then((config) => {
-        if (!config.aesKey || tokenRef.current === '') {
+        if (!config.aesKey || tokenRef.current !== connectingToken) {
           connectedRef.current = false
           return
         }

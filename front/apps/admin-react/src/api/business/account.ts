@@ -17,6 +17,13 @@ function logout() {
   useAccountStore.getState().logout()
   useDeviceStore.getState().setPublicKey('')
   Cookies.remove(XHeader.Token)
+  router.update({
+    context: {
+      account: {
+        token: '',
+      },
+    },
+  })
   API.Get<Res>('/api/account/logout', {
     cacheFor: 0,
     meta: {
