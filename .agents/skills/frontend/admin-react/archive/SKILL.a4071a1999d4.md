@@ -131,13 +131,6 @@ front/apps/admin-react/
 6. 若表单需要图标字段，使用 `AntIconPicker` 组件。
 7. 实现完成后，启动开发服务验证路由、菜单展现和数据交互。
 
-### 菜单资源管理（已支持关联 API）
-
-- 菜单资源页面 `src/routes/_app/system/resource.menu.tsx` 支持在创建/编辑菜单时选择关联的系统 API（多选）。表单中包含 `apiIDs` 字段，用户可从已有的 API 资源列表中选择多个 API 进行绑定。
-- API 方法 `src/api/business/sysResourceMenu.ts` 的创建/更新请求类型包含 `apiIDs?: number[]` 字段，提交时随菜单信息一同发送。
-- 菜单列表响应中，每个菜单节点包含 `apiIDs: number[]`，用于回填编辑表单。
-- 菜单删除后，后端会自动软删除对应的 API 关联记录，前端无需额外处理。
-
 ### 登录日志页面
 
 - 页面组件 `src/routes/_app/logger/login.log.tsx` 展示所有登录尝试记录，支持按用户名、IP、状态等筛选。
@@ -203,4 +196,29 @@ tsx
 ### 修改 API 或鉴权
 
 - 前端 API 路径变更后，同步更新 `src/api/business/` 对应文件的 URL。
-- Header 名称保持与后端 `admin/int
+- Header 名称保持与后端 `admin/internal/domains/headers.go` 对齐。
+- 业务码处理集中在 `HttpCodeCheck`，新增业务码同步更新前后端常量。
+- 加密相关功能统一使用 `encryptRequest.ts` 提供的函数，避免在业务代码中重复实现加密握手。
+
+### 处理登出与未认证状态
+
+- 登出时务必按顺序执行：
+  1. 清空 account store 中的 token（调用 `useAccountStore.getState().logout()`）。
+  2. 清空公钥（`setPublicKey('')`）。
+  3. 移除 cookie 中的 token。
+  4. 通过 `router.update` 清空路由上下文中的 token，防止路由守卫误判。
+  5. 发送 `/api/account/logout` 请求（该请求会携带 logout 的 `authRole`，允许在无 token 时发送）。
+  6. 导航到 `/login`。
+- 菜单树和 SSE 连接依赖 store 中的 token。token 为空时，`_app.tsx` 会将动态菜单置空，`eventStream` 会关闭连接并清理资源，避免未认证请求。
+
+### 标签页操作
+
+管理后台支持通过 `PageContainer` 的 `tabList` 管理多个打开的页签，并提供右键菜单快捷操作。
+
+- **打开页签**：点击侧边栏菜单时会自动添加对应页签（如果当前路径不是目录）。
+- **关闭页签**：右键选择“关闭”或点击页签上的 × 按钮，会关闭该页签并自动切换到相邻页签或首页。
+- **关闭所有页签**：右键选择“全部关闭”清空所有页签并导航到首页。该操作会立即将 `interactivePathname` 设为 `'/'` 以更新 UI，随后通过 `startTransition` 执行路由跳转。
+- **刷新页签**：右键选择“刷新”会重新渲染对应页签的内容（通过递增版本号强制更新）。
+- **新窗口打开**：右键选择“新窗口打开”在新标签页中打开该页面对应的 URL。
+
+在 `_app.tsx` 中，这些操作由 `closeTab`、`closeAllTabs`、`refreshTab`、`openTabInNewWindow` 等回调实现，并通过 `tabList` 的 Dropdown 为每个标签项注入右键菜单。相关的状态管理使用 `useReducer`

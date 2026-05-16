@@ -46,14 +46,12 @@ backend/admin/
 │   │   │   ├── sys_login_log.go       # 登录日志模型
 │   │   │   ├── job_execution.go       # 任务执行记录模型
 │   │   │   ├── job_schedule.go        # 任务调度模型
-│   │   │   ├── sys_resource_menu_api.go  # 菜单与 API 关联模型
 │   │   │   └── ...
 │   │   ├── query/                      # GORM Gen 生成代码与扩展
 │   │   │   ├── job_execution.gen.go   # 生成的基础查询
 │   │   │   ├── job_execution_extend.gen.go   # 扩展查询
 │   │   │   ├── job_schedule.gen.go
 │   │   │   ├── job_schedule_extend.gen.go
-│   │   │   └── ...
 │   │   └── data_permission/            # 数据权限引擎（规划中）
 │   ├── temporal.go                     # Temporal 客户端初始化
 │   ├── temporalc/                      # Temporal 客户端封装
@@ -137,7 +135,7 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
 
 ## 新增后台资源的推荐流程
 
-1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`（如 `job_schedule`、`job_execution`、`sys_resource_menu_api` 模型）。
+1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`（如 `job_schedule`、`job_execution` 模型）。
 2. 如需特定查询扩展，修改 `cmd/scripts/orm/templates/` 下的模板。
 3. 运行 `make script-orm` 重新生成 `internal/services/orm/query/` 下的代码。
 4. 在 `internal/router/logic/<resource>.go` 定义请求/响应结构体（建议 `ReqXxx`、`RespXxx`）和业务方法（List/Create/Update/Delete/Switch/Detail/Trigger/Sync/Cancel/Retry/Options 等）。响应结构体避免直接暴露 ORM Model。
@@ -149,40 +147,6 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
 10. 运行 `make swagger` 更新 Swagger 文档；分页查询响应的 `data` 应引用 logic 包下的自定义 `Resp` 类型。
 11. 前端同步新增 API 文件和页面时，切换到 frontend 技能。
 
-## 菜单与 API 关联管理
-
-菜单资源（仅限 `MENU` 和 `BUTTON` 类型）可以通过 `apiIDs` 字段关联多个系统 API。关联关系存储在 `sys_resource_menu_api` 表中。
-
-### 模型
-
-`models.SysResourceMenuApi` 是 GORM 模型，定义如下：
-- `MenuID` (bigint)：菜单 ID，外键关联 `sys_resource_menu`。
-- `ApiID` (bigint)：API ID，外键关联 `sys_resource_api`。
-- `DeletedAt` (soft_delete.DeletedAt, milli)：软删除标记，默认为 0。
-- 联合唯一索引：`(menu_id, api_id, deleted_at)` 确保同一菜单对同一 API 的唯一未删除关联。
-- 外键约束：`OnUpdate:CASCADE, OnDelete:RESTRICT`。
-
-### 接口行为
-
-- **创建菜单** (`Create`)：请求体包含 `apiIDs` 字段，创建菜单后调用 `syncResourceMenuAPIs` 建立关联（仅对 MENU/BUTTON 有效）。
-- **更新菜单** (`Update`)：若请求中提供了 `apiIDs`，则全量替换该菜单的关联（先软删除旧关联，再插入新关联）。
-- **删除菜单** (`Del`)：删除菜单的同时，将对应 `sys_resource_menu_api` 记录软删除（设置 `deleted_at`）。
-- **菜单列表** (`List`)：返回的 `RespSysResourceMenu` 包含 `ApiIDs []uint64` 字段，展示每个菜单当前关联的 API ID 列表。
-- **菜单树** (`Tree`)：暂时不包含 API 关联信息（仅返回菜单节点信息）。
-
-### 关联同步逻辑
-
-- 函数 `syncResourceMenuAPIs(tx, menuID, menuType, apiIDs, operationID)` 负责同步关联。
-- 若 `menuType` 不是 `MENU` 或 `BUTTON`，则忽略传入的 `apiIDs`，默认清空关联。
-- 在执行新关联前，将菜单所有现有关联的 `deleted_at` 设置为当前时间戳（毫秒），实现软删除。
-- 然后批量插入新的关联记录（去重后的 `apiIDs`），操作人信息由 `operationID` 提供。
-
-### 验证
-
-- 关联前通过 `ensureResourceMenuAPIIDsExist` 检查提供的 API ID 是否全部存在，否则返回错误。
-- 更新父级时，仍然要确保新 API 列表合法。
-- 菜单类型变更为非 MENU/BUTTON 时，会自动清空关联。
-
 ## Casbin 权限自动同步
 
 - Casbin 执行器已在启动时创建（`internal/services/casbin/casbin.go`），模型定义在 `pbac.conf` 中，当前使用简化的匹配器：
@@ -193,4 +157,32 @@ SSE 事件流路由 `auth_router/events.go` 也应用了加密：
   m = r.sub == p.sub && keyMatch2(r.obj, p.obj) && r.act == p.act
 
   策略直接存储主体标识（如 `role:root`）、API 路径和方法，不再使用 eval 表达式。
-- 所有权限变更均通过 `internal/services/casbin/polic
+- 所有权限变更均通过 `internal/services/casbin/policy.go` 中的函数自动同步，无需手动操作 Casbin API。
+- 关键同步函数：
+  - `AddRoleAPIPolicies` / `RemoveRoleAPIPolicies`：为角色添加/移除 API 权限。
+  - `SyncRolePermissions`：全量同步一个角色的所有 API 权限。
+  - 等等。
+- 在新资源路由注册后，在业务逻辑中调用相应的同步函数，确保权限数据一致。
+
+## 中间件自定义扩展
+
+- 若需新增中间件，放在 `internal/fiberc/middleware/` 下，并在 `fiberc.NewFiber` 中按需注册。
+- API 日志中间件已自动启用；操作日志中间件在路由层按模块注入。
+- 安全中间件通常全局应用，某些公开路由（如获取公钥）需要跳过加密，可在路由注册时单独处理。
+
+## 常见命令
+
+bash
+cd backend/admin
+go vet ./...
+go test ./...
+make script-orm      # 重新生成 ORM 代码
+make swagger         # 更新 Swagger 文档
+
+
+## 验证
+
+- 修改后至少运行 `go vet ./...` 和 `go test ./...`。
+- 涉及种子数据或迁移脚本时，在本地环境执行并检查数据完整性。
+- 若修改了路由注册，使用 Swagger UI 或 curl 验证端点可访问。
+- 对于 Temporal 任务相关改动，确保 Temporal Server 在本地运行并可正常调度。
