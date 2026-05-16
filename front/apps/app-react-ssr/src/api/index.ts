@@ -8,7 +8,6 @@ import NProgress from 'nprogress'
 import { decryptText, encryptRequest } from '~/api/encryptRequest'
 import { HttpCode, XHeader } from '~/domains/http'
 import { gEnv } from '~/env'
-import { router } from '~/router'
 
 const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthentication<typeof reactHook>({
   visitorMeta: {
@@ -36,14 +35,9 @@ const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthenticati
           path: '/',
           sameSite: 'Lax',
         })
-        router.update({
-          context: {
-            account: {
-              token: data.token,
-            },
-          },
-        })
-        router.navigate({ to: '/' })
+        if (typeof window !== 'undefined') {
+          window.location.assign('/')
+        }
       }
     }
   },
