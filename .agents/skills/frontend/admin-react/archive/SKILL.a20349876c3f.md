@@ -72,25 +72,19 @@ front/apps/admin-react/
 - 路由使用 TanStack Router 文件路由，`src/routes/**` 通过插件生成 `src/routeTree.gen.ts`。
 - 根路由 `src/routes/__root.tsx` 根据 token 做登录跳转。
 - 应用壳 `src/routes/_app.tsx` 使用 `ProLayout`、`PageContainer`，侧边栏菜单来源于后端 `sys_resource_menu` 表，通过 `useResourceMenuStore` 拉取并持久化缓存。该 store 使用 zustand persist，刷新页面后快速恢复菜单树。
-  - 菜单树请求的 effect 依赖 `accountToken`（store 中的 token）。当 token 为空时（如登出、未登录），会将动态菜单设为空数组，不再发起请求，避免未认证请求。
 - 系统管理模块下的页面路由统一放在 `src/routes/_app/system/` 目录中；日志类页面（如 API 日志、登录日志）放在 `src/routes/_app/logger/` 目录中；账号管理相关页面（如用户、角色）放在 `src/routes/_app/account/` 目录中；任务调度相关页面放在 `src/routes/_app/job/` 目录中。
 - HTTP 层在 `src/api/index.ts`，用 Alova + token auth + 请求加密/响应解密 + NProgress。
-  - **认证拦截**：`beforeRequest` 中新增未认证检查。获取 token（优先 cookie，否则 store），若 token 为空且请求不是 login/logout/visitor 或公钥请求，则抛出错误，阻止请求发出。`canRequestWithoutToken` 函数通过 `authRole` 或 URL 判断是否允许无 token 请求。
   - 加密逻辑已抽离至 `src/api/encryptRequest.ts`，提供 `encryptRequest`、`createEncryptedRequestConfig`、`decryptText`、`ensurePublicKey` 等工具函数，可在 Alova `beforeRequest` 及其他场景（如 SSE）中复用。
   - `beforeRequest` 直接调用 `encryptRequest(method)` 完成加密配置。
   - 登录成功后的响应解密使用 `decryptText`。
-  - 登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。登出时，先清空 store 中的 token 和公钥、移除 cookie，并调用 `router.update` 清空路由上下文中的 token，然后发送 logout 请求并导航到 `/login`。
+  - 登录成功后默认跳转到根路径 `/`（而非 `/dashboard`）。
 - 根路径 `/_app/` 不再强制重定向到 `/dashboard`，仅渲染空组件，实际首页内容通过侧边栏菜单导航到具体页面。
 - 字典数据使用 `useDictMatch` 钩子批量获取并缓存启用字典项，返回 `{ value, label }` 格式的映射，适用于下拉选项、表格列渲染。
   - 字典条目新增 `label_component` 字段，可存放 JSX 模板（如 `<Tag color="success">${EntryLabel}</Tag>`），前端渲染时通过安全的替换机制生成最终展示内容（例如读取 `label_component` 后替换 `${EntryLabel}` 为真实标签文本）。
 - 图标选择使用 `AntIconPicker` 组件，可选图标列表由 `src/utils/antIcons.tsx` 提供。
 - 表单校验优先使用 Zod 与 `src/utils/zod.ts` 的 `useZodForm`。
 - 页签（tabs）行为由 `src/stores/menuTabs.ts` 的 `useMenuTabsStore` 与 `_app.tsx` 共同管理，支持动态打开、关闭、刷新、全部关闭、新窗口打开等操作，并通过右键菜单触发。
-- SSE 事件流通过 `src/api/eventStream.ts` 连接后端 `/api/events` 端点。
-  - SSE 实例有独立的 `beforeRequest` 钩子：检查 store 中的 token，若不存在则抛出错误；否则设置请求头 `X-Token`。
-  - 连接前使用 `createEncryptedRequestConfig` 获取加密配置和 AES 密钥。采用 token 快照机制，连接开始时保存当前 token，后续校验中使用该快照，防止 token 变更导致竞态问题。若加密配置失败或 token 已变更，则放弃连接并重置状态。
-  - token 为空时（如登出）会关闭 SSE 连接并清除所有引用（AES 密钥、headers）。组件卸载时同样清理引用。
-  - 事件回调中使用 `decryptText` 解密 `payload` 字段后得到实际数据。
+- SSE 事件流通过 `src/api/eventStream.ts` 连接后端 `/api/events` 端点，连接前使用 `createEncryptedRequestConfig` 获取加密配置和 AES 密钥，事件回调中使用 `decryptText` 解密 `payload` 字段后得到实际数据。
 
 ## 请求加密模块 `encryptRequest.ts`
 
@@ -200,17 +194,6 @@ tsx
 - 业务码处理集中在 `HttpCodeCheck`，新增业务码同步更新前后端常量。
 - 加密相关功能统一使用 `encryptRequest.ts` 提供的函数，避免在业务代码中重复实现加密握手。
 
-### 处理登出与未认证状态
-
-- 登出时务必按顺序执行：
-  1. 清空 account store 中的 token（调用 `useAccountStore.getState().logout()`）。
-  2. 清空公钥（`setPublicKey('')`）。
-  3. 移除 cookie 中的 token。
-  4. 通过 `router.update` 清空路由上下文中的 token，防止路由守卫误判。
-  5. 发送 `/api/account/logout` 请求（该请求会携带 logout 的 `authRole`，允许在无 token 时发送）。
-  6. 导航到 `/login`。
-- 菜单树和 SSE 连接依赖 store 中的 token。token 为空时，`_app.tsx` 会将动态菜单置空，`eventStream` 会关闭连接并清理资源，避免未认证请求。
-
 ### 标签页操作
 
 管理后台支持通过 `PageContainer` 的 `tabList` 管理多个打开的页签，并提供右键菜单快捷操作。
@@ -221,4 +204,6 @@ tsx
 - **刷新页签**：右键选择“刷新”会重新渲染对应页签的内容（通过递增版本号强制更新）。
 - **新窗口打开**：右键选择“新窗口打开”在新标签页中打开该页面对应的 URL。
 
-在 `_app.tsx` 中，这些操作由 `closeTab`、`closeAllTabs`、`refreshTab`、`openTabInNewWindow` 等回调实现，并通过 `tabList` 的 Dropdown 为每个标签项注入右键菜单。相关的状态管理使用 `useReducer`
+在 `_app.tsx` 中，这些操作由 `closeTab`、`closeAllTabs`、`refreshTab`、`openTabInNewWindow` 等回调实现，并通过 `tabList` 的 Dropdown 为每个标签项注入右键菜单。相关的状态管理使用 `useMenuTabsStore`，该 store 提供了 `add`、`remove` 和 `removeAll` 方法。
+
+## 列表分页与表单约定
