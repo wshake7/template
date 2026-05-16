@@ -12,7 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
 import { AutoComplete, Button, DatePicker, Drawer, Form, Input, Popconfirm, Select, Space, Tag } from 'antd'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import z from 'zod'
 import { JobScheduleApi } from '~/api/business/jobSchedule'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
@@ -317,14 +317,14 @@ function JobScheduleManagement() {
     setDrawerOpen(true)
   }
 
-  const openEditForm = (record: JobSchedule) => {
+  const openEditForm = useCallback((record: JobSchedule) => {
     setEditing(record)
     form.resetFields()
     form.setFieldsValue(toFormValues(record))
     setDrawerOpen(true)
-  }
+  }, [form])
 
-  const action = async (fn: () => Promise<void>, success: string, fail: string) => {
+  const action = useCallback(async (fn: () => Promise<void>, success: string, fail: string) => {
     try {
       await fn()
       gMessage.success(success)
@@ -333,7 +333,7 @@ function JobScheduleManagement() {
     catch {
       gMessage.error(fail)
     }
-  }
+  }, [send])
 
   const columns: ProColumns<JobSchedule>[] = useMemo(() => [
     { title: '任务编码', dataIndex: 'jobCode', width: 160, ellipsis: true },
@@ -417,7 +417,7 @@ function JobScheduleManagement() {
         )
       },
     },
-  ], [enabledStatus, send])
+  ], [action, enabledStatus, openEditForm])
 
   return (
     <>

@@ -236,12 +236,10 @@ function AppLayout() {
   const removeAll = useMenuTabsStore(state => state.removeAll)
   const dynamicMenuTree = useResourceMenuStore(state => state.dynamicMenuTree)
   const setDynamicMenuTree = useResourceMenuStore(state => state.setDynamicMenuTree)
-  const cachedDynamicMenuItems = useMemo(
-    () => dynamicMenuTree.length > 0 ? toDynamicMenuItems(dynamicMenuTree, router) : undefined,
+  const menuItems = useMemo(
+    () => dynamicMenuTree.length > 0 ? toDynamicMenuItems(dynamicMenuTree, router) : [],
     [dynamicMenuTree, router],
   )
-  const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuDataItem[]>()
-  const menuItems = useMemo(() => dynamicMenuItems ?? cachedDynamicMenuItems ?? [], [cachedDynamicMenuItems, dynamicMenuItems])
   const menuItemMap = useMemo(() => flattenMenuItems(menuItems), [menuItems])
   const previousPathRef = useRef(pathname)
   const [cachedTabPanes, dispatch] = useReducer(cachedTabPaneReducer, {})
@@ -252,7 +250,7 @@ function AppLayout() {
 
   useEffect(() => {
     if (!accountToken) {
-      setDynamicMenuItems([])
+      setDynamicMenuTree([])
       return
     }
     let disposed = false
@@ -264,18 +262,12 @@ function AppLayout() {
         }
         const nodes = res.data ?? []
         setDynamicMenuTree(nodes)
-        const nextItems = toDynamicMenuItems(nodes, router)
-        setDynamicMenuItems(nextItems)
       })
-      .catch(() => {
-        if (!disposed) {
-          setDynamicMenuItems(undefined)
-        }
-      })
+      .catch(() => {})
     return () => {
       disposed = true
     }
-  }, [accountToken, router, setDynamicMenuTree])
+  }, [accountToken, setDynamicMenuTree])
 
   const currentMenuTab = useMemo(() => {
     const dynamicMenu = menuItemMap.get(pathname) as (MenuDataItem & { menuType?: ResourceMenuNode['menuType'] }) | undefined

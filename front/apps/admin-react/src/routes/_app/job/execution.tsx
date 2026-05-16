@@ -5,7 +5,7 @@ import { ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePagination } from 'alova/client'
 import { Button, DatePicker, Descriptions, Input, Modal, Popconfirm, Select, Space, Tag } from 'antd'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { JobExecutionApi } from '~/api/business/jobExecution'
 import { JsonCodeBlock } from '~/components/business/logger/jsonCodeBlock'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
@@ -114,7 +114,7 @@ function JobExecutionManagement() {
     },
   )
 
-  const openDetail = async (record: JobExecution) => {
+  const openDetail = useCallback(async (record: JobExecution) => {
     try {
       const res = await JobExecutionApi.detail({ id: record.id })
       if (res.data) {
@@ -125,9 +125,9 @@ function JobExecutionManagement() {
     catch {
       gMessage.error('获取详情失败')
     }
-  }
+  }, [])
 
-  const action = async (fn: () => Promise<void>, success: string, fail: string) => {
+  const action = useCallback(async (fn: () => Promise<void>, success: string, fail: string) => {
     try {
       await fn()
       gMessage.success(success)
@@ -136,7 +136,7 @@ function JobExecutionManagement() {
     catch {
       gMessage.error(fail)
     }
-  }
+  }, [send])
 
   const columns: ProColumns<JobExecution>[] = useMemo(() => [
     { title: '任务编码', dataIndex: 'jobCode', width: 160, ellipsis: true },
@@ -198,7 +198,7 @@ function JobExecutionManagement() {
         </Space>
       ),
     },
-  ], [send])
+  ], [action, openDetail])
 
   return (
     <>
