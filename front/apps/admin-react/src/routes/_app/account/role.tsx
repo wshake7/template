@@ -31,9 +31,8 @@ import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import { RoleApi } from '~/api/business/sysRole'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
-import { gMessage } from '~/utils/antd'
 import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
-import { useZodForm } from '~/utils/zod'
+import { gMessage } from '~/utils/message'
 
 export const Route = createFileRoute('/_app/account/role')({
   staleTime: 1000 * 60 * 2,

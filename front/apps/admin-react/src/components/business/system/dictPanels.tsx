@@ -17,8 +17,7 @@ import z from 'zod'
 import { DictApi } from '~/api/business/sysDict'
 import { ENTRY_LABEL_PLACEHOLDER, renderDictEntryLabel } from '~/components/dictEntryLabel'
 import { useDictMatch } from '~/hooks/useDictMatch'
-import { gMessage } from '~/utils/antd'
-import { useZodForm } from '~/utils/zod'
+import { gMessage } from '~/utils/message'
 
 const LABEL_COMPONENT_CUSTOM = '__custom__'
 const CUSTOM_LABEL_COMPONENT_DEFAULT = `<Tag color="blue">${ENTRY_LABEL_PLACEHOLDER}</Tag>`

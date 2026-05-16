@@ -41,7 +41,6 @@ declare global {
   const antIconNames: typeof import('./utils/antIcons').antIconNames
   const antIconNamesByStyle: typeof import('./utils/antIcons').antIconNamesByStyle
   const antIconPicker: typeof import('./components/common/antIconPicker').default
-  const antd: typeof import('./utils/antd').default
   const api: typeof import('./api/index').default
   const arrayBufferToBase64: typeof import('./utils/encrypt').arrayBufferToBase64
   const base64ToArrayBuffer: typeof import('./utils/encrypt').base64ToArrayBuffer
@@ -59,12 +58,13 @@ declare global {
   const fieldZodValidator: typeof import('./utils/zod').fieldZodValidator
   const formatDateYYYYMMDDHHmmss: typeof import('./utils/date').formatDateYYYYMMDDHHmmss
   const forwardRef: typeof import('react').forwardRef
-  const gMessage: typeof import('./utils/antd').gMessage
+  const gMessage: typeof import('./utils/message').gMessage
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey
   const getAntIconStyle: typeof import('./utils/antIcons').getAntIconStyle
   const globalZodValidator: typeof import('./utils/zod').globalZodValidator
   const lazy: typeof import('react').lazy
   const memo: typeof import('react').memo
+  const message: typeof import('./utils/message').default
   const renderAntIcon: typeof import('./utils/antIcons').renderAntIcon
   const renderDictEntryLabel: typeof import('./components/dictEntryLabel').renderDictEntryLabel
   const rsaEncrypt: typeof import('./utils/encrypt').rsaEncrypt

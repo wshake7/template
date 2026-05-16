@@ -9,8 +9,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { JobExecutionApi } from '~/api/business/jobExecution'
 import { JsonCodeBlock } from '~/components/business/logger/jsonCodeBlock'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
-import { gMessage } from '~/utils/antd'
 import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
+import { gMessage } from '~/utils/message'
 
 export const Route = createFileRoute('/_app/job/execution')({
   staleTime: 1000 * 60 * 2,

@@ -4,7 +4,7 @@ import type { NamePath } from 'antd/es/form/interface'
 import type z from 'zod'
 import { Form } from 'antd'
 import { useCallback, useMemo } from 'react'
-import { gMessage } from '~/utils/antd'
+import { gMessage } from '~/utils/message'
 
 interface UseFormProps<T extends object> {
   form?: FormInstance<T>

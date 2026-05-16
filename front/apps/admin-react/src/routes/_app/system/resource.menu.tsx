@@ -30,8 +30,8 @@ import { ResourceMenuApi } from '~/api/business/sysResourceMenu'
 import AntIconPicker from '~/components/common/antIconPicker'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
-import { gMessage } from '~/utils/antd'
 import { AntIcon } from '~/utils/antIcons'
+import { gMessage } from '~/utils/message'
 import { useZodForm } from '~/utils/zod'
 
 export const Route = createFileRoute('/_app/system/resource/menu')({

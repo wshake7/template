@@ -17,9 +17,8 @@ import z from 'zod'
 import { JobScheduleApi } from '~/api/business/jobSchedule'
 import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
-import { gMessage } from '~/utils/antd'
 import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
-import { useZodForm } from '~/utils/zod'
+import { gMessage } from '~/utils/message'
 
 export const Route = createFileRoute('/_app/job/schedule')({
   staleTime: 1000 * 60 * 2,

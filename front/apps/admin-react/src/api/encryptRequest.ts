@@ -1,6 +1,6 @@
 import { XHeader } from '~/domains/http'
-import { gMessage } from '~/utils/antd'
 import { aesDecrypt, aesEncrypt, generateAesKey, rsaEncrypt, uriSort } from '~/utils/encrypt'
+import { gMessage } from '~/utils/message'
 
 interface EncryptableMethod {
   url: string

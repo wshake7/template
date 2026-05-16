@@ -4,7 +4,7 @@ import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { useEventStream } from './api/eventStream'
 import { router } from './router'
-import GlobalMessage from './utils/antd'
+import GlobalMessage from './utils/message'
 import './i18n'
 import '~/styles/index.css'
 
