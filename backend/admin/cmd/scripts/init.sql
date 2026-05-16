@@ -1,28 +1,3 @@
-CREATE TABLE IF NOT EXISTS "public"."sys_resource_menu_api" (
-    "id" BIGSERIAL PRIMARY KEY,
-    "created_at" TIMESTAMPTZ,
-    "updated_at" TIMESTAMPTZ,
-    "created_by" BIGINT NOT NULL DEFAULT 0,
-    "updated_by" BIGINT NOT NULL DEFAULT 0,
-    "deleted_by" BIGINT NOT NULL DEFAULT 0,
-    "menu_id" BIGINT NOT NULL,
-    "api_id" BIGINT NOT NULL,
-    "deleted_at" BIGINT NOT NULL DEFAULT 0
-);
-
-CREATE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_menu_id"
-    ON "public"."sys_resource_menu_api" ("menu_id");
-
-CREATE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_api_id"
-    ON "public"."sys_resource_menu_api" ("api_id");
-
-CREATE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_deleted_at"
-    ON "public"."sys_resource_menu_api" ("deleted_at");
-
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_sys_resource_menu_api_menu_api_active"
-    ON "public"."sys_resource_menu_api" ("menu_id", "api_id")
-    WHERE "deleted_at" = 0;
-
 INSERT INTO
     "public"."sys_casbin_model" (
         "id",
