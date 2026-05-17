@@ -11,3 +11,4 @@
 - [x] 2026-05-11 移除 SysUser.SysRoles 关联字段，登录角色逻辑改为直接查询 SysUserRole。
 - [x] 2026-05-11 移除 SysRole.ChildIDs 字段，并同步初始化 SQL、迁移脚本与 ORM query。
 - [x] 2026-05-17 将 `admin-react`、`app-react`、`app-react-ssr` 的可复用前端代码抽取到 `front/packages`，优先保留 app wrapper 降低迁移风险。
+- [x] 2026-05-17 为前端共享请求/校验层增加 UI 无关 notifier 注入，避免公共包绑定 `gMessage` 或特定 UI 组件库。

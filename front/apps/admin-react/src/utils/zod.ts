@@ -4,7 +4,7 @@ import type { NamePath } from 'antd/es/form/interface'
 import type z from 'zod'
 import { Form } from 'antd'
 import { useCallback, useMemo } from 'react'
-import { gMessage } from '~/utils/message'
+import { appNotifier } from '~/utils/notifier'
 
 interface UseFormProps<T extends object> {
   form?: FormInstance<T>
@@ -134,7 +134,7 @@ export function useZodForm<T extends Record<string, any>>({
           throw e
         }
         setZodFormErrors(form, issues)
-        gMessage.error(getFirstIssueMessage(issues))
+        appNotifier.error(getFirstIssueMessage(issues))
         return false // 校验失败 → 弹窗不关闭
       }
     },

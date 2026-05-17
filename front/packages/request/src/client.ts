@@ -1,6 +1,6 @@
-import type { ApiResponse, ResLogin } from '@vp/core'
+import type { ApiResponse, AppNotifier, ResLogin } from '@vp/core'
 import type { EncryptableMethod } from './encrypt'
-import { HttpCode, XHeader } from '@vp/core'
+import { HttpCode, noopNotifier, XHeader } from '@vp/core'
 import { createAlova } from 'alova'
 import { createClientTokenAuthentication } from 'alova/client'
 import adapterFetch from 'alova/fetch'
@@ -25,7 +25,8 @@ export interface CreateVpApiClientOptions {
   decryptText: (encryptedText: string, aesKey: CryptoKey) => Promise<string>
   checkResponseCode: (res: ApiResponse) => Promise<void> | void
   afterLogin?: (token: string) => void
-  onHttpError?: (response: Response) => void
+  notifier?: AppNotifier
+  httpErrorMessage?: string | ((response: Response) => string)
 }
 
 export function canRequestWithoutToken(method: RequestMethodMeta) {
@@ -37,6 +38,8 @@ export function canRequestWithoutToken(method: RequestMethodMeta) {
 }
 
 export function createVpApiClient(options: CreateVpApiClientOptions) {
+  const notifier = options.notifier ?? noopNotifier
+
   const { onAuthRequired, onResponseRefreshToken } = createClientTokenAuthentication<typeof reactHook>({
     visitorMeta: {
       visitor: true,
@@ -91,7 +94,12 @@ export function createVpApiClient(options: CreateVpApiClientOptions) {
     responded: onResponseRefreshToken({
       onSuccess: async (response, method) => {
         if (!response.ok) {
-          options.onHttpError?.(response)
+          const message = typeof options.httpErrorMessage === 'function'
+            ? options.httpErrorMessage(response)
+            : options.httpErrorMessage
+          if (message) {
+            notifier.error(message)
+          }
           throw new Error(`[${response.status}]${response.statusText}`)
         }
         const contentType = response.headers.get('Content-Type') || ''

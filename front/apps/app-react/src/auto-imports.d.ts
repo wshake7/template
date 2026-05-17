@@ -22,6 +22,7 @@ declare global {
   const aesDecryptCiphertextAndTag: typeof import('./utils/encrypt').aesDecryptCiphertextAndTag
   const aesEncrypt: typeof import('./utils/encrypt').aesEncrypt
   const api: typeof import('./api/index').default
+  const appNotifier: typeof import('./utils/notifier').appNotifier
   const arrayBufferToBase64: typeof import('./utils/encrypt').arrayBufferToBase64
   const base64ToArrayBuffer: typeof import('./utils/encrypt').base64ToArrayBuffer
   const cache: typeof import('react').cache

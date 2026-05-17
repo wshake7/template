@@ -1,5 +1,5 @@
-import type { ApiResponse } from '@vp/core'
-import { XHeader } from '@vp/core'
+import type { ApiResponse, AppNotifier } from '@vp/core'
+import { noopNotifier, XHeader } from '@vp/core'
 import { aesDecrypt, aesEncrypt, generateAesKey, rsaEncrypt, uriSort } from '@vp/utils'
 
 export interface EncryptableMethod {
@@ -24,7 +24,8 @@ export interface CreateEncryptedRequestHelpersOptions {
   setPublicKey: (publicKey: string) => void
   getPublicCryptoKey: () => Promise<CryptoKey | undefined>
   fetchPublicKey?: () => Promise<string>
-  onSystemError?: () => void
+  notifier?: AppNotifier
+  systemErrorMessage?: string
 }
 
 function normalizeParams(params: Record<string, any> | string | URLSearchParams | undefined): Record<string, any> {
@@ -55,6 +56,9 @@ async function defaultFetchPublicKey() {
 }
 
 export function createEncryptedRequestHelpers(options: CreateEncryptedRequestHelpersOptions) {
+  const notifier = options.notifier ?? noopNotifier
+  const systemErrorMessage = options.systemErrorMessage ?? '系统异常'
+
   async function ensurePublicKey() {
     let publicKey = options.getCachedPublicKey()
     if (publicKey !== '') {
@@ -107,13 +111,13 @@ export function createEncryptedRequestHelpers(options: CreateEncryptedRequestHel
 
     const publicKey = await ensurePublicKey()
     if (publicKey === '') {
-      options.onSystemError?.()
+      notifier.error(systemErrorMessage)
       return { headers, nonce }
     }
 
     const publicCryptoKey = await options.getPublicCryptoKey()
     if (!publicCryptoKey) {
-      options.onSystemError?.()
+      notifier.error(systemErrorMessage)
       return { headers, nonce }
     }
 
