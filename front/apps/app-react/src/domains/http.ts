@@ -1,26 +1,7 @@
-export const HttpCode = {
-  UN_KNOW: 0,
-  SUCCESS: 1,
-  ERROR: 2,
-  FailRequestExpired: 3,
-  FailRequestNonce: 4,
-  FailRequestKey: 5,
-  FailLogin: 100,
-  FailAuth: 200,
-} as const
+import { HttpCode, HttpCodeSet, XHeader } from '@vp/core'
 
-export type CodeType = (typeof HttpCode)[keyof typeof HttpCode]
-
-const HttpCodeSet = new Set(Object.values(HttpCode))
-
-export const XHeader = {
-  XRequestTimestamp: 'X-Request-Timestamp',
-  XRequestID: 'X-Request-ID',
-  XRequestEncryptedKey: 'X-Request-Encrypted-Key',
-  XRequestSignature: 'X-Request-Signature',
-  XResponseIsEncrypt: 'X-Response-Is-Encrypt',
-  Token: 'Token',
-}
+export { HttpCode, XHeader }
+export type { CodeType } from '@vp/core'
 
 const errorHandlers: Partial<Record<number, (res: Res) => Promise<void> | void>> = {
   [HttpCode.FailLogin]: (res) => {

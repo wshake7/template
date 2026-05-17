@@ -1,3 +1,1 @@
-export interface ResPublicKey {
-  publicKey: string
-}
+export type { ResPublicKey } from '@vp/core'

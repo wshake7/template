@@ -10,3 +10,4 @@
 - [x] 2026-05-10 接入 `SysUser` 前端管理页：新增 `/system/user` 路由、`sysUser` API 封装与抽屉表单 CRUD 页面，并完成前端构建验证。
 - [x] 2026-05-11 移除 SysUser.SysRoles 关联字段，登录角色逻辑改为直接查询 SysUserRole。
 - [x] 2026-05-11 移除 SysRole.ChildIDs 字段，并同步初始化 SQL、迁移脚本与 ORM query。
+- [x] 2026-05-17 将 `admin-react`、`app-react`、`app-react-ssr` 的可复用前端代码抽取到 `front/packages`，优先保留 app wrapper 降低迁移风险。

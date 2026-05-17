@@ -146,7 +146,7 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { ReqPwdLogin, ResLogin, ReqChangePwd } from './domains/account'
+  export type { ReqChangePwd, ReqPwdLogin, ResLogin } from './domains/account'
   import('./domains/account')
   // @ts-ignore
   export type { ResPublicKey } from './domains/encrypt'
@@ -158,6 +158,6 @@ declare global {
   export type { PagingRequest, PagingResult } from './domains/page'
   import('./domains/page')
   // @ts-ignore
-  export type { DictMatchedEntry, DictMatchedEntriesByCode, ReqDictEntryMatch } from './api/business/sysDict'
+  export type { DictMatchedEntriesByCode, DictMatchedEntry, ReqDictEntryMatch } from './api/business/sysDict'
   import('./api/business/sysDict')
 }

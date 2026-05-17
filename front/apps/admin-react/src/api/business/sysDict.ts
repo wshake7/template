@@ -1,4 +1,7 @@
+import type { DictMatchedEntriesByCode, ReqDictEntryMatch } from '@vp/core'
 import API from '../index'
+
+export type { DictMatchedEntriesByCode, DictMatchedEntry, ReqDictEntryMatch } from '@vp/core'
 
 export interface DictType {
   id: number
@@ -25,19 +28,6 @@ export interface DictEntry {
   sortOrder: number
   isEnabled: boolean
   remark: string
-}
-
-export interface DictMatchedEntry {
-  id: number
-  labelComponent: string
-  entryLabel: string
-  entryValue: string
-}
-
-export type DictMatchedEntriesByCode = Record<string, DictMatchedEntry[]>
-
-export interface ReqDictEntryMatch {
-  codes: string[]
 }
 
 export interface ReqDictTypeCreate {

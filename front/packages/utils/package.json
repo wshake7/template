@@ -2,7 +2,7 @@
   "name": "@vp/utils",
   "type": "module",
   "version": "0.0.0",
-  "description": "A starter for creating a TypeScript package.",
+  "description": "Shared browser-safe utilities for VP front-end apps.",
   "author": "Author Name <author.name@mail.com>",
   "license": "MIT",
   "homepage": "https://github.com/author/library#readme",
@@ -29,6 +29,11 @@
     "test": "vp test",
     "check": "vp check",
     "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "clsx": "catalog:build",
+    "dayjs": "catalog:build",
+    "tailwind-merge": "catalog:build"
   },
   "devDependencies": {
     "@types/node": "catalog:dev",

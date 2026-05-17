@@ -1,14 +1,15 @@
-export { };
+import type {
+  AccountState as VpAccountState,
+  ApiResponse,
+  CodeType as VpCodeType,
+  RouterContext as VpRouterContext,
+} from '@vp/core'
+
+export {}
+
 declare global {
-  interface AccountState {
-    token: string
-  }
-  interface RouterContext {
-    readonly account: AccountState;
-  }
-  class Res<T = unknown> {
-    readonly code: CodeType;
-    readonly msg: string;
-    readonly data?: T;
-  }
+  type AccountState = VpAccountState
+  type RouterContext = VpRouterContext
+  type CodeType = VpCodeType
+  type Res<T = unknown> = ApiResponse<T>
 }

@@ -190,7 +190,7 @@ declare global {
   export type { ThemeType } from './stores/theme'
   import('./stores/theme')
   // @ts-ignore
-  export type { ReqPwdLogin, ResLogin, ReqChangePwd } from './domains/account'
+  export type { ReqChangePwd, ReqPwdLogin, ResLogin } from './domains/account'
   import('./domains/account')
   // @ts-ignore
   export type { ResPublicKey } from './domains/encrypt'
@@ -223,7 +223,7 @@ declare global {
   export type { SysApiLog, ReqLogDetail } from './api/business/sysApiLog'
   import('./api/business/sysApiLog')
   // @ts-ignore
-  export type { DictType, DictEntry, DictMatchedEntry, DictMatchedEntriesByCode, ReqDictEntryMatch, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy } from './api/business/sysDict'
+  export type { DictType, DictEntry, ReqDictTypeCreate, ReqDictTypeUpdate, ReqDictTypeBatchDelete, ReqDictEntryCreate, ReqDictEntryUpdate, ReqDictEntryBatchDelete, ReqDictEntryBatchCopy, DictMatchedEntriesByCode, DictMatchedEntry, ReqDictEntryMatch } from './api/business/sysDict'
   import('./api/business/sysDict')
   // @ts-ignore
   export type { LanguageType, LanguageEntry, ReqLangTypeCreate, ReqLangTypeUpdate, ReqLangTypeDel, ReqLangEntryCreate, ReqLangEntryUpdate, ReqLangEntryDel, ReqLangEntryBatchCreate } from './api/business/sysLanguage'

@@ -10,6 +10,10 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "paths": {
+      "@vp/build-config": ["../../packages/build-config/src"],
+      "@vp/core": ["../../packages/core/src"],
+      "@vp/react-core": ["../../packages/react-core/src"],
+      "@vp/request": ["../../packages/request/src"],
       "@vp/utils": ["../../packages/utils/src"],
       "~/*": ["./src/*"],
       "@/*": ["./*"]
