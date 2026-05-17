@@ -128,6 +128,12 @@ export function createVpApiClient(options: CreateVpApiClientOptions) {
         return response
       },
       onError: async (error) => {
+        const message = typeof options.httpErrorMessage === 'function'
+          ? '请求错误'
+          : options.httpErrorMessage
+        if (message) {
+          notifier.error(message)
+        }
         console.error('[API Error]', error)
         throw error
       },
