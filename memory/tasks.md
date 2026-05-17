@@ -1,5 +1,6 @@
 # Tasks
 
+- [x] 2026-05-17 修复前端共享 `@vp/react-core` 引入第二份 React/Zustand 导致的 invalid hook call。
 - [x] 2026-05-17 删除前端 app 内仅做 re-export 的共享 wrapper，并将 `front/packages/*/src` 按职责拆分为子目录。
 
 - [x] 整理 template 仓库项目级 skills，并放入 `.agents/skills/` 分层目录。

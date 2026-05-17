@@ -18,22 +18,27 @@
     "check": "vp check",
     "prepublishOnly": "vp run build"
   },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-i18next": "^17.0.0",
+    "zustand": "^5.0.0"
+  },
   "dependencies": {
     "@t3-oss/env-core": "catalog:build",
     "@vp/core": "workspace:*",
     "@vp/utils": "workspace:*",
     "i18next": "catalog:build",
     "i18next-browser-languagedetector": "catalog:build",
-    "react": "catalog:build",
-    "react-i18next": "catalog:build",
-    "zod": "catalog:build",
-    "zustand": "catalog:build"
+    "zod": "catalog:build"
   },
   "devDependencies": {
     "@types/node": "catalog:dev",
     "@types/react": "catalog:dev",
     "@typescript/native-preview": "catalog:dev",
+    "react": "catalog:build",
+    "react-i18next": "catalog:build",
     "typescript": "catalog:dev",
-    "vite-plus": "catalog:dev"
+    "vite-plus": "catalog:dev",
+    "zustand": "catalog:build"
   }
 }

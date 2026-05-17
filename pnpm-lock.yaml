@@ -836,18 +836,9 @@ importers:
       i18next-browser-languagedetector:
         specifier: catalog:build
         version: 8.2.1
-      react:
-        specifier: catalog:build
-        version: 19.2.6
-      react-i18next:
-        specifier: catalog:build
-        version: 17.0.8(i18next@26.2.0(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
       zod:
         specifier: catalog:build
         version: 4.4.3
-      zustand:
-        specifier: catalog:build
-        version: 5.0.13(@types/react@19.2.14)(immer@11.1.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
     devDependencies:
       '@types/node':
         specifier: catalog:dev
@@ -858,12 +849,21 @@ importers:
       '@typescript/native-preview':
         specifier: catalog:dev
         version: 7.0.0-dev.20260316.1
+      react:
+        specifier: catalog:build
+        version: 19.2.6
+      react-i18next:
+        specifier: catalog:build
+        version: 17.0.8(i18next@26.2.0(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
       typescript:
         specifier: catalog:dev
         version: 5.9.3
       vite-plus:
         specifier: catalog:dev
         version: 0.1.21(@types/node@24.12.0)(@vitejs/devtools@0.1.24)(esbuild@0.27.4)(jiti@2.7.0)(publint@0.3.21)(terser@5.46.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.3)(yaml@2.8.3)
+      zustand:
+        specifier: catalog:build
+        version: 5.0.13(@types/react@19.2.14)(immer@11.1.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
 
   front/packages/request:
     dependencies:

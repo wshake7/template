@@ -23,6 +23,7 @@ export default defineConfig(({ mode }: { mode: string }) => {
       '*': '',
     },
     resolve: {
+      dedupe: ['react', 'react-dom', 'react-i18next', 'zustand'],
       tsconfigPaths: true,
     },
     preview: {
