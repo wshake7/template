@@ -2,6 +2,8 @@ import type { ProColumns } from '@ant-design/pro-components'
 import type { SysLoginLog } from '~/api/business/sysLoginLog'
 import { ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
+import { DEFAULT_PAGE_SIZE } from '@vp/core'
+import { formatDateYYYYMMDDHHmmss } from '@vp/utils'
 import { usePagination } from 'alova/client'
 import {
   Descriptions,
@@ -12,8 +14,6 @@ import {
 } from 'antd'
 import { useCallback, useState } from 'react'
 import { LoginLogApi } from '~/api/business/sysLoginLog'
-import { DEFAULT_PAGE_SIZE } from '~/domains/page'
-import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 
 export const Route = createFileRoute('/_app/logger/login/log')({
   staleTime: 1000 * 60 * 2,

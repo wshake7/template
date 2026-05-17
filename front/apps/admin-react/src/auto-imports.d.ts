@@ -10,7 +10,6 @@ declare global {
   const Activity: typeof import('react').Activity
   const AntIcon: typeof import('./utils/antIcons').AntIcon
   const ApiLogApi: typeof import('./api/business/sysApiLog').ApiLogApi
-  const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
   const DictApi: typeof import('./api/business/sysDict').DictApi
   const DictCode: typeof import('./domains/dict').DictCode
   const DictEntryPanel: typeof import('./components/business/system/dictPanels').DictEntryPanel
@@ -48,7 +47,6 @@ declare global {
   const cache: typeof import('react').cache
   const cacheSignal: typeof import('react').cacheSignal
   const changePwdModal: typeof import('./components/business/account/changePwdModal').default
-  const cn: typeof import('./components/lib/utils').cn
   const createContext: typeof import('react').createContext
   const createEncryptedRequestConfig: typeof import('./api/encryptRequest').createEncryptedRequestConfig
   const createRef: typeof import('react').createRef
@@ -57,7 +55,6 @@ declare global {
   const encryptRequest: typeof import('./api/encryptRequest').encryptRequest
   const ensurePublicKey: typeof import('./api/encryptRequest').ensurePublicKey
   const fieldZodValidator: typeof import('./utils/zod').fieldZodValidator
-  const formatDateYYYYMMDDHHmmss: typeof import('./utils/date').formatDateYYYYMMDDHHmmss
   const forwardRef: typeof import('react').forwardRef
   const gMessage: typeof import('./utils/message').gMessage
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey
@@ -191,17 +188,8 @@ declare global {
   export type { ThemeType } from './stores/theme'
   import('./stores/theme')
   // @ts-ignore
-  export type { ReqChangePwd, ReqPwdLogin, ResLogin } from './domains/account'
-  import('./domains/account')
-  // @ts-ignore
-  export type { ResPublicKey } from './domains/encrypt'
-  import('./domains/encrypt')
-  // @ts-ignore
   export type { CodeType } from './domains/http'
   import('./domains/http')
-  // @ts-ignore
-  export type { PagingRequest, PagingResult } from './domains/page'
-  import('./domains/page')
   // @ts-ignore
   export type { AntIconStyle } from './utils/antIcons'
   import('./utils/antIcons')

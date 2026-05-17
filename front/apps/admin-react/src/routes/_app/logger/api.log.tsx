@@ -2,6 +2,7 @@ import type { ProColumns } from '@ant-design/pro-components'
 import type { SysApiLog } from '~/api/business/sysApiLog'
 import { ProTable } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
+import { formatDateYYYYMMDDHHmmss } from '@vp/utils'
 import { usePagination } from 'alova/client'
 import {
   Descriptions,
@@ -10,7 +11,6 @@ import {
 } from 'antd'
 import { useCallback, useState } from 'react'
 import { JsonCodeBlock } from '~/components/business/logger/jsonCodeBlock'
-import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 
 export const Route = createFileRoute('/_app/logger/api/log')({
   staleTime: 1000 * 60 * 2,

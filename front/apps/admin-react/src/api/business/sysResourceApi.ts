@@ -1,3 +1,4 @@
+import type { PagingRequest, PagingResult } from '@vp/core'
 import API from '../index'
 
 export type ResourceApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'

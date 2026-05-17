@@ -6,6 +6,8 @@ import {
   ProTable,
 } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
+import { DEFAULT_PAGE_SIZE } from '@vp/core'
+import { formatDateYYYYMMDDHHmmss } from '@vp/utils'
 import { usePagination } from 'alova/client'
 import {
   Button,
@@ -20,9 +22,7 @@ import {
 import { useMemo, useState } from 'react'
 import z from 'zod'
 import { SysUserApi } from '~/api/business/sysUser'
-import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
-import { formatDateYYYYMMDDHHmmss } from '~/utils/date'
 import { gMessage } from '~/utils/message'
 
 export const Route = createFileRoute('/_app/account/user')({

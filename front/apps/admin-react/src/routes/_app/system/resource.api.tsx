@@ -8,6 +8,7 @@ import {
   ProTable,
 } from '@ant-design/pro-components'
 import { createFileRoute } from '@tanstack/react-router'
+import { DEFAULT_PAGE_SIZE } from '@vp/core'
 import { usePagination } from 'alova/client'
 import {
   Button,
@@ -22,7 +23,6 @@ import {
 import { useMemo, useState } from 'react'
 import z from 'zod'
 import { ResourceApiApi } from '~/api/business/sysResourceApi'
-import { DEFAULT_PAGE_SIZE } from '~/domains/page'
 import { useDictMatch } from '~/hooks/useDictMatch'
 import { gMessage } from '~/utils/message'
 

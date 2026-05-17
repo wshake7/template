@@ -1,4 +1,4 @@
-import type { ReqChangePwd, ReqPwdLogin } from '~/domains/account'
+import type { ReqChangePwd, ReqPwdLogin } from '@vp/core'
 import Cookies from 'js-cookie'
 import { XHeader } from '~/domains/http'
 import { router } from '~/router'

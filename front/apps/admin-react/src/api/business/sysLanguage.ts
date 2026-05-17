@@ -1,3 +1,4 @@
+import type { PagingRequest, PagingResult } from '@vp/core'
 import API from '../index'
 
 export interface LanguageType {

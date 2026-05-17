@@ -1,4 +1,4 @@
-import type { ReqChangePwd, ReqPwdLogin } from '~/domains/account'
+import type { ReqChangePwd, ReqPwdLogin } from '@vp/core'
 
 import { http, HttpResponse } from 'msw'
 import { useMockStore } from '~/stores/mock'

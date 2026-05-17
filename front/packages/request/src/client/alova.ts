@@ -1,5 +1,5 @@
 import type { ApiResponse, AppNotifier, ResLogin } from '@vp/core'
-import type { EncryptableMethod } from './encrypt'
+import type { EncryptableMethod } from '../encryption/helpers'
 import { HttpCode, noopNotifier, XHeader } from '@vp/core'
 import { createAlova } from 'alova'
 import { createClientTokenAuthentication } from 'alova/client'

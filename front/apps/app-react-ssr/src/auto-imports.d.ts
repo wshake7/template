@@ -7,7 +7,6 @@
 export {}
 declare global {
   const Activity: typeof import('react').Activity
-  const DEFAULT_PAGE_SIZE: typeof import('./domains/page').DEFAULT_PAGE_SIZE
   const DictApi: typeof import('./api/business/sysDict').DictApi
   const DictCode: typeof import('./domains/dict').DictCode
   const EncryptApi: typeof import('./api/encrypt').EncryptApi
@@ -27,14 +26,12 @@ declare global {
   const base64ToArrayBuffer: typeof import('./utils/encrypt').base64ToArrayBuffer
   const cache: typeof import('react').cache
   const cacheSignal: typeof import('react').cacheSignal
-  const cn: typeof import('./components/lib/utils').cn
   const createContext: typeof import('react').createContext
   const createEncryptedRequestConfig: typeof import('./api/encryptRequest').createEncryptedRequestConfig
   const createRef: typeof import('react').createRef
   const decryptText: typeof import('./api/encryptRequest').decryptText
   const encryptRequest: typeof import('./api/encryptRequest').encryptRequest
   const ensurePublicKey: typeof import('./api/encryptRequest').ensurePublicKey
-  const formatDateYYYYMMDDHHmmss: typeof import('./utils/date').formatDateYYYYMMDDHHmmss
   const forwardRef: typeof import('react').forwardRef
   const generateAesKey: typeof import('./utils/encrypt').generateAesKey
   const lazy: typeof import('react').lazy
@@ -147,17 +144,8 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { ReqChangePwd, ReqPwdLogin, ResLogin } from './domains/account'
-  import('./domains/account')
-  // @ts-ignore
-  export type { ResPublicKey } from './domains/encrypt'
-  import('./domains/encrypt')
-  // @ts-ignore
   export type { CodeType } from './domains/http'
   import('./domains/http')
-  // @ts-ignore
-  export type { PagingRequest, PagingResult } from './domains/page'
-  import('./domains/page')
   // @ts-ignore
   export type { DictMatchedEntriesByCode, DictMatchedEntry, ReqDictEntryMatch } from './api/business/sysDict'
   import('./api/business/sysDict')

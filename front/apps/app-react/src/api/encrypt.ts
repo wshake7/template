@@ -1,4 +1,4 @@
-import type { ResPublicKey } from '~/domains/encrypt'
+import type { ResPublicKey } from '@vp/core'
 import API from './index'
 
 async function publicKey() {

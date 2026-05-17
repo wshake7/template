@@ -1,6 +1,7 @@
 import type { ProColumns } from '@ant-design/pro-components'
 import type { LanguageEntry, LanguageType } from '~/api/business/sysLanguage'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
+import { DEFAULT_PAGE_SIZE } from '@vp/core'
 import { usePagination } from 'alova/client'
 import {
   Button,

@@ -1,4 +1,4 @@
-import type { DictMatchedEntriesByCode, ReqDictEntryMatch } from '@vp/core'
+import type { DictMatchedEntriesByCode, PagingRequest, PagingResult, ReqDictEntryMatch } from '@vp/core'
 import API from '../index'
 
 export type { DictMatchedEntriesByCode, DictMatchedEntry, ReqDictEntryMatch } from '@vp/core'

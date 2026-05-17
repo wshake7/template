@@ -2,6 +2,7 @@ import type { ProColumns } from '@ant-design/pro-components'
 import type * as Monaco from 'modern-monaco/editor-core'
 import type { DictEntry, DictType } from '~/api/business/sysDict'
 import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProTable } from '@ant-design/pro-components'
+import { DEFAULT_PAGE_SIZE } from '@vp/core'
 import { usePagination } from 'alova/client'
 import {
   Button,
