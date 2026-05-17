@@ -35,14 +35,14 @@
 
 ### Front
 
-- 主应用为 `front/apps/admin-react`，工具库为 `front/packages/utils`（包名 `@vp/utils`）。
-- 主应用技术栈：React 19、TypeScript、Vite+、TanStack Router、Ant Design v6、Ant Design Pro Components。
-- 样式与主题：Ant Design token、`antd-style`、Tailwind CSS v4、`@tailwindcss/vite`、`@fontsource-variable/geist`。
-- 状态与数据：Zustand、Alova、React hooks、Immer、Zod。
-- 国际化：i18next、react-i18next、i18next-browser-languagedetector。
-- 交互与工具：ahooks、lucide-react、motion、nprogress、js-cookie、lodash、class-variance-authority、clsx。
-- Mock 与测试：MSW、Playwright、`@playwright/experimental-ct-react`、Vitest（通过 Vite+ 测试包）。
-- 构建能力：`vite-plugin-pwa`、`unplugin-auto-import`、TanStack Router Vite 插件、TanStack/Vite DevTools。
+- 前端工作区使用 `front/apps/*` + `front/packages/*` 的 pnpm monorepo 结构。
+- 应用模块包括：`front/apps/admin-react`（后台管理应用）、`front/apps/app-react`（通用 CSR React 应用模板）、`front/apps/app-react-ssr`（通用 SSR React 应用模板）。
+- 共享包包括：`front/packages/build-config`（`@vp/build-config`，共享 Vite / Playwright 配置助手）、`front/packages/core`（`@vp/core`，共享前端契约和类型）、`front/packages/react-core`（`@vp/react-core`，React app 工厂、i18n、env、store helper）、`front/packages/request`（`@vp/request`，Alova 请求与加密辅助）、`front/packages/utils`（`@vp/utils`，浏览器安全通用工具）。
+- 通用前端技术栈：React 19、TypeScript、Vite+、TanStack Router、Tailwind CSS v4、`@tailwindcss/vite`、`@fontsource-variable/geist`、Zustand、Alova、i18next、MSW、Playwright、PWA、`unplugin-auto-import`。
+- `admin-react` 额外使用 Ant Design v6、Ant Design Pro Components、`antd-style`，承载账号、系统、日志、任务调度等后台业务页面。
+- `app-react` 使用 CSR 入口 `src/main.tsx`，适合作为 SPA / PWA 项目模板。
+- `app-react-ssr` 使用 `@tanstack/react-start`、`nitro`、`src/client.tsx`、`src/server.ts`，适合作为 SSR React 项目模板。
+- 新增通用能力时先判断层级：纯类型/常量进 `@vp/core`，React 工厂/hooks/store/i18n/env/mock 进 `@vp/react-core`，请求和加密进 `@vp/request`，框架无关工具进 `@vp/utils`，构建/测试配置进 `@vp/build-config`。
 
 ### Backend
 
