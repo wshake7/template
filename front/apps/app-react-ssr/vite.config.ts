@@ -14,6 +14,14 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite-plus'
 
+const workspacePackageAliases = {
+  '@vp/build-config': path.resolve(import.meta.dirname, '../../packages/build-config/src'),
+  '@vp/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
+  '@vp/react-core': path.resolve(import.meta.dirname, '../../packages/react-core/src'),
+  '@vp/request': path.resolve(import.meta.dirname, '../../packages/request/src'),
+  '@vp/utils': path.resolve(import.meta.dirname, '../../packages/utils/src'),
+}
+
 export default defineConfig(({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
@@ -23,6 +31,7 @@ export default defineConfig(({ mode }: { mode: string }) => {
       '*': '',
     },
     resolve: {
+      alias: workspacePackageAliases,
       dedupe: ['react', 'react-dom', 'react-i18next', 'zustand'],
       tsconfigPaths: true,
     },
