@@ -16,6 +16,9 @@ dist-ssr
 __pycache__/
 *.py[cod]
 
+# Go debug binaries
+__debug_bin*
+
 # Editor directories and files
 .vscode/*
 !.vscode/launch.json

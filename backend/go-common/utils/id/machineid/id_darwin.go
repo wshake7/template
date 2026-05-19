@@ -35,7 +35,7 @@ func machineID() (string, error) {
 }
 
 func extractID(lines string) (string, error) {
-	for _, line := range strings.Split(lines, "\n") {
+	for line := range strings.SplitSeq(lines, "\n") {
 		if strings.Contains(line, "IOPlatformUUID") {
 			parts := strings.SplitAfter(line, `" = "`)
 			if len(parts) == 2 {
