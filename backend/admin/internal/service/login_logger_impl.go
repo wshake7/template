@@ -1,4 +1,4 @@
-package logic
+package service
 
 import (
 	"admin/internal/fiberc/handler"
@@ -12,7 +12,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func recordPwdLoginLog(ctx *handler.Ctx, username string, userID *uint64, statusCode int, success bool, reason string) {
+type loginLoggerImpl struct{}
+
+func NewLoginLogger() LoginLogger {
+	return &loginLoggerImpl{}
+}
+
+func (l *loginLoggerImpl) RecordPwdLogin(ctx *handler.Ctx, username string, userID *uint64, statusCode int, success bool, reason string) {
 	if ctx == nil {
 		return
 	}

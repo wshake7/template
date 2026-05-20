@@ -4,12 +4,14 @@ import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/middleware"
 	"admin/internal/router/logic"
+	"admin/internal/service"
+	"admin/internal/services/orm/query"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 func registerSysDictRouters(router fiber.Router) {
-	sysDictHandler := logic.SysDictHandler{}
+	sysDictHandler := logic.NewSysDictHandler(query.Q, service.NewDataPermissionService())
 
 	dictType := router.Group("/type")
 	dictType.Post("/list", handler.CtxHandlerFunc(sysDictHandler.TypeList))

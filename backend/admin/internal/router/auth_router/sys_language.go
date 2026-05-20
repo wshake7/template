@@ -4,12 +4,13 @@ import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/middleware"
 	"admin/internal/router/logic"
+	"admin/internal/services/orm/query"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 func registerSysLanguageRouters(router fiber.Router) {
-	sysLanguageHandler := logic.SysLanguageHandler{}
+	sysLanguageHandler := logic.NewSysLanguageHandler(query.Q)
 
 	langType := router.Group("/type")
 	langType.Post("/list", handler.CtxHandlerFunc(sysLanguageHandler.TypeList))

@@ -4,193 +4,165 @@
 
 - Do not edit generated files such as `internal/services/orm/query/*.gen.go` directly.
 - If generated query behavior must change, update the source template in `cmd/scripts/orm/templates/` or the source model in `internal/services/orm/models/` first, then regenerate with `make script-orm` from `backend/admin`.
-- Do not put table-specific business behavior into shared templates; keep shared templates generic and place per-model query behavior in non-generated logic, reusable scopes, or model definitions.
-- Review the regenerated diff after `make script-orm`; keep manual business logic in non-generated files.
+- Keep business logic in `internal/router/logic/**` or non-generated helpers, not in generated query code.
 
 ## 何时使用
 
-当任务涉及 `backend/admin` 的服务启动、配置、路由、业务逻辑、中间件、认证权限、Swagger、GORM Gen 生成代码、Temporal 任务调度或后台 API 时使用。特别适合开发系统管理类资源（如角色、用户、菜单、API 资源、字典、语言、API 日志、登录日志、任务调度等）。
+当任务涉及 `backend/admin` 的服务启动、配置、路由注册、业务逻辑、中间件、权限、Temporal 调度、Swagger 或后台 API 时使用。
+
+如果任务重点是“怎么给 admin backend 写测试 / 补覆盖率 / 选 mock 还是 SQLite”，优先配合 `backend/admin-testing` 技能一起使用。
 
 ## 核心路径
 
-text
+```text
 backend/admin/
-├── cmd/main.go                         # 服务入口
-├── cmd/scripts/init.sql                # 初始化种子数据
-├── cmd/scripts/schema_hardening_postgres.sql  # 数据库结构与约束加固
-├── cmd/scripts/orm/main.go             # ORM 代码生成（不再负责数据插入）
-├── cmd/scripts/orm/templates/          # query 扩展模板
-├── etc/config.yaml                     # 本地配置
-├── internal/config/                    # 配置结构
-├── internal/fiberc/                    # Fiber app、handler、middleware、response
-├── internal/lifecycle/                 # 服务生命周期管理，优雅关闭信号广播
-├── internal/router/                    # 路由注册与业务 logic
-├── internal/router/auth_router/        # 需要鉴权的系统资源路由
-│   ├── sys_login_log.go               # 登录日志相关路由
-│   ├── events.go                      # SSE 事件流路由
-│   ├── job_execution.go               # 任务执行记录路由
-│   ├── job_schedule.go                # 任务调度路由
-│   └── ...
-├── internal/router/logic/              # 业务逻辑包（建议请求/响应定义集中于此）
-│   ├── sys_resource_api.go
-│   ├── sys_resource_menu.go
-│   ├── sys_role.go
-│   ├── sys_user.go
-│   ├── sys_login_log.go               # 登录日志列表与详情
-│   ├── job_execution.go               # 任务执行记录逻辑
-│   ├── job_schedule.go                # 任务调度逻辑
-│   └── ...
-├── internal/services/                  # ORM、Redis、Auth、Casbin、Asynq、HTTP、Geo、Temporal
+├── cmd/main.go
+├── cmd/scripts/init.sql
+├── cmd/scripts/schema_hardening_postgres.sql
+├── cmd/scripts/orm/main.go
+├── cmd/scripts/orm/templates/
+├── etc/config.yaml
+├── internal/config/
+├── internal/fiberc/
+├── internal/lifecycle/
+├── internal/mock/                    # gomock 生成物，面向 service interfaces
+├── internal/router/
+│   ├── account.go                    # 公共账号路由
+│   ├── encrypt.go                    # 公共加密路由
+│   ├── auth_router/                  # 需鉴权资源路由
+│   └── logic/                        # 业务逻辑与测试
+├── internal/service/                 # 业务侧外部依赖接口与实现
+├── internal/services/
 │   ├── orm/
-│   │   ├── models/                     # GORM models
-│   │   │   ├── sys_login_log.go       # 登录日志模型
-│   │   │   ├── job_execution.go       # 任务执行记录模型
-│   │   │   ├── job_schedule.go        # 任务调度模型
-│   │   │   ├── sys_resource_menu_api.go  # 菜单与 API 关联模型
-│   │   │   └── ...
-│   │   ├── query/                      # GORM Gen 生成代码与扩展
-│   │   │   ├── job_execution.gen.go   # 生成的基础查询
-│   │   │   ├── job_execution_extend.gen.go   # 扩展查询
-│   │   │   ├── job_schedule.gen.go
-│   │   │   ├── job_schedule_extend.gen.go
-│   │   │   └── ...
-│   │   └── data_permission/            # 数据权限引擎（规划中）
-│   ├── temporal.go                     # Temporal 客户端初始化
-│   ├── temporalc/                      # Temporal 客户端封装
-│   │   └── temporalc.go
-│   ├── temporaljob/                    # 任务工作流定义
-│   │   ├── example.go
-│   │   └── job.go
-│   └── casbin/
-│       ├── casbin.go                   # 初始化 Casbin 执行器
-│       ├── policy.go                   # 权限策略自动同步
-│       └── pbac.conf                  # Casbin 模型定义
-└── docs/                               # swag 生成的 Swagger 文件
+│   │   ├── models/
+│   │   └── query/
+│   ├── casbin/
+│   ├── redisc/
+│   ├── temporalc/
+│   └── temporaljob/
+└── docs/
+```
 
+## 当前 handler 注入约定
+
+### 统一原则
+
+- **所有数据库访问统一通过 `*query.Query` 注入到 logic handler。**
+- **所有外部副作用保留为 `internal/service/**` 下的 interface 注入。**
+- 不再为 admin logic 维护单独的 repository 抽象层。
+
+### 当前常见构造模式
+
+- 纯 DB handler：
+  - `logic.NewSysUserHandler(query.Q)`
+  - `logic.NewSysLanguageHandler(query.Q)`
+  - `logic.NewSysApiLogHandler(query.Q)`
+  - `logic.NewSysLoginLogHandler(query.Q)`
+  - `logic.NewSysResourceMenuHandler(query.Q)`
+- DB + 外部服务：
+  - `logic.NewAccountHandler(query.Q, service.NewAuthService(), service.NewLoginLogger())`
+  - `logic.NewSysResourceApiHandler(query.Q, service.NewCasbinService())`
+  - `logic.NewSysRoleHandler(query.Q, service.NewCasbinService())`
+  - `logic.NewSysDictHandler(query.Q, service.NewDataPermissionService())`
+  - `logic.NewJobExecutionHandler(query.Q, service.NewTemporalService())`
+  - `logic.NewJobScheduleHandler(query.Q, service.NewTemporalService())`
+- 无 DB 例外：
+  - `logic.NewEncryptHandler(service.NewRedisCache())`
+
+### 不要再做的事
+
+- 不要新增 `internal/repository/**` 来包装 admin logic 的数据库 CRUD。
+- 不要为 DB handler 新增 repo mocks。
+- 不要把登录日志写回 `login_log_record.go`，该文件已删除；账号登录日志通过 `service.LoginLogger` 注入。
+- 不要让 logic 直接依赖全局外部客户端来完成可替换副作用，优先走 service interface。
 
 ## 启动链路
 
 1. `cmd/main.go` 读取 `etc/config.yaml` 到 `config.Conf`。
-2. 初始化日志：`go-common/log`。
-3. `services.New(conf)` 初始化 ORM、Redis、HTTP client、Auth、Geo、Asynq、Casbin，以及 Temporal 客户端（通过 `temporal.go` 和 `temporalc` 包）。
+2. 初始化日志。
+3. `services.New(conf)` 初始化 ORM、Redis、HTTP client、Auth、Geo、Asynq、Casbin、Temporal 等底层依赖。
 4. `fiberc.NewFiber(conf)` 创建 Fiber app。
 5. `router.Router{}.RegisterRouters(group)` 注册 `/api/**` 路由。
-6. `app.Start()` 启动服务，端口来自配置。
+6. `app.Start()` 启动服务。
 
-## 优雅关闭流程
+## 路由与 logic 模式
 
-- 服务通过 `fiberc.gracefulShutdown` 监听 OS 信号 (SIGINT, SIGTERM)，收到信号后调用 `app.ShutdownWithTimeout(5 * time.Second)` 启动超时关闭。
-- 在 Fiber 的 `OnPreShutdown` 钩子中调用 `lifecycle.BeginShutdown()`，关闭 `lifecycle.shutdownDone` 通道，通知所有等待关闭的组件（例如 SSE 流）。
-- `lifecycle` 包提供 `BeginShutdown()`（一次性关闭信号）和 `ShutdownDone()`（返回只读通道）。
-- 长时间运行的任务（如 SSE 连接）应在循环中 select `lifecycle.ShutdownDone()` 主动退出，避免阻塞关闭过程。
-- 关闭流程完成后的清理工作在 `OnPostShutdown` 钩子中处理（如日志同步、资源释放）。
+- 公开接口使用 `/api/` 前缀，例如：
+  - `/api/account/login/pwd`
+  - `/api/account/changePwd`
+  - `/api/encrypt/public/key`
+- 需鉴权资源统一使用 `/api/sys/` 前缀，例如：
+  - `/api/sys/user/list`
+  - `/api/sys/role/list`
+  - `/api/sys/resource/menu/list`
+  - `/api/sys/resource/api/list`
+  - `/api/sys/dict/entry/match`
+  - `/api/sys/job/schedule/list`
+  - `/api/sys/job/execution/list`
+- 业务逻辑放在 `internal/router/logic/<resource>.go`。
+- 路由注册放在 `internal/router/*.go` 与 `internal/router/auth_router/*.go`。
+- 请求/响应结构体优先与对应 handler 放在同一个 logic 文件中。
+- 响应错误优先复用 `internal/fiberc/res` 中的标准错误。
 
-## API 响应码约定
+## 外部依赖抽象
 
-- 所有接口返回 HTTP 200，业务结果通过 `code` 字段区分。
-- 常见 code 及含义：
+当前 admin backend 已沉淀的可 mock 服务接口位于 `internal/service/**`：
 
-| Code | 说明 |
-|------|------|
-| 1    | 成功 |
-| 2    | 服务繁忙 / 通用失败 |
-| 3    | 请求超时 |
-| 4    | 请求重放（Nonce 校验失败）|
-| 5    | 请求错误（客户端错误）|
-| 100  | 登录 / 权限相关失败 |
-| 200  | 授权相关失败 |
+- `AuthService`
+- `LoginLogger`
+- `RedisCache`
+- `CasbinService`
+- `TemporalService`
+- `DataPermissionService`
 
-- 使用 `internal/fiberc/res` 包中的标准错误构造函数，保证响应格式一致。
-
-## 路由与 Handler 模式
-
-- 路由前缀约定：
-  - 公开接口（如账号、加密 key）使用 `/api/` 前缀，例如 `/api/account/login/pwd`、`/api/encrypt/public/key`。
-  - 需鉴权的系统管理资源统一使用 `/api/sys/` 前缀，例如 `/api/sys/api/log/list`、`/api/sys/dict/entry/match`、`/api/sys/resource/menu/list`、`/api/sys/resource/api/list`、`/api/sys/role/list`、`/api/sys/user/list`、`/api/sys/login/log/list`、`/api/sys/login/log/detail`、`/api/sys/job/schedule/list`、`/api/sys/job/schedule/options`、`/api/sys/job/execution/list` 等。
-  - SSE 事件流端点使用 `/api/events`，通过 `auth_router/events.go` 注册。
-- 普通路由聚合在 `internal/router/router.go`。
-- 业务逻辑放在 `internal/router/logic/<resource>.go`，通过 `handler.CtxHandlerFunc` 等包装。
-- 操作日志通过 `middleware.OperationLogMiddleware(middleware.WithModule("<module>"))` 注入。
-- API 请求日志通过 `internal/fiberc/middleware/api_log.go` 中的中间件自动记录到 `sys_api_log` 表，该中间件使用 `github.com/mileusna/useragent` 解析 User-Agent 提取浏览器和操作系统信息，并对 request/response payload 中的敏感字段（如 token、password）进行脱敏处理。
-- 登录日志由 `internal/router/logic/login_log_record.go` 在账号操作中记录，其字段与模型 `SysLoginLog` 保持一致。
-- 响应错误优先返回 `internal/fiberc/res` 中的标准错误，不直接拼散乱响应。
-
-## 请求加密与安全中间件
-
-安全中间件位于 `internal/fiberc/middleware/security.go`，提供时间戳校验、Nonce 重放防护、请求解密与响应加密、请求签名验证等功能。
-
-- **TimestampMiddleware**：校验请求头 `X-Request-Timestamp` 与服务器时间的差值不能超过配置的过期时间，防止重放。
-- **NonceMiddleware**：将请求头 `X-Request-ID` 存入 Redis，并设置过期时间，为后续 Nonce 唯一性检查提供依据。
-- **EncryptMiddleware**：使用可复用的函数完成请求解密和响应加密。
-  - 首先调用 `DecryptRequest(ctx)` 获取 AES 密钥和明文请求体。
-  - `DecryptRequest` 内部：
-    - `DecryptRequestAESKey` 从请求头 `X-Request-Encrypted-Key` 用服务端 RSA 私钥解密出 AES 密钥。
-    - `DecryptRequestBody` 使用 AES 密钥和 `RequestAAD(ctx)` 生成的附加认证数据（包含 `X-Request-ID`、`X-Request-Timestamp` 和所有查询参数）解密请求体，解密成功后替换原始请求体。
-  - 处理业务逻辑后，使用 `EncryptText`（`aes_util.Encrypt` 封装）加密响应体，并在响应头添加 `X-Response-Is-Encrypt: true`。
-- **SignMiddleware**：用于不需要解密但需要验证请求完整性的场景（例如简单签名校验）。它构造与 `RequestAAD` 相似的参数组合，对请求体计算签名并与请求头 `X-Request-Signature` 对比。注意：该中间件不用于标准加密流程，仅用于特定签名接口。
-
-SSE 事件流路由 `auth_router/events.go` 也应用了加密：
-- 在处理连接时，调用 `middleware.DecryptRequest(c)` 获取 AES 密钥。
-- 之后对每个推送的事件数据先用 `json.Marshal` 序列化原始数据，再用 `middleware.EncryptText` 加密，最后包装成 `{"payload": "加密后的字符串"}` 并通过 SSE 发送。
-- 响应头同样设置 `X-Response-Is-Encrypt: true`。
-- 事件循环现在同时监听 `lifecycle.ShutdownDone()` 信号，服务器关闭时会主动退出循环，避免阻塞 shutdown。
+对应的 gomock 生成物位于 `internal/mock/**`，由各接口文件中的 `//go:generate mockgen ...` 维护。
 
 ## 新增后台资源的推荐流程
 
-1. 在 `internal/services/orm/models` 新增 model，并在 `init()` 中追加到 `Models`（如 `job_schedule`、`job_execution`、`sys_resource_menu_api` 模型）。
-2. 如需特定查询扩展，修改 `cmd/scripts/orm/templates/` 下的模板。
-3. 运行 `make script-orm` 重新生成 `internal/services/orm/query/` 下的代码。
-4. 在 `internal/router/logic/<resource>.go` 定义请求/响应结构体（建议 `ReqXxx`、`RespXxx`）和业务方法（List/Create/Update/Delete/Switch/Detail/Trigger/Sync/Cancel/Retry/Options 等）。响应结构体避免直接暴露 ORM Model。
-5. 在 `internal/router/auth_router/<resource>.go` 注册路由，使用 `/api/sys/<resource>/*` 路径前缀。例如任务调度列表 `POST /api/sys/job/schedule/list`、详情 `POST /api/sys/job/schedule/detail`、获取选项 `POST /api/sys/job/schedule/options`；任务执行列表 `POST /api/sys/job/execution/list`、取消 `POST /api/sys/job/execution/cancel` 等。
-6. 在 `auth_router.RegisterRouters` 中汇总注册。
-7. 如果需要种子数据（如超级管理员角色、默认菜单树、字典初始条目），在 `cmd/scripts/init.sql` 中添加 INSERT 语句，并确保幂等（常用 `ON CONFLICT` 或先删后插）。对于复杂数据库结构变更，编写迁移脚本（如 `schema_hardening_postgres.sql`）并在部署时执行。
-8. 同步更新 Casbin 权限策略。若资源增删改会影响角色授权，需在业务逻辑中调用 `casbin` 包的同步方法（参考下一节）。
-9. 对于涉及 Temporal 的资源（如 `job_schedule`），需要确保 Temporal 客户端已初始化并在业务逻辑中通过 `temporalc` 包与 Temporal 通信。任务工作流定义应放在 `internal/services/temporaljob/` 目录下。
-10. 运行 `make swagger` 更新 Swagger 文档；分页查询响应的 `data` 应引用 logic 包下的自定义 `Resp` 类型。
-11. 前端同步新增 API 文件和页面时，切换到 frontend 技能。
+1. 在 `internal/services/orm/models` 新增或修改 model。
+2. 如需 query 扩展，修改 `cmd/scripts/orm/templates/`。
+3. 在 `backend/admin` 下运行 `make script-orm`。
+4. 在 `internal/router/logic/<resource>.go` 编写 handler，请直接注入 `*query.Query`；只有外部副作用才新增 service interface 依赖。
+5. 在 `internal/router/auth_router/<resource>.go` 或 `internal/router/<resource>.go` 注册路由，并传入 `query.Q` 与必要的 service 实现。
+6. 如涉及种子数据或约束，同步修改 `cmd/scripts/init.sql` 或迁移脚本。
+7. 如涉及权限、调度或缓存副作用，同步接入 `CasbinService`、`TemporalService`、`RedisCache` 等接口。
+8. 运行 `make swagger` 更新 Swagger。
+9. 按 `backend/admin-testing` 技能补齐测试。
 
-## 菜单与 API 关联管理
+## 安全与中间件
 
-菜单资源（仅限 `MENU` 和 `BUTTON` 类型）可以通过 `apiIDs` 字段关联多个系统 API。关联关系存储在 `sys_resource_menu_api` 表中。
+- 安全中间件位于 `internal/fiberc/middleware/security.go`。
+- 常用中间件包括：时间戳校验、Nonce 防重放、请求解密/响应加密、签名验证。
+- `EncryptMiddleware` 负责解密请求并加密响应。
+- SSE 路由 `auth_router/events.go` 也会对事件 payload 做加密，并监听 `lifecycle.ShutdownDone()` 以便优雅关闭。
 
-### 模型
+## 任务调度与 Temporal
 
-`models.SysResourceMenuApi` 是 GORM 模型，定义如下：
-- `MenuID` (bigint)：菜单 ID，外键关联 `sys_resource_menu`。
-- `ApiID` (bigint)：API ID，外键关联 `sys_resource_api`。
-- `DeletedAt` (soft_delete.DeletedAt, milli)：软删除标记，默认为 0。
-- 联合唯一索引：`(menu_id, api_id, deleted_at)` 确保同一菜单对同一 API 的唯一未删除关联。
-- 外键约束：`OnUpdate:CASCADE, OnDelete:RESTRICT`。
-
-### 接口行为
-
-- **创建菜单** (`Create`)：请求体包含 `apiIDs` 字段，创建菜单后调用 `syncResourceMenuAPIs` 建立关联（仅对 MENU/BUTTON 有效）。
-- **更新菜单** (`Update`)：若请求中提供了 `apiIDs`，则全量替换该菜单的关联（先软删除旧关联，再插入新关联）。
-- **删除菜单** (`Del`)：删除菜单的同时，将对应 `sys_resource_menu_api` 记录软删除（设置 `deleted_at`）。
-- **菜单列表** (`List`)：返回的 `RespSysResourceMenu` 包含 `ApiIDs []uint64` 字段，展示每个菜单当前关联的 API ID 列表。
-- **菜单树** (`Tree`)：暂时不包含 API 关联信息（仅返回菜单节点信息）。
-
-### 关联同步逻辑
-
-- 函数 `syncResourceMenuAPIs(tx, menuID, menuType, apiIDs, operationID)` 负责同步关联。
-- 若 `menuType` 不是 `MENU` 或 `BUTTON`，则忽略传入的 `apiIDs`，默认清空关联。
-- 在执行新关联前，将菜单所有现有关联的 `deleted_at` 设置为当前时间戳（毫秒），实现软删除。
-- 然后批量插入新的关联记录（去重后的 `apiIDs`），操作人信息由 `operationID` 提供。
-
-### 验证
-
-- 关联前通过 `ensureResourceMenuAPIIDsExist` 检查提供的 API ID 是否全部存在，否则返回错误。
-- 更新父级时，仍然要确保新 API 列表合法。
-- 菜单类型变更为非 MENU/BUTTON 时，会自动清空关联。
+- 业务逻辑不再直接依赖 `temporalc` 包完成可测试行为，而是通过 `service.TemporalService` 注入。
+- `internal/services/temporalc/` 仍然是底层客户端封装位置。
+- `internal/services/temporaljob/` 存放工作流定义。
+- 对 `job_execution` / `job_schedule` 做功能修改时，优先保持：
+  - DB 状态由 `*query.Query` 负责
+  - Temporal 调用由 `TemporalService` 负责
 
 ## Casbin 权限自动同步
 
-- Casbin 执行器已在启动时创建（`internal/services/casbin/casbin.go`），模型定义在 `pbac.conf` 中，当前使用简化的匹配器：
-  [policy_definition]
-  p = sub, obj, act
+- Casbin 执行器初始化位于 `internal/services/casbin/`。
+- 角色、API 资源等权限相关变更，应通过 `CasbinService` 触发同步，不要把 Casbin 调用散落进路由层。
+- 涉及 `sys_role`、`sys_resource_api` 变更时，记得检查对应同步分支是否仍然成立。
 
-  [matchers]
-  m = r.sub == p.sub && keyMatch2(r.obj, p.obj) && r.act == p.act
+## 推荐验证命令
 
-  策略直接存储主体标识（如 `role:root`）、API 路径和方法，不再使用 eval 表达式。
-- 所有权限变更均通过 `internal/services/casbin/polic
+```bash
+cd backend/admin
+go test ./...
+go test ./internal/router/logic/... -cover
+```
+
+如修改了 ORM 生成链路，再补：
+
+```bash
+cd backend/admin
+make script-orm
+go test ./...
+```

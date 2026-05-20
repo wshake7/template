@@ -4,12 +4,14 @@ import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/middleware"
 	"admin/internal/router/logic"
+	"admin/internal/service"
+	"admin/internal/services/orm/query"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 func registerJobScheduleRouters(router fiber.Router) {
-	jobScheduleHandler := logic.JobScheduleHandler{}
+	jobScheduleHandler := logic.NewJobScheduleHandler(query.Q, service.NewTemporalService())
 	logMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("job_schedule"))
 	createLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("job_schedule"), middleware.WithChangeQuery(jobScheduleCreateChangeQuery))
 	updateLogMiddleware := middleware.ApiLogMiddleware(middleware.WithModule("job_schedule"), middleware.WithChangeQuery(jobScheduleUpdateChangeQuery))

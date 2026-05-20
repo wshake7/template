@@ -3,45 +3,41 @@ package logic
 import (
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
-	"admin/internal/services/redisc"
+	"admin/internal/service"
 	"errors"
-	"go-common/utils/encrypt/rsa_util"
 
-	"github.com/redis/rueidis"
 	"go.uber.org/zap"
 )
 
-type EncryptHandler struct{}
+type EncryptHandler struct {
+	Cache service.RedisCache
+}
+
+func NewEncryptHandler(cache service.RedisCache) *EncryptHandler {
+	return &EncryptHandler{Cache: cache}
+}
 
 type ResPublicKey struct {
 	PublicKey string `json:"publicKey"`
 }
 
 // @Summary 获取加密公钥
-// @Description 获取用于敏感数据加密的 RSA 公钥
 // @Tags Encrypt
-// @Produce json
-// @Success 200 {object} res.Response{data=ResPublicKey} "成功"
 // @Router /api/encrypt/public/key [get]
-func (r *EncryptHandler) PublicKey(ctx *handler.Ctx) (*ResPublicKey, error) {
-	var keyPair redisc.DtoKeyPair
-	err := redisc.Client.GetJson(ctx, redisc.KeyGlobalEncryptPublicKey, &keyPair)
-	if err != nil {
-		if errors.Is(err, rueidis.Nil) {
-			keyPair.PrivateKey, keyPair.PublicKey, err = rsa_util.GenerateKeyPair()
-			if err != nil {
-				ctx.L().Error("生成rsaKey错误", zap.Error(err))
-				return nil, res.FailDefault
-			}
-			err = redisc.Client.Do(ctx, redisc.Client.B().Set().Key(redisc.KeyGlobalEncryptPublicKey).Value(rueidis.JSON(keyPair)).Build()).Error()
-			if err != nil {
-				ctx.L().Error("保存rsaKey错误", zap.Error(err))
-				return nil, res.FailDefault
-			}
-		} else {
-			ctx.L().Error("获取全局Key错误", zap.Error(err))
-			return nil, res.FailDefault
-		}
+func (h *EncryptHandler) PublicKey(ctx *handler.Ctx) (*ResPublicKey, error) {
+	publicKey, _, err := h.Cache.GetEncryptKeyPair(ctx)
+	if err == nil {
+		return &ResPublicKey{PublicKey: publicKey}, nil
 	}
-	return &ResPublicKey{PublicKey: keyPair.PublicKey}, nil
+	if !errors.Is(err, service.ErrCacheMiss) {
+		ctx.L().Error("获取全局Key错误", zap.Error(err))
+		return nil, res.FailDefault
+	}
+
+	publicKey, _, err = service.GenerateAndCacheKeyPair(ctx, h.Cache)
+	if err != nil {
+		ctx.L().Error("生成或保存rsaKey错误", zap.Error(err))
+		return nil, res.FailDefault
+	}
+	return &ResPublicKey{PublicKey: publicKey}, nil
 }

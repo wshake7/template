@@ -19,7 +19,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type SysUserHandler struct{}
+type SysUserHandler struct {
+	Q *query.Query
+}
+
+func NewSysUserHandler(q *query.Query) *SysUserHandler {
+	return &SysUserHandler{Q: q}
+}
 
 type RespSysUser struct {
 	models.SysUser
@@ -50,19 +56,14 @@ type ReqSysUserBatchDelete struct {
 }
 
 // @Summary 获取用户分页列表
-// @Remark 分页查询用户基础信息
 // @Tags User
-// @Accept json
-// @Produce json
-// @Param req body v1.PagingRequest true "分页参数"
-// @Success 200 {object} res.Response{data=gormc.PagingResult[RespSysUser]} "成功"
 // @Router /api/sys/user/list [post]
-func (*SysUserHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespSysUser], error) {
+func (h *SysUserHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespSysUser], error) {
 	if req.GetOrderBy() == "" {
 		orderBy := "id desc"
 		req.OrderBy = &orderBy
 	}
-	pagination, err := query.SysUser.PageWithPaging(req)
+	pagination, err := h.Q.SysUser.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -85,14 +86,9 @@ func (*SysUserHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.Pag
 }
 
 // @Summary 创建用户
-// @Remark 创建新的后台用户，密码会在服务端加密后保存
 // @Tags User
-// @Accept json
-// @Produce json
-// @Param req body ReqSysUserCreate true "用户创建参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/user/create [post]
-func (*SysUserHandler) Create(ctx *handler.Ctx, req *ReqSysUserCreate) error {
+func (h *SysUserHandler) Create(ctx *handler.Ctx, req *ReqSysUserCreate) error {
 	req.normalize()
 
 	encodedPwd, err := passwd.Encode(req.Password)
@@ -101,7 +97,8 @@ func (*SysUserHandler) Create(ctx *handler.Ctx, req *ReqSysUserCreate) error {
 	}
 
 	operationID := ctx.SessionInfo.Id
-	err = query.SysUser.Create(&models.SysUser{
+	sysUser := h.Q.SysUser
+	err = sysUser.Create(&models.SysUser{
 		OperatorID: mixin.OperatorID{
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
 			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
@@ -123,21 +120,13 @@ func (*SysUserHandler) Create(ctx *handler.Ctx, req *ReqSysUserCreate) error {
 }
 
 // @Summary 更新用户
-// @Remark 根据 ID 更新用户基础信息，不处理密码
 // @Tags User
-// @Accept json
-// @Produce json
-// @Param req body ReqSysUserUpdate true "用户更新参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/user/update [post]
-func (*SysUserHandler) Update(ctx *handler.Ctx, req *ReqSysUserUpdate) error {
+func (h *SysUserHandler) Update(ctx *handler.Ctx, req *ReqSysUserUpdate) error {
 	req.normalize()
 
-	sysUser := query.SysUser
-	_, err := sysUser.
-		Select(sysUser.ID).
-		Where(sysUser.ID.Eq(req.ID)).
-		First()
+	sysUser := h.Q.SysUser
+	_, err := sysUser.Select(sysUser.ID).Where(sysUser.ID.Eq(req.ID)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res.FailMsg("用户不存在")
@@ -166,19 +155,15 @@ func (*SysUserHandler) Update(ctx *handler.Ctx, req *ReqSysUserUpdate) error {
 }
 
 // @Summary 删除用户
-// @Remark 根据 ID 列表批量软删除用户
 // @Tags User
-// @Accept json
-// @Produce json
-// @Param req body ReqSysUserBatchDelete true "批量删除参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/user/del [post]
-func (*SysUserHandler) Del(ctx *handler.Ctx, req *ReqSysUserBatchDelete) error {
+func (h *SysUserHandler) Del(ctx *handler.Ctx, req *ReqSysUserBatchDelete) error {
 	ids := slices_utils.Distinct(req.IDs)
 	if len(ids) == 0 {
 		return res.FailMsg("请选择用户")
 	}
-	info, err := query.SysUser.Where(query.SysUser.ID.In(ids...)).Delete()
+	sysUser := h.Q.SysUser
+	info, err := sysUser.Where(sysUser.ID.In(ids...)).Delete()
 	if err != nil {
 		return res.FailDefault
 	}

@@ -7,7 +7,7 @@ import (
 
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
-	"admin/internal/services/casbin"
+	"admin/internal/service"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
@@ -19,7 +19,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type SysRoleHandler struct{}
+type SysRoleHandler struct {
+	Q      *query.Query
+	Casbin service.CasbinService
+}
+
+func NewSysRoleHandler(q *query.Query, casbin service.CasbinService) *SysRoleHandler {
+	return &SysRoleHandler{Q: q, Casbin: casbin}
+}
 
 type RespSysRole struct {
 	models.SysRole
@@ -72,12 +79,12 @@ type ReqSysRolePermissionSave struct {
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[RespSysRole]} "成功"
 // @Router /api/sys/role/list [post]
-func (*SysRoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespSysRole], error) {
+func (h *SysRoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespSysRole], error) {
 	if req.GetOrderBy() == "" {
 		orderBy := "id desc"
 		req.OrderBy = &orderBy
 	}
-	pagination, err := query.SysRole.PageWithPaging(req)
+	pagination, err := h.Q.SysRole.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -108,8 +115,8 @@ func (*SysRoleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.Pag
 // @Produce json
 // @Success 200 {object} res.Response{data=[]RespSysRole} "成功"
 // @Router /api/sys/role/tree [get]
-func (*SysRoleHandler) Tree(ctx *handler.Ctx) (*[]*RespSysRole, error) {
-	sysRole := query.SysRole
+func (h *SysRoleHandler) Tree(ctx *handler.Ctx) (*[]*RespSysRole, error) {
+	sysRole := h.Q.SysRole
 	items, err := sysRole.Order(sysRole.ID.Asc()).Find()
 	if err != nil {
 		return nil, res.FailDefault
@@ -126,14 +133,14 @@ func (*SysRoleHandler) Tree(ctx *handler.Ctx) (*[]*RespSysRole, error) {
 // @Param req body ReqSysRoleCreate true "角色创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/role/create [post]
-func (*SysRoleHandler) Create(ctx *handler.Ctx, req *ReqSysRoleCreate) error {
+func (h *SysRoleHandler) Create(ctx *handler.Ctx, req *ReqSysRoleCreate) error {
 	req.normalize()
 	if err := validateSysRoleValues(req.Name, req.Code); err != nil {
 		return err
 	}
 
 	operationID := ctx.SessionInfo.Id
-	return query.Q.Transaction(func(tx *query.Query) error {
+	return h.Q.Transaction(func(tx *query.Query) error {
 		parentID, err := normalizeSysRoleParentID(tx, 0, req.ParentID)
 		if err != nil {
 			return err
@@ -167,13 +174,13 @@ func (*SysRoleHandler) Create(ctx *handler.Ctx, req *ReqSysRoleCreate) error {
 // @Param req body ReqSysRoleUpdate true "角色更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/role/update [post]
-func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqSysRoleUpdate) error {
+func (h *SysRoleHandler) Update(ctx *handler.Ctx, req *ReqSysRoleUpdate) error {
 	req.normalize()
 	var oldCode string
 	var oldEnabled bool
 	var newCode string
 	var newEnabled bool
-	err := query.Q.Transaction(func(tx *query.Query) error {
+	err := h.Q.Transaction(func(tx *query.Query) error {
 		sysRole := tx.SysRole
 		current, err := sysRole.Where(sysRole.ID.Eq(req.ID)).First()
 		if err != nil {
@@ -241,7 +248,7 @@ func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqSysRoleUpdate) error {
 		return err
 	}
 	if oldCode != newCode || oldEnabled != newEnabled {
-		if err := casbin.SyncRoleState(req.ID, oldCode, oldEnabled, newCode, newEnabled); err != nil {
+		if err := h.Casbin.SyncRoleState(req.ID, oldCode, oldEnabled, newCode, newEnabled); err != nil {
 			return res.FailDefault
 		}
 	}
@@ -256,16 +263,16 @@ func (*SysRoleHandler) Update(ctx *handler.Ctx, req *ReqSysRoleUpdate) error {
 // @Param req body ReqSysRoleBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/role/del [post]
-func (*SysRoleHandler) Del(ctx *handler.Ctx, req *ReqSysRoleBatchDelete) error {
+func (h *SysRoleHandler) Del(ctx *handler.Ctx, req *ReqSysRoleBatchDelete) error {
 	ids := slices_utils.Distinct(req.IDs)
 	if len(ids) == 0 {
 		return res.FailMsg("请选择角色")
 	}
-	if err := ensureSysRoleCanDelete(ids); err != nil {
+	if err := ensureSysRoleCanDelete(h.Q, ids); err != nil {
 		return err
 	}
 
-	info, err := query.SysRole.Where(query.SysRole.ID.In(ids...)).Delete()
+	info, err := h.Q.SysRole.Where(h.Q.SysRole.ID.In(ids...)).Delete()
 	if err != nil {
 		return res.FailDefault
 	}
@@ -282,17 +289,17 @@ func (*SysRoleHandler) Del(ctx *handler.Ctx, req *ReqSysRoleBatchDelete) error {
 // @Param id path int true "角色 ID"
 // @Success 200 {object} res.Response{data=RespRolePermission} "成功"
 // @Router /api/sys/role/{id}/permissions [get]
-func (*SysRoleHandler) Permissions(ctx *handler.Ctx, req *ReqSysRolePermissionQuery) (*RespRolePermission, error) {
+func (h *SysRoleHandler) Permissions(ctx *handler.Ctx, req *ReqSysRolePermissionQuery) (*RespRolePermission, error) {
 	if err := ensureSysRoleExists(query.Q, req.ID); err != nil {
 		return nil, err
 	}
 
-	roleMenu := query.SysRoleMenu
+	roleMenu := h.Q.SysRoleMenu
 	menus, err := roleMenu.Select(roleMenu.MenuID).Where(roleMenu.RoleID.Eq(req.ID)).Find()
 	if err != nil {
 		return nil, res.FailDefault
 	}
-	roleAPI := query.SysRoleApi
+	roleAPI := h.Q.SysRoleApi
 	apis, err := roleAPI.Select(roleAPI.ApiID).Where(roleAPI.RoleID.Eq(req.ID)).Find()
 	if err != nil {
 		return nil, res.FailDefault
@@ -320,13 +327,13 @@ func (*SysRoleHandler) Permissions(ctx *handler.Ctx, req *ReqSysRolePermissionQu
 // @Param req body ReqSysRolePermissionSave true "角色授权参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/role/permissions [post]
-func (*SysRoleHandler) SavePermissions(ctx *handler.Ctx, req *ReqSysRolePermissionSave) error {
+func (h *SysRoleHandler) SavePermissions(ctx *handler.Ctx, req *ReqSysRolePermissionSave) error {
 	menuIDs := slices_utils.Distinct(req.MenuIDs)
 	apiIDs := slices_utils.Distinct(req.ApiIDs)
 	var roleCode string
 	var roleEnabled bool
 	var oldAPIIDs []uint64
-	err := query.Q.Transaction(func(tx *query.Query) error {
+	err := h.Q.Transaction(func(tx *query.Query) error {
 		sysRole := tx.SysRole
 		role, err := sysRole.Select(sysRole.Code, sysRole.IsEnabled).Where(sysRole.ID.Eq(req.ID)).First()
 		if err != nil {
@@ -401,7 +408,7 @@ func (*SysRoleHandler) SavePermissions(ctx *handler.Ctx, req *ReqSysRolePermissi
 		return err
 	}
 	if roleEnabled {
-		if err := casbin.SyncRoleAPIPermissions(roleCode, oldAPIIDs, apiIDs); err != nil {
+		if err := h.Casbin.SyncRoleAPIPermissions(roleCode, oldAPIIDs, apiIDs); err != nil {
 			return res.FailDefault
 		}
 	}
@@ -491,8 +498,8 @@ func ensureSysRoleExists(tx *query.Query, id uint64) error {
 	return nil
 }
 
-func ensureSysRoleCanDelete(ids []uint64) error {
-	sysRole := query.SysRole
+func ensureSysRoleCanDelete(q *query.Query, ids []uint64) error {
+	sysRole := q.SysRole
 	children, err := sysRole.Select(sysRole.ID).Where(sysRole.ParentID.In(ids...)).Find()
 	if err != nil {
 		return res.FailDefault
@@ -501,7 +508,7 @@ func ensureSysRoleCanDelete(ids []uint64) error {
 		return res.FailMsg("存在子角色，不能删除")
 	}
 
-	userRole := query.SysUserRole
+	userRole := q.SysUserRole
 	userRoles, err := userRole.Select(userRole.ID).Where(userRole.RoleID.In(ids...)).Limit(1).Find()
 	if err != nil {
 		return res.FailDefault
@@ -510,7 +517,7 @@ func ensureSysRoleCanDelete(ids []uint64) error {
 		return res.FailMsg("角色已绑定用户，不能删除")
 	}
 
-	roleMenu := query.SysRoleMenu
+	roleMenu := q.SysRoleMenu
 	roleMenus, err := roleMenu.Select(roleMenu.ID).Where(roleMenu.RoleID.In(ids...)).Limit(1).Find()
 	if err != nil {
 		return res.FailDefault
@@ -519,7 +526,7 @@ func ensureSysRoleCanDelete(ids []uint64) error {
 		return res.FailMsg("角色已绑定菜单权限，不能删除")
 	}
 
-	roleAPI := query.SysRoleApi
+	roleAPI := q.SysRoleApi
 	roleAPIs, err := roleAPI.Select(roleAPI.ID).Where(roleAPI.RoleID.In(ids...)).Limit(1).Find()
 	if err != nil {
 		return res.FailDefault

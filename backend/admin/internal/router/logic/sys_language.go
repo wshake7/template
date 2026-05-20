@@ -16,7 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type SysLanguageHandler struct{}
+type SysLanguageHandler struct {
+	Q *query.Query
+}
+
+func NewSysLanguageHandler(q *query.Query) *SysLanguageHandler {
+	return &SysLanguageHandler{Q: q}
+}
 
 // --- 语言类型 (LanguageType) ---
 
@@ -42,15 +48,10 @@ type ReqLangTypeBatchDelete struct {
 }
 
 // @Summary 获取语言类型分页列表
-// @Description 分页查询语言类型信息
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body v1.PagingRequest true "分页参数"
-// @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysLanguageType]} "成功"
 // @Router /api/sys/language/type/list [post]
-func (*SysLanguageHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysLanguageType], error) {
-	pagination, err := query.SysLanguageType.PageWithPaging(req)
+func (h *SysLanguageHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysLanguageType], error) {
+	pagination, err := h.Q.SysLanguageType.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -58,26 +59,18 @@ func (*SysLanguageHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*g
 }
 
 // @Summary 创建语言类型
-// @Description 创建新的语言类型
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangTypeCreate true "语言类型创建参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/type/create [post]
-func (*SysLanguageHandler) TypeCreate(ctx *handler.Ctx, req *ReqLangTypeCreate) error {
-	sysLanguageType := query.SysLanguageType
-
+func (h *SysLanguageHandler) TypeCreate(ctx *handler.Ctx, req *ReqLangTypeCreate) error {
 	if req.IsDefault {
-		_, err := sysLanguageType.Where(sysLanguageType.IsDefault.Is(true)).Update(sysLanguageType.IsDefault, false)
-		if err != nil {
+		sysLanguageType := h.Q.SysLanguageType
+		if _, err := sysLanguageType.Where(sysLanguageType.IsDefault.Is(true)).Update(sysLanguageType.IsDefault, false); err != nil {
 			ctx.L().Error("重置默认语言失败", zap.Error(err))
 			return res.FailDefault
 		}
 	}
-
 	operationID := ctx.SessionInfo.Id
-
+	sysLanguageType := h.Q.SysLanguageType
 	err := sysLanguageType.Create(&models.SysLanguageType{
 		OperatorID: mixin.OperatorID{
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
@@ -99,35 +92,22 @@ func (*SysLanguageHandler) TypeCreate(ctx *handler.Ctx, req *ReqLangTypeCreate) 
 }
 
 // @Summary 更新语言类型
-// @Description 根据 ID 更新语言类型信息
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangTypeUpdate true "语言类型更新参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/type/update [post]
-func (*SysLanguageHandler) TypeUpdate(ctx *handler.Ctx, req *ReqLangTypeUpdate) error {
-	sysLanguageType := query.SysLanguageType
+func (h *SysLanguageHandler) TypeUpdate(ctx *handler.Ctx, req *ReqLangTypeUpdate) error {
+	sysLanguageType := h.Q.SysLanguageType
 	if req.IsEnabled != nil && !*req.IsEnabled {
-		target, err := sysLanguageType.
-			Select(sysLanguageType.IsDefault).
-			Where(sysLanguageType.ID.Eq(req.ID)).
-			First()
+		target, err := sysLanguageType.Select(sysLanguageType.IsDefault).Where(sysLanguageType.ID.Eq(req.ID)).First()
 		if err == nil && target.IsDefault {
 			return res.FailMsg("默认语言不能停用")
 		}
 	}
-
 	if req.IsDefault != nil && *req.IsDefault {
-		_, err := sysLanguageType.
-			Where(sysLanguageType.ID.Neq(req.ID), sysLanguageType.IsDefault.Is(true)).
-			Update(sysLanguageType.IsDefault, false)
-		if err != nil {
+		if _, err := sysLanguageType.Where(sysLanguageType.ID.Neq(req.ID), sysLanguageType.IsDefault.Is(true)).Update(sysLanguageType.IsDefault, false); err != nil {
 			ctx.L().Error("重置默认语言失败", zap.Error(err))
 			return res.FailDefault
 		}
 	}
-
 	operationID := ctx.SessionInfo.Id
 	exprs := []field.AssignExpr{sysLanguageType.UpdatedBy.Value(operationID)}
 	query.ExprAppendSelf(&exprs, req.TypeCode, sysLanguageType.TypeCode.Value)
@@ -137,7 +117,6 @@ func (*SysLanguageHandler) TypeUpdate(ctx *handler.Ctx, req *ReqLangTypeUpdate) 
 	query.ExprAppendSelf(&exprs, req.SortOrder, sysLanguageType.SortOrder.Value)
 
 	_, err := sysLanguageType.Where(sysLanguageType.ID.Eq(req.ID)).UpdateSimple(exprs...)
-
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return res.FailMsg("语言编码已存在")
@@ -148,36 +127,21 @@ func (*SysLanguageHandler) TypeUpdate(ctx *handler.Ctx, req *ReqLangTypeUpdate) 
 }
 
 // @Summary 批量删除语言类型
-// @Description 根据 ID 列表批量删除语言类型及其关联的所有语言条目
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangTypeBatchDelete true "批量删除参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/type/del [post]
-func (*SysLanguageHandler) TypeDel(ctx *handler.Ctx, req *ReqLangTypeBatchDelete) error {
-	sysLanguageType := query.SysLanguageType
-	defaultLang, err := sysLanguageType.
-		Select(sysLanguageType.ID).
-		Where(sysLanguageType.ID.In(req.IDs...), sysLanguageType.IsDefault.Is(true)).
-		First()
+func (h *SysLanguageHandler) TypeDel(ctx *handler.Ctx, req *ReqLangTypeBatchDelete) error {
+	sysLanguageType := h.Q.SysLanguageType
+	defaultLang, err := sysLanguageType.Select(sysLanguageType.ID).Where(sysLanguageType.ID.In(req.IDs...), sysLanguageType.IsDefault.Is(true)).First()
 	if err == nil && defaultLang != nil {
 		return res.FailMsg("默认语言不能删除")
 	}
-
-	err = query.Q.Transaction(func(tx *query.Query) error {
+	err = h.Q.Transaction(func(tx *query.Query) error {
 		sysLanguageEntry := tx.SysLanguageEntry
-		_, err = sysLanguageEntry.
-			Where(sysLanguageEntry.SysLanguageTypeId.In(req.IDs...)).
-			Delete()
-		if err != nil {
+		if _, err = sysLanguageEntry.Where(sysLanguageEntry.SysLanguageTypeId.In(req.IDs...)).Delete(); err != nil {
 			return err
 		}
 		sysLanguageTypeSub := tx.SysLanguageType
-		_, err = sysLanguageTypeSub.
-			Where(sysLanguageTypeSub.ID.In(req.IDs...)).
-			Delete()
-		if err != nil {
+		if _, err = sysLanguageTypeSub.Where(sysLanguageTypeSub.ID.In(req.IDs...)).Delete(); err != nil {
 			return err
 		}
 		return nil
@@ -233,15 +197,10 @@ type ReqLangEntryBatchCreate struct {
 }
 
 // @Summary 获取语言条目分页列表
-// @Description 分页查询语言条目信息
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body v1.PagingRequest true "分页参数"
-// @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysLanguageEntry]} "成功"
 // @Router /api/sys/language/entry/list [post]
-func (*SysLanguageHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysLanguageEntry], error) {
-	pagination, err := query.SysLanguageEntry.PageWithPaging(req)
+func (h *SysLanguageHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysLanguageEntry], error) {
+	pagination, err := h.Q.SysLanguageEntry.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -249,27 +208,19 @@ func (*SysLanguageHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*
 }
 
 // @Summary 创建语言条目
-// @Description 创建新的语言条目
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangEntryCreate true "语言条目创建参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/entry/create [post]
-func (*SysLanguageHandler) EntryCreate(ctx *handler.Ctx, req *ReqLangEntryCreate) error {
+func (h *SysLanguageHandler) EntryCreate(ctx *handler.Ctx, req *ReqLangEntryCreate) error {
 	operationID := ctx.SessionInfo.Id
-	sysLanguageType := query.SysLanguageType
-	_, err := sysLanguageType.
-		Select(sysLanguageType.ID).
-		Where(sysLanguageType.ID.Eq(req.SysLanguageTypeId)).
-		First()
+	sysLanguageType := h.Q.SysLanguageType
+	_, err := sysLanguageType.Select(sysLanguageType.ID).Where(sysLanguageType.ID.Eq(req.SysLanguageTypeId)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res.FailMsg("语言类型不存在")
 		}
 		return res.FailDefault
 	}
-	err = query.SysLanguageEntry.Create(&models.SysLanguageEntry{
+	err = h.Q.SysLanguageEntry.Create(&models.SysLanguageEntry{
 		OperatorID: mixin.OperatorID{
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
 			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
@@ -291,18 +242,13 @@ func (*SysLanguageHandler) EntryCreate(ctx *handler.Ctx, req *ReqLangEntryCreate
 }
 
 // @Summary 更新语言条目
-// @Description 根据 ID 更新语言条目信息
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangEntryUpdate true "语言条目更新参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/entry/update [post]
-func (*SysLanguageHandler) EntryUpdate(ctx *handler.Ctx, req *ReqLangEntryUpdate) error {
+func (h *SysLanguageHandler) EntryUpdate(ctx *handler.Ctx, req *ReqLangEntryUpdate) error {
 	operationID := ctx.SessionInfo.Id
 	if len(req.Updates) > 0 {
 		for _, item := range req.Updates {
-			if err := updateLanguageEntry(operationID, &item); err != nil {
+			if err := h.updateLanguageEntry(operationID, &item); err != nil {
 				return err
 			}
 		}
@@ -311,7 +257,7 @@ func (*SysLanguageHandler) EntryUpdate(ctx *handler.Ctx, req *ReqLangEntryUpdate
 	if req.ID == nil {
 		return res.FailMsg("请求错误")
 	}
-	return updateLanguageEntry(operationID, &ReqLangEntryUpdateItem{
+	return h.updateLanguageEntry(operationID, &ReqLangEntryUpdateItem{
 		ID:                *req.ID,
 		EntryCode:         req.EntryCode,
 		EntryValue:        req.EntryValue,
@@ -322,14 +268,10 @@ func (*SysLanguageHandler) EntryUpdate(ctx *handler.Ctx, req *ReqLangEntryUpdate
 	})
 }
 
-func updateLanguageEntry(operationID uint64, req *ReqLangEntryUpdateItem) error {
+func (h *SysLanguageHandler) updateLanguageEntry(operationID uint64, req *ReqLangEntryUpdateItem) error {
 	if req.SysLanguageTypeId != nil {
-		sysLanguageType := query.SysLanguageType
-		_, err := sysLanguageType.
-			Select(sysLanguageType.ID).
-			Where(sysLanguageType.ID.Eq(*req.SysLanguageTypeId)).
-			First()
-
+		sysLanguageType := h.Q.SysLanguageType
+		_, err := sysLanguageType.Select(sysLanguageType.ID).Where(sysLanguageType.ID.Eq(*req.SysLanguageTypeId)).First()
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return res.FailMsg("语言类型不存在")
@@ -337,7 +279,7 @@ func updateLanguageEntry(operationID uint64, req *ReqLangEntryUpdateItem) error 
 			return res.FailDefault
 		}
 	}
-	sysLanguageEntry := query.SysLanguageEntry
+	sysLanguageEntry := h.Q.SysLanguageEntry
 	exprs := []field.AssignExpr{sysLanguageEntry.UpdatedBy.Value(operationID)}
 	query.ExprAppendSelf(&exprs, req.EntryCode, sysLanguageEntry.EntryCode.Value)
 	query.ExprAppendSelf(&exprs, req.EntryValue, sysLanguageEntry.EntryValue.Value)
@@ -345,9 +287,7 @@ func updateLanguageEntry(operationID uint64, req *ReqLangEntryUpdateItem) error 
 	query.ExprAppendSelf(&exprs, req.SortOrder, sysLanguageEntry.SortOrder.Value)
 	query.ExprAppendSelf(&exprs, req.IsEnabled, sysLanguageEntry.IsEnabled.Value)
 	query.ExprAppendSelf(&exprs, req.Remark, sysLanguageEntry.Remark.Value)
-	_, err := sysLanguageEntry.
-		Where(sysLanguageEntry.ID.Eq(req.ID)).
-		UpdateSimple(exprs...)
+	_, err := sysLanguageEntry.Where(sysLanguageEntry.ID.Eq(req.ID)).UpdateSimple(exprs...)
 	if err != nil {
 		return res.FailDefault
 	}
@@ -355,15 +295,10 @@ func updateLanguageEntry(operationID uint64, req *ReqLangEntryUpdateItem) error 
 }
 
 // @Summary 批量删除语言条目
-// @Description 根据 ID 列表批量删除语言条目
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangEntryBatchDelete true "批量删除参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/entry/del [post]
-func (*SysLanguageHandler) EntryDel(ctx *handler.Ctx, req *ReqLangEntryBatchDelete) error {
-	sysLanguageEntry := query.SysLanguageEntry
+func (h *SysLanguageHandler) EntryDel(ctx *handler.Ctx, req *ReqLangEntryBatchDelete) error {
+	sysLanguageEntry := h.Q.SysLanguageEntry
 	_, err := sysLanguageEntry.Where(sysLanguageEntry.ID.In(req.IDs...)).Delete()
 	if err != nil {
 		return res.FailDefault
@@ -372,14 +307,9 @@ func (*SysLanguageHandler) EntryDel(ctx *handler.Ctx, req *ReqLangEntryBatchDele
 }
 
 // @Summary 批量创建语言条目
-// @Description 根据条目编码和语言值映射批量创建语言条目，已存在的则更新
 // @Tags Language
-// @Accept json
-// @Produce json
-// @Param req body ReqLangEntryBatchCreate true "批量创建参数"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/sys/language/entry/batch/create [post]
-func (*SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryBatchCreate) error {
+func (h *SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryBatchCreate) error {
 	operationID := ctx.SessionInfo.Id
 
 	var typeCodes []string
@@ -387,11 +317,8 @@ func (*SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryB
 		typeCodes = append(typeCodes, tc)
 	}
 
-	sysLanguageType := query.SysLanguageType
-	typeList, err := sysLanguageType.
-		Select(sysLanguageType.ID, sysLanguageType.TypeCode).
-		Where(sysLanguageType.TypeCode.In(typeCodes...)).
-		Find()
+	sysLanguageType := h.Q.SysLanguageType
+	typeList, err := sysLanguageType.Select(sysLanguageType.ID, sysLanguageType.TypeCode).Where(sysLanguageType.TypeCode.In(typeCodes...)).Find()
 	if err != nil {
 		ctx.L().Error("查询语言类型失败", zap.Error(err))
 		return res.FailDefault
@@ -404,11 +331,7 @@ func (*SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryB
 		typeIDs = append(typeIDs, t.ID)
 	}
 
-	existingEntries, err := query.SysLanguageEntry.
-		Where(
-			query.SysLanguageEntry.EntryCode.Eq(req.EntryCode),
-			query.SysLanguageEntry.SysLanguageTypeId.In(typeIDs...),
-		).Find()
+	existingEntries, err := h.Q.SysLanguageEntry.Where(h.Q.SysLanguageEntry.EntryCode.Eq(req.EntryCode), h.Q.SysLanguageEntry.SysLanguageTypeId.In(typeIDs...)).Find()
 	if err != nil {
 		ctx.L().Error("查询已有语言条目失败", zap.Error(err))
 		return res.FailDefault
@@ -446,8 +369,7 @@ func (*SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryB
 	}
 
 	if len(createEntries) > 0 {
-		err = query.SysLanguageEntry.Create(createEntries...)
-		if err != nil {
+		if err = h.Q.SysLanguageEntry.Create(createEntries...); err != nil {
 			ctx.L().Error("批量创建语言条目失败", zap.Error(err))
 			if errors.Is(err, gorm.ErrDuplicatedKey) {
 				return res.FailMsg("语言条目有重复")
@@ -457,8 +379,7 @@ func (*SysLanguageHandler) EntryBatchCreate(ctx *handler.Ctx, req *ReqLangEntryB
 	}
 
 	if len(updateEntries) > 0 {
-		err = query.SysLanguageEntry.Save(updateEntries...)
-		if err != nil {
+		if err = h.Q.SysLanguageEntry.Save(updateEntries...); err != nil {
 			ctx.L().Error("批量更新语言条目失败", zap.Error(err))
 			if errors.Is(err, gorm.ErrDuplicatedKey) {
 				return res.FailMsg("语言条目有重复")

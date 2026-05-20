@@ -8,7 +8,7 @@ import (
 
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
-	datapermission "admin/internal/services/orm/data_permission"
+	"admin/internal/service"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
 	"go-common/utils/slices_utils"
@@ -22,7 +22,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type SysDictHandler struct{}
+type SysDictHandler struct {
+	Q              *query.Query
+	DataPermission service.DataPermissionService
+}
+
+func NewSysDictHandler(q *query.Query, dp service.DataPermissionService) *SysDictHandler {
+	return &SysDictHandler{Q: q, DataPermission: dp}
+}
 
 // --- 字典类型 (DictType) ---
 
@@ -61,8 +68,8 @@ type RespDictType struct {
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[RespDictType]} "成功"
 // @Router /api/dict/type/list [post]
-func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespDictType], error) {
-	permissionExprs, err := datapermission.BuildPermissionFilterExprsForCtx(
+func (h *SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespDictType], error) {
+	permissionExprs, err := h.DataPermission.BuildFilterExprsForCtx(
 		ctx,
 		models.SysDictType{}.TableName(),
 		models.DataPermissionActionRead,
@@ -73,12 +80,12 @@ func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 		ctx.L().Error("build dict type permission expressions failed", zap.Error(err))
 		return nil, res.FailDefault
 	}
-	if err := datapermission.ApplyPagePermissionExpr(req, permissionExprs[models.DataPermissionActionRead]); err != nil {
+	if err := h.DataPermission.ApplyPagePermissionExpr(req, permissionExprs[models.DataPermissionActionRead]); err != nil {
 		ctx.L().Error("apply dict type read permission failed", zap.Error(err))
 		return nil, res.FailDefault
 	}
 
-	pagination, err := query.SysDictType.PageWithPaging(req)
+	pagination, err := h.Q.SysDictType.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -89,14 +96,14 @@ func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 		ids = append(ids, item.ID)
 	}
 
-	writeIDSet, err := queryAllowedDictTypeIDSetByExpr(ids, permissionExprs[models.DataPermissionActionWrite])
+	writeIDSet, err := queryAllowedDictTypeIDSetByExpr(h.DataPermission, ids, permissionExprs[models.DataPermissionActionWrite])
 	if err != nil {
 		ctx.L().Error("apply dict type write permission failed", zap.Error(err), zap.Uint64s("ids", ids))
 		return nil, res.FailDefault
 	}
 	deleteIDSet := writeIDSet
 	if !reflect.DeepEqual(permissionExprs[models.DataPermissionActionWrite], permissionExprs[models.DataPermissionActionDelete]) {
-		deleteIDSet, err = queryAllowedDictTypeIDSetByExpr(ids, permissionExprs[models.DataPermissionActionDelete])
+		deleteIDSet, err = queryAllowedDictTypeIDSetByExpr(h.DataPermission, ids, permissionExprs[models.DataPermissionActionDelete])
 		if err != nil {
 			ctx.L().Error("apply dict type delete permission failed", zap.Error(err), zap.Uint64s("ids", ids))
 			return nil, res.FailDefault
@@ -116,13 +123,13 @@ func (*SysDictHandler) TypeList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 	}, nil
 }
 
-func queryAllowedDictTypeIDSetByExpr(ids []uint64, permissionExpr *v1.FilterExpr) (map[uint64]bool, error) {
+func queryAllowedDictTypeIDSetByExpr(dp service.DataPermissionService, ids []uint64, permissionExpr *v1.FilterExpr) (map[uint64]bool, error) {
 	allowedIDSet := make(map[uint64]bool, len(ids))
 	if len(ids) == 0 {
 		return allowedIDSet, nil
 	}
 
-	permissionQuery, err := datapermission.BuildPermissionQueryFromExpr(permissionExpr)
+	permissionQuery, err := dp.BuildPermissionQueryFromExpr(permissionExpr)
 	if err != nil {
 		return nil, err
 	}
@@ -228,10 +235,10 @@ func applyDictEntryTypeIDPageFilter(req *v1.PagingRequest, typeIDs []uint64) err
 // @Param req body ReqDictTypeCreate true "字典类型创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/create [post]
-func (*SysDictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
+func (h *SysDictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) error {
 	operationID := ctx.SessionInfo.Id
 
-	err := query.SysDictType.Create(&models.SysDictType{
+	err := h.Q.SysDictType.Create(&models.SysDictType{
 		OperatorID: mixin.OperatorID{
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
 			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
@@ -259,9 +266,9 @@ func (*SysDictHandler) TypeCreate(ctx *handler.Ctx, req *ReqDictTypeCreate) erro
 // @Param req body ReqDictTypeUpdate true "字典类型更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/update [post]
-func (*SysDictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
+func (h *SysDictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) error {
 	operationID := ctx.SessionInfo.Id
-	permissionQuery, err := datapermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
+	permissionQuery, err := h.DataPermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
 		ctx.L().Error("apply dict type write permission failed", zap.Error(err), zap.Uint64("id", req.ID))
 		return res.FailDefault
@@ -297,9 +304,9 @@ func (*SysDictHandler) TypeUpdate(ctx *handler.Ctx, req *ReqDictTypeUpdate) erro
 // @Param req body ReqDictTypeBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/type/del [post]
-func (*SysDictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) error {
+func (h *SysDictHandler) TypeDel(ctx *handler.Ctx, req *ReqDictTypeBatchDelete) error {
 	ids := slices_utils.Distinct(req.IDs)
-	permissionQuery, err := datapermission.BuildDeletePermissionQuery(ctx, models.SysDictType{}.TableName())
+	permissionQuery, err := h.DataPermission.BuildDeletePermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
 		ctx.L().Error("apply dict type delete permission failed", zap.Error(err), zap.Uint64s("ids", ids))
 		return res.FailDefault
@@ -410,13 +417,13 @@ type RespDictEntryMatch map[string][]*RespDictEntryByCode
 // @Param req body ReqDictEntryMatch true "字典类型编码"
 // @Success 200 {object} res.Response{data=RespDictEntryMatch} "成功"
 // @Router /api/sys/dict/entry/match [post]
-func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryMatch) (*RespDictEntryMatch, error) {
+func (h *SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryMatch) (*RespDictEntryMatch, error) {
 	codes := normalizeDictEntryMatchCodes(req)
 	if len(codes) == 0 {
 		return nil, res.FailMsg("字典类型编码不能为空")
 	}
 
-	permissionQuery, err := datapermission.BuildReadPermissionQuery(ctx, models.SysDictType{}.TableName())
+	permissionQuery, err := h.DataPermission.BuildReadPermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
 		ctx.L().Error("apply dict type read permission failed", zap.Error(err), zap.Strings("codes", codes))
 		return nil, res.FailDefault
@@ -447,7 +454,7 @@ func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryMatch) (*Re
 		codeByTypeID[dictType.ID] = dictType.TypeCode
 	}
 
-	sysDictEntry := query.SysDictEntry
+	sysDictEntry := h.Q.SysDictEntry
 	entries, err := sysDictEntry.
 		Where(sysDictEntry.SysDictTypeId.In(typeIDs...), sysDictEntry.IsEnabled.Is(true)).
 		Order(sysDictEntry.SortOrder.Asc(), sysDictEntry.ID.Asc()).
@@ -460,7 +467,7 @@ func (*SysDictHandler) EntryMatch(ctx *handler.Ctx, req *ReqDictEntryMatch) (*Re
 		return &items, nil
 	}
 
-	translationMap, err := queryDictEntryTranslationMap(ctx, entries)
+	translationMap, err := queryDictEntryTranslationMap(h.Q, ctx, entries)
 	if err != nil {
 		return nil, err
 	}
@@ -505,7 +512,7 @@ func normalizeDictEntryMatchCodes(req *ReqDictEntryMatch) []string {
 	return codes
 }
 
-func queryDictEntryTranslationMap(ctx *handler.Ctx, entries []*models.SysDictEntry) (map[string]string, error) {
+func queryDictEntryTranslationMap(q *query.Query, ctx *handler.Ctx, entries []*models.SysDictEntry) (map[string]string, error) {
 	languageCodes := make([]string, 0, len(entries))
 	languageCodeSet := make(map[string]struct{}, len(entries))
 	for _, entry := range entries {
@@ -524,7 +531,7 @@ func queryDictEntryTranslationMap(ctx *handler.Ctx, entries []*models.SysDictEnt
 		return map[string]string{}, nil
 	}
 
-	sysLanguageType := query.SysLanguageType
+	sysLanguageType := q.SysLanguageType
 	languageType, err := sysLanguageType.
 		Select(sysLanguageType.ID).
 		Where(sysLanguageType.TypeCode.Eq(language), sysLanguageType.IsEnabled.Is(true)).
@@ -537,7 +544,7 @@ func queryDictEntryTranslationMap(ctx *handler.Ctx, entries []*models.SysDictEnt
 		return nil, res.FailDefault
 	}
 
-	sysLanguageEntry := query.SysLanguageEntry
+	sysLanguageEntry := q.SysLanguageEntry
 	languageEntries, err := sysLanguageEntry.
 		Select(sysLanguageEntry.EntryCode, sysLanguageEntry.EntryValue).
 		Where(
@@ -566,8 +573,8 @@ func queryDictEntryTranslationMap(ctx *handler.Ctx, entries []*models.SysDictEnt
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[models.SysDictEntry]} "成功"
 // @Router /api/dict/entry/list [post]
-func (*SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictEntry], error) {
-	readableTypeIDs, err := queryAllowedDictTypeIDs(ctx, datapermission.BuildReadPermissionQuery)
+func (h *SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[models.SysDictEntry], error) {
+	readableTypeIDs, err := queryAllowedDictTypeIDs(ctx, h.DataPermission.BuildReadPermissionQuery)
 	if err != nil {
 		ctx.L().Error("apply dict type read permission failed", zap.Error(err))
 		return nil, res.FailDefault
@@ -583,7 +590,7 @@ func (*SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm
 		return nil, res.FailDefault
 	}
 
-	pagination, err := query.SysDictEntry.PageWithPaging(req)
+	pagination, err := h.Q.SysDictEntry.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
@@ -604,7 +611,7 @@ func (*SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm
 		return pagination, nil
 	}
 
-	sysDictType := query.SysDictType
+	sysDictType := h.Q.SysDictType
 	typeList, err := sysDictType.
 		Select(sysDictType.ID, sysDictType.TypeCode, sysDictType.TypeName).
 		Where(sysDictType.ID.In(typeIDs...)).
@@ -631,9 +638,9 @@ func (*SysDictHandler) EntryList(ctx *handler.Ctx, req *v1.PagingRequest) (*gorm
 // @Param req body ReqDictEntryCreate true "字典数据项创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/create [post]
-func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error {
+func (h *SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) error {
 	operationID := ctx.SessionInfo.Id
-	permissionQuery, err := datapermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
+	permissionQuery, err := h.DataPermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
 		ctx.L().Error("apply dict type write permission failed", zap.Error(err), zap.Uint64("typeId", req.SysDictTypeId))
 		return res.FailDefault
@@ -651,7 +658,7 @@ func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) er
 		return res.FailDefault
 	}
 
-	err = query.SysDictEntry.Create(&models.SysDictEntry{
+	err = h.Q.SysDictEntry.Create(&models.SysDictEntry{
 		OperatorID: mixin.OperatorID{
 			CreatedBy: mixin.CreatedBy{CreatedBy: operationID},
 			UpdatedBy: mixin.UpdatedBy{UpdatedBy: operationID},
@@ -679,9 +686,9 @@ func (*SysDictHandler) EntryCreate(ctx *handler.Ctx, req *ReqDictEntryCreate) er
 // @Param req body ReqDictEntryUpdate true "字典数据项更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/update [post]
-func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error {
+func (h *SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) error {
 	operationID := ctx.SessionInfo.Id
-	typeWriteQuery, err := datapermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
+	typeWriteQuery, err := h.DataPermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
 		ctx.L().Error("apply dict type write permission failed", zap.Error(err))
 		return res.FailDefault
@@ -689,7 +696,7 @@ func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) er
 
 	if len(req.Updates) > 0 {
 		for _, item := range req.Updates {
-			if err := updateDictEntry(operationID, typeWriteQuery, &item); err != nil {
+			if err := updateDictEntry(h.Q, operationID, typeWriteQuery, &item); err != nil {
 				return err
 			}
 		}
@@ -698,7 +705,7 @@ func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) er
 	if req.ID == nil {
 		return res.FailMsg("请求错误")
 	}
-	return updateDictEntry(operationID, typeWriteQuery, &ReqDictEntryUpdateItem{
+	return updateDictEntry(h.Q, operationID, typeWriteQuery, &ReqDictEntryUpdateItem{
 		ID:             *req.ID,
 		LabelComponent: req.LabelComponent,
 		EntryLabel:     req.EntryLabel,
@@ -711,10 +718,10 @@ func (*SysDictHandler) EntryUpdate(ctx *handler.Ctx, req *ReqDictEntryUpdate) er
 	})
 }
 
-func updateDictEntry(operationID uint64, typeWriteQuery *query.Query, req *ReqDictEntryUpdateItem) error {
-	entry, err := query.SysDictEntry.
-		Select(query.SysDictEntry.ID, query.SysDictEntry.SysDictTypeId).
-		Where(query.SysDictEntry.ID.Eq(req.ID)).
+func updateDictEntry(q *query.Query, operationID uint64, typeWriteQuery *query.Query, req *ReqDictEntryUpdateItem) error {
+	entry, err := q.SysDictEntry.
+		Select(q.SysDictEntry.ID, q.SysDictEntry.SysDictTypeId).
+		Where(q.SysDictEntry.ID.Eq(req.ID)).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -732,7 +739,7 @@ func updateDictEntry(operationID uint64, typeWriteQuery *query.Query, req *ReqDi
 		}
 	}
 
-	sysDictEntry := query.SysDictEntry
+	sysDictEntry := q.SysDictEntry
 	exprs := []field.AssignExpr{sysDictEntry.UpdatedBy.Value(operationID)}
 	query.ExprAppendSelf(&exprs, req.LabelComponent, sysDictEntry.LabelComponent.Value)
 	query.ExprAppendSelf(&exprs, req.EntryLabel, sysDictEntry.EntryLabel.Value)
@@ -776,9 +783,9 @@ func ensureDictTypeAllowed(permissionQuery *query.Query, typeID uint64) error {
 // @Param req body ReqDictEntryBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/del [post]
-func (*SysDictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) error {
+func (h *SysDictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) error {
 	ids := slices_utils.Distinct(req.IDs)
-	sysDictEntry := query.SysDictEntry
+	sysDictEntry := h.Q.SysDictEntry
 	entries, err := sysDictEntry.
 		Select(sysDictEntry.ID, sysDictEntry.SysDictTypeId).
 		Where(sysDictEntry.ID.In(ids...)).
@@ -800,7 +807,7 @@ func (*SysDictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) 
 		typeIDSet[entry.SysDictTypeId] = struct{}{}
 		typeIDs = append(typeIDs, entry.SysDictTypeId)
 	}
-	deleteIDSet, err := queryAllowedDictTypeIDSet(ctx, typeIDs, datapermission.BuildDeletePermissionQuery)
+	deleteIDSet, err := queryAllowedDictTypeIDSet(ctx, typeIDs, h.DataPermission.BuildDeletePermissionQuery)
 	if err != nil {
 		ctx.L().Error("apply dict type delete permission failed", zap.Error(err), zap.Uint64s("typeIds", typeIDs))
 		return res.FailDefault
@@ -827,8 +834,8 @@ func (*SysDictHandler) EntryDel(ctx *handler.Ctx, req *ReqDictEntryBatchDelete) 
 // @Param req body ReqDictEntryBatchCopy true "批量复制参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/dict/entry/batch/copy [post]
-func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCopy) error {
-	writePermissionQuery, err := datapermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
+func (h *SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCopy) error {
+	writePermissionQuery, err := h.DataPermission.BuildWritePermissionQuery(ctx, models.SysDictType{}.TableName())
 	if err != nil {
 		ctx.L().Error("apply dict type write permission failed", zap.Error(err), zap.Uint64("targetTypeId", req.TargetTypeId))
 		return res.FailDefault
@@ -839,8 +846,8 @@ func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCo
 	}
 
 	entryIDs := slices_utils.Distinct(req.EntryIds)
-	sourceEntries, err := query.SysDictEntry.
-		Where(query.SysDictEntry.ID.In(entryIDs...)).
+	sourceEntries, err := h.Q.SysDictEntry.
+		Where(h.Q.SysDictEntry.ID.In(entryIDs...)).
 		Find()
 	if err != nil {
 		ctx.L().Error("查询源字典项失败", zap.Error(err), zap.Uint64s("entryIds", entryIDs))
@@ -859,7 +866,7 @@ func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCo
 		sourceTypeIDSet[entry.SysDictTypeId] = struct{}{}
 		sourceTypeIDs = append(sourceTypeIDs, entry.SysDictTypeId)
 	}
-	readIDSet, err := queryAllowedDictTypeIDSet(ctx, sourceTypeIDs, datapermission.BuildReadPermissionQuery)
+	readIDSet, err := queryAllowedDictTypeIDSet(ctx, sourceTypeIDs, h.DataPermission.BuildReadPermissionQuery)
 	if err != nil {
 		ctx.L().Error("apply source dict type read permission failed", zap.Error(err), zap.Uint64s("typeIds", sourceTypeIDs))
 		return res.FailDefault
@@ -882,7 +889,7 @@ func (*SysDictHandler) EntryBatchCopy(ctx *handler.Ctx, req *ReqDictEntryBatchCo
 		})
 	}
 
-	err = query.SysDictEntry.Create(newEntries...)
+	err = h.Q.SysDictEntry.Create(newEntries...)
 	if err != nil {
 		ctx.L().Error("批量复制字典项失败", zap.Error(err), zap.Uint64s("entryIds", entryIDs), zap.Uint64("targetTypeId", req.TargetTypeId))
 		return res.FailDefault

@@ -11,9 +11,9 @@ import (
 	"admin/internal/config"
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
+	"admin/internal/service"
 	"admin/internal/services/orm/models"
 	"admin/internal/services/orm/query"
-	"admin/internal/services/temporalc"
 	"admin/internal/services/temporaljob"
 	"github.com/bytedance/sonic"
 	"go-common/utils/str"
@@ -26,7 +26,14 @@ import (
 	"orm-crud/gormc"
 )
 
-type JobScheduleHandler struct{}
+type JobScheduleHandler struct {
+	Q        *query.Query
+	Temporal service.TemporalService
+}
+
+func NewJobScheduleHandler(q *query.Query, temporal service.TemporalService) *JobScheduleHandler {
+	return &JobScheduleHandler{Q: q, Temporal: temporal}
+}
 
 type RespJobSchedule struct {
 	models.JobSchedule
@@ -96,7 +103,7 @@ type ReqJobScheduleSwitch struct {
 // @Produce json
 // @Success 200 {object} res.Response{data=RespJobScheduleOptions} "成功"
 // @Router /api/sys/job/schedule/options [post]
-func (*JobScheduleHandler) Options(ctx *handler.Ctx) (*RespJobScheduleOptions, error) {
+func (h *JobScheduleHandler) Options(ctx *handler.Ctx) (*RespJobScheduleOptions, error) {
 	defaultTaskQueue := strings.TrimSpace(config.Conf.Temporal.TaskQueue)
 	if defaultTaskQueue == "" {
 		defaultTaskQueue = "admin"
@@ -119,14 +126,14 @@ func (*JobScheduleHandler) Options(ctx *handler.Ctx) (*RespJobScheduleOptions, e
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[RespJobSchedule]} "成功"
 // @Router /api/sys/job/schedule/list [post]
-func (*JobScheduleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespJobSchedule], error) {
+func (h *JobScheduleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespJobSchedule], error) {
 	if req.GetOrderBy() == "" {
 		orderBy := "id desc"
 		req.OrderBy = &orderBy
 	}
 	appendPagingQuery(req, map[string]any{"status__not": models.JobScheduleStatusDeleted})
 
-	pagination, err := query.JobSchedule.PageWithPaging(req)
+	pagination, err := h.Q.JobSchedule.PageWithPaging(req)
 	if err != nil {
 		ctx.L().Error("query job schedule list fail", zap.Error(err))
 		return nil, res.FailDefault
@@ -153,8 +160,8 @@ func (*JobScheduleHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc
 // @Param req body ReqJobScheduleDetail true "任务ID"
 // @Success 200 {object} res.Response{data=models.JobSchedule} "成功"
 // @Router /api/sys/job/schedule/detail [post]
-func (*JobScheduleHandler) Detail(ctx *handler.Ctx, req *ReqJobScheduleDetail) (*models.JobSchedule, error) {
-	jobSchedule := query.JobSchedule
+func (h *JobScheduleHandler) Detail(ctx *handler.Ctx, req *ReqJobScheduleDetail) (*models.JobSchedule, error) {
+	jobSchedule := h.Q.JobSchedule
 	item, err := jobSchedule.Where(jobSchedule.ID.Eq(req.ID), jobSchedule.Status.Neq(models.JobScheduleStatusDeleted)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -173,7 +180,7 @@ func (*JobScheduleHandler) Detail(ctx *handler.Ctx, req *ReqJobScheduleDetail) (
 // @Param req body ReqJobScheduleCreate true "创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/job/schedule/create [post]
-func (*JobScheduleHandler) Create(ctx *handler.Ctx, req *ReqJobScheduleCreate) error {
+func (h *JobScheduleHandler) Create(ctx *handler.Ctx, req *ReqJobScheduleCreate) error {
 	req.normalize()
 	model, inputValue, err := req.toModel()
 	if err != nil {
@@ -182,14 +189,14 @@ func (*JobScheduleHandler) Create(ctx *handler.Ctx, req *ReqJobScheduleCreate) e
 	if err = validateJobSchedule(model); err != nil {
 		return err
 	}
-	if err = syncTemporalSchedule(ctx.Context(), model, inputValue, false); err != nil {
+	if err = syncTemporalSchedule(h.Temporal, ctx.Context(), model, inputValue, false); err != nil {
 		ctx.L().Error("create temporal schedule fail", zap.Error(err), zap.String("jobCode", model.JobCode))
 		return res.FailMsg("同步 Temporal Schedule 失败")
 	}
 
-	err = query.JobSchedule.Create(model)
+	err = h.Q.JobSchedule.Create(model)
 	if err != nil {
-		_ = deleteTemporalSchedule(ctx.Context(), model.TemporalScheduleID)
+		_ = deleteTemporalSchedule(h.Temporal, ctx.Context(), model.TemporalScheduleID)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return res.FailMsg("任务编码已存在")
 		}
@@ -205,21 +212,21 @@ func (*JobScheduleHandler) Create(ctx *handler.Ctx, req *ReqJobScheduleCreate) e
 // @Param req body ReqJobScheduleUpdate true "更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/job/schedule/update [post]
-func (*JobScheduleHandler) Update(ctx *handler.Ctx, req *ReqJobScheduleUpdate) error {
+func (h *JobScheduleHandler) Update(ctx *handler.Ctx, req *ReqJobScheduleUpdate) error {
 	req.normalize()
-	current, next, inputValue, err := req.mergeCurrent()
+	current, next, inputValue, err := req.mergeCurrent(h.Q)
 	if err != nil {
 		return err
 	}
 	if err = validateJobSchedule(next); err != nil {
 		return err
 	}
-	if err = syncTemporalSchedule(ctx.Context(), next, inputValue, current.TemporalScheduleID == ""); err != nil {
+	if err = syncTemporalSchedule(h.Temporal, ctx.Context(), next, inputValue, current.TemporalScheduleID == ""); err != nil {
 		ctx.L().Error("update temporal schedule fail", zap.Error(err), zap.Uint64("id", req.ID))
 		return res.FailMsg("同步 Temporal Schedule 失败")
 	}
 
-	jobSchedule := query.JobSchedule
+	jobSchedule := h.Q.JobSchedule
 	info, err := jobSchedule.Where(jobSchedule.ID.Eq(req.ID), jobSchedule.Status.Neq(models.JobScheduleStatusDeleted)).Updates(map[string]any{
 		"job_name":                    next.JobName,
 		"workflow_type":               next.WorkflowType,
@@ -251,16 +258,16 @@ func (*JobScheduleHandler) Update(ctx *handler.Ctx, req *ReqJobScheduleUpdate) e
 // @Param req body ReqJobScheduleID true "任务ID"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/job/schedule/del [post]
-func (*JobScheduleHandler) Del(ctx *handler.Ctx, req *ReqJobScheduleID) error {
-	current, err := findActiveJobSchedule(req.ID)
+func (h *JobScheduleHandler) Del(ctx *handler.Ctx, req *ReqJobScheduleID) error {
+	current, err := findActiveJobSchedule(h.Q, req.ID)
 	if err != nil {
 		return err
 	}
-	if err = deleteTemporalSchedule(ctx.Context(), current.TemporalScheduleID); err != nil {
+	if err = deleteTemporalSchedule(h.Temporal, ctx.Context(), current.TemporalScheduleID); err != nil {
 		ctx.L().Error("delete temporal schedule fail", zap.Error(err), zap.Uint64("id", req.ID))
 		return res.FailMsg("删除 Temporal Schedule 失败")
 	}
-	jobSchedule := query.JobSchedule
+	jobSchedule := h.Q.JobSchedule
 	info, err := jobSchedule.Where(jobSchedule.ID.Eq(req.ID), jobSchedule.Status.Neq(models.JobScheduleStatusDeleted)).
 		Update(jobSchedule.Status, models.JobScheduleStatusDeleted)
 	if err != nil {
@@ -279,8 +286,8 @@ func (*JobScheduleHandler) Del(ctx *handler.Ctx, req *ReqJobScheduleID) error {
 // @Param req body ReqJobScheduleSwitch true "切换参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/job/schedule/switch [post]
-func (*JobScheduleHandler) Switch(ctx *handler.Ctx, req *ReqJobScheduleSwitch) error {
-	current, err := findActiveJobSchedule(req.ID)
+func (h *JobScheduleHandler) Switch(ctx *handler.Ctx, req *ReqJobScheduleSwitch) error {
+	current, err := findActiveJobSchedule(h.Q, req.ID)
 	if err != nil {
 		return err
 	}
@@ -288,24 +295,24 @@ func (*JobScheduleHandler) Switch(ctx *handler.Ctx, req *ReqJobScheduleSwitch) e
 	if req.Enabled {
 		status = models.JobScheduleStatusEnabled
 	}
-	if err = switchTemporalSchedule(ctx.Context(), current.TemporalScheduleID, req.Enabled); err != nil {
+	if err = switchTemporalSchedule(h.Temporal, ctx.Context(), current.TemporalScheduleID, req.Enabled); err != nil {
 		if isTemporalNotFound(err) {
 			inputValue, inputErr := parseJSONValue(current.InputJSON)
 			if inputErr != nil {
 				return res.FailMsg("输入参数不是合法 JSON")
 			}
-			if syncErr := syncTemporalSchedule(ctx.Context(), current, inputValue, false); syncErr != nil {
+			if syncErr := syncTemporalSchedule(h.Temporal, ctx.Context(), current, inputValue, false); syncErr != nil {
 				ctx.L().Error("sync missing temporal schedule fail", zap.Error(syncErr), zap.Uint64("id", req.ID))
 				return res.FailMsg("同步 Temporal Schedule 失败")
 			}
-			err = switchTemporalSchedule(ctx.Context(), current.TemporalScheduleID, req.Enabled)
+			err = switchTemporalSchedule(h.Temporal, ctx.Context(), current.TemporalScheduleID, req.Enabled)
 		}
 	}
 	if err != nil {
 		ctx.L().Error("switch temporal schedule fail", zap.Error(err), zap.Uint64("id", req.ID))
 		return res.FailMsg("切换 Temporal Schedule 失败")
 	}
-	jobSchedule := query.JobSchedule
+	jobSchedule := h.Q.JobSchedule
 	info, err := jobSchedule.Where(jobSchedule.ID.Eq(req.ID), jobSchedule.Status.Neq(models.JobScheduleStatusDeleted)).
 		Update(jobSchedule.Status, status)
 	if err != nil {
@@ -324,8 +331,8 @@ func (*JobScheduleHandler) Switch(ctx *handler.Ctx, req *ReqJobScheduleSwitch) e
 // @Param req body ReqJobScheduleID true "任务ID"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/job/schedule/sync [post]
-func (*JobScheduleHandler) Sync(ctx *handler.Ctx, req *ReqJobScheduleID) error {
-	current, err := findActiveJobSchedule(req.ID)
+func (h *JobScheduleHandler) Sync(ctx *handler.Ctx, req *ReqJobScheduleID) error {
+	current, err := findActiveJobSchedule(h.Q, req.ID)
 	if err != nil {
 		return err
 	}
@@ -333,7 +340,7 @@ func (*JobScheduleHandler) Sync(ctx *handler.Ctx, req *ReqJobScheduleID) error {
 	if err != nil {
 		return res.FailMsg("输入参数不是合法 JSON")
 	}
-	if err = syncTemporalSchedule(ctx.Context(), current, inputValue, false); err != nil {
+	if err = syncTemporalSchedule(h.Temporal, ctx.Context(), current, inputValue, false); err != nil {
 		ctx.L().Error("sync temporal schedule fail", zap.Error(err), zap.Uint64("id", req.ID))
 		return res.FailMsg("同步 Temporal Schedule 失败")
 	}
@@ -347,12 +354,12 @@ func (*JobScheduleHandler) Sync(ctx *handler.Ctx, req *ReqJobScheduleID) error {
 // @Param req body ReqJobScheduleID true "任务ID"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/job/schedule/trigger [post]
-func (*JobScheduleHandler) Trigger(ctx *handler.Ctx, req *ReqJobScheduleID) error {
-	current, err := findActiveJobSchedule(req.ID)
+func (h *JobScheduleHandler) Trigger(ctx *handler.Ctx, req *ReqJobScheduleID) error {
+	current, err := findActiveJobSchedule(h.Q, req.ID)
 	if err != nil {
 		return err
 	}
-	if err = triggerTemporalSchedule(ctx.Context(), current.TemporalScheduleID); err != nil {
+	if err = triggerTemporalSchedule(h.Temporal, ctx.Context(), current.TemporalScheduleID); err != nil {
 		ctx.L().Error("trigger temporal schedule fail", zap.Error(err), zap.Uint64("id", req.ID))
 		return res.FailMsg("触发 Temporal Schedule 失败")
 	}
@@ -420,8 +427,8 @@ func (req *ReqJobScheduleCreate) toModel() (*models.JobSchedule, any, error) {
 	}, inputValue, nil
 }
 
-func (req *ReqJobScheduleUpdate) mergeCurrent() (*models.JobSchedule, *models.JobSchedule, any, error) {
-	current, err := findActiveJobSchedule(req.ID)
+func (req *ReqJobScheduleUpdate) mergeCurrent(q *query.Query) (*models.JobSchedule, *models.JobSchedule, any, error) {
+	current, err := findActiveJobSchedule(q, req.ID)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -545,8 +552,8 @@ func buildJobScheduleOptions(items map[string]string) []RespJobScheduleOption {
 	return options
 }
 
-func findActiveJobSchedule(id uint64) (*models.JobSchedule, error) {
-	jobSchedule := query.JobSchedule
+func findActiveJobSchedule(q *query.Query, id uint64) (*models.JobSchedule, error) {
+	jobSchedule := q.JobSchedule
 	current, err := jobSchedule.Where(jobSchedule.ID.Eq(id), jobSchedule.Status.Neq(models.JobScheduleStatusDeleted)).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -557,21 +564,17 @@ func findActiveJobSchedule(id uint64) (*models.JobSchedule, error) {
 	return current, nil
 }
 
-func syncTemporalSchedule(ctx context.Context, m *models.JobSchedule, inputValue any, createOnly bool) error {
-	service, err := requireTemporal()
-	if err != nil {
-		return err
-	}
+func syncTemporalSchedule(temporal service.TemporalService, ctx context.Context, m *models.JobSchedule, inputValue any, createOnly bool) error {
+	
 	options, err := buildScheduleOptions(m, inputValue)
 	if err != nil {
 		return err
 	}
 	if createOnly {
-		_, err = service.ScheduleClient.Create(ctx, options)
+		_, err = temporal.CreateSchedule(ctx, options)
 		return err
 	}
-	handle := service.ScheduleClient.GetHandle(ctx, options.ID)
-	err = handle.Update(ctx, client.ScheduleUpdateOptions{
+	err = temporal.UpdateSchedule(ctx, options.ID, client.ScheduleUpdateOptions{
 		DoUpdate: func(client.ScheduleUpdateInput) (*client.ScheduleUpdate, error) {
 			spec := options.Spec
 			return &client.ScheduleUpdate{
@@ -591,39 +594,29 @@ func syncTemporalSchedule(ctx context.Context, m *models.JobSchedule, inputValue
 	if err == nil {
 		return nil
 	}
-	_, err = service.ScheduleClient.Create(ctx, options)
+	_, err = temporal.CreateSchedule(ctx, options)
 	return err
 }
 
-func deleteTemporalSchedule(ctx context.Context, scheduleID string) error {
+func deleteTemporalSchedule(temporal service.TemporalService, ctx context.Context, scheduleID string) error {
 	if scheduleID == "" {
 		return nil
 	}
-	service, err := requireTemporal()
-	if err != nil {
-		return err
-	}
-	return service.ScheduleClient.GetHandle(ctx, scheduleID).Delete(ctx)
+	
+	return temporal.DeleteSchedule(ctx, scheduleID)
 }
 
-func switchTemporalSchedule(ctx context.Context, scheduleID string, enabled bool) error {
-	service, err := requireTemporal()
-	if err != nil {
-		return err
-	}
-	handle := service.ScheduleClient.GetHandle(ctx, scheduleID)
+func switchTemporalSchedule(temporal service.TemporalService, ctx context.Context, scheduleID string, enabled bool) error {
+	
 	if enabled {
-		return handle.Unpause(ctx, client.ScheduleUnpauseOptions{})
+		return temporal.UnpauseSchedule(ctx, scheduleID, client.ScheduleUnpauseOptions{})
 	}
-	return handle.Pause(ctx, client.SchedulePauseOptions{Note: "disabled by admin"})
+	return temporal.PauseSchedule(ctx, scheduleID, client.SchedulePauseOptions{Note: "disabled by admin"})
 }
 
-func triggerTemporalSchedule(ctx context.Context, scheduleID string) error {
-	service, err := requireTemporal()
-	if err != nil {
-		return err
-	}
-	return service.ScheduleClient.GetHandle(ctx, scheduleID).Trigger(ctx, client.ScheduleTriggerOptions{})
+func triggerTemporalSchedule(temporal service.TemporalService, ctx context.Context, scheduleID string) error {
+	
+	return temporal.TriggerSchedule(ctx, scheduleID, client.ScheduleTriggerOptions{})
 }
 
 func isTemporalNotFound(err error) bool {
@@ -687,12 +680,6 @@ func buildScheduleSpec(m *models.JobSchedule) (client.ScheduleSpec, int, error) 
 	return spec, 0, nil
 }
 
-func requireTemporal() (*temporalc.Temporal, error) {
-	if temporalc.Client == nil || temporalc.Client.Client == nil || temporalc.Client.ScheduleClient == nil {
-		return nil, res.FailMsg("Temporal 服务未启用")
-	}
-	return temporalc.Client, nil
-}
 
 func normalizeJSONText(text string) (datatypes.JSON, any, error) {
 	text = strings.TrimSpace(text)

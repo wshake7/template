@@ -38,7 +38,13 @@ var validResourceMenuTypes = map[string]struct{}{
 	MenuTypeLink:     {},
 }
 
-type SysResourceMenuHandler struct{}
+type SysResourceMenuHandler struct {
+	Q *query.Query
+}
+
+func NewSysResourceMenuHandler(q *query.Query) *SysResourceMenuHandler {
+	return &SysResourceMenuHandler{Q: q}
+}
 
 type RespSysResourceMenu struct {
 	models.SysResourceMenu
@@ -107,17 +113,17 @@ type ReqResourceMenuBatchDelete struct {
 // @Param req body v1.PagingRequest true "分页参数"
 // @Success 200 {object} res.Response{data=gormc.PagingResult[RespSysResourceMenu]} "成功"
 // @Router /api/sys/resource/menu/list [post]
-func (*SysResourceMenuHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespSysResourceMenu], error) {
+func (h *SysResourceMenuHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*gormc.PagingResult[RespSysResourceMenu], error) {
 	if req.GetOrderBy() == "" {
 		orderBy := "sort_order asc,id asc"
 		req.OrderBy = &orderBy
 	}
-	pagination, err := query.SysResourceMenu.PageWithPaging(req)
+	pagination, err := h.Q.SysResourceMenu.PageWithPaging(req)
 	if err != nil {
 		return nil, res.FailDefault
 	}
 
-	apiMap, err := resourceMenuAPIIDsMap(query.Q, collectResourceMenuIDs(pagination.Items))
+	apiMap, err := resourceMenuAPIIDsMap(h.Q, collectResourceMenuIDs(pagination.Items))
 	if err != nil {
 		return nil, err
 	}
@@ -134,14 +140,14 @@ func (*SysResourceMenuHandler) List(ctx *handler.Ctx, req *v1.PagingRequest) (*g
 // @Produce json
 // @Success 200 {object} res.Response{data=[]RespResourceMenuNode} "成功"
 // @Router /api/sys/resource/menu/tree [get]
-func (*SysResourceMenuHandler) Tree(ctx *handler.Ctx) (*[]*RespResourceMenuNode, error) {
+func (h *SysResourceMenuHandler) Tree(ctx *handler.Ctx) (*[]*RespResourceMenuNode, error) {
 	roleIDs := ctx.SessionInfo.RoleIDs
 	if len(roleIDs) == 0 {
 		tree := make([]*RespResourceMenuNode, 0)
 		return &tree, nil
 	}
 
-	roleMenu := query.SysRoleMenu
+	roleMenu := h.Q.SysRoleMenu
 	roleMenus, err := roleMenu.
 		Select(roleMenu.MenuID).
 		Where(roleMenu.RoleID.In(roleIDs...)).
@@ -158,7 +164,7 @@ func (*SysResourceMenuHandler) Tree(ctx *handler.Ctx) (*[]*RespResourceMenuNode,
 		return &tree, nil
 	}
 
-	sysResourceMenu := query.SysResourceMenu
+	sysResourceMenu := h.Q.SysResourceMenu
 	items, err := sysResourceMenu.
 		Where(
 			sysResourceMenu.IsEnabled.Is(true),
@@ -182,14 +188,14 @@ func (*SysResourceMenuHandler) Tree(ctx *handler.Ctx) (*[]*RespResourceMenuNode,
 // @Param req body ReqResourceMenuCreate true "菜单资源创建参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/resource/menu/create [post]
-func (*SysResourceMenuHandler) Create(ctx *handler.Ctx, req *ReqResourceMenuCreate) error {
+func (h *SysResourceMenuHandler) Create(ctx *handler.Ctx, req *ReqResourceMenuCreate) error {
 	req.normalize()
 	if err := validateResourceMenuValues(req.MenuType, req.Name, req.Path, req.Component); err != nil {
 		return err
 	}
 
 	operationID := ctx.SessionInfo.Id
-	return query.Q.Transaction(func(tx *query.Query) error {
+	return h.Q.Transaction(func(tx *query.Query) error {
 		parentID, err := normalizeResourceMenuParentID(tx, req.MenuType, req.ParentID)
 		if err != nil {
 			return err
@@ -253,9 +259,9 @@ func (*SysResourceMenuHandler) Create(ctx *handler.Ctx, req *ReqResourceMenuCrea
 // @Param req body ReqResourceMenuUpdate true "菜单资源更新参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/resource/menu/update [post]
-func (*SysResourceMenuHandler) Update(ctx *handler.Ctx, req *ReqResourceMenuUpdate) error {
+func (h *SysResourceMenuHandler) Update(ctx *handler.Ctx, req *ReqResourceMenuUpdate) error {
 	req.normalize()
-	return query.Q.Transaction(func(tx *query.Query) error {
+	return h.Q.Transaction(func(tx *query.Query) error {
 		sysResourceMenu := tx.SysResourceMenu
 		current, err := sysResourceMenu.Where(sysResourceMenu.ID.Eq(req.ID)).First()
 		if err != nil {
@@ -369,12 +375,12 @@ func (*SysResourceMenuHandler) Update(ctx *handler.Ctx, req *ReqResourceMenuUpda
 // @Param req body ReqResourceMenuBatchDelete true "批量删除参数"
 // @Success 200 {object} res.Response "成功"
 // @Router /api/sys/resource/menu/del [post]
-func (*SysResourceMenuHandler) Del(ctx *handler.Ctx, req *ReqResourceMenuBatchDelete) error {
+func (h *SysResourceMenuHandler) Del(ctx *handler.Ctx, req *ReqResourceMenuBatchDelete) error {
 	ids := slices_utils.Distinct(req.IDs)
 	if len(ids) == 0 {
 		return res.FailMsg("请选择菜单资源")
 	}
-	sysResourceMenu := query.SysResourceMenu
+	sysResourceMenu := h.Q.SysResourceMenu
 	children, err := sysResourceMenu.
 		Select(sysResourceMenu.ID).
 		Where(sysResourceMenu.ParentID.In(ids...)).
@@ -386,7 +392,7 @@ func (*SysResourceMenuHandler) Del(ctx *handler.Ctx, req *ReqResourceMenuBatchDe
 		return res.FailMsg("存在子节点，不能删除")
 	}
 
-	return query.Q.Transaction(func(tx *query.Query) error {
+	return h.Q.Transaction(func(tx *query.Query) error {
 		info, err := tx.SysResourceMenu.Where(tx.SysResourceMenu.ID.In(ids...)).Delete()
 		if err != nil {
 			return res.FailDefault

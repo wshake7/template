@@ -5,18 +5,26 @@ import (
 	"admin/internal/domains"
 	"admin/internal/fiberc/handler"
 	"admin/internal/fiberc/res"
+	"admin/internal/service"
 	"admin/internal/services/orm/query"
 	"errors"
 
 	"go-common/utils/encrypt/rsa_util"
 	"go-common/utils/passwd"
 
-	"github.com/click33/sa-token-go/stputil"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type AccountHandler struct{}
+type AccountHandler struct {
+	Q           *query.Query
+	Auth        service.AuthService
+	LoginLogger service.LoginLogger
+}
+
+func NewAccountHandler(q *query.Query, auth service.AuthService, logger service.LoginLogger) *AccountHandler {
+	return &AccountHandler{Q: q, Auth: auth, LoginLogger: logger}
+}
 
 type ReqAccountPwdLogin struct {
 	Username string `json:"username" binding:"required,max=24" binding_msg:"required=用户名不能为空,max=用户名最多24位"`
@@ -29,47 +37,36 @@ type ResAccountPwdLogin struct {
 }
 
 // @Summary 用户密码登录
-// @Description 通过用户名和密码登录系统，并返回 token 与会话公钥
 // @Tags Account
-// @Accept json
-// @Produce json
-// @Param req body ReqAccountPwdLogin true "登录请求"
-// @Success 200 {object} res.Response{data=ResAccountPwdLogin} "成功"
 // @Router /api/account/login/pwd [post]
-func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*ResAccountPwdLogin, error) {
+func (h *AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*ResAccountPwdLogin, error) {
 	logger := ctx.L().With(zap.String("username", req.Username))
-	sysUser := query.SysUser
-	result, err := sysUser.
-		Where(sysUser.Username.Eq(req.Username)).
-		Select(sysUser.ID, sysUser.Username, sysUser.Password).
-		First()
+
+	sysUser := h.Q.SysUser
+	result, err := sysUser.Where(sysUser.Username.Eq(req.Username)).Select(sysUser.ID, sysUser.Username, sysUser.Password).First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			recordPwdLoginLog(ctx, req.Username, nil, domains.StatusLoginFail, false, "invalid username or password")
+			h.LoginLogger.RecordPwdLogin(ctx, req.Username, nil, domains.StatusLoginFail, false, "invalid username or password")
 			return nil, errors.New("用户名或密码无效")
 		}
 		logger.Error("获取用户失败", zap.Error(err))
-		recordPwdLoginLog(ctx, req.Username, nil, domains.StatusFail, false, "query user failed")
+		h.LoginLogger.RecordPwdLogin(ctx, req.Username, nil, domains.StatusFail, false, "query user failed")
 		return nil, errors.New("登录失败")
 	}
 
 	if !passwd.Match(req.Pwd, result.Password) {
 		userID := result.ID
-		recordPwdLoginLog(ctx, req.Username, &userID, domains.StatusLoginFail, false, "invalid username or password")
+		h.LoginLogger.RecordPwdLogin(ctx, req.Username, &userID, domains.StatusLoginFail, false, "invalid username or password")
 		return nil, errors.New("用户名或密码无效")
 	}
 
-	sysRole := query.SysRole
-	sysUserRole := query.SysUserRole
-	userRoles, err := sysUserRole.
-		Select(sysUserRole.ID, sysUserRole.UserID, sysUserRole.RoleID).
-		Preload(sysUserRole.SysRole.Select(sysRole.ID, sysRole.Code).On(sysRole.IsEnabled.Is(true))).
-		Where(sysUserRole.UserID.Eq(result.ID)).
-		Find()
+	sysRole := h.Q.SysRole
+	sysUserRole := h.Q.SysUserRole
+	userRoles, err := sysUserRole.Select(sysUserRole.ID, sysUserRole.UserID, sysUserRole.RoleID).Preload(sysUserRole.SysRole.Select(sysRole.ID, sysRole.Code).On(sysRole.IsEnabled.Is(true))).Where(sysUserRole.UserID.Eq(result.ID)).Find()
 	if err != nil {
 		logger.Error("获取用户角色失败", zap.Error(err), zap.Uint64("userID", result.ID))
 		userID := result.ID
-		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusFail, false, "query user roles failed")
+		h.LoginLogger.RecordPwdLogin(ctx, result.Username, &userID, domains.StatusFail, false, "query user roles failed")
 		return nil, errors.New("登录失败")
 	}
 
@@ -88,19 +85,11 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 		}
 	}
 
-	token, err := stputil.Login(result.ID)
+	token, err := h.Auth.Login(result.ID)
 	if err != nil {
 		logger.Error("获取token失败", zap.Error(err))
 		userID := result.ID
-		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusLoginFail, false, "create token failed")
-		return nil, errors.New("登录失败")
-	}
-
-	session, err := auth.GetSession(result.ID)
-	if err != nil {
-		logger.Error("获取session失败", zap.Error(err))
-		userID := result.ID
-		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusLoginFail, false, "get session failed")
+		h.LoginLogger.RecordPwdLogin(ctx, result.Username, &userID, domains.StatusLoginFail, false, "create token failed")
 		return nil, errors.New("登录失败")
 	}
 
@@ -108,11 +97,11 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	if err != nil {
 		logger.Error("获取rsaKey错误", zap.Error(err))
 		userID := result.ID
-		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusFail, false, "generate rsa key failed")
+		h.LoginLogger.RecordPwdLogin(ctx, result.Username, &userID, domains.StatusFail, false, "generate rsa key failed")
 		return nil, errors.New("登录失败")
 	}
 
-	err = session.SaveInfo(&auth.SessionInfo{
+	err = h.Auth.SaveSession(result.ID, &auth.SessionInfo{
 		PrivateKey: privateKey,
 		Id:         result.ID,
 		Username:   result.Username,
@@ -122,12 +111,12 @@ func (*AccountHandler) PwdLogin(ctx *handler.Ctx, req *ReqAccountPwdLogin) (*Res
 	if err != nil {
 		logger.Error("保存SessionInfo错误", zap.Error(err))
 		userID := result.ID
-		recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusFail, false, "save session failed")
+		h.LoginLogger.RecordPwdLogin(ctx, result.Username, &userID, domains.StatusFail, false, "save session failed")
 		return nil, errors.New("登录失败")
 	}
 
 	userID := result.ID
-	recordPwdLoginLog(ctx, result.Username, &userID, domains.StatusOk, true, "")
+	h.LoginLogger.RecordPwdLogin(ctx, result.Username, &userID, domains.StatusOk, true, "")
 	return &ResAccountPwdLogin{
 		Token:     token,
 		PublicKey: publicKey,
@@ -139,19 +128,15 @@ type ReqAccountLogout struct {
 }
 
 // @Summary 退出登录
-// @Description 使当前登录态失效
 // @Tags Account
-// @Produce json
-// @Param token header string true "登录 token"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/account/logout [get]
-func (*AccountHandler) Logout(ctx *handler.Ctx, req *ReqAccountLogout) error {
-	loginID, err := stputil.GetLoginID(req.Token)
+func (h *AccountHandler) Logout(ctx *handler.Ctx, req *ReqAccountLogout) error {
+	loginID, err := h.Auth.GetLoginID(req.Token)
 	if err != nil {
 		ctx.L().Error("获取loginId失败", zap.Error(err))
 		return auth.CheckLoginErr(err)
 	}
-	err = stputil.Logout(loginID)
+	err = h.Auth.Logout(loginID)
 	if err != nil {
 		ctx.L().Error("退出登录失败", zap.Error(err), zap.String("token", req.Token))
 		return auth.CheckLoginErr(err)
@@ -165,17 +150,11 @@ type ReqAccountChangePwd struct {
 }
 
 // @Summary 修改密码
-// @Description 修改当前登录用户的密码
 // @Tags Account
-// @Accept json
-// @Produce json
-// @Param req body ReqAccountChangePwd true "修改密码请求"
-// @Success 200 {object} res.Response "成功"
 // @Router /api/account/changePwd [post]
-func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) error {
-	info := ctx.SessionInfo
-	sysUser := query.SysUser
-	result, err := sysUser.Where(sysUser.ID.Eq(info.Id)).Select(sysUser.ID, sysUser.Password).First()
+func (h *AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) error {
+	sysUser := h.Q.SysUser
+	result, err := sysUser.Where(sysUser.ID.Eq(ctx.SessionInfo.Id)).Select(sysUser.ID, sysUser.Password).First()
 	if err != nil {
 		ctx.L().Error("获取用户密码失败", zap.Error(err))
 		return res.FailDefault
@@ -190,10 +169,10 @@ func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) err
 		ctx.L().Error("密码加密失败", zap.Error(err))
 		return res.FailDefault
 	}
-	_, err = sysUser.Where(sysUser.ID.Eq(info.Id)).Update(sysUser.Password, encodePwd)
+	_, err = sysUser.Where(sysUser.ID.Eq(ctx.SessionInfo.Id)).Update(sysUser.Password, encodePwd)
 	if err != nil {
 		ctx.L().Error("修改密码失败", zap.Error(err))
 		return res.FailDefault
 	}
-	return err
+	return nil
 }
