@@ -37,3 +37,4 @@ __debug_bin*
 tmp*/
 .vite-inspect
 .tanstack
+.omo*/
