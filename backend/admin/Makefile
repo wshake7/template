@@ -17,3 +17,11 @@ run:
 
 swagger:
 	swag init -g cmd/main.go --parseDependency
+
+test-cover:
+	go test ./internal/router/logic -coverprofile=logic.cover
+	go tool cover -func=logic.cover
+
+test-html:
+	go test ./internal/router/logic -coverprofile=logic.cover
+	go tool cover -html=logic.cover

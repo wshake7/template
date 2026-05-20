@@ -30,7 +30,7 @@ type JobExecution struct {
 	TriggerTime        time.Time      `gorm:"column:trigger_time;not null;index:idx_trigger_time;comment:计划触发时间" json:"triggerTime"`
 	StartTime          *time.Time     `gorm:"column:start_time;default:null" json:"startTime"`
 	EndTime            *time.Time     `gorm:"column:end_time;default:null" json:"endTime"`
-	Status             string         `gorm:"column:status;type:varchar(32);not null;default:'RUNNING';index:idx_status;comment:RUNNING/SUCCESS/FAILED/CANCELED/TIMEOUT" json:"status"`
+	Status             string         `gorm:"column:status;type:varchar(32);not null;default:'RUNNING';index:idx_job_execution_status;comment:RUNNING/SUCCESS/FAILED/CANCELED/TIMEOUT" json:"status"`
 	InputJSON          datatypes.JSON `gorm:"column:input_json;type:json;default:null" json:"inputJSON"`
 	ResultJSON         datatypes.JSON `gorm:"column:result_json;type:json;default:null" json:"resultJSON"`
 	ErrorMessage       string         `gorm:"column:error_message;type:text;default:''" json:"errorMessage"`

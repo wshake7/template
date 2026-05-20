@@ -35,7 +35,7 @@ type JobSchedule struct {
 	StartTime                *time.Time     `gorm:"column:start_time;default:null;comment:开始时间" json:"startTime"`
 	EndTime                  *time.Time     `gorm:"column:end_time;default:null;comment:结束时间" json:"endTime"`
 	InputJSON                datatypes.JSON `gorm:"column:input_json;type:json;default:null;comment:Workflow 输入参数" json:"inputJSON"`
-	Status                   string         `gorm:"column:status;type:varchar(32);not null;default:'ENABLED';index:idx_status;comment:ENABLED/DISABLED/DELETED" json:"status"`
+	Status                   string         `gorm:"column:status;type:varchar(32);not null;default:'ENABLED';index:idx_job_schedule_status;comment:ENABLED/DISABLED/DELETED" json:"status"`
 	TemporalScheduleID       string         `gorm:"column:temporal_schedule_id;type:varchar(255);default:'';comment:Temporal Schedule ID" json:"temporalScheduleID"`
 	TemporalWorkflowIDPrefix string         `gorm:"column:temporal_workflow_id_prefix;type:varchar(255);default:'';comment:Workflow ID 前缀" json:"temporalWorkflowIDPrefix"`
 	Description              string         `gorm:"column:description;type:varchar(512);default:''" json:"description"`
