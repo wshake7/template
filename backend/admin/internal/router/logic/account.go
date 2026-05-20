@@ -181,7 +181,7 @@ func (*AccountHandler) ChangePwd(ctx *handler.Ctx, req *ReqAccountChangePwd) err
 		return res.FailDefault
 	}
 
-	if !passwd.Match(req.NewPwd, result.Password) {
+	if !passwd.Match(req.OldPwd, result.Password) {
 		return errors.New("原密码错误")
 	}
 
