@@ -14,7 +14,7 @@
 
 ## 核心路径
 
-text
+```text
 backend/admin/
 ├── cmd/main.go
 ├── cmd/scripts/init.sql
@@ -25,7 +25,7 @@ backend/admin/
 ├── internal/config/
 ├── internal/fiberc/
 ├── internal/lifecycle/
-├── internal/mock/                    # go.uber.org/mock 生成物，面向 service interfaces
+├── internal/mock/                    # gomock 生成物，面向 service interfaces
 ├── internal/router/
 │   ├── account.go                    # 公共账号路由
 │   ├── encrypt.go                    # 公共加密路由
@@ -41,7 +41,7 @@ backend/admin/
 │   ├── temporalc/
 │   └── temporaljob/
 └── docs/
-
+```
 
 ## 当前 handler 注入约定
 
@@ -115,18 +115,7 @@ backend/admin/
 - `TemporalService`
 - `DataPermissionService`
 
-对应的 mock 生成物位于 `internal/mock/**`，使用 `go.uber.org/mock` 生成，由各接口文件中的 `//go:generate mockgen ...` 维护。
-
-## Mock 生成与使用
-
-- mock 文件均由 `go.uber.org/mock/mockgen` 根据 `internal/service/` 下的接口定义生成。
-- 生成命令通常在接口文件顶部通过 `//go:generate` 注释声明，例如：
-  go
-  //go:generate mockgen -source=auth_service.go -destination=../mock/mock_auth_service.go -package=mock -typed
-  
-- 执行当前目录的 `go generate ./...` 即可更新所有 mock。
-- 测试中推荐直接导入 `admin/internal/mock` 并使用 `mock.NewMockXxx(ctrl)` 构造 mock 实例。
-- 不再使用 `github.com/golang/mock`，所有新 mock 必须基于 `go.uber.org/mock`。
+对应的 gomock 生成物位于 `internal/mock/**`，由各接口文件中的 `//go:generate mockgen ...` 维护。
 
 ## 新增后台资源的推荐流程
 
@@ -164,15 +153,16 @@ backend/admin/
 
 ## 推荐验证命令
 
-bash
+```bash
 cd backend/admin
 go test ./...
 go test ./internal/router/logic/... -cover
-
+```
 
 如修改了 ORM 生成链路，再补：
 
-bash
+```bash
 cd backend/admin
 make script-orm
 go test ./...
+```
